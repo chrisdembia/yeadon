@@ -51,17 +51,18 @@ class stadium:
 		ax.plot_surface(X3,Y3, np.zeros((2,20)), color=c, alpha = 0.5 )
 		
 class solid:
-	def __init__(self,label,density,pos,orient):
+	def __init__(self,label,density,pos,orient,RotMat):
 		self.label = label
+		self.density = density
 		self.pos = pos
 		self.orient = orient
-		self.density = density
+		self.RotMat = RotMat
 	def draw(self,ax,c):
 		print "cannot draw base class"
 
 class stadiumsolid(solid):
-	def __init__(self,label,density,pos,orient,stadium0,stadium1,height):
-		solid.__init__(self,label,density,pos,orient)
+	def __init__(self,label,density,pos,orient,RotMat,stadium0,stadium1,height):
+		solid.__init__(self,label,density,pos,orient,RotMat)
 		self.stads = [stadium0,stadium1]
 		self.height = height
 		# DEPENDS IF IT'S ML OR NOT
@@ -83,7 +84,7 @@ class stadiumsolid(solid):
 		self.Mass = D*h*r0*(4.0*t0*self.F1(a,b) + np.pi*r0*self.F1(a,a))
 		zcom = D*(h**2.0)*(4.0*r0*t0*self.F2(a,b) + np.pi*(r0**2.0)*self.F2(a,a))/self.Mass
 		self.localCOM = np.array([[0.0],[0.0],[zcom]])
-		self.absCOM = self.pos + mymath.RotateExternal(self.orient) * self.localCOM
+		self.absCOM = self.pos + self.RotMat * self.localCOM
 		
 		# moments of inertia
 		Izcom = D*h*(4.0*r0*(t0**3.0)*self.F4(a,b)/3.0 + np.pi*(r0**2.0)*(t0**2.0)*self.F5(a,b) + 4.0*(r0**3.0)*t0*self.F4(b,a) + np.pi*(r0**4.0)*self.F4(a,a)*0.5)
@@ -106,7 +107,6 @@ class stadiumsolid(solid):
 		X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.makePos(1)
 
 		for idx in np.arange(X0.size-1):
-			print idx
 			Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
 			Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
 			Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
@@ -133,7 +133,7 @@ class stadiumsolid(solid):
 		Z = i*self.height*np.ones( (1,20) )
 
 		POSES = np.concatenate( (X, Y, Z), axis = 0 )
-		POSES = mymath.RotateExternal(self.orient) * POSES
+		POSES = self.RotMat * POSES
 		X,Y,Z = np.vsplit(POSES,3)
 		
 		X = X + self.pos[0]
@@ -163,22 +163,37 @@ class stadiumsolid(solid):
 		return 1.0 + (a+b) + (a**2.0 + 4.0*a*b + b**2.0)/3.0 + a*b*(a+b)*0.5 + (a**2.0)*(b**2.0)*0.2
 		
 class semiellipsoid(solid):
-	def __init__(self,label,density,pos,orient,baseperim,height):
-		solid.__init__(self,label,density,pos,orient)
+	def __init__(self,label,density,pos,orient,RotMat,baseperim,height):
+		solid.__init__(self,label,density,pos,orient,RotMat)
 		self.baseperimeter = baseperim
 		self.radius = self.baseperimeter/(2.0*np.pi)
 		self.height = height
-		print "HIII00",self.height
+
 		self.calcLocalProperties()
 		
 	def draw(self,ax,c):
 		'''Code is modified from matplotlib documentation for mplot3d.'''
-		u = np.linspace(0, 2.0 * np.pi, 30)
-		v = np.linspace(0, np.pi/2.0, 30)
+		N = 30
+		u = np.linspace(0, 2.0 * np.pi, N)
+		v = np.linspace(0, np.pi/2.0, N)
 
-		x = self.pos[0,0] + self.radius * np.outer(np.cos(u), np.sin(v))
-		y = self.pos[1,0] + self.radius * np.outer(np.sin(u), np.sin(v))
-		z = self.pos[2,0] + self.height * np.outer(np.ones(np.size(u)), np.cos(v))
+		x = self.radius * np.outer(np.cos(u), np.sin(v))
+		y = self.radius * np.outer(np.sin(u), np.sin(v))
+		z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
+		
+		for i in np.arange(N):
+			for j in np.arange(N):
+				POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
+				POS = self.RotMat * POS
+				x[i,j] = POS[0,0]
+				y[i,j] = POS[1,0]
+				z[i,j] = POS[2,0]
+			
+		x = self.pos[0,0] + x
+		y = self.pos[1,0] + y
+		z = self.pos[2,0] + z		
+
+		# must rotate the x y and z
 		ax.plot_surface(x, y, z, rstride=4, cstride=4, color=c, alpha = 0.5, edgecolor ='')
 		
 		ax.text(self.absCOM[0],self.absCOM[1],self.absCOM[2],self.label)
@@ -189,7 +204,7 @@ class semiellipsoid(solid):
 		h = self.height
 		self.Mass = D*2.0/3.0*np.pi*(r**2)*h
 		self.localCOM = np.array([[0.0],[0.0],[3.0/8.0*h]])
-		self.absCOM = self.pos + mymath.RotateExternal(self.orient) * self.localCOM
+		self.absCOM = self.pos + self.RotMat * self.localCOM
 		
 		Izcom = D*4.0/15.0*np.pi*(r**4.0)*h
 		Iycom = D*np.pi*( 2.0/15.0*(r**2.0)*h*(r**2.0+h**2.0) - 3.0/32.0*(r**2.0)*(h**3.0) )
@@ -197,32 +212,5 @@ class semiellipsoid(solid):
 		self.localI = np.mat([[Ixcom,0.0,0.0],
 		                      [0.0,Iycom,0.0],
 		                      [0.0,0.0,Izcom]])
-		print "HIII",self.localCOM
 		
 
-
-
-
-
-
-
-
-
-		if 0:
-			if setRT == 0:
-				self.p = in1
-				self.w = in2
-				self.t = (np.pi*self.w - self.p) /(2*np.pi-4)
-				self.r = (self.p - 2*self.w)     /(2*np.pi-4)
-			elif options == 1:
-				self.t = in1
-				self.r = in2
-				self.p = 4*self.t + 2*np.pi*self.r
-				self.w = 2*self.t + 2*self.r
-			elif options == 2:
-				'''Circle'''
-				self.p = in1
-				self.w = self.p/np.pi
-				self.t = 0
-				self.r = self.p/2/np.pi
-			
