@@ -57,6 +57,9 @@ class solid:
 		self.pos = pos
 		self.orient = orient
 		self.RotMat = RotMat
+		
+		solid.alpha = 0.1
+		
 	def draw(self,ax,c):
 		print "cannot draw base class"
 
@@ -67,9 +70,9 @@ class stadiumsolid(solid):
 		self.height = height
 		# DEPENDS IF IT'S ML OR NOT
 
-		self.calcLocalProperties()
+		self.calcProperties()
 		
-	def calcLocalProperties(self):
+	def calcProperties(self):
 		D = self.density
 		h = self.height
 		r0 = self.stads[0].radius
@@ -83,11 +86,11 @@ class stadiumsolid(solid):
 			b = (t1 - t0)/t0 # DOES NOT WORK FOR CIRCLES!!! 
 		self.Mass = D*h*r0*(4.0*t0*self.F1(a,b) + np.pi*r0*self.F1(a,a))
 		zcom = D*(h**2.0)*(4.0*r0*t0*self.F2(a,b) + np.pi*(r0**2.0)*self.F2(a,a))/self.Mass
-		self.localCOM = np.array([[0.0],[0.0],[zcom]])
-		self.absCOM = self.pos + self.RotMat * self.localCOM
+		self.relCOM = np.array([[0.0],[0.0],[zcom]])
+
 		
 		# moments of inertia
-		Izcom = D*h*(4.0*r0*(t0**3.0)*self.F4(a,b)/3.0 + np.pi*(r0**2.0)*(t0**2.0)*self.F5(a,b) + 4.0*(r0**3.0)*t0*self.F4(b,a) + np.pi*(r0**4.0)*self.F4(a,a)*0.5)
+		Izcom = D*h*( 4.0*r0*(t0**3.0)*self.F4(a,b)/3.0 + np.pi*(r0**2.0)*(t0**2.0)*self.F5(a,b) + 4.0*(r0**3.0)*t0*self.F4(b,a) + np.pi*(r0**4.0)*self.F4(a,a)*0.5 )
 		
 		Iy = D*h*(4.0*r0*(t0**3.0)*self.F4(a,b)/3.0 + np.pi*(r0**2.0)*(t0**2.0)*self.F5(a,b) + 8.0*(r0**3.0)*t0*self.F4(b,a)/3.0 + np.pi*(r0**4.0)*self.F4(a,a)*0.25) + D*(h**3.0)*(4.0*r0*t0*self.F3(a,b) + np.pi*(r0**2.0)*self.F3(a,a))
 		# CAUGHT AN ERROR IN YEADON'S PAPER HERE
@@ -95,12 +98,15 @@ class stadiumsolid(solid):
 		
 		Ix = D*h*(4.0*r0*(t0**3.0)*self.F4(a,b)/3.0 + np.pi*(r0**4.0)*self.F4(a,a)*0.25) + D*(h**3.0)*(4.0*r0*t0*self.F3(a,b) + np.pi*(r0**2.0)*self.F3(a,a))
 		
-		Ixcom = Iy - self.Mass*(zcom**2.0)
+		Ixcom = Ix - self.Mass*(zcom**2.0)
 	
-		self.localI = np.mat([[Ixcom,0.0,0.0],
-		                      [0.0,Iycom,0.0],
-		                      [0.0,0.0,Izcom]])
+		self.relInertia = np.mat([[Ixcom,0.0,0.0],
+		                          [0.0,Iycom,0.0],
+		                          [0.0,0.0,Izcom]])
 
+		self.COM = self.pos + self.RotMat * self.relCOM
+		self.Inertia = self.RotMat * self.relInertia * self.RotMat.T
+		
 	def draw(self,ax,c):
 		'''Draws stadium solid according to ....EDIT'''	
 		X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.makePos(0)
@@ -110,15 +116,28 @@ class stadiumsolid(solid):
 			Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
 			Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
 			Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-			ax.plot_surface( Xpts, Ypts, Zpts, color = c, alpha = 0.5, edgecolor = '')
+			ax.plot_surface( Xpts, Ypts, Zpts, color = c, alpha = solid.alpha , edgecolor = '')
 
 		# draw stad0
-		ax.plot_surface( X0toplot, Y0toplot, Z0toplot, color=c, alpha = 0.5 )
+		ax.plot_surface( X0toplot, Y0toplot, Z0toplot, color=c, alpha = solid.alpha )
 		
 		# draw stad1
-		ax.plot_surface( X1toplot, Y1toplot, Z1toplot, color=c, alpha = 0.5 )
+		ax.plot_surface( X1toplot, Y1toplot, Z1toplot, color=c, alpha = solid.alpha )
 		
-		ax.text(self.absCOM[0],self.absCOM[1],self.absCOM[2],self.label)
+		# rotated unit vectors (unit x prime, etc)
+		uxp = self.RotMat * np.array([[1],[0],[0]]) + self.pos
+		uyp = self.RotMat * np.array([[0],[1],[0]]) + self.pos
+		uzp = self.RotMat * np.array([[0],[0],[1]]) + self.pos
+
+		ax.plot( np.array([self.pos[0,0],uxp[0]]) , np.array([self.pos[1,0],uxp[1]]), np.array([self.pos[2,0],uxp[2]]), color=(1,0,0,1), linewidth = 2)
+		ax.plot( np.array([self.pos[0,0],uyp[0]]) , np.array([self.pos[1,0],uyp[1]]), np.array([self.pos[2,0],uyp[2]]), color=(0,1,0,1), linewidth = 2)
+		ax.plot( np.array([self.pos[0,0],uzp[0]]) , np.array([self.pos[1,0],uzp[1]]), np.array([self.pos[2,0],uzp[2]]), color=(0,0,1,0), linewidth = 2)
+
+		# ax.text(uxp[0],uxp[1],uxp[2],'x')
+		# ax.text(uyp[0],uyp[1],uyp[2],'y')
+		# ax.text(uzp[0],uzp[1],uzp[2],'z')
+		
+		ax.text(self.COM[0],self.COM[1],self.COM[2],self.label)
 		
 	def makePos(self,i):
 		theta = [np.linspace(0.0,np.pi/2.0,5)]
@@ -169,7 +188,7 @@ class semiellipsoid(solid):
 		self.radius = self.baseperimeter/(2.0*np.pi)
 		self.height = height
 
-		self.calcLocalProperties()
+		self.calcProperties()
 		
 	def draw(self,ax,c):
 		'''Code is modified from matplotlib documentation for mplot3d.'''
@@ -194,23 +213,24 @@ class semiellipsoid(solid):
 		z = self.pos[2,0] + z		
 
 		# must rotate the x y and z
-		ax.plot_surface(x, y, z, rstride=4, cstride=4, color=c, alpha = 0.5, edgecolor ='')
+		ax.plot_surface(x, y, z, rstride=4, cstride=4, color=c, alpha = solid.alpha , edgecolor ='')
 		
-		ax.text(self.absCOM[0],self.absCOM[1],self.absCOM[2],self.label)
+		ax.text(self.COM[0],self.COM[1],self.COM[2],self.label)
 	
-	def calcLocalProperties(self):
+	def calcProperties(self):
 		D = self.density
 		r = self.radius
 		h = self.height
 		self.Mass = D*2.0/3.0*np.pi*(r**2)*h
-		self.localCOM = np.array([[0.0],[0.0],[3.0/8.0*h]])
-		self.absCOM = self.pos + self.RotMat * self.localCOM
+		self.relCOM = np.array([[0.0],[0.0],[3.0/8.0*h]])
+		self.COM = self.pos + self.RotMat * self.relCOM
 		
 		Izcom = D*4.0/15.0*np.pi*(r**4.0)*h
 		Iycom = D*np.pi*( 2.0/15.0*(r**2.0)*h*(r**2.0+h**2.0) - 3.0/32.0*(r**2.0)*(h**3.0) )
 		Ixcom = Iycom
-		self.localI = np.mat([[Ixcom,0.0,0.0],
-		                      [0.0,Iycom,0.0],
-		                      [0.0,0.0,Izcom]])
+		self.relInertia = np.mat([[Ixcom,0.0,0.0],
+		                          [0.0,Iycom,0.0],
+		                          [0.0,0.0,Izcom]])
+		self.Inertia = self.RotMat * self.relInertia * self.RotMat.T
 		
 

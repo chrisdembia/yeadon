@@ -22,9 +22,13 @@ B = 1 FOR CIRCLES, BE VERY WARY OF THIS SIMPLIFICATION, IT MIGHT NOT BE VALID!!
 
 IDEALLY I WANT A WAY OF JUST DESCRIBING THE KINEMATIC LINKAGES, AND THEN THE CODE CAN HANDLE THE PLOTTING ETC
 
+location of hip centers is at (-t,0,0) and (t,0,0)
+
 REPLACE ALL VARIABLES TO WORDS: L-->LEVEL etc, for readability
 DIFFERENCES/NOTES/FIXES
 -fixed body frame f is fixed in the pelvis
 -fix for b = (t1-t0)/t0
 -measurement differences
 -neck calculation: i said it's a cylinder! =o
+
+

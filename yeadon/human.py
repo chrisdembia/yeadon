@@ -3,38 +3,107 @@ import stadium as stad
 import segment as seg
 import data
 import densities as dens
+import inertia
 
 import matplotlib.pyplot as mpl
 from mpl_toolkits.mplot3d import Axes3D
 import mymath
 
-
-
 class human:
-	def __init__(self,externalangles,PTangles,TCangles,CA1angles,CB1angles,A1A2angle,B1B2angle,PJ1angles,PK1angles,J1J2angle,K1K2angle):
+	def __init__(self,measurements,DOF):
+		'''Checking the docstrings stuff.'''
+		
+		human.isSymmetric = 1
+		
+		self.DOF = DOF
 
-		self.externalangles = externalangles # np.array([0,0,0])
-		self.PTangles = PTangles
-		self.TCangles = TCangles
-		self.CA1angles = CA1angles
-		self.CB1angles = CB1angles
-		self.A1A2angle = A1A2angle
-		self.B1B2angle = B1B2angle
-		self.PJ1angles = PJ1angles
-		self.PK1angles = PK1angles
-		self.J1J2angle = J1J2angle
-		self.K1K2angle = K1K2angle
-				
 		# define all solids.	
 		
 		self.defineTorso()
 		self.defineArms()
 		self.defineLegs()
+		
+		self.Segments = [ self.P, self.T, self.C, self.A1, self.A2, self.B1, self.B2, self.J1, self.J2, self.K1, self.K2 ]
+		
+		self.calcProperties()
 
-	def calcInertias(self):
-		absInertiaTensor = 0
-		bikerposInertiaTensor = 0
-		return absInertiaTensor, bikerposInertiaTensor
+	def calcProperties(self):
+		self.Mass = 0.0;
+		for s in self.Segments:
+			self.Mass += s.Mass
+
+		# MUST AVERAGE THE INERTIA PARAMETERS!!!!!!!!!!!
+		if human.isSymmetric:
+			upperarmMass = 0.5 * ( self.A1.Mass + self.B1.Mass )
+			self.A1.Mass = upperarmMass
+			self.B1.Mass = upperarmMass
+			
+			forearmhandMass = 0.5 * ( self.A2.Mass + self.B2.Mass )
+			self.A2.Mass = forearmhandMass
+			self.B2.Mass = forearmhandMass
+			
+			thighMass = 0.5 * ( self.J1.Mass + self.K1.Mass )
+			self.J1.Mass = thighMass
+			self.K1.Mass = thighMass
+			
+			shankfootMass = 0.5 * ( self.J2.Mass + self.K2.Mass )
+			self.J2.Mass = shankfootMass
+			self.K2.Mass = shankfootMass
+			
+			if 0:
+				# it doesn't make sense to average these unless the leg orientations are coupled
+				upperarmCOM = 0.5 * ( self.A1.COM + self.B1.COM )
+				self.A1.COM = upperarmCOM
+				self.B1.COM = upperarmCOM
+			
+				forearmhandCOM = 0.5 * ( self.A2.COM + self.B2.COM )
+				self.A2.COM = forearmhandCOM
+				self.B2.COM = forearmhandCOM
+			
+				thighCOM = 0.5 * ( self.J1.COM + self.K1.COM )
+				self.J1.COM = thighCOM
+				self.K1.COM = thighCOM
+			
+				shankfootCOM = 0.5 * ( self.J2.COM + self.K2.COM )
+				self.J2.COM = shankfootCOM
+				self.K2.COM = shankfootCOM
+			
+			# should we also mess with relative inertia?
+			upperarmInertia = 0.5 * ( self.A1.Inertia + self.B1.Inertia )
+			self.A1.Inertia = upperarmInertia
+			self.B1.Inertia = upperarmInertia
+			
+			forearmhandInertia = 0.5 * ( self.A2.Inertia + self.B2.Inertia )
+			self.A2.Inertia = forearmhandInertia
+			self.B2.Inertia = forearmhandInertia
+			
+			thighInertia = 0.5 * ( self.J1.Inertia + self.K1.Inertia )
+			self.J1.Inertia = thighInertia
+			self.K1.Inertia = thighInertia
+			
+			shankfootInertia = 0.5 * ( self.J2.Inertia + self.K2.Inertia )
+			self.J2.Inertia = shankfootInertia
+			self.K2.Inertia = shankfootInertia
+
+		# print "Mass for human is", self.Mass
+		# center of mass
+		moment = np.zeros( (3,1) )
+		for s in self.Segments:
+			moment += s.Mass * s.COM
+		self.COM = moment / self.Mass
+
+		self.Inertia = np.mat( np.zeros((3,3)) )
+		for s in self.Segments:
+			dist = s.COM - self.COM
+			self.Inertia += np.mat( inertia.parallel_axis(s.Inertia, s.Mass, [dist[0,0],dist[1,0],dist[2,0]]) )
+
+		self.bikeposInertia = mymath.Rotate3([0,np.pi,-np.pi/2])* self.Inertia *mymath.Rotate3([0,np.pi,-np.pi/2]).T
+		# the distance direction should not matter
+		# mUST BE CAREFUL, INERTIA IS MAT, NOT AN NDARRAY
+		
+	def printProperties(self):
+		# print a bunch of stuff
+		print "not implemented yet"
 
 	def draw(self):
 		'''Draws a human.'''
@@ -56,13 +125,14 @@ class human:
 		self.K1.draw(ax)
 		self.K2.draw(ax)
 		
-		ax.plot( np.array([-1,1]) , np.array([0,0]), np.array([0,0]) )
-		ax.plot( np.array([0,0]) , np.array([-1,1]), np.array([0,0]) )
-		ax.plot( np.array([0,0]) , np.array([0,0]), np.array([-1,1]) )
+		# ax.plot HUGE CENTER OF MASS
+		ax.plot( np.array([0,3]) , np.array([0,0]), np.array([0,0]), 'r', linewidth = 3)
+		ax.plot( np.array([0,0]) , np.array([0,3]), np.array([0,0]), 'g', linewidth = 3)
+		ax.plot( np.array([0,0]) , np.array([0,0]), np.array([0,3]), 'b', linewidth = 3)
 
-		ax.text(1,0,0,'x')
-		ax.text(0,1,0,'y')
-		ax.text(0,0,1,'z')
+		ax.text(3,0,0,'x')
+		ax.text(0,3,0,'y')
+		ax.text(0,0,3,'z')
 
 		limval = 10
 		ax.set_xlim3d(-limval, limval)
@@ -72,24 +142,26 @@ class human:
 		mpl.show()
 			
 	def calcPlaceS0(self):
-		orient = self.externalangles
+		orient = np.array([self.DOF['somersalt'],self.DOF['tilt'],self.DOF['twist']])
 		pos = np.array([[0],[0],[0]])
-		RotMat = mymath.RotateExternal(self.externalangles)
+		RotMat = mymath.RotateRel([self.DOF['somersalt'], self.DOF['tilt'], self.DOF['twist']])
 		return pos,orient,RotMat
 	def calcPlaceS1(self):
 		pos = self.s[0].pos + self.s[0].height * self.s[0].RotMat * mymath.zunit
 		orient = self.s[0].orient # THIS ACTUALLY IS MORE COMPLICATED: JOINT ANGLES!
-		RotMat = self.s[0].RotMat # mymath.RotateExternal(self.s[0].orient)
+		RotMat = self.s[0].RotMat # mymath.RotateRel(self.s[0].orient)
 		return pos,orient,RotMat
+		
 	def calcPlaceS2(self):
 		pos = self.s[1].pos + self.s[1].height * self.s[1].RotMat * mymath.zunit
 		orient = self.s[1].orient # THIS ACTUALLY IS MORE COMPLICATED: JOINT ANGLES!
-		RotMat = mymath.Rotate3([self.PTangles[0],self.PTangles[1],0]) * self.s[1].RotMat
+		RotMat = mymath.Rotate3([self.DOF['PTsagittalFlexion'], self.DOF['PTfrontalFlexion'], 0]) * self.s[1].RotMat
 		return pos,orient,RotMat
+		
 	def calcPlaceS3(self):
 		pos = self.s[2].pos + self.s[2].height * self.s[2].RotMat * mymath.zunit
 		orient = self.s[2].orient # THIS ACTUALLY IS MORE COMPLICATED: JOINT ANGLES!
-		RotMat = mymath.Rotate3([0,self.TCangles[1],self.TCangles[0]]) * self.s[2].RotMat
+		RotMat = mymath.Rotate3([0, self.DOF['TClateralSpinalFlexion'], self.DOF['TCspinalTorsion']]) * self.s[2].RotMat
 		return pos,orient,RotMat
 	def calcPlaceS4(self):
 		pos = self.s[3].pos + self.s[3].height * self.s[3].RotMat * mymath.zunit
@@ -116,7 +188,7 @@ class human:
 		dpos = np.array([[self.s[3].stads[1].width/2],[0.0],[self.s[3].height]])
 		pos = self.s[3].pos + self.s[3].RotMat * dpos
 		orient = self.s[3].RotMat * mymath.zunit
-		RotMat = mymath.RotateExternal(self.CA1angles) * mymath.Rotate3(np.array([0,-np.pi,0])) * self.s[3].RotMat # EDIT EDIT EDIT
+		RotMat = self.s[3].RotMat * mymath.Rotate3([0,-np.pi,0]) * mymath.RotateRel([self.DOF['CA1elevation'], -self.DOF['CA1abduction'], -self.DOF['CA1rotation']])
 		return pos,orient,RotMat
 	def calcPlaceA1(self):
 		pos = self.a[0].pos + self.a[0].height * self.a[0].RotMat * mymath.zunit
@@ -126,7 +198,7 @@ class human:
 	def calcPlaceA2(self):
 		pos = self.a[1].pos + self.a[1].height * self.a[1].RotMat * mymath.zunit
 		orient = self.a[1].orient
-		RotMat = mymath.Rotate3([0,-self.A1A2angle,0]) * self.a[1].RotMat # EDIT EDIT EDIT
+		RotMat = self.a[1].RotMat * mymath.Rotate3([self.DOF['A1A2flexion'],0,0])
 		return pos,orient,RotMat
 	def calcPlaceA3(self):
 		pos = self.a[2].pos + self.a[2].height * self.a[2].RotMat * mymath.zunit
@@ -163,7 +235,7 @@ class human:
 		dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],[self.s[3].height]])
 		pos = self.s[3].pos + self.s[3].RotMat * dpos
 		orient = self.s[3].RotMat * mymath.zunit
-		RotMat = mymath.RotateExternal(self.CB1angles) * mymath.Rotate3(np.array([0,-np.pi,0])) * self.s[3].RotMat
+		RotMat = self.s[3].RotMat * mymath.Rotate3([0,-np.pi,0]) * mymath.RotateRel([self.DOF['CB1elevation'], self.DOF['CB1abduction'], self.DOF['CB1rotation']])
 		return pos,orient,RotMat
 	def calcPlaceB1(self):
 		pos = self.b[0].pos + self.b[0].height * self.b[0].RotMat * mymath.zunit
@@ -173,7 +245,7 @@ class human:
 	def calcPlaceB2(self):
 		pos = self.b[1].pos + self.b[1].height * self.b[1].RotMat * mymath.zunit
 		orient = self.b[1].orient
-		RotMat = mymath.Rotate3([0,-self.B1B2angle,0]) * self.b[1].RotMat
+		RotMat = self.b[1].RotMat * mymath.Rotate3([self.DOF['B1B2flexion'],0,0])
 		return pos,orient,RotMat
 	def calcPlaceB3(self):
 		pos = self.b[2].pos + self.b[2].height * self.b[2].RotMat * mymath.zunit
@@ -207,9 +279,10 @@ class human:
 		return pos,orient,RotMat
 
 	def calcPlaceJ0(self):
-		pos = self.s[0].pos + np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
+		dpos = np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
+		pos = self.s[0].pos + self.s[0].RotMat * dpos
 		orient = self.s[0].orient
-		RotMat = mymath.Rotate3([self.PJ1angles[0],self.PJ1angles[1],0]) * mymath.Rotate3(np.array([np.pi,0,0])) * self.s[0].RotMat   # EDIT EDIT EDIT
+		RotMat = self.s[0].RotMat * mymath.Rotate3(np.array([0,np.pi,0])) * mymath.Rotate3([self.DOF['PJ1flexion'], 0, -self.DOF['PJ1abduction']])
 		return pos,orient,RotMat
 	def calcPlaceJ1(self):
 		pos = self.j[0].pos + self.j[0].height * self.j[0].RotMat * mymath.zunit
@@ -224,7 +297,7 @@ class human:
 	def calcPlaceJ3(self):
 		pos = self.j[2].pos + self.j[2].height * self.j[2].RotMat * mymath.zunit
 		orient = self.j[2].orient
-		RotMat = mymath.Rotate3([-self.J1J2angle,0,0]) * self.j[2].RotMat # EDIT EDIT EDIT
+		RotMat = self.j[2].RotMat * mymath.Rotate3([-self.DOF['J1J2flexion'],0,0])
 		return pos,orient,RotMat
 	def calcPlaceJ4(self):
 		pos = self.j[3].pos + self.j[3].height * self.j[3].RotMat * mymath.zunit
@@ -253,9 +326,10 @@ class human:
 		return pos,orient,RotMat
 		
 	def calcPlaceK0(self):
-		pos = self.s[0].pos + np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
+		dpos = np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
+		pos = self.s[0].pos + self.s[0].RotMat * dpos
 		orient = self.s[0].orient
-		RotMat = mymath.Rotate3([self.PK1angles[0],self.PK1angles[1],0]) * mymath.Rotate3(np.array([np.pi,0,0])) * self.s[0].RotMat
+		RotMat = self.s[0].RotMat * mymath.Rotate3(np.array([0,np.pi,0])) * mymath.Rotate3([self.DOF['PK1flexion'], 0, self.DOF['PK1abduction']])
 		return pos,orient,RotMat
 	def calcPlaceK1(self):
 		pos = self.k[0].pos + self.k[0].height * self.k[0].RotMat * mymath.zunit
@@ -270,7 +344,7 @@ class human:
 	def calcPlaceK3(self):
 		pos = self.k[2].pos + self.k[2].height * self.k[2].RotMat * mymath.zunit
 		orient = self.k[2].orient
-		RotMat = mymath.Rotate3([-self.K1K2angle,0,0]) * self.k[2].RotMat # EDIT EDIT EDIT # EDIT EDIT EDIT
+		RotMat = self.k[2].RotMat * mymath.Rotate3([-self.DOF['K1K2flexion'],0,0]) # EDIT EDIT EDIT # EDIT EDIT EDIT
 		return pos,orient,RotMat
 	def calcPlaceK4(self):
 		pos = self.k[3].pos + self.k[3].height * self.k[3].RotMat * mymath.zunit
@@ -420,11 +494,11 @@ class human:
 
 		# define all segments
 		# pelvis
-		self.P = seg.segment( [self.s[0],self.s[1]] , 'r' )
+		self.P = seg.segment( 'P: Pelvis', [self.s[0],self.s[1]] , 'r' )
 		# thorax
-		self.T = seg.segment( [self.s[2]], 'g' )
+		self.T = seg.segment( 'T: Thorax', [self.s[2]], 'g' )
 		# chest-head
-		self.C = seg.segment( [self.s[3],self.s[4],self.s[5],self.s[6],self.s[7]], 'b' )
+		self.C = seg.segment( 'C: Chest-head', [self.s[3],self.s[4],self.s[5],self.s[6],self.s[7]], 'b' )
 
 	def defineArms(self):
 
@@ -625,13 +699,13 @@ class human:
 		                                  self.Lb[7],
 		                                  data.b6h) )
 		# left upper arm                                  
-		self.A1 = seg.segment( [self.a[0],self.a[1]] , 'r' )
+		self.A1 = seg.segment( 'A1: Left upper arm', [self.a[0],self.a[1]] , 'r' )
 		# left forearm-hand
-		self.A2 = seg.segment( [self.a[2],self.a[3],self.a[4],self.a[5],self.a[6]] , 'b' )
+		self.A2 = seg.segment( 'A2: Left forearm-hand', [self.a[2],self.a[3],self.a[4],self.a[5],self.a[6]] , 'b' )
 		# right upper arm
-		self.B1 = seg.segment( [self.b[0],self.b[1]] , 'r' )
+		self.B1 = seg.segment( 'B1: Right upper arm', [self.b[0],self.b[1]] , 'r' )
 		# right forearm-hand
-		self.B2 = seg.segment( [self.b[2],self.b[3],self.b[4],self.b[5],self.b[6]] , 'b' )
+		self.B2 = seg.segment( 'B2: Right forearm-hand', [self.b[2],self.b[3],self.b[4],self.b[5],self.b[6]] , 'b' )
 		
 	def defineLegs(self):
 		
@@ -885,14 +959,14 @@ class human:
 		                                  data.k8h) )       
 
 		# left thigh                            
-		self.J1 = seg.segment( [self.j[0],self.j[1],self.j[2]] , 'r' )
+		self.J1 = seg.segment( 'J1: Left thigh', [self.j[0],self.j[1],self.j[2]] , 'r' )
 		# left shank-foot
-		self.J2 = seg.segment( [self.j[3],self.j[4],self.j[5],self.j[6],self.j[7],self.j[8]] , 'b' )
+		self.J2 = seg.segment( 'J2: Left shank-foot', [self.j[3],self.j[4],self.j[5],self.j[6],self.j[7],self.j[8]] , 'b' )
 
 		# right thigh                            
-		self.K1 = seg.segment( [self.k[0],self.k[1],self.k[2]] , 'r' )
+		self.K1 = seg.segment( 'K1: Right thigh', [self.k[0],self.k[1],self.k[2]] , 'r' )
 		# right shank-foot
-		self.K2 = seg.segment( [self.k[3],self.k[4],self.k[5],self.k[6],self.k[7],self.k[8]] , 'b' )                 
+		self.K2 = seg.segment( 'K2: Right shank-foot', [self.k[3],self.k[4],self.k[5],self.k[6],self.k[7],self.k[8]] , 'b' )                 
 		                                  
 		                                  
 		                                  

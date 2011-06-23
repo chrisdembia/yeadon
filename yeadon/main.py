@@ -24,33 +24,84 @@ import densities
 
 
 # SECOND ITERATION: MOVE FROM FILE INPUTS (FOR ANGLES ONLY) TO QT GUI
-
-
-externalangles = np.zeros( 3 ) # 0: somersalt, 1: tilt, 2: twist
-externalangles[0] = 0
-jointangles = np.zeros( 18 )
-PTangles = np.zeros( 2 ) # 0: sagittal flexion, 1: frontal flexion
-# PTangles[0] = np.pi/10
-# PTangles[1] = np.pi/10
-
-TCangles = np.zeros( 2 ) # 0: spinal torsion, 1: lateral spinal flexion
-#TCangles[0] = np.pi/5
-TCangles[1] = 0
-
-CA1angles = np.zeros( 3 )
-CB1angles = np.zeros( 3 )
-A1A2angle = 0
-B1B2angle = 0
-PJ1angles = np.zeros( 2 )
-PK1angles = np.zeros( 2 )
-J1J2angle = 0
-K1K2angle = 0
-
-DOF = { 
+measurements = 0;
+# WHAT ARE THE JOINT LIMITS?
+DOF = {      'somersalt' : 0.0,
+	              'tilt' : 0.0,
+     	         'twist' : 0.0,
+	 'PTsagittalFlexion' : 0.0,
+      'PTfrontalFlexion' : 0.0,
+       'TCspinalTorsion' : 0.0,
+'TClateralSpinalFlexion' : 0.0,
+          'CA1elevation' : 0.0,
+          'CA1abduction' : 0.0,
+           'CA1rotation' : 0.0,
+          'CB1elevation' : 0.0,
+          'CB1abduction' : 0.0,
+           'CB1rotation' : 0.0,
+           'A1A2flexion' : 0.0,
+           'B1B2flexion' : 0.0,
+            'PJ1flexion' : 0.0,
+          'PJ1abduction' : 0.0,
+            'PK1flexion' : 0.0,
+          'PK1abduction' : 0.0,
+           'J1J2flexion' : 0.0,
+           'K1K2flexion' : 0.0}  
+                 
 print "Creating human object."
-H = hum.human(externalangles, PTangles, TCangles, CA1angles, CB1angles, A1A2angle, B1B2angle, PJ1angles, PK1angles, J1J2angle, K1K2angle)
+H = hum.human(measurements,DOF)
 
 H.draw()
+
+H.printProperties()
+
+# INTERACT WITH THE USER
+
+
+
+DOF = {      'somersalt' : np.pi/4,
+	              'tilt' : np.pi/4,
+     	         'twist' : np.pi/4,
+	 'PTsagittalFlexion' : 0.0,
+      'PTfrontalFlexion' : 0.0,
+       'TCspinalTorsion' : 0.0,
+'TClateralSpinalFlexion' : 0.0,
+          'CA1elevation' : np.pi/2,
+          'CA1abduction' : np.pi/2,
+           'CA1rotation' : 0.0,
+          'CB1elevation' : np.pi/2,
+          'CB1abduction' : np.pi/2,
+           'CB1rotation' : 0.0,
+           'A1A2flexion' : np.pi/2,
+           'B1B2flexion' : np.pi/2,
+            'PJ1flexion' : np.pi/2,
+          'PJ1abduction' : np.pi/2,
+            'PK1flexion' : np.pi/2,
+          'PK1abduction' : np.pi/2,
+           'J1J2flexion' : np.pi/2,
+           'K1K2flexion' : np.pi/2}        
+
+DOF = {      'somersalt' : np.pi/2 * 0.2,
+	              'tilt' : 0.0,
+     	         'twist' : 0.0,
+	 'PTsagittalFlexion' : np.pi/2 * 0.1,
+      'PTfrontalFlexion' : 0.0,
+       'TCspinalTorsion' : 0.0,
+'TClateralSpinalFlexion' : 0.0,
+          'CA1elevation' : np.pi/4,
+          'CA1abduction' : 0.0,
+           'CA1rotation' : 0.0,
+          'CB1elevation' : np.pi/4,
+          'CB1abduction' : 0.0,
+           'CB1rotation' : 0.0,
+           'A1A2flexion' : np.pi/4,
+           'B1B2flexion' : np.pi/4,
+            'PJ1flexion' : np.pi/2 * 1.2,
+          'PJ1abduction' : 0.0,
+            'PK1flexion' : np.pi/2 * 1.2,
+          'PK1abduction' : 0.0,
+           'J1J2flexion' : np.pi/2 * 1.2,
+           'K1K2flexion' : np.pi/2 * 1.2}   
 
 
 

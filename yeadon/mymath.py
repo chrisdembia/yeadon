@@ -27,7 +27,7 @@ def Rotate3(angles):
 
 	return Rz*Ry*Rx
 	
-def RotateExternal(angles):
+def RotateRel(angles):
 	cphi = np.cos(angles[0])
 	sphi= np.sin(angles[0])
 
