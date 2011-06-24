@@ -4,9 +4,13 @@ import numpy as np
 import mymath
 
 class stadium:
-	'''Define a 2D stadium shape. First argument is the perimeter p, and the second is the total width w. If an optional third argument is specified as 1, then the first argument is the half length of the rectangle t, and the second argument is the radius of the semicircle ends. The third argument defaults to 0.'''
+	'''Define a 2D stadium shape. First argument is the perimeter p, and the second is the total width w. If an optional third argument is specified as 1, then the first argument is the half length of the rectangle t, and the second argument is the radius of the semicircle ends. The third argument defaults to 0.
+	'''
 	def __init__(self,inID,in1,in2, alignment = 'ML' ):
-		'''Must add error checking for negatives etc.'''
+		'''
+		Must add error checking for negatives etc.
+		'AP' anterior-posterior 'ML' medio-lateral
+		'''
 		if inID == 'perimwidth':
 			self.perim = in1
 			self.width = in2
@@ -33,10 +37,10 @@ class stadium:
 		if self.radius <= 0 or self.thick < 0:
 			print "Error: a stadium is defined incorrectly, r must be positive and t must be nonnegative. r = ", self.radius, " and t = ", self.thick, "."
 
-		if alignment == 'AP':
-			print "do something"
-		elif alignment != 'AP' and alignment != 'ML':
+		if alignment != 'AP' and alignment != 'ML':
 			print "Error: stadium alignment is not valid, must be either AP or ML"
+		else:
+			self.alignment = alignment
 
 	def plot(self,ax,c):
 		theta = [np.linspace(0.0,np.pi/2.0,5)]
@@ -55,7 +59,7 @@ class solid:
 		self.label = label
 		self.density = density
 		
-		solid.alpha = 0.1
+		solid.alpha = 0.4
 
 	def setOrientation(self,pos,RotMat):
 		'''Also defines absolute quantities.'''
@@ -84,7 +88,11 @@ class stadiumsolid(solid):
 		solid.__init__(self,label,density)
 		self.stads = [stadium0,stadium1]
 		self.height = height
-		# DEPENDS IF IT'S ML OR NOT
+		
+		self.alignment = 'ML'
+		# if either stadium is oriented anterior-posterior, inertia must be rotated, and the plots must be modified
+		if self.stads[0].alignment == 'AP' or self.stads[1].alignment == 'AP':
+			self.alignment = 'AP'
 
 		self.calcRelProperties()
 		
@@ -118,6 +126,9 @@ class stadiumsolid(solid):
 		self.relInertia = np.mat([[Ixcom,0.0,0.0],
 		                          [0.0,Iycom,0.0],
 		                          [0.0,0.0,Izcom]])
+		                          
+		if self.alignment == 'AP':
+			self.relInertia = mymath.RotateInertia(mymath.Rotate3([np.pi/2,0,0]),self.relInertia)
 
 	def draw(self,ax,c):
 		'''Draws stadium solid according to ....EDIT'''	
@@ -152,16 +163,20 @@ class stadiumsolid(solid):
 			ax.plot( np.array([self.pos[0,0],uyp[0]]) , np.array([self.pos[1,0],uyp[1]]), np.array([self.pos[2,0],uyp[2]]), color=(0,1,0,1), linewidth = 2)
 			ax.plot( np.array([self.pos[0,0],uzp[0]]) , np.array([self.pos[1,0],uzp[1]]), np.array([self.pos[2,0],uzp[2]]), color=(0,0,1,0), linewidth = 2)
 
-		# ax.text(uxp[0],uxp[1],uxp[2],'x')
-		# ax.text(uyp[0],uyp[1],uyp[2],'y')
-		# ax.text(uzp[0],uzp[1],uzp[2],'z')
-		
-		ax.text(self.COM[0],self.COM[1],self.COM[2],self.label)
+		(labelstring,b,c) = self.label.partition(':')
+		ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 		
 	def makePos(self,i):
 		theta = [np.linspace(0.0,np.pi/2.0,5)]
+		
 		x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
 		y = self.stads[i].radius * np.sin(theta);
+		
+		if self.alignment == 'AP':
+			temp = x
+			x = y
+			y = temp
+			del temp
 
 		xrev = x[:, ::-1]
 		yrev = y[:, ::-1]
@@ -248,6 +263,6 @@ class semiellipsoid(solid):
 		# must rotate the x y and z
 		ax.plot_surface(x, y, z, rstride=4, cstride=4, color=c, alpha = solid.alpha , edgecolor ='')
 		
-		ax.text(self.COM[0],self.COM[1],self.COM[2],self.label)
-			
+		(labelstring,b,c) = self.label.partition(':')
+		ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)			
 

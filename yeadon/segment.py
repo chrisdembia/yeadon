@@ -11,6 +11,7 @@ class segment:
 		self.nSolids = len(self.solids) 
 		self.color = color
 		
+		# must set the position of constituent solids before being able to calculate relative/local properties.
 		self.setOrientations()
 		
 		self.calcRelProperties()
@@ -62,7 +63,7 @@ class segment:
 			self.relInertia += np.mat(inertia.parallel_axis(self.solids[i].relInertia,self.solids[i].Mass,[dist[0,0],dist[1,0],dist[2,0]]))
 			
 	def calcProperties(self):
-	
+
 		# center of mass
 		self.COM = self.pos + self.RotMat * self.relCOM
 
@@ -86,7 +87,7 @@ class segment:
 		print "Inertia tensor in fixed human frame about local segment COM (kg-m^2):\n",self.Inertia,"\n"
 		
 	def printSolidProperties(self):
-		'''hai
+		'''Calls the printProperties() member method of each of this segment's solids. See the solid class's definition of printProperties(self) for more detail.
 		'''
 		for s in self.solids:
 			s.printProperties()
@@ -94,26 +95,15 @@ class segment:
 	def draw(self,ax):
 		'''Draws all the solids within a segment.'''
 		for idx in np.arange(self.nSolids):
+			print "Drawing solid",self.solids[idx].label,"."
 			self.solids[idx].draw(ax, self.color)
 
 		u = np.linspace( 0, 2*np.pi, 30)
 		v = np.linspace( 0, np.pi, 30)
 
-		R = 0.5
+		R = 0.3
 		x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0,0]
 		y = R * np.outer(np.sin(u), np.sin(v)) + self.COM[1,0]
 		z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2,0]
 		ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor ='', color='r')
 
-# orientation
-
-#if 0:
-#	class stadiumsegment(segment):
-#		def __init__(stadiums):
-#			self.stadiums = stadiums
-#	class mixedsegment(segment):
-#		def __init__(self):
-		
-#sublclasses for C, T, P, A1, A2, etc?
-
-# include density

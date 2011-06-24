@@ -1,12 +1,15 @@
 import numpy as np
+
+import matplotlib
+#matplotlib.use('SVG')
+import matplotlib.pyplot as mpl
+from mpl_toolkits.mplot3d import Axes3D
+
 import solid as sol
 import segment as seg
 import measurements as meas
 import densities as dens
 import inertia
-
-import matplotlib.pyplot as mpl
-from mpl_toolkits.mplot3d import Axes3D
 import mymath
 
 class human:
@@ -64,6 +67,7 @@ class human:
 		# define segments. this deals with coordinate transformations.
 		self.defineSegments()
 		
+		# arrange segment pointers into an indexable format
 		self.Segments = [ self.P, self.T, self.C, self.A1, self.A2, self.B1, self.B2, self.J1, self.J2, self.K1, self.K2 ]
 		
 		self.averageSegmentProperties()
@@ -71,8 +75,20 @@ class human:
 		for s in self.Segments:
 			s.calcProperties()
 
+		# this next call must happen after the previous per-segment call because EDIT.
 		self.calcProperties()
 		
+	def updateSegments(self):
+		'''
+		'''
+		print "Updating segment properties."
+		self.defineSegments()
+		self.Segments = [ self.P, self.T, self.C, self.A1, self.A2, self.B1, self.B2, self.J1, self.J2, self.K1, self.K2 ]
+		self.averageSegmentProperties()
+		for s in self.Segments:
+			s.calcProperties()
+		self.calcProperties()
+
 	def validateDOFs(self):
 		boolval = 0
 		for i in np.arange(len(self.DOF)):
@@ -82,7 +98,8 @@ class human:
 		return boolval
 
 	def averageSegmentProperties(self):
-		# MUST AVERAGE THE INERTIA PARAMETERS!!!!!!!!!!!
+		''' Yeadon 1989-ii mentions symmetric inertia properties. EDIT
+		'''
 		if self.isSymmetric:
 			upperarmMass = 0.5 * ( self.A1.Mass + self.B1.Mass )
 			self.A1.Mass = upperarmMass
@@ -136,11 +153,11 @@ class human:
 			self.K2.relInertia = shankfootInertia
 		
 	def calcProperties(self):
+		# mass
 		self.Mass = 0.0;
 		for s in self.Segments:
 			self.Mass += s.Mass
 
-		# print "Mass for human is", self.Mass
 		# center of mass
 		moment = np.zeros( (3,1) )
 		for s in self.Segments:
@@ -231,9 +248,12 @@ class human:
 		ax.set_ylim3d(-limval, limval)
 		ax.set_zlim3d(-limval, limval)
 		
+		mpl.savefig('humanplot', dpi = 300)
 		mpl.show()
 		
 	def drawOctant(self,ax,u,v,c):
+		'''Assists with drawing the center of mass sphere.
+		'''
 		R = 0.5
 		x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0,0]
 		y = R * np.outer(np.sin(u), np.sin(v)) + self.COM[1,0]
@@ -449,8 +469,8 @@ class human:
 		self.Lj.append( sol.stadium('perim', meas.Lj4p, '=p') )
 		# Lj5: ankle joint centre
 		self.Lj.append( sol.stadium('perim', meas.Lj5p, '=p') )
-		# Lj6: heel # MUST FLAG: ROTATED THE OTHER WAYYIIIII
-		self.Lj.append( sol.stadium('perimwidth', meas.Lj6p, meas.Lj6w) )
+		# Lj6: heel, aligned anterior-posteriorly rather than medio-laterally
+		self.Lj.append( sol.stadium('perimwidth', meas.Lj6p, meas.Lj6w, 'AP') )
 		# Lj7: arch
 		self.Lj.append( sol.stadium('perim', meas.Lj7p, '=p') )
 		# Lj8: ball
@@ -521,8 +541,8 @@ class human:
 		self.Lk.append( sol.stadium('perim', meas.Lk4p, '=p') )
 		# Lk5: ankle joint centre
 		self.Lk.append( sol.stadium('perim', meas.Lk5p, '=p') )
-		# Lk6: heel # MUST FLAG: ROTATED THE OTHER WAYYIIIII
-		self.Lk.append( sol.stadium('perimwidth', meas.Lk6p, meas.Lk6w) )
+		# Lk6: heel, aligned anterior-posteriorly rather than medio-laterally
+		self.Lk.append( sol.stadium('perimwidth', meas.Lk6p, meas.Lk6w, 'AP') )
 		# Lk7: arch
 		self.Lk.append( sol.stadium('perim', meas.Lk7p, '=p') )
 		# Lk8: ball
@@ -577,6 +597,8 @@ class human:
 		                                  meas.k8h) )       
 		               
 	def defineSegments(self):
+		'''This is where the definition of limb location really happens EDIT
+		'''
 		# define all segments
 		# pelvis
 		Ppos = np.array([[0],[0],[0]])
@@ -584,20 +606,20 @@ class human:
 		                            self.DOF['tilt'],
 		                            self.DOF['twist']])
 		self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
-		                      [self.s[0],self.s[1]] , 'r')
+		                      [self.s[0],self.s[1]] , 'red')
 
 		# thorax
 		Tpos = self.s[1].pos + self.s[1].height * self.s[1].RotMat * mymath.zunit
 		TRotMat = self.s[1].RotMat * mymath.Rotate3([self.DOF['PTsagittalFlexion'],
 		                                             self.DOF['PTfrontalFlexion'],0])
 		self.T = seg.segment( 'T: Thorax', Tpos, TRotMat,
-		                      [self.s[2]], 'g')
+		                      [self.s[2]], 'orange')
 
 		# chest-head
 		Cpos = self.s[2].pos + self.s[2].height * self.s[2].RotMat * mymath.zunit
 		CRotMat = self.s[2].RotMat * mymath.Rotate3([0, self.DOF['TClateralSpinalFlexion'], self.DOF['TCspinalTorsion']])
 		self.C = seg.segment( 'C: Chest-head', Cpos, CRotMat,
-		                      [self.s[3],self.s[4],self.s[5],self.s[6],self.s[7]], 'b')
+		                      [self.s[3],self.s[4],self.s[5],self.s[6],self.s[7]], 'yellow')
 
 		# left upper arm                                  
 		dpos = np.array([[self.s[3].stads[1].width/2],[0.0],[self.s[3].height]])
@@ -606,13 +628,13 @@ class human:
                                   -self.DOF['CA1abduction'],
                                   -self.DOF['CA1rotation']])
 		self.A1 = seg.segment( 'A1: Left upper arm', A1pos, A1RotMat,
-		                       [self.a[0],self.a[1]] , 'r' )
+		                       [self.a[0],self.a[1]] , 'green' )
 
 		# left forearm-hand
 		A2pos = self.a[1].pos + self.a[1].height * self.a[1].RotMat * mymath.zunit
 		A2RotMat = self.a[1].RotMat * mymath.Rotate3([self.DOF['A1A2flexion'],0,0])
 		self.A2 = seg.segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
-		                       [self.a[2],self.a[3],self.a[4],self.a[5],self.a[6]], 'b')
+		                       [self.a[2],self.a[3],self.a[4],self.a[5],self.a[6]], 'red')
 		# right upper arm
 		dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],[self.s[3].height]])
 		B1pos = self.s[3].pos + self.s[3].RotMat * dpos
@@ -620,13 +642,13 @@ class human:
 		                             self.DOF['CB1abduction'],
 		                             self.DOF['CB1rotation']])
 		self.B1 = seg.segment( 'B1: Right upper arm', B1pos, B1RotMat,
-		                       [self.b[0],self.b[1]], 'r')
+		                       [self.b[0],self.b[1]], 'green')
 
 		# right forearm-hand
 		B2pos = self.b[1].pos + self.b[1].height * self.b[1].RotMat * mymath.zunit
 		B2RotMat = self.b[1].RotMat * mymath.Rotate3([self.DOF['B1B2flexion'],0,0])
 		self.B2 = seg.segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
-		                       [self.b[2],self.b[3],self.b[4],self.b[5],self.b[6]], 'b')
+		                       [self.b[2],self.b[3],self.b[4],self.b[5],self.b[6]], 'red')
 
 		# left thigh                            
 		dpos = np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
@@ -634,13 +656,13 @@ class human:
 		J1RotMat = self.s[0].RotMat * mymath.Rotate3(np.array([0,np.pi,0])) * mymath.Rotate3([self.DOF['PJ1flexion'], 0,
 		                          -self.DOF['PJ1abduction']])
 		self.J1 = seg.segment( 'J1: Left thigh', J1pos, J1RotMat,
-		                       [self.j[0],self.j[1],self.j[2]], 'r')
+		                       [self.j[0],self.j[1],self.j[2]], 'green')
 
 		# left shank-foot
 		J2pos = self.j[2].pos + self.j[2].height * self.j[2].RotMat * mymath.zunit
 		J2RotMat = self.j[2].RotMat * mymath.Rotate3([-self.DOF['J1J2flexion'],0,0])
 		self.J2 = seg.segment( 'J2: Left shank-foot', J2pos, J2RotMat,
-		                       [self.j[3],self.j[4],self.j[5],self.j[6],self.j[7],self.j[8]], 'b')
+		                       [self.j[3],self.j[4],self.j[5],self.j[6],self.j[7],self.j[8]], 'red')
 
 		# right thigh                            
 		dpos = np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
@@ -648,10 +670,10 @@ class human:
 		K1RotMat = self.s[0].RotMat * mymath.Rotate3(np.array([0,np.pi,0])) * mymath.Rotate3([self.DOF['PK1flexion'], 0,
 		                         self.DOF['PK1abduction']])
 		self.K1 = seg.segment( 'K1: Right thigh', K1pos, K1RotMat,
-		                       [self.k[0],self.k[1],self.k[2]], 'r')
+		                       [self.k[0],self.k[1],self.k[2]], 'green')
 		
 		# right shank-foot
 		K2pos = self.k[2].pos + self.k[2].height * self.k[2].RotMat * mymath.zunit
 		K2RotMat = self.k[2].RotMat * mymath.Rotate3([-self.DOF['K1K2flexion'],0,0])
 		self.K2 = seg.segment( 'K2: Right shank-foot', K2pos, K2RotMat,
-		                       [self.k[3],self.k[4],self.k[5],self.k[6],self.k[7],self.k[8]], 'b')
+		                       [self.k[3],self.k[4],self.k[5],self.k[6],self.k[7],self.k[8]], 'red')
