@@ -5,22 +5,10 @@
 
 in soliddraw "warning invalid value encountered in divide"...
 
-REVIEW FORMULAS FOR F1...etc
-
-NEED TO REDO CALCULATIONS FOR NONCIRCLES
-
 YEADON'S PAPER HAD AN ERROR: CHECK THIS STUFF
 
 
 SCALE ALL ALPHA VALUES TO DENSITY
-
-AS IT'S WRITTEN, ANGLES IS ALWAYS A LIST, NOT AN NP ARRAY. I MAY WANT TO CHANGE THIS
-
-MUST DECIDE WHAT THE JOINT ANGLES ARE 
-
-B = 1 FOR CIRCLES, BE VERY WARY OF THIS SIMPLIFICATION, IT MIGHT NOT BE VALID!!
-
-IDEALLY I WANT A WAY OF JUST DESCRIBING THE KINEMATIC LINKAGES, AND THEN THE CODE CAN HANDLE THE PLOTTING ETC
 
 location of hip centers is at (-t,0,0) and (t,0,0)
 
@@ -39,3 +27,8 @@ STUFF RUNNING ON MY STUFF
 	-pydoc
 	-sphinx
 	-git
+	
+TDO
+	-better io
+	-sys.stderr messages
+	-haven't really incorporated inertia.py because it didn't fully make sense

@@ -2,8 +2,24 @@ import solid
 import numpy as np
 import inertia
 import mymath
+
 class segment:
 	def __init__(self,label,pos,RotMat,solids,color):
+		'''Initializes a segment object. Stores inputs as instance variables, calculates the orientation of the segment's child solids, and calculates the "relative" inertia parameters (mass, center of mass and inertia) of the segment.
+
+		Parameters
+		----------
+		label : str
+		    The ID and name of the segment.
+		pos : numpy.array, shape(3,1)
+			The vector position of the segment's base, with respect to the fixed human frame.
+		Rotmat : numpy.matrix, shape(3,3)
+			The orientation of the segment is given by a rotation matrix that specifies the orientation of the segment with respect to the fixed human frame.
+		solids : list of solid objects
+			The solid objects that compose the segment
+		color : str
+			Color with which to plot this segment in the plotting functions.
+		'''
 		self.label = label
 		self.pos = pos
 		self.RotMat = RotMat
@@ -29,6 +45,8 @@ class segment:
 				self.solids[i].setOrientation(pos,self.RotMat)
 			
 	def calcRelProperties(self):
+		'''Calculates the mass, relative/local center of mass, and relative/local inertia tensor (about the segment's center of mass). Also computes the center of mass of each constituent solid with respect to the segment's base in the segment's reference frame.
+		'''
 		# mass
 		self.Mass = 0.0
 		for s in self.solids:
@@ -63,7 +81,8 @@ class segment:
 			self.relInertia += np.mat(inertia.parallel_axis(self.solids[i].relInertia,self.solids[i].Mass,[dist[0,0],dist[1,0],dist[2,0]]))
 			
 	def calcProperties(self):
-
+		'''Calculates the segment's center of mass with respect to the fixed human frame origin (in the fixed human reference frame) and the segment's inertia in the fixed human frame but about the segment's center of mass.
+		'''
 		# center of mass
 		self.COM = self.pos + self.RotMat * self.relCOM
 
@@ -77,7 +96,7 @@ class segment:
 			self.Inertia2 += np.mat(inertia.parallel_axis(s.Inertia,s.Mass,[dist[0,0],dist[1,0],dist[2,0]]))
 
 	def printProperties(self):
-		'''Prints mass, center of mass (in local and fixed human frames), and inertia (in local and fixed human frames).
+		'''Prints mass, center of mass (in segment's and fixed human frames), and inertia (in segment's and fixed human frames).
 		'''
 		print self.label,"properties:\n"
 		print "Mass (kg):",self.Mass,"\n"
@@ -93,7 +112,8 @@ class segment:
 			s.printProperties()
 
 	def draw(self,ax):
-		'''Draws all the solids within a segment.'''
+		'''Draws all the solids within a segment.
+		'''
 		for idx in np.arange(self.nSolids):
 			print "Drawing solid",self.solids[idx].label,"."
 			self.solids[idx].draw(ax, self.color)

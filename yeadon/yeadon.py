@@ -1,7 +1,7 @@
 import human as hum
 import numpy as np
 import measurements as meas
-
+import pickle
 # INPUTS ARE 95 MEASUREMENTS, DENSITIES, AND ORIENTATION ANGLES
 
 print "Starting YEADON."
@@ -31,7 +31,7 @@ DOF = {      'somersalt' : 0.0,
            'J1J2flexion' : 0.0,
            'K1K2flexion' : 0.0}  
 
-# methods to manage user actions in the main menu (below)
+# 3 methods to manage user actions in the main menu (below)
 def modifyJointAngles():
 	'''Called by command-line interaction to modify joint angles. Allows the user to first select a joint angle (from the dictionary DOF) to modify. Then, the user inputs a new value for that joint angle in units of pi-radians. The user continues to modify joint angles until the user quits. The user can quit at any time by entering q.
 	'''
@@ -64,7 +64,7 @@ def modifyJointAngles():
 	H.updateSegments()
 
 def printSegmentProperties():
-	'''EDIT
+	'''Called by commandline interaction to choose a segment to print the properties (mass, center of mass, inertia), and to print those properties. See the documentation for the segment class for more information. The user can print properties of segments endlessly until entering q. 
 	'''
 	printdone = 0
 	while printdone != 1:
@@ -84,7 +84,7 @@ def printSegmentProperties():
 		# error check the input
 
 def printSolidProperties():
-	'''EDIT.
+	'''Called by commandline interaction to print the properties (mass, center of mass, inertia) of a solid chosen by user inputs. The user first selects a segment, and then chooses a solid within that segment. Then, the properties of that solid are shown. See the documentation for the solid class for more information.
 	'''
 	printdone = 0
 	while printdone != 1:
@@ -114,21 +114,23 @@ def printSolidProperties():
 					Seg.solids[int(printIn)].printProperties()
 					print ''
 
+# create the human object. only one is needed for this commandline program
 print "Creating human object."
-
 H = hum.human(meas,DOF)
 
 #>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
 #We are the knights who say "Ni!"
 
-done = 0
+done = 0 # loop end flag
+
+# used for changing the reference frame of...everything.
 frames = ('Yeadon','bike')
 frame = 0
 nonfr = 1
 while done != 1:
 	print "\nYEADON MAIN MENU"
 	print "----------------"
-	print "  m: print/modify solid dimensions\n  j: print/modify joint angles\n  a: save current joint angles to file\n  d: draw human\n  h: print human properties\n  g: print segment properties\n  l: print solid properties\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
+	print "  m: print/modify solid dimensions\n  j: print/modify joint angles\n\n  a: save current joint angles to file\n  p: load joint angles from file\n\n  d: draw human\n\n  h: print human properties\n  g: print segment properties\n  l: print solid properties\n\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
 
 	userIn = raw_input("What would you like to do next? ")
 	print ""
@@ -139,12 +141,27 @@ while done != 1:
 		
 	# MODIFY JOINT ANGLES
 	elif userIn == 'j':
+		# this function is defined above
 		modifyJointAngles()
 		
 	# SAVE CURRENT JOINT ANGLES
 	elif userIn == 'a':
-		print "Not implemented yet"
-		
+		fname = raw_input("The joint angle dictionary DOF will be pickled into a file saved in the current directory. Specify a file name (without quotes or spaces, q to quit): ")
+		if fname != 'q':
+			fid = open(fname+".pickle",'w')
+			pickle.dump(DOF,fid)
+			fid.close()
+			print "The joint angles have been saved in",fname,".pickle."
+
+	# LOAD JOINT ANGLES
+	elif userIn == 'p':
+		print "Be careful with this, because there is no error checking yet. Make sure that the pickle file is in the same format as a pickle output file from this program."
+		fname = raw_input("Enter the name of a file that has a .pickle extension, but do not include the extension (q to quit):")
+		if fname != 'q':
+			fid = open(fname+".pickle",'r')
+			DOF = pickle.load(fid)
+			print "The joint angles pickle",fname,".pickle has been loaded."
+
 	# DRAW HUMAN
 	elif userIn == 'd':
 		print "To continue using the YEADON after drawing, close the plot window."
@@ -163,7 +180,7 @@ while done != 1:
 	elif userIn == 'l':
 		printSolidProperties()
 		
-	# USE COORDINATES
+	# USE COORDINATES. see initialized variables above while-loop for more info.
 	elif userIn == 'f':
 		if frame == 0:
 			frame = 1
@@ -203,6 +220,8 @@ while done != 1:
 		print "Invalid input"
 
 # other sets of joint angles
+
+# this one was for fun; looks like a skydiver
 DOF = {      'somersalt' : np.pi/4,
 	              'tilt' : np.pi/4,
      	         'twist' : np.pi/4,
@@ -225,6 +244,7 @@ DOF = {      'somersalt' : np.pi/4,
            'J1J2flexion' : np.pi/2,
            'K1K2flexion' : np.pi/2}        
 
+# almost in a bike-riding position
 DOF = {      'somersalt' : np.pi/2 * 0.2,
 	              'tilt' : 0.0,
      	         'twist' : 0.0,

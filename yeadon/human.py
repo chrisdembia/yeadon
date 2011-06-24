@@ -1,31 +1,27 @@
 import numpy as np
 
-import matplotlib
-#matplotlib.use('SVG')
+# matplotlib
 import matplotlib.pyplot as mpl
 from mpl_toolkits.mplot3d import Axes3D
 
+# fresh code!
 import solid as sol
 import segment as seg
 import measurements as meas
 import densities as dens
-import inertia
+import inertia # jason moore's
 import mymath
 
 class human:
 	def __init__(self,meas,DOF):
-		'''Returns the moment of inertia of a body about a different point.
+		'''Initializes a human object. Stores inputs as instance variables, defines the names of the degrees of freedom (DOF) in a class tuple, defines the bounds on the DOFs in a class 2D list, validates the input DOFs against the DOF bounds, defines all the solids using the meas input parameter, defines all segments using the solid definitions, averages the segment inertia information (if the option is selected), calculates the inertia parameters (mass, center of mass, inertia tensor) of each solid and then of the entire human.
 
 		Parameters
 		----------
-		Ic : ndarray, shape(3,3)
-		    Okay
-
-		Returns
-		-------
-		I : ndarray, shape(3,3)
-		    The moment of inertia about of the body about a point located by d.
-
+		meas : python module
+		    Holds roughly 95 measurements (supposedly in meters) that allow the generation of stadium solids, circles, and ellipsoids with which to define the model's goemetry.
+		DOF : dictionary with 21 entries
+			The degrees of freedom of the human (radians).
 		'''
 		
 		self.meas = meas
@@ -56,22 +52,25 @@ class human:
 				           [-np.pi/2, np.pi/2],
 				           [0, np.pi],
 				           [0, np.pi] ]
-				           
+				       
+		# check DOF input against DOF bounds
 		self.validateDOFs()
 		
-		# define all solids.		
+		# define all solids.
 		self.defineTorsoSolids()
 		self.defineArmSolids()
 		self.defineLegSolids()
 
-		# define segments. this deals with coordinate transformations.
+		# define segments. this deals with coordinate transformations. and locates the bases of the segments.
 		self.defineSegments()
 		
 		# arrange segment pointers into an indexable format
 		self.Segments = [ self.P, self.T, self.C, self.A1, self.A2, self.B1, self.B2, self.J1, self.J2, self.K1, self.K2 ]
 		
+		# Yeadon wants to be able to create a symmetrical human.
 		self.averageSegmentProperties()
 		
+		# calculate inertia properties of all segments.
 		for s in self.Segments:
 			s.calcProperties()
 
@@ -79,10 +78,12 @@ class human:
 		self.calcProperties()
 		
 	def updateSegments(self):
-		'''
+		'''Updates all segments. Expected to be called by a GUI or commandline interface when a user has updated joint angles after the human object has been created. Solids do not need to be recreated, but the segments need to be redefined, and so inertia parameters need to be averaged again, and the human's inertia parameters must also be redefined.
 		'''
 		print "Updating segment properties."
 		self.defineSegments()
+		
+		# must redefine this Segments list, the code does not work otherwise
 		self.Segments = [ self.P, self.T, self.C, self.A1, self.A2, self.B1, self.B2, self.J1, self.J2, self.K1, self.K2 ]
 		self.averageSegmentProperties()
 		for s in self.Segments:
@@ -90,6 +91,13 @@ class human:
 		self.calcProperties()
 
 	def validateDOFs(self):
+		'''Validates the joint angle degrees of freedom against the DOF bounds specified in the definition of the human object. Prints an error message if there is an issue. Hopefully this will implement sys.stderr eventually.
+		
+		Returns
+		-------
+		boolval : boolean
+			0 if all DOFs are okay, -1 if there is an issue
+		'''
 		boolval = 0
 		for i in np.arange(len(self.DOF)):
 			if self.DOF[ human.DOFnames[i] ] < human.DOFbounds[i][0] or self.DOF[ human.DOFnames[i] ] > human.DOFbounds[i][1]:
@@ -98,7 +106,7 @@ class human:
 		return boolval
 
 	def averageSegmentProperties(self):
-		''' Yeadon 1989-ii mentions symmetric inertia properties. EDIT
+		''' Yeadon 1989-ii mentions that the model is to have symmetric inertia properties, especially for the sake of modelling the particular aerial movement that is the subject of the Yeadon-i-iv papers. This function sets the mass and relative/local inertia tensor of each limb (arms and legs) to be the average of the left and right limbs.
 		'''
 		if self.isSymmetric:
 			upperarmMass = 0.5 * ( self.A1.Mass + self.B1.Mass )
@@ -153,6 +161,8 @@ class human:
 			self.K2.relInertia = shankfootInertia
 		
 	def calcProperties(self):
+		'''Calculates the mass, center of mass, and inertia tensor of the human. The quantities are calculated from the segment quantities. This method also calculates quantities in terms of the standard bicycle coordinate frame (x forward, z down).
+		'''
 		# mass
 		self.Mass = 0.0;
 		for s in self.Segments:
@@ -172,18 +182,16 @@ class human:
 		self.bikerposCOM = mymath.Rotate3([0,np.pi,np.pi/2]) * self.COM
 		dist = self.bikerposCOM - self.COM
 		self.bikeposInertia = inertia.parallel_axis(mymath.Rotate3([0,np.pi,np.pi/2])* self.Inertia *mymath.Rotate3([0,np.pi,np.pi/2]).T,self.Mass,[dist[0,0],dist[1,0],dist[2,0]])
-		# I AM NOT SURE ABOUT THIS TRANSFORMATION.IDK IF I NEED PARALLEL AXIS
-		# the distance direction should not matter
-		# mUST BE CAREFUL, INERTIA IS MAT, NOT AN NDARRAY
 		
 	def printProperties(self):
-		'''Prints human mass, center of mass,and inertia.'''
+		'''Prints human mass, center of mass,and inertia.
+		'''
 		print "Mass (kg):", self.Mass, "\n"
 		print "COM  (m):\n", self.COM, "\n"
 		print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
 		
 	def draw(self):
-		'''Draws a self.'''
+		'''Draws a self by calling the draw methods of all of the segments. Drawing is done by the matplotlib library.'''
 		print "Drawing the self."
 		fig = mpl.figure()
 		ax = Axes3D(fig)
@@ -200,7 +208,7 @@ class human:
 		self.K1.draw(ax)
 		self.K2.draw(ax)
 		
-		# ax.plot HUGE CENTER OF MASS
+		# fixed coordinate frame axes
 		ax.plot( np.array([0,3]) , np.array([0,0]), np.array([0,0]), 'r', linewidth = 3)
 		ax.plot( np.array([0,0]) , np.array([0,3]), np.array([0,0]), 'g', linewidth = 3)
 		ax.plot( np.array([0,0]) , np.array([0,0]), np.array([0,3]), 'b', linewidth = 3)
@@ -243,16 +251,29 @@ class human:
 		v = np.linspace(np.pi/2, np.pi, 30)
 		self.drawOctant(ax,u,v,'w')
 		
+		# "axis equal"
 		limval = 10
 		ax.set_xlim3d(-limval, limval)
 		ax.set_ylim3d(-limval, limval)
 		ax.set_zlim3d(-limval, limval)
 		
+		# save the plot to an SVG file
 		mpl.savefig('humanplot', dpi = 300)
+		
+		# show the plot window, this is a loop actually
 		mpl.show()
 		
 	def drawOctant(self,ax,u,v,c):
-		'''Assists with drawing the center of mass sphere.
+		'''Draws an octant of sphere. Assists with drawing the center of mass sphere.
+		
+		Parameters
+		----------
+		ax : Axes3D object
+			Axes on which to plot, defined by human.plot(self).
+		u : numpy.array
+		v : numpy.array
+		c : string
+			Color
 		'''
 		R = 0.5
 		x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0,0]
@@ -261,6 +282,8 @@ class human:
 		ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor ='', color=c)
 				
 	def defineTorsoSolids(self):
+		'''Defines the solids (from solid.py) that create the torso of the human. This requires the definition of 2-D stadium levels using the input measurement parameters (meas.).
+		'''
 	
 		# torso	
 		self.Ls = []
@@ -335,7 +358,9 @@ class human:
 		                                   meas.s7h) )
 			
 	def defineArmSolids(self):
-
+		'''Defines the solids (from solid.py) that create the arms of the human. This requires the definition of 2-D stadium levels using the input measurement parameters (meas.).
+		'''
+		
 		# left arm
 		self.La = []
 		self.a = []
@@ -452,7 +477,8 @@ class human:
 		                                  meas.b6h) )
 
 	def defineLegSolids(self):
-		
+		'''Defines the solids (from solid.py) that create the legs of the human. This requires the definition of 2-D stadium levels using the input measurement parameters (meas.).
+		'''
 		# left leg
 		self.Lj = []
 		self.j = []
@@ -597,7 +623,7 @@ class human:
 		                                  meas.k8h) )       
 		               
 	def defineSegments(self):
-		'''This is where the definition of limb location really happens EDIT
+		'''Define segment objects using previously defined solids. This is where the definition of segment position and rotation really happens. There are 9 segments. Each segment has a base, located at a joint, and an orientation given by the input joint angle parameters.
 		'''
 		# define all segments
 		# pelvis
