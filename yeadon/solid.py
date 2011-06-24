@@ -67,8 +67,17 @@ class solid:
 		self.COM = self.pos + self.RotMat * self.relCOM
 		self.Inertia = mymath.RotateInertia(self.RotMat,self.relInertia)
 
+	def printProperties(self):
+		'''hai
+		'''
+		print self.label,"properties:\n"
+		print "Mass (kg):",self.Mass,"\n"
+		print "COM in local solid's frame (m):\n",self.relCOM,"\n"
+		print "COM in fixed human frame (m):\n",self.COM,"\n"
+		print "Inertia tensor in solid's frame about local solid's COM (kg-m^2):\n",self.relInertia,"\n"
+		print "Inertia tensor in fixed human frame about local solid's COM (kg-m^2):\n",self.Inertia,"\n"
 	def draw(self,ax,c):
-		print "cannot draw base class"
+		print "cannot draw base class solid"
 
 class stadiumsolid(solid):
 	def __init__(self,label,density,stadium0,stadium1,height):

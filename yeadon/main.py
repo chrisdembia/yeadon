@@ -4,22 +4,10 @@ import measurements as meas
 
 # INPUTS ARE 95 MEASUREMENTS, DENSITIES, AND ORIENTATION ANGLES
 
-
-# read input file of 95 measurements
-# create solid objects
-# create segment objects
-# create human object
-# plot human, no angles
-
-# read in angles file
-# plot human, with joint angles
-
-# plot human conforming to a bicycle
 print "Starting YEADON."
 
 # SECOND ITERATION: MOVE FROM FILE INPUTS (FOR ANGLES ONLY) TO QT GUI
-measurements = 0;
-# WHAT ARE THE JOINT LIMITS?
+
 DOF = {      'somersalt' : 0.0,
 	              'tilt' : 0.0,
      	         'twist' : 0.0,
@@ -83,9 +71,9 @@ frames = ('Yeadon','bike')
 frame = 0
 nonfr = 1
 while done != 1:
-	print "YEADON MAIN MENU"
+	print "\nYEADON MAIN MENU"
 	print "----------------"
-	print "  m: modify solid dimensions\n  j: modify joint angles\n  a: save current joint angles\n  d: draw human\n  h: print human properties\n  s: print segment properties\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
+	print "  m: modify solid dimensions\n  j: modify joint angles\n  a: save current joint angles\n  d: draw human\n  h: print human properties\n  g: print segment properties\n  l: print solid properties\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
 
 	userIn = raw_input("What would you like to do next? ")
 	print ""
@@ -104,6 +92,53 @@ while done != 1:
 	elif userIn == 'h':
 		print "\nHuman properties using",frames[frame],"coordinate system:\n"
 		H.printProperties()
+	# PRINT SEGMENT PROPERTIES
+	elif userIn == 'g':
+		printdone = 0
+		while printdone != 1:
+			print "\nPRINT SEGMENT PROPERTIES"
+			print "------------------------"
+			counter = 0
+			for seg in H.Segments:
+				print " ",counter,":",seg.label
+				counter += 1
+			printIn = raw_input("Enter a segment index to view the properties of (q to quit): ")
+			if printIn == 'q':
+				printdone = 1
+			else:
+				print ''
+				H.Segments[int(printIn)].printProperties()
+				print ''
+			# error check the input
+		
+	elif userIn == 'l':
+		printdone = 0
+		while printdone != 1:
+			print "\nPRINT SOLID PROPERTIES"
+			print "----------------------"
+			counter = 0
+			for seg in H.Segments:
+				print " ",counter,":",seg.label
+				counter += 1
+			printIn = raw_input("Enter the segment index to view the solid properties of (q to quit): ")
+			if printIn == 'q':
+				printdone = 1
+			else:
+				Seg = H.Segments[int(printIn)]
+				soldone = 0
+				while soldone != 1:
+					print "Solids in segment",Seg.label
+					counter = 0
+					for sol in Seg.solids:
+						print " ",counter,":",sol.label
+						counter += 1
+					printIn = raw_input("Enter the solid index to view parameters of (q to quit): ")
+					if printIn == 'q':
+						soldone = 1
+					else:
+						print ''
+						Seg.solids[int(printIn)].printProperties()
+						print ''
 
 	# USE COORDINATES
 	elif userIn == 'f':
@@ -123,7 +158,7 @@ while done != 1:
 		optionsdone = 0
 		sym = ['off','on']
 		while optionsdone != 1:
-			print "OPTIONS"
+			print "\nOPTIONS"
 			print "-------"
 			print "  1: toggle symmetric inertia parameters (symmetry is",sym[ H.isSymmetric ],"now)\n  q: back to main menu"
 			optionIn = raw_input("What would you like to do? ")

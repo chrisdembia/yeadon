@@ -15,9 +15,9 @@ class segment:
 		
 		self.calcRelProperties()
 		
-		self.calcProperties()
-		
 	def setOrientations(self):
+		'''Sets the position (self.pos) and rotation matrix (self.RotMat) for all solids in the segment by calling each constituent solid's setOrientation method. The position of the i-th solid, expressed in the fixed human reference frame, is given by the sum of the segment's base position and the directed height of all the solids of the segment up to the i-th solid.
+		'''
 		# pos and RotMat for first solid
 		self.solids[0].setOrientation(self.pos,self.RotMat)
 		
@@ -56,13 +56,10 @@ class segment:
 		self.relCOM = relmoment / self.Mass
 		
 		# relative Inertia
-		print self.label
 		self.relInertia = np.mat(np.zeros( (3,3) ))
 		for i in np.arange(self.nSolids):
 			dist = self.solidCOM[i] - self.relCOM
 			self.relInertia += np.mat(inertia.parallel_axis(self.solids[i].relInertia,self.solids[i].Mass,[dist[0,0],dist[1,0],dist[2,0]]))
-
-		print self.relInertia
 			
 	def calcProperties(self):
 	
@@ -71,15 +68,28 @@ class segment:
 
 		# inertia in frame f w.r.t. segment's COM
 		self.Inertia = mymath.RotateInertia(self.RotMat,self.relInertia)
-		print self.Inertia
 		
 		# inertia in frame f w.r.t. segment's COM
 		self.Inertia2 = np.mat( np.zeros( (3,3) ) )
 		for s in self.solids:
 			dist = s.COM - self.COM
 			self.Inertia2 += np.mat(inertia.parallel_axis(s.Inertia,s.Mass,[dist[0,0],dist[1,0],dist[2,0]]))
-		print self.Inertia2
 
+	def printProperties(self):
+		'''Prints mass, center of mass (in local and fixed human frames), and inertia (in local and fixed human frames).
+		'''
+		print self.label,"properties:\n"
+		print "Mass (kg):",self.Mass,"\n"
+		print "COM in local segment frame (m):\n",self.relCOM,"\n"
+		print "COM in fixed human frame (m):\n",self.COM,"\n"
+		print "Inertia tensor in segment frame about local segment COM (kg-m^2):\n",self.relInertia,"\n"
+		print "Inertia tensor in fixed human frame about local segment COM (kg-m^2):\n",self.Inertia,"\n"
+		
+	def printSolidProperties(self):
+		'''hai
+		'''
+		for s in self.solids:
+			s.printProperties()
 
 	def draw(self,ax):
 		'''Draws all the solids within a segment.'''
