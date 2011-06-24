@@ -27,8 +27,8 @@ location of hip centers is at (-t,0,0) and (t,0,0)
 REPLACE ALL VARIABLES TO WORDS: L-->LEVEL etc, for readability
 DIFFERENCES/NOTES/FIXES
 -fixed body frame f is fixed in the pelvis
--fix for b = (t1-t0)/t0
+-fix for b = (t1-t0)/t0 --> this should be okay now
 -measurement differences
 -neck calculation: i said it's a cylinder! =o
-
+-i'm DEFINITELY rotating inertias in the wrong direction, should be doing inverse transform.
 

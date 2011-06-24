@@ -1,12 +1,6 @@
-import stadium as stad
-#import segment
 import human as hum
-import matplotlib.pyplot as mpl
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import data
-import densities
-
+import measurements as meas
 
 # INPUTS ARE 95 MEASUREMENTS, DENSITIES, AND ORIENTATION ANGLES
 
@@ -21,7 +15,7 @@ import densities
 # plot human, with joint angles
 
 # plot human conforming to a bicycle
-
+print "Starting YEADON."
 
 # SECOND ITERATION: MOVE FROM FILE INPUTS (FOR ANGLES ONLY) TO QT GUI
 measurements = 0;
@@ -47,17 +41,110 @@ DOF = {      'somersalt' : 0.0,
           'PK1abduction' : 0.0,
            'J1J2flexion' : 0.0,
            'K1K2flexion' : 0.0}  
-                 
+
+def modifyJointAngles():
+	# MUST UPDATE THE DRAW, etc.
+	done = 0
+	counter = 0
+	while done != 1:
+		counter += 1
+		print "MODIFY JOINT ANGLES"
+		print "-------------------"
+		for i in np.arange(len(H.DOFnames)):
+			print " ",i,":",H.DOFnames[i],"=",DOF[H.DOFnames[i]]/np.pi,"pi-rad"
+		if counter == 1:
+			idxIn = raw_input("Enter the number next to the joint angle to modify (q to quit): ")
+		else:
+			idxIn = raw_input("Modify another joint angle (q to quit):")
+		if idxIn == 'q':
+			done = 1
+		else:
+			valueIn = raw_input("Enter the new value for the joint angle in units of pi-rad (q to quit): ")
+			if valueIn == 'q':
+				done = 1
+			else:
+				DOF[ H.DOFnames[int(idxIn)] ] = float(valueIn) * np.pi
+				while H.validateDOFs() == -1:
+					valueIn = raw_input("Re-enter a value for this joint: ")
+					DOF[ H.DOFnames[int(idxIn)] ] = float(valueIn) * np.pi
+
+	H.DOF = DOF
+	H.defineSegments()
+
 print "Creating human object."
-H = hum.human(measurements,DOF)
 
-H.draw()
+H = hum.human(meas,DOF)
 
-H.printProperties()
+#>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
+#We are the knights who say "Ni!"
+
+done = 0
+frames = ('Yeadon','bike')
+frame = 0
+nonfr = 1
+while done != 1:
+	print "YEADON MAIN MENU"
+	print "----------------"
+	print "  m: modify solid dimensions\n  j: modify joint angles\n  a: save current joint angles\n  d: draw human\n  h: print human properties\n  s: print segment properties\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
+
+	userIn = raw_input("What would you like to do next? ")
+	print ""
+	# MODIFY SOLID DIMENSIONS
+	if userIn == 'm':
+		print "Main menu option m is not implemented yet."
+	# MODIFY JOINT ANGLES
+	elif userIn == 'j':
+		modifyJointAngles()
+	elif userIn == 'a':
+		print "Not implemented yet"
+	elif userIn == 'd':
+		print "To continue using the YEADON, close the plot window."
+		H.draw()
+	# PRINT HUMAN PROPERTIES
+	elif userIn == 'h':
+		print "\nHuman properties using",frames[frame],"coordinate system:\n"
+		H.printProperties()
+
+	# USE COORDINATES
+	elif userIn == 'f':
+		if frame == 0:
+			frame = 1
+			nonfr = 0
+		elif frame == 1:
+			frame = 0
+			nonfr = 1
+
+	# BIKE MODE
+	elif userIn == 'b':
+		print "Bike mode is not implemented yet."
+
+	# OPTIONS
+	elif userIn == 'o':
+		optionsdone = 0
+		sym = ['off','on']
+		while optionsdone != 1:
+			print "OPTIONS"
+			print "-------"
+			print "  1: toggle symmetric inertia parameters (symmetry is",sym[ H.isSymmetric ],"now)\n  q: back to main menu"
+			optionIn = raw_input("What would you like to do? ")
+			if optionIn == '1':
+				if H.isSymmetric == 1:
+					H.isSymmetrc = 0
+				elif H.isSymmetric == 0:
+					H.isSymmetric = 1
+				print "Symmetric inertia parameters are now turned",sym,"."
+			elif optionIn == 'q':
+				print "Going back to main menu."
+				optionsdone = 1
+			else:
+				print "Invalid input"
+	elif userIn == 'q':
+		print "Quitting YEADON"
+		done = 1
+	else:
+		print "Invalid input"
 
 # INTERACT WITH THE USER
-
-
 
 DOF = {      'somersalt' : np.pi/4,
 	              'tilt' : np.pi/4,
@@ -102,21 +189,4 @@ DOF = {      'somersalt' : np.pi/2 * 0.2,
           'PK1abduction' : 0.0,
            'J1J2flexion' : np.pi/2 * 1.2,
            'K1K2flexion' : np.pi/2 * 1.2}   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

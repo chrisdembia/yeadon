@@ -4,6 +4,7 @@ import numpy as np
 zunit = np.array([[0],[0],[1]])
 
 def Rotate3(angles):
+	'''Must describe the order in which these rotations are executed.'''
 	cx = np.cos(angles[0])
 	sx = np.sin(angles[0])
 
@@ -28,6 +29,7 @@ def Rotate3(angles):
 	return Rz*Ry*Rx
 	
 def RotateRel(angles):
+	'''The three-dimensional relative rotation matrix from Yeadon 1990'''
 	cphi = np.cos(angles[0])
 	sphi= np.sin(angles[0])
 
@@ -50,3 +52,7 @@ def RotateRel(angles):
 		         [     0,     0,     1]])
 		         
 	return R1*R2*R3
+
+def RotateInertia(RotMat,relInertia):
+	'''Rotates inertia matrix.'''
+	return RotMat * relInertia * RotMat.T
