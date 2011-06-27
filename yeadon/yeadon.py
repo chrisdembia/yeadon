@@ -130,7 +130,7 @@ nonfr = 1
 while done != 1:
 	print "\nYEADON MAIN MENU"
 	print "----------------"
-	print "  m: print/modify solid dimensions\n  j: print/modify joint angles\n\n  a: save current joint angles to file\n  p: load joint angles from file\n\n  d: draw human\n\n  h: print human properties\n  g: print segment properties\n  l: print solid properties\n\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
+	print "  m: print/modify solid dimensions\n  j: print/modify joint angles\n\n  a: save current joint angles to file\n  p: load joint angles from file\n  s: format input measurements for ISEG Fortran code\n\n  d: draw human\n\n  h: print human properties\n  g: print segment properties\n  l: print solid properties\n\n  f: use",frames[nonfr],"coordinates\n  b: bike mode\n  o: options\n  q: quit"
 
 	userIn = raw_input("What would you like to do next? ")
 	print ""
@@ -162,6 +162,14 @@ while done != 1:
 			DOF = pickle.load(fid)
 			print "The joint angles pickle",fname,".pickle has been loaded."
 
+	# FORMAT INPUT MEASUREMENTS FOR ISEG FORTRAN CODE
+	elif userIn == 's':
+		fname = raw_input("Enter the file name to which you would like to write the ISEG input: ")
+		if H.writeMeasForISEG(fname) == 0:
+			print "Success!"
+		else:
+			print "Uh oh, there was an error when trying to write the ISEG input."
+		
 	# DRAW HUMAN
 	elif userIn == 'd':
 		print "To continue using the YEADON after drawing, close the plot window."
