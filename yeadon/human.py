@@ -275,7 +275,7 @@ class human:
         c : string
             Color
         '''
-        R = 0.5
+        R = 0.5 / 10.
         x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0,0]
         y = R * np.outer(np.sin(u), np.sin(v)) + self.COM[1,0]
         z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2,0]
