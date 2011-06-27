@@ -707,7 +707,7 @@ class human:
     def writeMeasForISEG(self,fname):
     	'''Converts measurement input from the current format to the format used by Yeadon's Fortran code ISEG01B.F
     	'''
-        SI = 1000
+        SI = 1./1000.
         m = self.meas
         fid = open(fname,'w')
 
@@ -774,8 +774,7 @@ class human:
         fid.write(str(L0/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L7/SI)+','+str(L8/SI)+'\n')
         fid.write(str(m.Lk1p/SI)+','+str(m.Lk2p/SI)+','+str(m.Lk3p/SI)+','+str(m.Lk4p/SI)+','+str(m.Lk5p/SI)+','+str(m.Lk6p/SI)+','+str(m.Lk7p/SI)+','+str(m.Lk8p/SI)+','+str(m.Lk9p/SI)+'\n')
         fid.write(str(m.Lk6w/SI)+','+str(m.Lk8w/SI)+','+str(m.Lk9w/SI)+'\n')
-
-		fid.write(str(500)+','+str(200)+'\n')
+        fid.write(str(500)+','+str(200)+'\n')
         fid.close()
         return 0;
 
