@@ -76,7 +76,7 @@ Dk = Dj
 # Dj8 = Dj8 # = DensityOfSegmentsConverted[9]
 # Dj9 = Dj9 # = DensityOfSegmentsConverted[9]
 
-print "Segment densities loaded."
+# print "Segment densities loaded."
 
 
 
