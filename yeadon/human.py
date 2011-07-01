@@ -1,5 +1,5 @@
-'''The human module defines the human class, which is composed of segments. The human class has methods to define the constituent segments from inputs and to calculate their properties.
-'''
+"""The human module defines the human class, which is composed of segments. The human class has methods to define the constituent segments from inputs and to calculate their properties.
+"""
 
 import numpy as np
 import matplotlib.pyplot as mpl
@@ -15,7 +15,7 @@ import mymath
 
 class human:
     def __init__(self,meas,DOF):
-        '''Initializes a human object. Stores inputs as instance variables, defines the names of the degrees of freedom (DOF) in a class tuple, defines the bounds on the DOFs in a class 2D list, validates the input DOFs against the DOF bounds, defines all the solids using the meas input parameter, defines all segments using the solid definitions, averages the segment inertia information (if the option is selected), calculates the inertia parameters (mass, center of mass, inertia tensor) of each solid and then of the entire human.
+        """Initializes a human object. Stores inputs as instance variables, defines the names of the degrees of freedom (DOF) in a class tuple, defines the bounds on the DOFs in a class 2D list, validates the input DOFs against the DOF bounds, defines all the solids using the meas input parameter, defines all segments using the solid definitions, averages the segment inertia information (if the option is selected), calculates the inertia parameters (mass, center of mass, inertia tensor) of each solid and then of the entire human.
 
         Parameters
         ----------
@@ -25,7 +25,7 @@ class human:
             The degrees of freedom of the human (radians).
 
        
-        '''
+        """
         self.meas = meas
         self.isSymmetric = 1
         self.DOF = DOF

@@ -8,4 +8,5 @@ setup(
     packages=['yeadon',],
     license='IDK YET',
     long_description=open('README.txt').read(),
+    requires=['inertia',]
 )

@@ -2,10 +2,11 @@
 README.txt
 setup.py
 yeadon/__init__.py
-yeadon/data.py
 yeadon/densities.py
 yeadon/human.py
-yeadon/main.py
+yeadon/inertia.py
+yeadon/measurements.py
 yeadon/mymath.py
 yeadon/segment.py
-yeadon/stadium.py
+yeadon/solid.py
+yeadon/ui.py
