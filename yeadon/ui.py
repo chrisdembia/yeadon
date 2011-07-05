@@ -31,6 +31,7 @@ def start_ui():
               'PK1abduction' : 0.0,
                'J1J2flexion' : 0.0,
                'K1K2flexion' : 0.0}  
+    # USER SUPPLIES MEASUREMENT FILE NAME
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
     H = hum.human(meas,DOF)
