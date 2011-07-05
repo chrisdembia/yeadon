@@ -9,12 +9,12 @@ class stadium:
     '''
     def __init__(self,inID,in1,in2,alignment='ML'):
         '''Defines a 2D stadium shape and checks inputs for errors. A stadium, described in Yeadon 1989-ii, is defined by two parameters. Stadia can depracate to circles if their "thickness" is 0.
-    
+
         Parameters
-	----------
+        ----------
         inID : str
             Identifies the type of information for the next two inputs.
-            'perimwidth' for perimeter and width input, 'depthwidth' for 
+            'perimwidth' for perimeter and width input, 'depthwidth' for
             depth and width input, 'perim' for a circle, 'thickradius' for
             thickness and radius input.
         in1 : float
@@ -32,7 +32,7 @@ class stadium:
             self.width = in2
             self.thick = ((np.pi * self.width - self.perim) /
                           (2.0 * np.pi - 4.0))
-            self.radius = ((self.perim - 2.0 * self.width)  / 
+            self.radius = ((self.perim - 2.0 * self.width)  /
                            (2.0 * np.pi - 4.0))
 	elif inID == 'depthwidth':
             self.width = in2
@@ -65,7 +65,7 @@ class stadium:
 
     def plot(self,ax,c):
         '''Plots the 2D stadium on 3D axes.
-        
+
         Parameters
         ----------
         ax : Axes3D object
@@ -135,11 +135,11 @@ class solid:
 
 class stadiumsolid(solid):
     '''Stadium solid. Derived from the solid class.
-   
+
     '''
     def __init__(self,label,density,stadium0,stadium1,height):
-        '''Defines a stadium solid object. Creates its base object, and calculates relative/local inertia properties. 
-        
+        '''Defines a stadium solid object. Creates its base object, and calculates relative/local inertia properties.
+
         Parameters
         ----------
         label : str
@@ -214,14 +214,14 @@ class stadiumsolid(solid):
     def draw(self,ax,c):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with a non-one value for alpha. Also places the solid's label near the center of mass of the solid. Adjusts the plot for solids oriented anterior-posteriorly. Plots coordinate axes of the solid at the base of the solid.
 
-        '''    
+        '''
         X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
         X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
         for idx in np.arange(X0.size-1):
             Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
             Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
             Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.plot_surface( Xpts, Ypts, Zpts, color = c, alpha = solid.alpha, edgecolor = '');
+            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=solid.alpha, edgecolor='');
             if 0:
                 if idx == 8:
                     print "IDX IS 8\n",Xpts,'\n',Ypts,'\n',Zpts
@@ -229,10 +229,10 @@ class stadiumsolid(solid):
                     print "IDX IS 9\n",Xpts,'\n',Ypts,'\n',Zpts
         # draw stad0
         ax.plot_surface( X0toplot, Y0toplot, Z0toplot,
-                         color=c, alpha = solid.alpha)
+                         color=c, alpha=solid.alpha)
         # draw stad1
         ax.plot_surface( X1toplot, Y1toplot, Z1toplot,
-                         color=c, alpha = solid.alpha)
+                         color=c, alpha=solid.alpha)
         # rotated unit vectors (unit x prime, etc)
         uxp = self.RotMat * np.array([[1],[0],[0]]) + self.pos
         uyp = self.RotMat * np.array([[0],[1],[0]]) + self.pos
@@ -253,12 +253,36 @@ class stadiumsolid(solid):
         # place solid's text label on the plot
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
-        
+    def draw2D(self,ax,ax2,c):
+        '''
+        '''
+        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
+        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        for idx in np.arange(X0.size-1):
+            Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
+            Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
+            Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
+            ax.pcolormesh( Xpts, Zpts, 0*Xpts+10,alpha=solid.alpha);
+        # draw stad0
+        ax.pcolormesh( Xpts, Zpts,
+                         0*Xpts+10, alpha=solid.alpha)
+        # draw stad1
+        ax.pcolormesh( Xpts, Zpts,
+                         0*Xpts + 10, alpha=solid.alpha)
+        for idx in np.arange(X0.size-1):
+            ax2.pcolormesh( Ypts, Zpts, 0*Xpts+10,alpha=solid.alpha);
+        # draw stad0
+        ax2.pcolormesh( Ypts, Zpts,
+                         0*Xpts+10, alpha=solid.alpha)
+        # draw stad1
+        ax2.pcolormesh( Ypts, Zpts,
+                         0*Xpts + 10, alpha=solid.alpha)
+
     def make_pos(self,i):
         '''Generates coordinates to be used for matplotlib purposes.
 
         '''
-        theta = [np.linspace(0.0,np.pi/2.0,5)]
+        theta = [np.linspace(0.0,np.pi/2.5,5)]
         x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
         y = self.stads[i].radius * np.sin(theta);
         if self.alignment == 'AP':
@@ -299,13 +323,13 @@ class stadiumsolid(solid):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
-        
+
 class semiellipsoid(solid):
     '''Semiellipsoid.
     '''
     def __init__(self,label,density,baseperim,height):
         '''Defines a semiellipsoid (solid) object. Creates its base object, and calculates relative/local inertia properties. The base is circular (its height axis is pointed upwards), so only 2 parameters are needed to define the semiellipsoid.
-        
+
         Parameters
         ----------
         label : str
@@ -363,10 +387,12 @@ class semiellipsoid(solid):
                 z[i,j] = POS[2,0]
         x = self.pos[0,0] + x
         y = self.pos[1,0] + y
-        z = self.pos[2,0] + z        
+        z = self.pos[2,0] + z
         # must rotate the x y and z
         ax.plot_surface( x, y, z, rstride=4, cstride=4,
                          color=c, alpha=solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)            
+        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
+    def draw2D(self,ax,ax2,c):
+        print "NOT IMPLEMENTED YET"

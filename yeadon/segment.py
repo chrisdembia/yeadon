@@ -141,3 +141,11 @@ class segment:
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
                         color='r')
 
+
+    def draw2D(self,ax,ax2):
+        '''Draws in two dimensions all the solids within a segment.
+
+        '''
+        for idx in np.arange(self.nSolids):
+            print "Drawing solid",self.solids[idx].label,"."
+            self.solids[idx].draw2D(ax, ax2, self.color)

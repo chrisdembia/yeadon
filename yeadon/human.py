@@ -2,7 +2,7 @@
 """
 
 import numpy as np
-import matplotlib.pyplot as mpl
+import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import inertia # jason moore's
@@ -28,7 +28,7 @@ class human:
         """
         self.meas = meas
         self.isSymmetric = 1
-        self.DOF = DOF
+        self.useISEGcorrections = 1
         human.DOFnames = ('somersalt', 'tilt', 'twist',
                           'PTsagittalFlexion', 'PTfrontalFlexion',
                           'TCspinalTorsion', 'TClateralSpinalFlexion',
@@ -37,6 +37,10 @@ class human:
                           'A1A2flexion', 'B1B2flexion', 'PJ1flexion',
                           'PJ1abduction', 'PK1flexion', 'PK1abduction',
                           'J1J2flexion', 'K1K2flexion')
+        if type(DOF) == dict:
+            self.DOF = DOF
+        elif type(DOF) == str:
+            self.read_DOF(DOF)
         human.DOFbounds = [ [-np.pi, np.pi],
                             [-np.pi, np.pi],
                             [-np.pi, np.pi],
@@ -208,12 +212,20 @@ class human:
         print "COM  (m):\n", self.COM, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
         
+    def draw2D(self):
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(121, aspect='equal')
+        ax4 = fig2.add_subplot(122, aspect='equal')
+        for seg in self.Segments:
+            seg.draw2D(ax2,ax4)
+        plt.show()
+
     def draw(self):
         '''Draws a self by calling the draw methods of all of the segments. Drawing is done by the matplotlib library.
 
         '''
         print "Drawing the self."
-        fig = mpl.figure()
+        fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
         self.T.draw(ax)
@@ -271,9 +283,9 @@ class human:
         ax.set_ylim3d(-limval, limval)
         ax.set_zlim3d(-limval, limval)
         # save the plot to an SVG file
-        mpl.savefig('humanplot', dpi=300)
+        plt.savefig('humanplot', dpi=300)
         # show the plot window, this is a loop actually
-        mpl.show()
+        plt.show()
         
     def draw_octant(self,ax,u,v,c):
         '''Draws an octant of sphere. Assists with drawing the center of mass sphere.
@@ -810,3 +822,14 @@ class human:
         fid.close()
         return 0;
 
+    def read_DOF(self,DOFfname):
+        '''Reads in a text file that contains the joint angles of the human.
+
+        '''
+        self.DOF = {}
+        fid = open(DOFfname,'r')
+        i = 0
+        for line in fid:
+            tempstr = line.partition('=')
+            self.DOF[human.DOFnames[i]] = float(tempstr[2])
+            i += 1
