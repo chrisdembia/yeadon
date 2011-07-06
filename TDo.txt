@@ -32,3 +32,26 @@ TDO
 	-better io
 	-sys.stderr messages
 	-haven't really incorporated inertia.py because it didn't fully make sense
+
+110701 UPDATE
+-----
+modify measurements input, make a nice form for it
+2d plotting
+change "DOF" to "configuration"
+sub functions: shift inertia (coordinate system)
+sub functions: combine inertias
+allow for more interactive DOF input
+documentation
+inverse kinematics
+
+110706 UPDATE
+------
+combine inertia
+delta coord system
+plot vectors
+STORE SEGMENT ENDPOINTS AND ROOT POINTS (pos) and (tip)
+(tippos)
+OTHER TODO
+for BicycleParameters
+	-need to write a function that gets position vectors
+	-

@@ -1,40 +1,74 @@
 '''This module contains a user interface for using and manipulating a Human object.
  '''
-import pickle
 
 import human as hum
 import numpy as np
-import measurements as meas
 
 def start_ui():
     print "Starting YEADON user interface."
     
+    measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
+                 'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
+                 'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',                               'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
+                 'La1p','La2p','La3p','La4p','La5p','La6p','La7p',
+                 'La4w','La5w','La6w','La7w',
+                 'Lb2L','Lb3L','Lb4L','Lb5L','Lb6L','Lb7L','Lb0p',
+                 'Lb1p','Lb2p','Lb3p','Lb4p','Lb5p','Lb6p','Lb7p',
+                 'Lb4w','Lb5w','Lb6w','Lb7w',
+                 'Lj1L','Lj3L','Lj4L','Lj5L','Lj6L','Lj8L','Lj9L',
+                 'Lj1p','Lj2p','Lj3p','Lj4p','Lj5p','Lj6p','Lj7p',
+                 'Lj8p','Lj9p','Lj8w','Lj9w','Lj6d', 
+                 'Lk1L','Lk3L','Lk4L','Lk5L','Lk6L','Lk8L','Lk9L',
+                 'Lk1p','Lk2p','Lk3p','Lk4p','Lk5p','Lk6p','Lk7p',
+                 'Lk8p','Lk9p','Lk8w','Lk9w','Lk6d')
+   # measvals =  (   2.0,   2.8,   5.8,   8.8,   9.4,   1.0,   2.0,
+    #                3.6,   5.3,   4.8,   5.6,   ,    3.,    3.,
+                     
     # initialize the joint angle data
-    CON = {      'somersalt' : 0.0,
-                      'tilt' : 0.0,
-                     'twist' : 0.0,
-         'PTsagittalFlexion' : 0.0,
-          'PTfrontalFlexion' : 0.0,
-           'TCspinalTorsion' : 0.0,
-    'TClateralSpinalFlexion' : 0.0,
-              'CA1elevation' : 0.0,
-              'CA1abduction' : 0.0,
-               'CA1rotation' : 0.0,
-              'CB1elevation' : 0.0,
-              'CB1abduction' : 0.0,
-               'CB1rotation' : 0.0,
-               'A1A2flexion' : 0.0,
-               'B1B2flexion' : 0.0,
-                'PJ1flexion' : 0.0,
-              'PJ1abduction' : 0.0,
-                'PK1flexion' : 0.0,
-              'PK1abduction' : 0.0,
-               'J1J2flexion' : 0.0,
-               'K1K2flexion' : 0.0}  
+    CFGzero = {      'somersalt' : 0.0,
+                          'tilt' : 0.0,
+                         'twist' : 0.0,
+             'PTsagittalFlexion' : 0.0,
+              'PTfrontalFlexion' : 0.0,
+               'TCspinalTorsion' : 0.0,
+        'TClateralSpinalFlexion' : 0.0,
+                  'CA1elevation' : 0.0,
+                  'CA1abduction' : 0.0,
+                   'CA1rotation' : 0.0,
+                  'CB1elevation' : 0.0,
+                  'CB1abduction' : 0.0,
+                   'CB1rotation' : 0.0,
+                   'A1A2flexion' : 0.0,
+                   'B1B2flexion' : 0.0,
+                    'PJ1flexion' : 0.0,
+                  'PJ1abduction' : 0.0,
+                    'PK1flexion' : 0.0,
+                  'PK1abduction' : 0.0,
+                   'J1J2flexion' : 0.0,
+                   'K1K2flexion' : 0.0}  
     # USER SUPPLIES MEASUREMENT FILE NAME
+    print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
+    print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
+          "meters), or a .TXT file"
+    temp = raw_input("Type the name of the dict variable "\
+                     "or the .TXT filename (to use preloaded measurements," \
+                     " just hit enter): ")
+    if temp == '':
+        meas = measPreload
+    else:
+        meas = temp
+    print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
+          " or a .TXT file"
+    temp = raw_input("Type the name of the dict variable "\
+                     "or the .TXT filename (for all joint angles as zero," \
+                     " just hit enter): ") 
+    if temp == '':
+        CFG = CFGzero
+    else:
+        CFG = temp
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
-    H = hum.human(meas,CON)
+    H = hum.human(meas,CFG)
     
     #>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
     #We are the knights who say "Ni!"
@@ -48,8 +82,7 @@ def start_ui():
     while done != 1:
         print "\nYEADON MAIN MENU"
         print "----------------"
-        print "  m: print/modify solid dimensions\n",\
-              "  j: print/modify joint angles\n\n",\
+        print "  j: print/modify joint angles\n\n",\
               "  a: save current joint angles to file\n",\
               "  p: load joint angles from file\n",\
               "  s: format input measurements for ISEG Fortran code\n\n",\
@@ -57,33 +90,27 @@ def start_ui():
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
               "  l: print solid properties\n\n",\
+              "  c: combine solids/segments for inertia\n\n",\
               "  f: use",frames[nonfr],"coordinates\n",\
-              "  b: bike mode\n",\
               "  o: options\n",\
               "  q: quit"
     
         userIn = raw_input("What would you like to do next? ")
         print ""
         
-        # MODIFY SOLID DIMENSIONS
-        if userIn == 'm':
-            print "Main menu option m is not implemented yet."
-            
         # MODIFY JOINT ANGLES
-        elif userIn == 'j':
+        if userIn == 'j':
             # this function is defined above
             modify_joint_angles()
             
         # SAVE CURRENT JOINT ANGLES
         elif userIn == 'a':
-            fname = raw_input("The joint angle dictionary CON will be pickled" \
+            fname = raw_input("The joint angle dictionary CFG will be pickled" \
                               " into a file saved in the current directory." \
                               " Specify a file name (without quotes or spaces," \
                               " q to quit): ")
             if fname != 'q':
-                fid = open(fname+".pickle",'w')
-                pickle.dump(CON,fid)
-                fid.close()
+                H.write_CFG(fname)
                 print "The joint angles have been saved in",fname,".pickle."
     
         # LOAD JOINT ANGLES
@@ -91,13 +118,12 @@ def start_ui():
             print "Be careful with this, because there is no error checking"\
                   " yet. Make sure that the pickle file is in the same format"\
                   " as a pickle output file from this program."
-            fname = raw_input("Enter the name of a file that has a .pickle" \
-                              " extension, but do not include the extension" \
+            fname = raw_input("Enter the name of a CFG .TXT file" \
+                              " including its extension" \
                               " (q to quit):")
             if fname != 'q':
-                fid = open(fname+".pickle",'r')
-                CON = pickle.load(fid)
-                print "The joint angles pickle",fname,".pickle has been loaded."
+                H.read_CFG(fname)
+                print "The joint angles in",fname,".pickle have been loaded."
     
         # FORMAT INPUT MEASUREMENTS FOR ISEG FORTRAN CODE
         elif userIn == 's':
@@ -111,7 +137,7 @@ def start_ui():
             
         # DRAW HUMAN
         elif userIn == 'd':
-            print "To continue using the YEADON after drawing,",\
+            print "To continue using the YEADON UI after drawing,",\
                    "close the plot window."
             H.draw()
             
@@ -173,7 +199,11 @@ def start_ui():
     
 # 3 methods to manage user actions in the main menu (below)
 def modify_joint_angles():
-    '''Called by command-line interaction to modify joint angles. Allows the user to first select a joint angle (from the dictionary CON) to modify. Then, the user inputs a new value for that joint angle in units of pi-radians. The user continues to modify joint angles until the user quits. The user can quit at any time by entering q.
+    '''Called by command-line interaction to modify joint angles. Allows the 
+       user to first select a joint angle (from the dictionary CFG) to modify.
+       Then, the user inputs a new value for that joint angle in units of
+       pi-radians. The user continues to modify joint angles until the user
+       quits. The user can quit at any time by entering q.
 
     '''
     # MUST UPDATE THE DRAW, etc.
@@ -183,8 +213,8 @@ def modify_joint_angles():
         counter += 1
         print "MODIFY JOINT ANGLES"
         print "-------------------"
-        for i in np.arange(len(H.CONnames)):
-            print " ",i,":",H.CONnames[i],"=",CON[H.CONnames[i]]/np.pi,"pi-rad"
+        for i in np.arange(len(H.CFGnames)):
+            print " ",i,":",H.CFGnames[i],"=",CFG[H.CFGnames[i]]/np.pi,"pi-rad"
         if counter == 1:
             idxIn = raw_input("Enter the number next to the joint angle" \
                               "to modify (q to quit): ")
@@ -198,16 +228,20 @@ def modify_joint_angles():
             if valueIn == 'q':
                 done = 1
             else:
-                CON[H.CONnames[int(idxIn)]] = float(valueIn) * np.pi
-                while H.validate_CONs() == -1:
+                CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
+                while H.validate_CFGs() == -1:
                     valueIn = raw_input("Re-enter a value for this joint: ")
-                    CON[H.CONnames[int(idxIn)]] = float(valueIn) * np.pi
+                    CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
 
-    H.CON = CON
+    H.CFG = CFG
     H.update_segments()
 
 def print_segment_properties():
-    '''Called by commandline interaction to choose a segment to print the properties (mass, center of mass, inertia), and to print those properties. See the documentation for the segment class for more information. The user can print properties of segments endlessly until entering q. 
+    '''Called by commandline interaction to choose a segment to print the
+       properties (mass, center of mass, inertia), and to print those
+       properties. See the documentation for the segment class for more
+       information. The user can print properties of segments endlessly until
+       entering q. 
     '''
     printdone = 0
     while printdone != 1:
@@ -228,7 +262,11 @@ def print_segment_properties():
         # error check the input
 
 def print_solid_properties():
-    '''Called by commandline interaction to print the properties (mass, center of mass, inertia) of a solid chosen by user inputs. The user first selects a segment, and then chooses a solid within that segment. Then, the properties of that solid are shown. See the documentation for the solid class for more information.
+    '''Called by commandline interaction to print the properties 
+       (mass, center of mass, inertia) of a solid chosen by user inputs.
+       The user first selects a segment, and then chooses a solid within that
+       segment. Then, the properties of that solid are shown. See the
+       documentation for the solid class for more information.
     '''
     printdone = 0
     while printdone != 1:
@@ -263,7 +301,7 @@ def print_solid_properties():
 # other sets of joint angles
 
 # this one was for fun; looks like a skydiver
-CONskydiver = {      'somersalt' : 0.0,
+CFGskydiver = {      'somersalt' : 0.0,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : 0.0,
@@ -286,7 +324,7 @@ CONskydiver = {      'somersalt' : 0.0,
            'K1K2flexion' : np.pi/2}        
 
 # almost in a bike-riding position
-CONbiker = {      'somersalt' : np.pi/2 * 0.2,
+CFGbiker = {      'somersalt' : np.pi/2 * 0.2,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : np.pi/2 * 0.1,

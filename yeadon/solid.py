@@ -88,7 +88,7 @@ class stadium:
 class solid:
     '''Solid
     '''
-    def __init__(self,label,density):
+    def __init__(self,label,density,height):
         '''Defines a solid. This is a base class. Sets the alpha value to be used for plotting with matplotlib.
         
         Parameters
@@ -97,10 +97,13 @@ class solid:
             Name of the solid
         density : float
             In units (kg/m^3), used to calculate the solid's mass
+        height : float
+            Distance from bottom to top of the solid
 
         '''
         self.label = label
         self.density = density
+        self.height = height
         solid.alpha = 0.4
 
     def set_orientation(self,pos,RotMat):
@@ -109,6 +112,8 @@ class solid:
         '''
         self.pos = pos
         self.RotMat = RotMat
+        self.endpos = self.pos + (self.height * self.RotMat *
+                                  np.array([[0],[0],[1]]))
         self.calc_properties()
 
     def calc_properties(self):
@@ -154,9 +159,8 @@ class stadiumsolid(solid):
             Distance between the lower and upper stadia.
        
         '''
-        solid.__init__(self,label,density)
+        solid.__init__(self,label,density,height)
         self.stads = [stadium0,stadium1]
-        self.height = height
         self.alignment = 'ML'
         # if either stadium is oriented anterior-posterior,
         # inertia must be rotated, and the plots must be modified
@@ -344,10 +348,9 @@ class semiellipsoid(solid):
             The remaining minor axis.
 
         '''
-        solid.__init__(self,label,density)
+        solid.__init__(self,label,density,height)
         self.baseperimeter = baseperim
         self.radius = self.baseperimeter/(2.0*np.pi)
-        self.height = height
 
         self.calc_rel_properties()
 

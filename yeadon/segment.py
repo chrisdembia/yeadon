@@ -35,6 +35,7 @@ class segment:
         # must set the position of constituent solids before being able to 
         # calculate relative/local properties.
         self.set_orientations()
+        self.endpos = self.pos + self.solids[-1].endpos
         self.calc_rel_properties()
        
  
@@ -47,8 +48,7 @@ class segment:
         # pos and RotMat for remaining solids
         for i in np.arange(self.nSolids):
             if i != 0:
-                pos = self.solids[i-1].pos + (self.solids[i-1].height *
-                                              self.RotMat * mymath.zunit)
+                pos = self.solids[i-1].endpos
                 self.solids[i].set_orientation(pos,self.RotMat)
             
     def calc_rel_properties(self):
@@ -140,7 +140,6 @@ class segment:
         z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2,0]
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
                         color='r')
-
 
     def draw2D(self,ax,ax2):
         '''Draws in two dimensions all the solids within a segment.
