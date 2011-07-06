@@ -10,7 +10,7 @@ def start_ui():
     print "Starting YEADON user interface."
     
     # initialize the joint angle data
-    DOF = {      'somersalt' : 0.0,
+    CON = {      'somersalt' : 0.0,
                       'tilt' : 0.0,
                      'twist' : 0.0,
          'PTsagittalFlexion' : 0.0,
@@ -34,7 +34,7 @@ def start_ui():
     # USER SUPPLIES MEASUREMENT FILE NAME
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
-    H = hum.human(meas,DOF)
+    H = hum.human(meas,CON)
     
     #>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
     #We are the knights who say "Ni!"
@@ -76,13 +76,13 @@ def start_ui():
             
         # SAVE CURRENT JOINT ANGLES
         elif userIn == 'a':
-            fname = raw_input("The joint angle dictionary DOF will be pickled" \
+            fname = raw_input("The joint angle dictionary CON will be pickled" \
                               " into a file saved in the current directory." \
                               " Specify a file name (without quotes or spaces," \
                               " q to quit): ")
             if fname != 'q':
                 fid = open(fname+".pickle",'w')
-                pickle.dump(DOF,fid)
+                pickle.dump(CON,fid)
                 fid.close()
                 print "The joint angles have been saved in",fname,".pickle."
     
@@ -96,7 +96,7 @@ def start_ui():
                               " (q to quit):")
             if fname != 'q':
                 fid = open(fname+".pickle",'r')
-                DOF = pickle.load(fid)
+                CON = pickle.load(fid)
                 print "The joint angles pickle",fname,".pickle has been loaded."
     
         # FORMAT INPUT MEASUREMENTS FOR ISEG FORTRAN CODE
@@ -173,7 +173,7 @@ def start_ui():
     
 # 3 methods to manage user actions in the main menu (below)
 def modify_joint_angles():
-    '''Called by command-line interaction to modify joint angles. Allows the user to first select a joint angle (from the dictionary DOF) to modify. Then, the user inputs a new value for that joint angle in units of pi-radians. The user continues to modify joint angles until the user quits. The user can quit at any time by entering q.
+    '''Called by command-line interaction to modify joint angles. Allows the user to first select a joint angle (from the dictionary CON) to modify. Then, the user inputs a new value for that joint angle in units of pi-radians. The user continues to modify joint angles until the user quits. The user can quit at any time by entering q.
 
     '''
     # MUST UPDATE THE DRAW, etc.
@@ -183,8 +183,8 @@ def modify_joint_angles():
         counter += 1
         print "MODIFY JOINT ANGLES"
         print "-------------------"
-        for i in np.arange(len(H.DOFnames)):
-            print " ",i,":",H.DOFnames[i],"=",DOF[H.DOFnames[i]]/np.pi,"pi-rad"
+        for i in np.arange(len(H.CONnames)):
+            print " ",i,":",H.CONnames[i],"=",CON[H.CONnames[i]]/np.pi,"pi-rad"
         if counter == 1:
             idxIn = raw_input("Enter the number next to the joint angle" \
                               "to modify (q to quit): ")
@@ -198,12 +198,12 @@ def modify_joint_angles():
             if valueIn == 'q':
                 done = 1
             else:
-                DOF[H.DOFnames[int(idxIn)]] = float(valueIn) * np.pi
-                while H.validate_DOFs() == -1:
+                CON[H.CONnames[int(idxIn)]] = float(valueIn) * np.pi
+                while H.validate_CONs() == -1:
                     valueIn = raw_input("Re-enter a value for this joint: ")
-                    DOF[H.DOFnames[int(idxIn)]] = float(valueIn) * np.pi
+                    CON[H.CONnames[int(idxIn)]] = float(valueIn) * np.pi
 
-    H.DOF = DOF
+    H.CON = CON
     H.update_segments()
 
 def print_segment_properties():
@@ -263,7 +263,7 @@ def print_solid_properties():
 # other sets of joint angles
 
 # this one was for fun; looks like a skydiver
-DOFskydiver = {      'somersalt' : 0.0,
+CONskydiver = {      'somersalt' : 0.0,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : 0.0,
@@ -286,7 +286,7 @@ DOFskydiver = {      'somersalt' : 0.0,
            'K1K2flexion' : np.pi/2}        
 
 # almost in a bike-riding position
-DOFbiker = {      'somersalt' : np.pi/2 * 0.2,
+CONbiker = {      'somersalt' : np.pi/2 * 0.2,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : np.pi/2 * 0.1,
