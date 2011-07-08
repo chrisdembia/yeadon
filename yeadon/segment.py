@@ -1,6 +1,6 @@
 import numpy as np
 
-import inertia
+from dtk import inertia # jason moore's
 
 import solid
 import mymath

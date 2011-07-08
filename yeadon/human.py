@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-import inertia # jason moore's
+from dtk import inertia # jason's
 
 import solid as sol
 import segment as seg
@@ -109,8 +109,7 @@ class human:
         # this next call must happen after the previous 
         # per-segment call because EDIT.
         self.calc_properties()
-       
- 
+
     def update_segments(self):
         '''Updates all segments. Expected to be called by a GUI or commandline interface when a user has updated joint angles after the human object has been created. Solids do not need to be recreated, but the segments need to be redefined, and so inertia parameters need to be averaged again, and the human's inertia parameters must also be redefined.
         
@@ -199,7 +198,7 @@ class human:
                                       self.K2.relInertia)
             self.J2.relInertia = shankfootInertia
             self.K2.relInertia = shankfootInertia
-       
+
     def set_CFG(self,idx,value):
         '''Allows the user to set a single configuration variable in CFG without
            using the command line interface. CFG is a dictionary that holds all
@@ -256,7 +255,7 @@ class human:
                 self.Inertia * mymath.Rotate3([0,np.pi,np.pi/2]).T,
             self.Mass,
             [dist[0,0],dist[1,0],dist[2,0]])
-        
+
     def print_properties(self):
         '''Prints human mass, center of mass,and inertia.
 
@@ -264,7 +263,10 @@ class human:
         print "Mass (kg):", self.Mass, "\n"
         print "COM  (m):\n", self.COM, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
-        
+
+    def draw_visual(self):
+        print "Will use vpython"
+
     def draw2D(self):
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(121, aspect='equal')
@@ -339,7 +341,7 @@ class human:
         plt.savefig('humanplot', dpi=300)
         # show the plot window, this is a loop actually
         plt.show()
-        
+
     def draw_octant(self,ax,u,v,c):
         '''Draws an octant of sphere. Assists with drawing the center of mass sphere.
         
@@ -359,94 +361,86 @@ class human:
         z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2,0]
         ax.plot_surface( x, y, z,  rstride=4, cstride=4,
                          edgecolor='', color=c)
-                
+
     def define_torso_solids(self):
         '''Defines the solids (from solid.py) that create the torso of the human. This requires the definition of 2-D stadium levels using the input measurement parameters.
 
         '''
-  
-        meas = self.meas 
+
+        meas = self.meas
         # get solid heights from length measurements
         s0h = meas['Ls1L']
-        s1h = meas['Ls2L'] - s0h
-        s2h = meas['Ls3L'] - s1h
-        s3h = meas['Ls4L'] - s2h
-        s4h = meas['Ls5L'] - s3h
+        s1h = meas['Ls2L'] - meas['Ls1L']
+        s2h = meas['Ls3L'] - meas['Ls2L']
+        s3h = meas['Ls4L'] - meas['Ls3L']
+        s4h = meas['Ls5L'] - meas['Ls4L']
         s5h = meas['Ls6L']
-        s6h = meas['Ls7L'] - s5h
-        s7h = meas['Ls8L'] - s6h
-        # torso    
+        s6h = meas['Ls7L'] - meas['Ls6L']
+        s7h = meas['Ls8L'] - meas['Ls7L']
+        # torso
         self.Ls = []
         self.s = []
-        # Ls0: hip joint centre
-        self.Ls.append( sol.stadium('perimwidth', meas['Ls0p'], meas['Ls0w'])) 
-        # Ls1: umbilicus
-        self.Ls.append( sol.stadium('perimwidth', meas['Ls1p'], meas['Ls1w']))
-        # Ls2: lowest front rib
-        self.Ls.append( sol.stadium('perimwidth', meas['Ls2p'], meas['Ls2w']))
-        # Ls3: nipple
-        self.Ls.append( sol.stadium('perimwidth', meas['Ls3p'], meas['Ls3w']))
-        # Ls4: shoulder joint centre (note depthwidth this time)
-        self.Ls.append( sol.stadium('depthwidth', meas['Ls4d'], meas['Ls4w']))
-        # Ls5: acromion EDIT!!
+        self.Ls.append( sol.stadium('Ls0: hip joint centre',
+                                    'perimwidth', meas['Ls0p'], meas['Ls0w'])) 
+        self.Ls.append( sol.stadium('Ls1: umbilicus',
+                                    'perimwidth', meas['Ls1p'], meas['Ls1w']))
+        self.Ls.append( sol.stadium('Ls2: lowest front rib',
+                                    'perimwidth', meas['Ls2p'], meas['Ls2w']))
+        self.Ls.append( sol.stadium('Ls3: nipple',
+                                    'perimwidth', meas['Ls3p'], meas['Ls3w']))
+        self.Ls.append( sol.stadium('Ls4: shoulder joint centre',
+                                    'depthwidth', meas['Ls4d'], meas['Ls4w']))
         thick = self.Ls[4].width / 2.0 - 0.57 * self.Ls[4].radius
         radius = meas['Ls5p'] / 2.0 / np.pi
-        self.Ls.append( sol.stadium('thickradius', thick, radius))
-        # Ls5: acromion/bottom of neck
-        self.Ls.append( sol.stadium('perim',meas['Ls5p'], '=p'))
-        # Ls6: beneath nose
-        self.Ls.append( sol.stadium('perim', meas['Ls6p'], '=p'))
-        # Ls7: above ear
-        self.Ls.append( sol.stadium('perim', meas['Ls7p'], '=p'))
+        self.Ls.append( sol.stadium('Ls5: acromion',
+                                    'thickradius', thick, radius))
+        self.Ls.append( sol.stadium('Ls5: acromion/bottom of neck',
+                                    'perim',meas['Ls5p'], '=p'))
+        self.Ls.append( sol.stadium('Ls6: beneath nose',
+                                    'perim', meas['Ls6p'], '=p'))
+        self.Ls.append( sol.stadium('Ls7: above ear',
+                                    'perim', meas['Ls7p'], '=p'))
         # define solids: this can definitely be done in a loop
-        # s0
         self.s.append( sol.stadiumsolid( 's0: hip joint centre',
                                           dens.Ds[0],
                                           self.Ls[0],
                                           self.Ls[1],
                                           s0h))
-        # s1
         self.s.append( sol.stadiumsolid( 's1: umbilicus',
                                           dens.Ds[1],
                                           self.Ls[1],
                                           self.Ls[2],
                                           s1h))
-        # s2
         self.s.append( sol.stadiumsolid( 's2: lowest front rib',
                                           dens.Ds[2],
                                           self.Ls[2],
                                           self.Ls[3],
                                           s2h))
-        # s3
         self.s.append( sol.stadiumsolid( 's3: nipple',
                                           dens.Ds[3],
                                           self.Ls[3],
                                           self.Ls[4],
                                           s3h))
-        # s4
         self.s.append( sol.stadiumsolid( 's4: shoulder joint centre',
                                           dens.Ds[4],
                                           self.Ls[4],
                                           self.Ls[5],
                                           s4h))
-        # s5
         self.s.append( sol.stadiumsolid( 's5: acromion',
                                           dens.Ds[5],
                                           self.Ls[6],
                                           self.Ls[7],
                                           s5h))
-        # s6
         self.s.append( sol.stadiumsolid( 's6: beneath nose',
                                           dens.Ds[6],
                                           self.Ls[7],
                                           self.Ls[8],
                                           s6h))
-        # s7
         self.s.append( sol.semiellipsoid( 's7: above ear',
                                            dens.Ds[7],
                                            meas['Ls7p'],
                                            s7h))
-            
+
     def define_arm_solids(self):
         '''Defines the solids (from solid.py) that create the arms of the human. This requires the definition of 2-D stadium levels using the input measurement parameters .
 
@@ -454,31 +448,31 @@ class human:
         meas = self.meas 
         # get solid heights from length measurements
         a0h = meas['La2L'] * 0.5
-        a1h = meas['La2L'] - a0h
-        a2h = meas['La3L'] - a1h
-        a3h = meas['La4L'] - a2h
+        a1h = meas['La2L'] - meas['La2L'] * 0.5
+        a2h = meas['La3L'] - meas['La2L']
+        a3h = meas['La4L'] - meas['La3L']
         a4h = meas['La5L']
-        a5h = meas['La6L'] - a4h
-        a6h = meas['La7L'] - a5h
+        a5h = meas['La6L'] - meas['La5L']
+        a6h = meas['La7L'] - meas['La6L']
         # left arm
         self.La = []
         self.a = []
-        # La0: shoulder joint centre
-        self.La.append( sol.stadium('perim', meas['La0p'], '=p'))
-        # La1: mid-arm
-        self.La.append( sol.stadium('perim', meas['La1p'], '=p'))
-        # La2: lowest front rib
-        self.La.append( sol.stadium('perim', meas['La2p'], '=p'))
-        # La3: nipple
-        self.La.append( sol.stadium('perim', meas['La3p'], '=p'))
-        # La4: wrist joint centre
-        self.La.append( sol.stadium('perimwidth', meas['La4p'], meas['La4w']))
-        # La5: acromion
-        self.La.append( sol.stadium('perimwidth', meas['La5p'], meas['La5w']))
-        # La6: knuckles
-        self.La.append( sol.stadium('perimwidth', meas['La6p'], meas['La6w']))
-        # La7: fingernails
-        self.La.append( sol.stadium('perimwidth', meas['La7p'], meas['La7w']))
+        self.La.append( sol.stadium('La0: shoulder joint centre',
+                                    'perim', meas['La0p'], '=p'))
+        self.La.append( sol.stadium('La1: mid-arm',
+                                    'perim', meas['La1p'], '=p'))
+        self.La.append( sol.stadium('La2: lowest front rib',
+                                    'perim', meas['La2p'], '=p'))
+        self.La.append( sol.stadium('La3: nipple',
+                                    'perim', meas['La3p'], '=p'))
+        self.La.append( sol.stadium('La4: wrist joint centre',
+                                    'perimwidth', meas['La4p'], meas['La4w']))
+        self.La.append( sol.stadium('La5: acromion',
+                                    'perimwidth', meas['La5p'], meas['La5w']))
+        self.La.append( sol.stadium('La6: knuckles',
+                                    'perimwidth', meas['La6p'], meas['La6w']))
+        self.La.append( sol.stadium('La7: fingernails',
+                                    'perimwidth', meas['La7p'], meas['La7w']))
         # define left arm solids
         self.a.append( sol.stadiumsolid( 'a0: shoulder joint centre',
                                           dens.Da[0],
@@ -517,31 +511,31 @@ class human:
                                           a6h))
         # get solid heights from length measurements
         b0h = meas['Lb2L'] * 0.5
-        b1h = meas['Lb2L'] - b0h
-        b2h = meas['Lb3L'] - b1h
-        b3h = meas['Lb4L'] - b2h
+        b1h = meas['Lb2L'] - meas['Lb2L'] * 0.5
+        b2h = meas['Lb3L'] - meas['Lb2L']
+        b3h = meas['Lb4L'] - meas['Lb3L']
         b4h = meas['Lb5L']
-        b5h = meas['Lb6L'] - b4h
-        b6h = meas['Lb7L'] - b5h
+        b5h = meas['Lb6L'] - meas['Lb5L']
+        b6h = meas['Lb7L'] - meas['Lb6L']
         # right arm
         self.Lb = []
         self.b = []
-        # Lb0: shoulder joint centre
-        self.Lb.append( sol.stadium('perim', meas['Lb0p'], '=p'))
-        # Lb1: mid-arm
-        self.Lb.append( sol.stadium('perim', meas['Lb1p'], '=p'))
-        # Lb2: lowest front rib
-        self.Lb.append( sol.stadium('perim', meas['Lb2p'], '=p'))
-        # Lb3: nipple
-        self.Lb.append( sol.stadium('perim', meas['Lb3p'], '=p'))
-        # Lb4: wrist joint centre
-        self.Lb.append( sol.stadium('perimwidth', meas['Lb4p'], meas['Lb4w']))
-        # Lb5: acromion
-        self.Lb.append( sol.stadium('perimwidth', meas['Lb5p'], meas['Lb5w']))
-        # Lb6: knuckles
-        self.Lb.append( sol.stadium('perimwidth', meas['Lb6p'], meas['Lb6w']))
-        # Lb7: fingernails
-        self.Lb.append( sol.stadium('perimwidth', meas['Lb7p'], meas['Lb7w']))
+        self.Lb.append( sol.stadium('Lb0: shoulder joint centre',
+                                    'perim', meas['Lb0p'], '=p'))
+        self.Lb.append( sol.stadium('Lb1: mid-arm',
+                                    'perim', meas['Lb1p'], '=p'))
+        self.Lb.append( sol.stadium('Lb2: lowest front rib',
+                                    'perim', meas['Lb2p'], '=p'))
+        self.Lb.append( sol.stadium('Lb3: nipple',
+                                    'perim', meas['Lb3p'], '=p'))
+        self.Lb.append( sol.stadium('Lb4: wrist joint centre',
+                                    'perimwidth', meas['Lb4p'], meas['Lb4w']))
+        self.Lb.append( sol.stadium('Lb5: acromion',
+                                    'perimwidth', meas['Lb5p'], meas['Lb5w']))
+        self.Lb.append( sol.stadium('Lb6: knuckles',
+                                    'perimwidth', meas['Lb6p'], meas['Lb6w']))
+        self.Lb.append( sol.stadium('Lb7: fingernails',
+                                    'perimwidth', meas['Lb7p'], meas['Lb7w']))
         # define right arm solids
         self.b.append( sol.stadiumsolid( 'b0: shoulder joint centre',
                                           dens.Db[0],
@@ -583,46 +577,44 @@ class human:
         '''Defines the solids (from solid.py) that create the legs of the human. This requires the definition of 2-D stadium levels using the input measurement parameters .
 
         '''
-        meas = self.meas 
+        meas = self.meas
         # get solid heights from length measurements
         j0h = meas['Lj1L']
-        j1h = (meas['Lj3L'] + meas['Lj1L']) * 0.5 - j0h
-        j2h = meas['Lj3L'] - j1h
-        j3h = meas['Lj4L'] - j2h
-        j4h = meas['Lj5L'] - j3h
+        j1h = (meas['Lj3L'] + meas['Lj1L']) * 0.5 - meas['Lj1L']
+        j2h = meas['Lj3L'] - (meas['Lj3L'] + meas['Lj1L']) * 0.5
+        j3h = meas['Lj4L'] - meas['Lj3L']
+        j4h = meas['Lj5L'] - meas['Lj4L']
         j5h = meas['Lj6L']
-        j6h = (meas['Lj8L'] + meas['Lj6L']) * 0.5 - j5h
-        j7h = meas['Lj8L'] - j6h
-        j8h = meas['Lj9L'] - j7h
+        j6h = (meas['Lj8L'] + meas['Lj6L']) * 0.5 - meas['Lj6L']
+        j7h = meas['Lj8L'] - (meas['Lj8L'] + meas['Lj6L']) * 0.5
+        j8h = meas['Lj9L'] - meas['Lj8L']
         # left leg
         self.Lj = []
         self.j = []
-        # Lj0: hip joint centre
         Lj0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
-        self.Lj.append( sol.stadium('perim', Lj0p, '=p'))
-        # Lj1: crotch
-        self.Lj.append( sol.stadium('perim', meas['Lj1p'], '=p'))
-        # Lj2: mid-thigh
-        self.Lj.append( sol.stadium('perim', meas['Lj2p'], '=p'))
-        # Lj3: knee joint centre
-        self.Lj.append( sol.stadium('perim', meas['Lj3p'], '=p'))
-        # Lj4: maximum calf perimeter
-        self.Lj.append( sol.stadium('perim', meas['Lj4p'], '=p'))
-        # Lj5: ankle joint centre
-        self.Lj.append( sol.stadium('perim', meas['Lj5p'], '=p'))
-        # Lj6: heel, aligned anterior-posteriorly
-        # rather than medio-laterally
-        self.Lj.append( sol.stadium('perimwidth', meas['Lj6p'], meas['Lj6d'],
+        self.Lj.append( sol.stadium('Lj0: hip joint centre',
+                                    'perim', Lj0p, '=p'))
+        self.Lj.append( sol.stadium('Lj1: crotch',
+                                    'perim', meas['Lj1p'], '=p'))
+        self.Lj.append( sol.stadium('Lj2: mid-thigh',
+                                    'perim', meas['Lj2p'], '=p'))
+        self.Lj.append( sol.stadium('Lj3: knee joint centre',
+                                    'perim', meas['Lj3p'], '=p'))
+        self.Lj.append( sol.stadium('Lj4: maximum calf perimeter',
+                                    'perim', meas['Lj4p'], '=p'))
+        self.Lj.append( sol.stadium('Lj5: ankle joint centre',
+                                    'perim', meas['Lj5p'], '=p'))
+        self.Lj.append( sol.stadium('Lj6: heel',
+                                    'perimwidth', meas['Lj6p'], meas['Lj6d'],
                                     'AP'))
-        # Lj7: arch
-        self.Lj.append( sol.stadium('perim', meas['Lj7p'], '=p'))
-        # Lj8: ball
-        self.Lj.append( sol.stadium('perimwidth', meas['Lj8p'], meas['Lj8w']))
-        # Lj9: toe nails
-        self.Lj.append( sol.stadium('perimwidth', meas['Lj9p'], meas['Lj9w']))
-
-        # define left leg solids        
+        self.Lj.append( sol.stadium('Lj7: arch',
+                                    'perim', meas['Lj7p'], '=p'))
+        self.Lj.append( sol.stadium('Lj8: ball',
+                                    'perimwidth', meas['Lj8p'], meas['Lj8w']))
+        self.Lj.append( sol.stadium('Lj9: toe nails',
+                                    'perimwidth', meas['Lj9p'], meas['Lj9w']))
+        # define left leg solids
         self.j.append( sol.stadiumsolid( 'j0: hip joint centre',
                                           dens.Dj[0],
                                           self.Lj[0],
@@ -670,42 +662,40 @@ class human:
                                           j8h))       
         # get solid heights from length measurements
         k0h = meas['Lk1L']
-        k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - k0h
-        k2h = meas['Lk3L'] - k1h
-        k3h = meas['Lk4L'] - k2h
-        k4h = meas['Lk5L'] - k3h
+        k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
+        k2h = meas['Lk3L'] - (meas['Lk3L'] + meas['Lk1L']) * 0.5
+        k3h = meas['Lk4L'] - meas['Lk3L']
+        k4h = meas['Lk5L'] - meas['Lk4L']
         k5h = meas['Lk6L']
-        k6h = (meas['Lk8L'] + meas['Lk6L']) * 0.5 - k5h
-        k7h = meas['Lk8L'] - k6h
-        k8h = meas['Lk9L'] - k7h
+        k6h = (meas['Lk8L'] + meas['Lk6L']) * 0.5 - meas['Lk6L']
+        k7h = meas['Lk8L'] - (meas['Lk8L'] + meas['Lk6L']) * 0.5
+        k8h = meas['Lk9L'] - meas['Lk8L']
         # right leg
         self.Lk = []
         self.k = []
-        # Lk0: hip joint centre
         Lk0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
-        self.Lk.append( sol.stadium('perim', Lk0p, '=p'))
-        # Lk1: crotch
-        self.Lk.append( sol.stadium('perim', meas['Lk1p'], '=p'))
-        # Lk2: mid-thigh
-        self.Lk.append( sol.stadium('perim', meas['Lk2p'], '=p'))
-        # Lk3: knee joint centre
-        self.Lk.append( sol.stadium('perim', meas['Lk3p'], '=p'))
-        # Lk4: maximum calf perimeter
-        self.Lk.append( sol.stadium('perim', meas['Lk4p'], '=p'))
-        # Lk5: ankle joint centre
-        self.Lk.append( sol.stadium('perim', meas['Lk5p'], '=p'))
-        # Lk6: heel, aligned anterior-posteriorly
-        # rather than medio-laterally
-        self.Lk.append( sol.stadium('perimwidth', meas['Lk6p'], meas['Lk6d'],
+        self.Lk.append( sol.stadium('Lk0: hip joint centre',
+                                    'perim', Lk0p, '=p'))
+        self.Lk.append( sol.stadium('Lk1: crotch',
+                                    'perim', meas['Lk1p'], '=p'))
+        self.Lk.append( sol.stadium('Lk2: mid-thigh',
+                                    'perim', meas['Lk2p'], '=p'))
+        self.Lk.append( sol.stadium('Lk3: knee joint centre',
+                                    'perim', meas['Lk3p'], '=p'))
+        self.Lk.append( sol.stadium('Lk4: maximum calf perimeter',
+                                    'perim', meas['Lk4p'], '=p'))
+        self.Lk.append( sol.stadium('Lk5: ankle joint centre',
+                                    'perim', meas['Lk5p'], '=p'))
+        self.Lk.append( sol.stadium('Lk6: heel',
+                                    'perimwidth', meas['Lk6p'], meas['Lk6d'],
                                     'AP'))
-        # Lk7: arch
-        self.Lk.append( sol.stadium('perim', meas['Lk7p'], '=p'))
-        # Lk8: ball
-        self.Lk.append( sol.stadium('perimwidth', meas['Lk8p'], meas['Lk8w']))
-        # Lk9: toe nails
-        self.Lk.append( sol.stadium('perimwidth', meas['Lk9p'], meas['Lk9w']))
-        
+        self.Lk.append( sol.stadium('Lk7: arch',
+                                    'perim', meas['Lk7p'], '=p'))
+        self.Lk.append( sol.stadium('Lk8: ball',
+                                    'perimwidth', meas['Lk8p'], meas['Lk8w']))
+        self.Lk.append( sol.stadium('Lk9: toe nails',
+                                    'perimwidth', meas['Lk9p'], meas['Lk9w']))
         self.k.append( sol.stadiumsolid( 'k0: hip joint centre',
                                           dens.Dk[0],
                                           self.Lk[0],
@@ -751,7 +741,7 @@ class human:
                                           self.Lk[8],
                                           self.Lk[9],
                                           k8h))       
-                       
+
     def define_segments(self):
         '''Define segment objects using previously defined solids. This is where the definition of segment position and rotation really happens. There are 9 segments. Each segment has a base, located at a joint, and an orientation given by the input joint angle parameters.
 
@@ -765,16 +755,14 @@ class human:
         self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
                               [self.s[0],self.s[1]] , 'red')
         # thorax
-        Tpos = self.s[1].pos + (self.s[1].height *
-                                self.s[1].RotMat * mymath.zunit)
+        Tpos = self.s[1].endpos
         TRotMat = self.s[1].RotMat * mymath.Rotate3(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.segment( 'T: Thorax', Tpos, TRotMat,
                               [self.s[2]], 'orange')
         # chest-head
-        Cpos = self.s[2].pos + (self.s[2].height *
-                                self.s[2].RotMat * mymath.zunit)
+        Cpos = self.s[2].endpos
         CRotMat = self.s[2].RotMat * mymath.Rotate3(
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
@@ -795,8 +783,7 @@ class human:
         self.A1 = seg.segment( 'A1: Left upper arm', A1pos, A1RotMat,
                                [self.a[0],self.a[1]] , 'green' )
         # left forearm-hand
-        A2pos = self.a[1].pos + (self.a[1].height *
-                                 self.a[1].RotMat * mymath.zunit)
+        A2pos = self.a[1].endpos
         A2RotMat = self.a[1].RotMat * mymath.Rotate3(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
@@ -815,8 +802,7 @@ class human:
         self.B1 = seg.segment( 'B1: Right upper arm', B1pos, B1RotMat,
                                [self.b[0],self.b[1]], 'green')
         # right forearm-hand
-        B2pos = self.b[1].pos + (self.b[1].height *
-                                 self.b[1].RotMat * mymath.zunit)
+        B2pos = self.b[1].endpos
         B2RotMat = self.b[1].RotMat * mymath.Rotate3(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
@@ -833,8 +819,7 @@ class human:
         self.J1 = seg.segment( 'J1: Left thigh', J1pos, J1RotMat,
                                [self.j[0],self.j[1],self.j[2]], 'green')
         # left shank-foot
-        J2pos = self.j[2].pos + (self.j[2].height *
-                                 self.j[2].RotMat * mymath.zunit)
+        J2pos = self.j[2].endpos
         J2RotMat = self.j[2].RotMat * mymath.Rotate3(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.segment( 'J2: Left shank-foot', J2pos, J2RotMat,
@@ -851,8 +836,7 @@ class human:
         self.K1 = seg.segment( 'K1: Right thigh', K1pos, K1RotMat,
                                [self.k[0],self.k[1],self.k[2]], 'green')
         # right shank-foot
-        K2pos = self.k[2].pos + (self.k[2].height *
-                                 self.k[2].RotMat * mymath.zunit)
+        K2pos = self.k[2].endpos
         K2RotMat = self.k[2].RotMat * mymath.Rotate3(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.segment( 'K2: Right shank-foot', K2pos, K2RotMat,
@@ -879,7 +863,12 @@ class human:
                     (tempstr1[0].find('=') != -1)):
                     tempstr2 = tempstr1[0].partition('=')
                     varname = tempstr2[0].strip()
-                    varval = float(tempstr2[2])
+                    if len(tempstr2[2]) == 0:
+                       print "Error in human.read_measurements(fname):" \
+                             " variable",varname,"does not have a value."
+                       raise Exception()
+                    else:
+                       varval = float(tempstr2[2])
                     # identify varname-varval pairs and assign appropriately
                     if varname == 'measurementconversionfactor':
                         self.measurementconversionfactor = varval

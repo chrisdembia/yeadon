@@ -7,11 +7,13 @@ import mymath
 class stadium:
     '''Stadium
     '''
-    def __init__(self,inID,in1,in2,alignment='ML'):
+    def __init__(self,label,inID,in1,in2,alignment='ML'):
         '''Defines a 2D stadium shape and checks inputs for errors. A stadium, described in Yeadon 1989-ii, is defined by two parameters. Stadia can depracate to circles if their "thickness" is 0.
 
         Parameters
         ----------
+        label : str
+            Name of the stadium level, according to Yeadon 1989-ii.
         inID : str
             Identifies the type of information for the next two inputs.
             'perimwidth' for perimeter and width input, 'depthwidth' for
@@ -27,6 +29,7 @@ class stadium:
             supplied. The only 'AP' stadiums should be at the heels.
 
         '''
+        self.label = label
         if inID == 'perimwidth':
             self.perim = in1
             self.width = in2
@@ -51,14 +54,16 @@ class stadium:
             self.perim = 4.0 * self.thick + 2.0 * np.pi * self.radius
             self.width = 2.0 * self.thick + 2.0 * self.radius
         else:
-            print "Error: stadium not defined properly,",\
+            print "Error: stadium",self.label,"not defined properly,",\
                    "must use inID pw, dw, or p"
         if self.radius <= 0 or self.thick < 0:
-            print "Error: a stadium is defined incorrectly,",\
+            print "Error: stadium",self.label,"is defined incorrectly,",\
                    "r must be positive and t must be nonnegative. r = ",\
-                   self.radius, " and t = ", self.thick, "."
+                   self.radius, " and t = ", self.thick, ". This means that",\
+                   "2 < perimeter/width < pi. Currently, this ratio is",\
+                   self.perim/self.width
         if alignment != 'AP' and alignment != 'ML':
-            print "Error: stadium alignment is not valid,",\
+            print "Error: stadium",self.label,"alignment is not valid,",\
                    "must be either AP or ML"
         else:
             self.alignment = alignment
@@ -105,6 +110,7 @@ class solid:
         self.density = density
         self.height = height
         solid.alpha = 0.4
+        print "my name is",self.label,"and my height is",self.height
 
     def set_orientation(self,pos,RotMat):
         '''Sets the position, rotation matrix of the solid, and calculate the "absolute" properties (center of mass, and inertia tensor) of the solid.
