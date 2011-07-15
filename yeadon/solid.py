@@ -1,5 +1,6 @@
 import matplotlib.pyplot as mpl
 from mpl_toolkits.mplot3d import Axes3D
+from visual import *
 
 import numpy as np
 import mymath
@@ -17,8 +18,8 @@ class stadium:
         inID : str
             Identifies the type of information for the next two inputs.
             'perimwidth' for perimeter and width input, 'depthwidth' for
-            depth and width input, 'perim' for a circle, 'thickradius' for
-            thickness and radius input.
+            depth and width input, 'perim' or 'radius' for a circle,
+            'thickradius' for thickness and radius input.
         in1 : float
             Either perimeter, depth, or thickness, as determined by inID
         in2 : float
@@ -37,7 +38,7 @@ class stadium:
                           (2.0 * np.pi - 4.0))
             self.radius = ((self.perim - 2.0 * self.width)  /
                            (2.0 * np.pi - 4.0))
-	elif inID == 'depthwidth':
+        elif inID == 'depthwidth':
             self.width = in2
             self.perim = 2.0 * in2 + (np.pi - 2.0) * in1
             self.thick = ((np.pi * self.width - self.perim) /
@@ -48,6 +49,11 @@ class stadium:
             self.width = self.perim / np.pi
             self.thick = 0.0
             self.radius = self.perim / (2.0 * np.pi)
+        elif inID == 'radius':
+            self.radius = in1
+            self.perim = 2.0 * np.pi * self.radius
+            self.thick = 0.0
+            self.width = self.perim / np.pi
         elif inID == 'thickradius':
             self.thick = in1
             self.radius = in2
@@ -109,8 +115,7 @@ class solid:
         self.label = label
         self.density = density
         self.height = height
-        solid.alpha = 0.4
-        print "my name is",self.label,"and my height is",self.height
+        solid.alpha = 1
 
     def set_orientation(self,pos,RotMat):
         '''Sets the position, rotation matrix of the solid, and calculate the "absolute" properties (center of mass, and inertia tensor) of the solid.
@@ -263,6 +268,7 @@ class stadiumsolid(solid):
         # place solid's text label on the plot
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
+
     def draw2D(self,ax,ax2,c):
         '''
         '''
@@ -287,6 +293,37 @@ class stadiumsolid(solid):
         # draw stad1
         ax2.pcolormesh( Ypts, Zpts,
                          0*Xpts + 10, alpha=solid.alpha)
+
+    def draw_visual(self, c):
+        convex(pos = self.make_pos_visual(), color=c)
+
+    def make_pos_visual(self):
+        N = 10
+        pos = []
+        for i in [0,1]:
+            theta = [np.linspace(0.0,np.pi/2.5,N)]
+            x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
+            y = self.stads[i].radius * np.sin(theta);
+            if self.alignment == 'AP':
+                temp = x
+                x = y
+                y = temp
+                del temp
+            xrev = x[:, ::-1]
+            yrev = y[:, ::-1]
+            X = np.concatenate( (x, -xrev, -x, xrev), axis=1)
+            Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
+            Z = i*self.height*np.ones((1,N*4))
+            POSES = np.concatenate( (X, Y, Z), axis=0)
+            POSES = self.RotMat * POSES
+            X,Y,Z = np.vsplit(POSES,3)
+            X = X + self.pos[0]
+            Y = Y + self.pos[1]
+            Z = Z + self.pos[2]
+            POSES = np.concatenate( (X, Y, Z), axis=0)
+            for j in np.arange(N*4):
+                pos.append( (POSES[0,j], POSES[1,j], POSES[2,j]) )
+        return pos
 
     def make_pos(self,i):
         '''Generates coordinates to be used for matplotlib purposes.
@@ -405,3 +442,12 @@ class semiellipsoid(solid):
 
     def draw2D(self,ax,ax2,c):
         print "NOT IMPLEMENTED YET"
+
+    def draw_visual(self,c):
+        ax = self.RotMat * np.array([[0],[0],[1]])
+        ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
+                         axis = (ax[0,0],ax[1,0],ax[2,0]),
+                         length=self.height,
+                         height=self.radius*2,
+                         width=self.radius*2,
+                         color=c)

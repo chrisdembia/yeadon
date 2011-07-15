@@ -6,7 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+from visual import *
 from dtk import inertia # jason's
 
 import solid as sol
@@ -15,7 +15,7 @@ import densities as dens
 import mymath
 
 class human:
-    def __init__(self,meas_in,CFG):
+    def __init__(self,meas_in,CFG = {}):
         '''Initializes a human object. Stores inputs as instance variables,
            defines the names of the configuration variables (CFG) in a class
            tuple, defines the bounds on the configuration variables in a class
@@ -33,7 +33,7 @@ class human:
         CFG : dictionary with 21 entries
             The configuration of the human (radians).
 
-       
+
         '''
         self.isSymmetric = 1
         human.measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
@@ -81,11 +81,34 @@ class human:
                             [0, np.pi]]
         # if measurements input is a module, just assign. else, read in file
         if type(meas_in) == dict:
+            self.measurementconversionfactor = 1
             self.meas = meas_in
         elif type(meas_in) == str:
             self.read_measurements(meas_in)
         # if configuration input is a dictionary, just assign. else, read in
-        if type(CFG) == dict:
+        if (CFG == {} ):
+            self.CFG = {      'somersalt' : 0.0,
+                                   'tilt' : 0.0,
+                                  'twist' : 0.0,
+                      'PTsagittalFlexion' : 0.0,
+                       'PTfrontalFlexion' : 0.0,
+                        'TCspinalTorsion' : 0.0,
+                 'TClateralSpinalFlexion' : 0.0,
+                           'CA1elevation' : 0.0,
+                           'CA1abduction' : 0.0,
+                            'CA1rotation' : 0.0,
+                           'CB1elevation' : 0.0,
+                           'CB1abduction' : 0.0,
+                            'CB1rotation' : 0.0,
+                            'A1A2flexion' : 0.0,
+                            'B1B2flexion' : 0.0,
+                             'PJ1flexion' : 0.0,
+                           'PJ1abduction' : 0.0,
+                             'PK1flexion' : 0.0,
+                           'PK1abduction' : 0.0,
+                            'J1J2flexion' : 0.0,
+                            'K1K2flexion' : 0.0}
+        elif type(CFG) == dict:
             self.CFG = CFG
         elif type(CFG) == str:
             self.read_CFG(CFG)
@@ -96,6 +119,8 @@ class human:
         self.define_arm_solids()
         self.define_leg_solids()
         # define segments. this deals with coordinate transformations. and locates the bases of the segments.
+        self.coord_sys_pos = np.array([[0],[0],[0]])
+        self.coord_sys_orient = mymath.Rotate3((0,0,0))
         self.define_segments()
         # arrange segment pointers into an indexable format
         self.Segments = [ self.P, self.T, self.C,
@@ -106,16 +131,16 @@ class human:
         # calculate inertia properties of all segments.
         for s in self.Segments:
             s.calc_properties()
-        # this next call must happen after the previous 
+        # this next call must happen after the previous
         # per-segment call because EDIT.
         self.calc_properties()
 
     def update_segments(self):
         '''Updates all segments. Expected to be called by a GUI or commandline interface when a user has updated joint angles after the human object has been created. Solids do not need to be recreated, but the segments need to be redefined, and so inertia parameters need to be averaged again, and the human's inertia parameters must also be redefined.
-        
+
         '''
         print "Updating segment properties."
-        self.validateCFG()
+        self.validate_CFG()
         self.define_segments()
         # must redefine this Segments list, 
         # the code does not work otherwise
@@ -226,6 +251,13 @@ class human:
                   " CFG dictionary."
         self.update_segments() 
 
+    def set_CFG_dict(self,CFG):
+        '''
+
+        '''
+        self.CFG = CFG
+        self.update_segments()
+
     def calc_properties(self):
         '''Calculates the mass, center of mass, and inertia tensor of the human. The quantities are calculated from the segment quantities. This method also calculates quantities in terms of the standard bicycle coordinate frame (x forward, z down).
 
@@ -264,8 +296,67 @@ class human:
         print "COM  (m):\n", self.COM, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
 
+    def translate_coord_sys(self,vec):
+        '''
+
+        '''
+        newpos = np.zeros( (3,1) )
+        newpos[0] = vec[0]
+        newpos[1] = vec[1]
+        newpos[2] = vec[2]
+        self.coord_sys_pos = newpos
+        self.update_segments()
+
+    def rotate_coord_sys(self,varin):
+        '''
+
+        '''
+        if type(varin) == tuple or type(varin) == list:
+            rotmat = mymath.Rotate3(varin)
+        else:
+            rotmat = varin
+        self.coord_sys_orient = rotmat
+        self.update_segments()
+
+    def transform_coord_sys(self,vec,rotmat):
+        '''
+
+        '''
+        self.translate_coord_sys(vec)
+        self.rotate_coord_sys(rotmat)
+
+    def combine_inertia(self,objlist):
+        '''
+        Inputs are:
+        s0 - s7, a0 - a7, b0 - b7, j0 - j9, k0 - k9
+        P, T, C, A1, A2, B1, B2, J1, J2, K1, K2,
+
+        '''
+
     def draw_visual(self):
-        print "Will use vpython"
+        for seg in self.Segments:
+            seg.draw_visual()
+        self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
+                        (1,0,0))
+        self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
+                        (0,1,0))
+        self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
+                        (0,0,1))
+        scene.forward = (-1,1,-1)
+        scene.up = (0,0,-1)
+        scene.autocenter = True
+
+    def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
+        if vec0 == 'origin':
+            vec0 = np.array([[0],[0],[0]])
+        conelengthfactor = .05
+        ax = (1-conelengthfactor) * (vec1 - vec0)
+        cylinder( pos=(vec0[0,0],vec0[1,0],vec0[2,0]),
+                  axis=(ax[0,0],ax[1,0],ax[2,0]), radius=rad, color=c)
+        coneax = conelengthfactor*ax
+        conepos = vec1 - coneax
+        cone( pos=(conepos[0,0],conepos[1,0],conepos[2,0]),
+              axis=(coneax[0,0],coneax[1,0],coneax[2,0]), radius=3*rad, color=c)
 
     def draw2D(self):
         fig2 = plt.figure()
@@ -283,16 +374,8 @@ class human:
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
-        self.T.draw(ax)
-        self.C.draw(ax)
-        self.A1.draw(ax)
-        self.A2.draw(ax)
-        self.B1.draw(ax)
-        self.B2.draw(ax)
-        self.J1.draw(ax)
-        self.J2.draw(ax)
-        self.K1.draw(ax)
-        self.K2.draw(ax)
+        for seg in self.Segments:
+            seg.draw(ax)
         # fixed coordinate frame axes
         ax.plot( np.array([0,.3]),
                  np.array([0,0]),
@@ -334,9 +417,12 @@ class human:
         self.draw_octant(ax,u,v,'w')
         # "axis equal"
         limval = 1
-        ax.set_xlim3d(-limval, limval)
-        ax.set_ylim3d(-limval, limval)
-        ax.set_zlim3d(-limval, limval)
+        ax.set_xlim3d(-limval + self.coord_sys_pos[0,0],
+            limval + self.coord_sys_pos[0,0])
+        ax.set_ylim3d(-limval + self.coord_sys_pos[1,0],
+            limval + self.coord_sys_pos[1,0])
+        ax.set_zlim3d(-limval + self.coord_sys_pos[2,0],
+            limval + self.coord_sys_pos[2,0])
         # save the plot to an SVG file
         plt.savefig('humanplot', dpi=300)
         # show the plot window, this is a loop actually
@@ -344,7 +430,7 @@ class human:
 
     def draw_octant(self,ax,u,v,c):
         '''Draws an octant of sphere. Assists with drawing the center of mass sphere.
-        
+
         Parameters
         ----------
         ax : Axes3D object
@@ -390,12 +476,12 @@ class human:
                                     'perimwidth', meas['Ls3p'], meas['Ls3w']))
         self.Ls.append( sol.stadium('Ls4: shoulder joint centre',
                                     'depthwidth', meas['Ls4d'], meas['Ls4w']))
-        thick = self.Ls[4].width / 2.0 - 0.57 * self.Ls[4].radius
-        radius = meas['Ls5p'] / 2.0 / np.pi
+        radius = 0.57 * self.Ls[4].radius # see Yeadon's ISEG code
+        thick = self.Ls[4].width / 2.0 - radius
         self.Ls.append( sol.stadium('Ls5: acromion',
                                     'thickradius', thick, radius))
         self.Ls.append( sol.stadium('Ls5: acromion/bottom of neck',
-                                    'perim',meas['Ls5p'], '=p'))
+                                    'radius',meas['Ls5p'], '=p'))
         self.Ls.append( sol.stadium('Ls6: beneath nose',
                                     'perim', meas['Ls6p'], '=p'))
         self.Ls.append( sol.stadium('Ls7: above ear',
@@ -748,19 +834,20 @@ class human:
         '''
         # define all segments
         # pelvis
-        Ppos = np.array([[0],[0],[0]])
-        PRotMat = mymath.RotateRel([self.CFG['somersalt'],
+        Ppos = self.coord_sys_pos
+        PRotMat = (self.coord_sys_orient *
+                   mymath.RotateRel([self.CFG['somersalt'],
                                     self.CFG['tilt'],
-                                    self.CFG['twist']])
+                                    self.CFG['twist']]))
         self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
-                              [self.s[0],self.s[1]] , 'red')
+                              [self.s[0],self.s[1]] , (1,0,0))
         # thorax
         Tpos = self.s[1].endpos
         TRotMat = self.s[1].RotMat * mymath.Rotate3(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.segment( 'T: Thorax', Tpos, TRotMat,
-                              [self.s[2]], 'orange')
+                              [self.s[2]], (1,.5,0))
         # chest-head
         Cpos = self.s[2].endpos
         CRotMat = self.s[2].RotMat * mymath.Rotate3(
@@ -769,8 +856,8 @@ class human:
                                      self.CFG['TCspinalTorsion']])
         self.C = seg.segment( 'C: Chest-head', Cpos, CRotMat,
                               [self.s[3],self.s[4],self.s[5],self.s[6],
-                               self.s[7]], 'yellow')
-        # left upper arm                                  
+                               self.s[7]], (1,1,0))
+        # left upper arm
         dpos = np.array([[self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
         A1pos = self.s[3].pos + self.s[3].RotMat * dpos
@@ -781,14 +868,14 @@ class human:
                                           -self.CFG['CA1abduction'],
                                           -self.CFG['CA1rotation']]))
         self.A1 = seg.segment( 'A1: Left upper arm', A1pos, A1RotMat,
-                               [self.a[0],self.a[1]] , 'green' )
+                               [self.a[0],self.a[1]] , (0,1,0))
         # left forearm-hand
         A2pos = self.a[1].endpos
         A2RotMat = self.a[1].RotMat * mymath.Rotate3(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self.a[2],self.a[3],self.a[4],self.a[5],
-                                self.a[6]], 'red')
+                                self.a[6]], (1,0,0))
         # right upper arm
         dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
@@ -800,48 +887,48 @@ class human:
                                            self.CFG['CB1abduction'],
                                            self.CFG['CB1rotation']]))
         self.B1 = seg.segment( 'B1: Right upper arm', B1pos, B1RotMat,
-                               [self.b[0],self.b[1]], 'green')
+                               [self.b[0],self.b[1]], (0,1,0))
         # right forearm-hand
         B2pos = self.b[1].endpos
         B2RotMat = self.b[1].RotMat * mymath.Rotate3(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self.b[2],self.b[3],self.b[4],self.b[5],
-                                self.b[6]], 'red')
-        # left thigh                            
+                                self.b[6]], (1,0,0))
+        # left thigh
         dpos = np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
         J1pos = self.s[0].pos + self.s[0].RotMat * dpos
         J1RotMat = self.s[0].RotMat * (mymath.Rotate3(
                                        np.array([0,np.pi,0])) *
                                           mymath.Rotate3(
-                                          [self.CFG['PJ1flexion'], 0,
-                                          -self.CFG['PJ1abduction']]))
+                                          [self.CFG['PJ1flexion'],
+                                           -self.CFG['PJ1abduction'],0]))
         self.J1 = seg.segment( 'J1: Left thigh', J1pos, J1RotMat,
-                               [self.j[0],self.j[1],self.j[2]], 'green')
+                               [self.j[0],self.j[1],self.j[2]], (0,1,0))
         # left shank-foot
         J2pos = self.j[2].endpos
         J2RotMat = self.j[2].RotMat * mymath.Rotate3(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self.j[3],self.j[4],self.j[5],self.j[6],
-                                self.j[7],self.j[8]], 'red')
-        # right thigh                            
+                                self.j[7],self.j[8]], (1,0,0))
+        # right thigh
         dpos = np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
         K1pos = self.s[0].pos + self.s[0].RotMat * dpos
         K1RotMat = self.s[0].RotMat * (mymath.Rotate3(
                                        np.array([0,np.pi,0])) *
                                        mymath.Rotate3(
-                                          [self.CFG['PK1flexion'], 0,
-                                          self.CFG['PK1abduction']]))
+                                          [self.CFG['PK1flexion'],
+                                           self.CFG['PK1abduction'],0]))
         self.K1 = seg.segment( 'K1: Right thigh', K1pos, K1RotMat,
-                               [self.k[0],self.k[1],self.k[2]], 'green')
+                               [self.k[0],self.k[1],self.k[2]], (0,1,0))
         # right shank-foot
         K2pos = self.k[2].endpos
         K2RotMat = self.k[2].RotMat * mymath.Rotate3(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self.k[3],self.k[4],self.k[5],self.k[6],
-                                self.k[7],self.k[8]], 'red')
+                                self.k[7],self.k[8]], (1,0,0))
 
     def read_measurements(self,fname):
         '''
@@ -911,6 +998,34 @@ class human:
         fid.close()
 
     def write_meas_for_ISEG(self,fname):
+        '''
+        
+        '''
+        fid = open(fname,'w')
+        m = self.meas
+        SI = 1./1000.
+        fid.write(str(m['Ls1L']/SI)+','+str(m['Ls2L']/SI)+','+str(m['Ls3L']/SI)+','+str(m['Ls4L']/SI)+','+str(m['Ls5L']/SI)+','+str(m['Ls6L']/SI)+','+str(m['Ls7L']/SI)+','+str(m['Ls8L']/SI)+'\n')
+        fid.write(str(m['Ls0p']/SI)+','+str(m['Ls1p']/SI)+','+str(m['Ls2p']/SI)+','+str(m['Ls3p']/SI)+','+str(m['Ls5p']/SI)+','+str(m['Ls6p']/SI)+','+str(m['Ls7p']/SI)+'\n')
+        fid.write(str(m['Ls0w']/SI)+','+str(m['Ls1w']/SI)+','+str(m['Ls2w']/SI)+','+str(m['Ls3w']/SI)+','+str(m['Ls4w']/SI)+','+str(m['Ls4d']/SI)+'\n')
+        # arms
+        fid.write(str(m['La2L']/SI)+','+str(m['La3L']/SI)+','+str(m['La4L']/SI)+','+str(m['La5L']/SI)+','+str(m['La6L']/SI)+','+str(m['La7L']/SI)+'\n')
+        fid.write(str(m['La0p']/SI)+','+str(m['La1p']/SI)+','+str(m['La2p']/SI)+','+str(m['La3p']/SI)+','+str(m['La4p']/SI)+','+str(m['La5p']/SI)+','+str(m['La6p']/SI)+','+str(m['La7p']/SI)+'\n')
+        fid.write(str(m['La4w']/SI)+','+str(m['La5w']/SI)+','+str(m['La6w']/SI)+','+str(m['La7w']/SI)+'\n')
+        fid.write(str(m['Lb2L']/SI)+','+str(m['Lb3L']/SI)+','+str(m['Lb4L']/SI)+','+str(m['Lb5L']/SI)+','+str(m['Lb6L']/SI)+','+str(m['Lb7L']/SI)+'\n')
+        fid.write(str(m['Lb0p']/SI)+','+str(m['Lb1p']/SI)+','+str(m['Lb2p']/SI)+','+str(m['Lb3p']/SI)+','+str(m['Lb4p']/SI)+','+str(m['Lb5p']/SI)+','+str(m['Lb6p']/SI)+','+str(m['Lb7p']/SI)+'\n')
+        fid.write(str(m['Lb4w']/SI)+','+str(m['Lb5w']/SI)+','+str(m['Lb6w']/SI)+','+str(m['Lb7w']/SI)+'\n')
+        # legs
+        fid.write(str(m['Lj1L']/SI)+','+str(m['Lj3L']/SI)+','+str(m['Lj4L']/SI)+','+str(m['Lj5L']/SI)+','+str(m['Lj6L']/SI)+','+str(m['Lj8L']/SI)+','+str(m['Lj9L']/SI)+'\n')
+        fid.write(str(m['Lj1p']/SI)+','+str(m['Lj2p']/SI)+','+str(m['Lj3p']/SI)+','+str(m['Lj4p']/SI)+','+str(m['Lj5p']/SI)+','+str(m['Lj6p']/SI)+','+str(m['Lj7p']/SI)+','+str(m['Lj8p']/SI)+','+str(m['Lj9p']/SI)+'\n')
+        fid.write(str(m['Lj6d']/SI)+','+str(m['Lj8w']/SI)+','+str(m['Lj9w']/SI)+'\n')
+        fid.write(str(m['Lk1L']/SI)+','+str(m['Lk3L']/SI)+','+str(m['Lk4L']/SI)+','+str(m['Lk5L']/SI)+','+str(m['Lk6L']/SI)+','+str(m['Lk8L']/SI)+','+str(m['Lk9L']/SI)+'\n')
+        fid.write(str(m['Lk1p']/SI)+','+str(m['Lk2p']/SI)+','+str(m['Lk3p']/SI)+','+str(m['Lk4p']/SI)+','+str(m['Lk5p']/SI)+','+str(m['Lk6p']/SI)+','+str(m['Lk7p']/SI)+','+str(m['Lk8p']/SI)+','+str(m['Lk9p']/SI)+'\n')
+        fid.write(str(m['Lk6d']/SI)+','+str(m['Lk8w']/SI)+','+str(m['Lk9w']/SI)+'\n')
+        fid.write(str(500)+','+str(200)+'\n')
+        fid.close()
+        return 0
+
+    def write_meas_for_ISEG_old(self,fname):
         '''Converts measurement input from the current format to the format used by Yeadon's Fortran code ISEG01B.F
 
         '''
@@ -1003,5 +1118,3 @@ class human:
             fid.write(key + "=" + val)
         fid.close()
 
-    def draw_vector(self,vec):
-        print "not written"

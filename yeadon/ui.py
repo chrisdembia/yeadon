@@ -25,27 +25,6 @@ def start_ui():
     #                3.6,   5.3,   4.8,   5.6,   ,    3.,    3.,
                      
     # initialize the joint angle data
-    CFGzero = {      'somersalt' : 0.0,
-                          'tilt' : 0.0,
-                         'twist' : 0.0,
-             'PTsagittalFlexion' : 0.0,
-              'PTfrontalFlexion' : 0.0,
-               'TCspinalTorsion' : 0.0,
-        'TClateralSpinalFlexion' : 0.0,
-                  'CA1elevation' : 0.0,
-                  'CA1abduction' : 0.0,
-                   'CA1rotation' : 0.0,
-                  'CB1elevation' : 0.0,
-                  'CB1abduction' : 0.0,
-                   'CB1rotation' : 0.0,
-                   'A1A2flexion' : 0.0,
-                   'B1B2flexion' : 0.0,
-                    'PJ1flexion' : 0.0,
-                  'PJ1abduction' : 0.0,
-                    'PK1flexion' : 0.0,
-                  'PK1abduction' : 0.0,
-                   'J1J2flexion' : 0.0,
-                   'K1K2flexion' : 0.0}  
     # USER SUPPLIES MEASUREMENT FILE NAME
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
     print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
@@ -59,16 +38,15 @@ def start_ui():
         meas = temp
     print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
-    temp = raw_input("Type the name of the dict variable "\
-                     "or the .TXT filename (for all joint angles as zero," \
-                     " just hit enter): ") 
-    if temp == '':
-        CFG = CFGzero
-    else:
-        CFG = temp
+    CFG = raw_input("Type the name of the dict variable "\
+                    "or the .TXT filename (for all joint angles as zero," \
+                    " just hit enter): ") 
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
-    H = hum.human(meas,CFG)
+    if temp == '':
+        H = hum.human(meas)
+    else:
+        H = hum.human(meas,CFG)
     
     #>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
     #We are the knights who say "Ni!"

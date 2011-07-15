@@ -35,7 +35,8 @@ class segment:
         # must set the position of constituent solids before being able to 
         # calculate relative/local properties.
         self.set_orientations()
-        self.endpos = self.pos + self.solids[-1].endpos
+        self.endpos = self.solids[-1].endpos
+        self.length = np.linalg.norm(self.endpos-self.pos)
         self.calc_rel_properties()
        
  
@@ -148,3 +149,7 @@ class segment:
         for idx in np.arange(self.nSolids):
             print "Drawing solid",self.solids[idx].label,"."
             self.solids[idx].draw2D(ax, ax2, self.color)
+
+    def draw_visual(self):
+        for s in self.solids:
+            s.draw_visual(self.color)

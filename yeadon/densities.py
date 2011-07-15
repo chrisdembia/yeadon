@@ -8,16 +8,43 @@ LitersPerCupicMeter = 1000.0
 secondconversion = 1.0
 
 DensityOfSegments = np.zeros( 10 )
-DensityOfSegments[0] = 1.11 # head-neck
-DensityOfSegments[1] = 1.04 # shoulders
-DensityOfSegments[2] = 0.92 # thorax
-DensityOfSegments[3] = 1.01 # abdomen-pelvis
-DensityOfSegments[4] = 1.07 # upper arm
-DensityOfSegments[5] = 1.13 # forearm
-DensityOfSegments[6] = 1.16 # hand
-DensityOfSegments[7] = 1.05 # thigh
-DensityOfSegments[8] = 1.09 # lower leg
-DensityOfSegments[9] = 1.10 # foot
+
+densityset = 'Dempster'
+
+if densityset == 'Chandler':
+    DensityOfSegments[0] = 1.056 # head-neck
+    DensityOfSegments[1] = 0.853 # shoulders
+    DensityOfSegments[2] = 0.853 # thorax
+    DensityOfSegments[3] = 0.853 # abdomen-pelvis
+    DensityOfSegments[4] = 1.005 # upper arm
+    DensityOfSegments[5] = 1.052 # forearm
+    DensityOfSegments[6] = 1.080 # hand
+    DensityOfSegments[7] = 1.020 # thigh
+    DensityOfSegments[8] = 1.078 # lower leg
+    DensityOfSegments[9] = 1.091 # foot
+elif densityset == 'Dempster':
+    DensityOfSegments[0] = 1.11 # head-neck
+    DensityOfSegments[1] = 1.04 # shoulders
+    DensityOfSegments[2] = 0.92 # thorax
+    DensityOfSegments[3] = 1.01 # abdomen-pelvis
+    DensityOfSegments[4] = 1.07 # upper arm
+    DensityOfSegments[5] = 1.13 # forearm
+    DensityOfSegments[6] = 1.16 # hand
+    DensityOfSegments[7] = 1.05 # thigh
+    DensityOfSegments[8] = 1.09 # lower leg
+    DensityOfSegments[9] = 1.10 # foot
+elif densityset == 'Clauser':
+    DensityOfSegments[0] = 1.070 # head-neck
+    DensityOfSegments[1] = 1.019 # shoulders
+    DensityOfSegments[2] = 1.019 # thorax
+    DensityOfSegments[3] = 1.019 # abdomen-pelvis
+    DensityOfSegments[4] = 1.056 # upper arm
+    DensityOfSegments[5] = 1.089 # forearm
+    DensityOfSegments[6] = 1.109 # hand
+    DensityOfSegments[7] = 1.044 # thigh
+    DensityOfSegments[8] = 1.085 # lower leg
+    DensityOfSegments[9] = 1.084 # foot
+
 
 DensityOfSegmentsConverted = DensityOfSegments * LitersPerCupicMeter * secondconversion
 

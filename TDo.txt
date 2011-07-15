@@ -55,3 +55,8 @@ OTHER TODO
 for BicycleParameters
 	-need to write a function that gets position vectors
 	-
+
+
+    IN SEGMENT  THER ARE INSTANCE ATTRIBUTES, SOLIDOCM, THAT CAN BE LOCAL VARIABLES
+
+    REMOVE UNCERTANTIES:
