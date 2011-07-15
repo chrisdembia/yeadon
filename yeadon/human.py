@@ -327,11 +327,62 @@ class human:
 
     def combine_inertia(self,objlist):
         '''
-        Inputs are:
-        s0 - s7, a0 - a7, b0 - b7, j0 - j9, k0 - k9
+        must be a list, not a tuple
+        Input string options are:
+        s0 - s7, a0 - a6, b0 - b6, j0 - j8, k0 - k8
         P, T, C, A1, A2, B1, B2, J1, J2, K1, K2,
 
         '''
+
+        # preparing to arrange input
+        solidkeys = ['s0','s1','s2','s3','s4','s5','s6','s7',
+                      'a0','a1','a2','a3','a4','a5','a6',
+                      'b0','b1','b2','b3','b4','b5','b6',
+                      'j0','j1','j2','j3','j4','j5','j6','j7','j8',
+                      'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
+        segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
+        solidvals = self.s + self.a + self.b + self.j + self.k
+        ObjDict = dict(zip(solidkeys + segmentkeys,solidvals + self.Segments))
+        # error-checking
+        for key in (solidkeys + segmentkeys):
+            if objlist.count(key) > 1:
+                print "In yeadon.human.human.combine_inertia(), an object is" \
+                      " listed more than once. A solid/segment can only be" \
+                      " listed once."
+                raise Exception()
+        for segkey in segmentkeys:
+            if objlist.count(segkey) == 1:
+                # this segment is listed as input
+                for solobj in objlist:
+                    for segsol in ObjDict[segkey].solids:
+                        if solobj == segsol.label[0:2]:
+                            print "In yeadon.human.human.combine_inertia()," \
+                                  " a solid",solobj,"and its parent segment", \
+                                  segkey,"have both been given as inputs." \
+                                  " This duplicates that solid."
+                            raise Exception()
+        print "Combining/lumping segments/solids",objlist,"."
+        resultantMass = 0.0
+        resultantMoment = np.zeros( (3,1) )
+        for objstr in objlist:
+            if ObjDict.has_key(objstr) == False:
+                print "In yeadon.human.human.combine_inertia(),", \
+                      "the string",objstr,"does not identify a segment", \
+                      "or solid of the human."
+                raise Exception()
+            obj = ObjDict[objstr]
+            resultantMass += obj.Mass
+            resultantMoment += obj.Mass * obj.COM
+        resultantCOM = resultantMoment / resultantMass
+        resultantInertia = np.mat(np.zeros( (3,3) ))
+        for objstr in objlist:
+            obj = ObjDict[objstr]
+            dist = obj.COM - resultantCOM
+            resultantInertia += np.mat(inertia.parallel_axis(
+                                       obj.Inertia,
+                                       obj.Mass,
+                                       [dist[0,0],dist[1,0],dist[2,0]]))
+        return resultantMass,resultantCOM,resultantInertia
 
     def draw_visual(self):
         for seg in self.Segments:
