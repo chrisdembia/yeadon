@@ -43,7 +43,7 @@ def start_ui():
                     " just hit enter): ") 
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
-    if temp == '':
+    if CFG == '':
         H = hum.human(meas)
     else:
         H = hum.human(meas,CFG)
@@ -79,7 +79,7 @@ def start_ui():
         # MODIFY JOINT ANGLES
         if userIn == 'j':
             # this function is defined above
-            modify_joint_angles()
+            H = modify_joint_angles(H)
             
         # SAVE CURRENT JOINT ANGLES
         elif userIn == 'a':
@@ -127,11 +127,11 @@ def start_ui():
             
         # PRINT SEGMENT PROPERTIES
         elif userIn == 'g':
-            print_segment_properties()    
+            print_segment_properties(H)    
             
         # PRINT SOLID PROPERTIES    
         elif userIn == 'l':
-            print_solid_properties()
+            print_solid_properties(H)
             
         # USE COORDINATES. see initialized variables above while-loop
         # for more info.
@@ -176,7 +176,7 @@ def start_ui():
     
     
 # 3 methods to manage user actions in the main menu (below)
-def modify_joint_angles():
+def modify_joint_angles(H):
     '''Called by command-line interaction to modify joint angles. Allows the 
        user to first select a joint angle (from the dictionary CFG) to modify.
        Then, the user inputs a new value for that joint angle in units of
@@ -189,32 +189,34 @@ def modify_joint_angles():
     counter = 0
     while done != 1:
         counter += 1
+        CFG = H.CFG
         print "MODIFY JOINT ANGLES"
         print "-------------------"
         for i in np.arange(len(H.CFGnames)):
             print " ",i,":",H.CFGnames[i],"=",CFG[H.CFGnames[i]]/np.pi,"pi-rad"
         if counter == 1:
             idxIn = raw_input("Enter the number next to the joint angle" \
-                              "to modify (q to quit): ")
+                              " to modify (q to quit): ")
         else:
             idxIn = raw_input("Modify another joint angle (q to quit):")
         if idxIn == 'q':
             done = 1
         else:
             valueIn = raw_input("Enter the new value for the joint angle" \
-                                "in units of pi-rad (q to quit): ")
+                                " in units of pi-rad (q to quit): ")
             if valueIn == 'q':
                 done = 1
             else:
                 CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
-                while H.validate_CFGs() == -1:
+                while H.validate_CFG() == -1:
                     valueIn = raw_input("Re-enter a value for this joint: ")
                     CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
 
     H.CFG = CFG
     H.update_segments()
+    return H
 
-def print_segment_properties():
+def print_segment_properties(H):
     '''Called by commandline interaction to choose a segment to print the
        properties (mass, center of mass, inertia), and to print those
        properties. See the documentation for the segment class for more
@@ -239,7 +241,7 @@ def print_segment_properties():
             print ''
         # error check the input
 
-def print_solid_properties():
+def print_solid_properties(H):
     '''Called by commandline interaction to print the properties 
        (mass, center of mass, inertia) of a solid chosen by user inputs.
        The user first selects a segment, and then chooses a solid within that

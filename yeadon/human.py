@@ -15,7 +15,7 @@ import densities as dens
 import mymath
 
 class human:
-    def __init__(self,meas_in,CFG = {}):
+    def __init__(self,meas_in,CFG = 'empty'):
         '''Initializes a human object. Stores inputs as instance variables,
            defines the names of the configuration variables (CFG) in a class
            tuple, defines the bounds on the configuration variables in a class
@@ -86,7 +86,7 @@ class human:
         elif type(meas_in) == str:
             self.read_measurements(meas_in)
         # if configuration input is a dictionary, just assign. else, read in
-        if (CFG == {} ):
+        if (CFG == 'empty' ):
             self.CFG = {      'somersalt' : 0.0,
                                    'tilt' : 0.0,
                                   'twist' : 0.0,
@@ -384,7 +384,7 @@ class human:
                                        [dist[0,0],dist[1,0],dist[2,0]]))
         return resultantMass,resultantCOM,resultantInertia
 
-    def draw_visual(self):
+    def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
         for seg in self.Segments:
             seg.draw_visual()
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
@@ -393,9 +393,11 @@ class human:
                         (0,1,0))
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
                         (0,0,1))
-        scene.forward = (-1,1,-1)
-        scene.up = (0,0,-1)
+        scene.forward = forward
+        scene.up = up
+        scene.background = bg
         scene.autocenter = True
+        return scene
 
     def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
         if vec0 == 'origin':
@@ -532,7 +534,7 @@ class human:
         self.Ls.append( sol.stadium('Ls5: acromion',
                                     'thickradius', thick, radius))
         self.Ls.append( sol.stadium('Ls5: acromion/bottom of neck',
-                                    'radius',meas['Ls5p'], '=p'))
+                                    'perim',meas['Ls5p'], '=p'))
         self.Ls.append( sol.stadium('Ls6: beneath nose',
                                     'perim', meas['Ls6p'], '=p'))
         self.Ls.append( sol.stadium('Ls7: above ear',
@@ -1075,77 +1077,6 @@ class human:
         fid.write(str(500)+','+str(200)+'\n')
         fid.close()
         return 0
-
-    def write_meas_for_ISEG_old(self,fname):
-        '''Converts measurement input from the current format to the format used by Yeadon's Fortran code ISEG01B.F
-
-        '''
-        SI = 1./1000.
-        m = self.meas
-        fid = open(fname,'w')
-        # refer to Yeadon's iseg01b.f source code to understand
-        #  what this stuff is.
-        # torso
-        L0 = m.s0h
-        L1 = L0 + m.s1h
-        L2 = L1 + m.s2h
-        L3 = L2 + m.s3h
-        L4 = L3 + m.s4h
-        L5 = m.s5h
-        L6 = L5 + m.s6h
-        L7 = L6 + m.s7h
-        fid.write(str(L0/SI)+','+str(L1/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L6/SI)+','+str(L7/SI)+'\n')
-        fid.write(str(m.Ls0p/SI)+','+str(m.Ls1p/SI)+','+str(m.Ls2p/SI)+','+str(m.Ls3p/SI)+','+str(m.Ls5p/SI)+','+str(m.Ls6p/SI)+','+str(m.Ls7p/SI)+'\n')
-        fid.write(str(m.Ls0w/SI)+','+str(m.Ls1w/SI)+','+str(m.Ls2w/SI)+','+str(m.Ls3w/SI)+','+str(m.Ls4w/SI)+','+str(m.Ls4d/SI)+'\n')
-        # arms
-        L0 = m.a0h
-        L1 = L0 + m.a1h
-        L2 = L1 + m.a2h
-        L3 = L2 + m.a3h
-        L4 = m.a4h
-        L5 = L4 + m.a5h
-        L6 = L5 + m.a6h
-        fid.write(str(L1/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L6/SI)+','+str(L7/SI)+'\n')
-        fid.write(str(m.La0p/SI)+','+str(m.La1p/SI)+','+str(m.La2p/SI)+','+str(m.La3p/SI)+','+str(m.La4p/SI)+','+str(m.La5p/SI)+','+str(m.La6p/SI)+','+str(m.La7p/SI)+'\n')
-        fid.write(str(m.La4w/SI)+','+str(m.La5w/SI)+','+str(m.La6w/SI)+','+str(m.La7w/SI)+'\n')
-        L0 = m.b0h
-        L1 = L0 + m.b1h
-        L2 = L1 + m.b2h
-        L3 = L2 + m.b3h
-        L4 = m.b4h
-        L5 = L4 + m.b5h
-        L6 = L5 + m.b6h
-        fid.write(str(L1/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L6/SI)+','+str(L7/SI)+'\n')
-        fid.write(str(m.Lb0p/SI)+','+str(m.Lb1p/SI)+','+str(m.Lb2p/SI)+','+str(m.Lb3p/SI)+','+str(m.Lb4p/SI)+','+str(m.Lb5p/SI)+','+str(m.Lb6p/SI)+','+str(m.Lb7p/SI)+'\n')
-        fid.write(str(m.Lb4w/SI)+','+str(m.Lb5w/SI)+','+str(m.Lb6w/SI)+','+str(m.Lb7w/SI)+'\n')
-        # legs
-        L0 = m.j0h
-        L1 = L0 + m.j1h
-        L2 = L1 + m.j2h
-        L3 = L2 + m.j3h
-        L4 = L3 + m.j4h
-        L5 = m.j5h
-        L6 = L5 + m.j6h
-        L7 = L6 + m.j7h
-        L8 = L7 + m.j8h
-        fid.write(str(L0/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L7/SI)+','+str(L8/SI)+'\n')
-        fid.write(str(m.Lj1p/SI)+','+str(m.Lj2p/SI)+','+str(m.Lj3p/SI)+','+str(m.Lj4p/SI)+','+str(m.Lj5p/SI)+','+str(m.Lj6p/SI)+','+str(m.Lj7p/SI)+','+str(m.Lj8p/SI)+','+str(m.Lj9p/SI)+'\n')
-        fid.write(str(m.Lj6w/SI)+','+str(m.Lj8w/SI)+','+str(m.Lj9w/SI)+'\n')
-        L0 = m.k0h
-        L1 = L0 + m.k1h
-        L2 = L1 + m.k2h
-        L3 = L2 + m.k3h
-        L4 = L3 + m.k4h
-        L5 = m.k5h
-        L6 = L5 + m.k6h
-        L7 = L6 + m.k7h
-        L8 = L7 + m.k8h
-        fid.write(str(L0/SI)+','+str(L2/SI)+','+str(L3/SI)+','+str(L4/SI)+','+str(L5/SI)+','+str(L7/SI)+','+str(L8/SI)+'\n')
-        fid.write(str(m.Lk1p/SI)+','+str(m.Lk2p/SI)+','+str(m.Lk3p/SI)+','+str(m.Lk4p/SI)+','+str(m.Lk5p/SI)+','+str(m.Lk6p/SI)+','+str(m.Lk7p/SI)+','+str(m.Lk8p/SI)+','+str(m.Lk9p/SI)+'\n')
-        fid.write(str(m.Lk6w/SI)+','+str(m.Lk8w/SI)+','+str(m.Lk9w/SI)+'\n')
-        fid.write(str(500)+','+str(200)+'\n')
-        fid.close()
-        return 0;
 
     def read_CFG(self,CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
