@@ -1,10 +1,16 @@
+'''This script sets the densities to be used in the yeadon segments. 
+There are three density sets to choose from: Chandler, Dempster, and
+Clauser. On average, the Dempster densities are slightly higher than the
+other densities.
+
+'''
 import numpy as np
 
 # densities come from Yeadon 1990-ii, but really from Dempster 1995
 
 # raw units from the paper are kg/L
 
-LitersPerCupicMeter = 1000.0
+LitersPerCubicMeter = 1000.0
 secondconversion = 1.0
 
 DensityOfSegments = np.zeros( 10 )
@@ -46,7 +52,7 @@ elif densityset == 'Clauser':
     DensityOfSegments[9] = 1.084 # foot
 
 
-DensityOfSegmentsConverted = DensityOfSegments * LitersPerCupicMeter * secondconversion
+DensityOfSegmentsConverted = DensityOfSegments * LitersPerCubicMeter * secondconversion
 
 # torso
 Ds = np.zeros( 8 )
@@ -70,7 +76,7 @@ Da[5] = DensityOfSegmentsConverted[6]
 Da[6] = DensityOfSegmentsConverted[6]
 
 # right arm
-Db = Da
+Db = Da.copy()
 # Db1 = Da1 # = DensityOfSegmentsConverted[4]
 # Db2 = Da2 # = DensityOfSegmentsConverted[4]
 # Db3 = Da3 # = DensityOfSegmentsConverted[5]
@@ -92,7 +98,7 @@ Dj[7] = DensityOfSegmentsConverted[9]
 Dj[8] = DensityOfSegmentsConverted[9]
 
 # right leg
-Dk = Dj
+Dk = Dj.copy()
 # Dk1 = Dj1 # = DensityOfSegmentsConverted[7]
 # Dk2 = Dj2 # = DensityOfSegmentsConverted[7]
 # Dk3 = Dj3 # = DensityOfSegmentsConverted[7]

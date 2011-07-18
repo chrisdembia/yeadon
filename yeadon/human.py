@@ -6,7 +6,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from visual import *
+try:
+    from visual import *
+except ImportError:
+    print "Yeadon failed to import python-visual. It is possible that you do" \
+          " not have this package. This is fine, it just means that you " \
+          "cannot use the draw_visual() member functions."
 from dtk import inertia # jason's
 
 import solid as sol
@@ -15,7 +20,7 @@ import densities as dens
 import mymath
 
 class human:
-    def __init__(self,meas_in,CFG = 'empty'):
+    def __init__(self,meas_in,CFG='empty', symmetric=True):
         '''Initializes a human object. Stores inputs as instance variables,
            defines the names of the configuration variables (CFG) in a class
            tuple, defines the bounds on the configuration variables in a class
@@ -35,7 +40,8 @@ class human:
 
 
         '''
-        self.isSymmetric = 1
+        self.isSymmetric = symmetric
+        self.measMass = -1
         human.measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
                            'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
                            'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',                               'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
@@ -85,6 +91,9 @@ class human:
             self.meas = meas_in
         elif type(meas_in) == str:
             self.read_measurements(meas_in)
+        # average left and right limbs for symmetry (maybe)
+        if self.isSymmetric==True:
+            self.average_limbs()
         # if configuration input is a dictionary, just assign. else, read in
         if (CFG == 'empty' ):
             self.CFG = {      'somersalt' : 0.0,
@@ -118,7 +127,8 @@ class human:
         self.define_torso_solids()
         self.define_arm_solids()
         self.define_leg_solids()
-        # define segments. this deals with coordinate transformations. and locates the bases of the segments.
+        # define segments. this deals with coordinate transformations.
+        # and locates the bases of the segments.
         self.coord_sys_pos = np.array([[0],[0],[0]])
         self.coord_sys_orient = mymath.Rotate3((0,0,0))
         self.define_segments()
@@ -127,13 +137,25 @@ class human:
                           self.A1, self.A2, self.B1, self.B2,
                           self.J1, self.J2, self.K1, self.K2]
         # Yeadon wants to be able to create a symmetrical human.
-        self.average_segment_properties()
+        #self.average_segment_properties()
         # calculate inertia properties of all segments.
         for s in self.Segments:
             s.calc_properties()
         # this next call must happen after the previous
-        # per-segment call because EDIT.
+        # per-segment call because human properties depend on segment
+        # properties.
         self.calc_properties()
+        if self.measMass > 0:
+            self.scale_human_by_mass(self.measMass)
+
+    def update_solids(self):
+        '''Called by the method yeadon.human.scale_human_by_mass.
+
+        '''
+        self.define_torso_solids()
+        self.define_arm_solids()
+        self.define_leg_solids()
+        self.update_segments()
 
     def update_segments(self):
         '''Updates all segments. Expected to be called by a GUI or commandline interface when a user has updated joint angles after the human object has been created. Solids do not need to be recreated, but the segments need to be redefined, and so inertia parameters need to be averaged again, and the human's inertia parameters must also be redefined.
@@ -142,28 +164,27 @@ class human:
         print "Updating segment properties."
         self.validate_CFG()
         self.define_segments()
-        # must redefine this Segments list, 
+        # must redefine this Segments list,
         # the code does not work otherwise
         self.Segments = [ self.P, self.T, self.C,
                           self.A1, self.A2, self.B1, self.B2,
                           self.J1, self.J2, self.K1, self.K2]
-        self.average_segment_properties()
         for s in self.Segments:
             s.calc_properties()
         self.calc_properties()
 
     def validate_CFG(self):
         '''Validates the joint angle degrees of freedom against the CFG bounds specified in the definition of the human object. Prints an error message if there is an issue. Hopefully this will implement sys.stderr eventually.
-        
+
         Returns
         -------
         boolval : boolean
             0 if all configuration variables are okay, -1 if there is an issue
-        
+
         '''
         boolval = 0
         for i in np.arange(len(self.CFG)):
-            if (self.CFG[human.CFGnames[i]] < human.CFGbounds[i][0] or 
+            if (self.CFG[human.CFGnames[i]] < human.CFGbounds[i][0] or
                 self.CFG[human.CFGnames[i]] > human.CFGbounds[i][1]):
                 print "Joint angle",human.CFGnames[i],"=",\
                       self.CFG[human.CFGnames[i]]/np.pi,\
@@ -173,56 +194,18 @@ class human:
                 boolval = -1
         return boolval
 
-    def average_segment_properties(self):
-        ''' Yeadon 1989-ii mentions that the model is to have symmetric inertia properties, especially for the sake of modelling the particular aerial movement that is the subject of the Yeadon-i-iv papers. This function sets the mass and relative/local inertia tensor of each limb (arms and legs) to be the average of the left and right limbs.
-        
+    def average_limbs(self):
         '''
-        if self.isSymmetric:
-            upperarmMass = 0.5 * (self.A1.Mass + self.B1.Mass)
-            self.A1.Mass = upperarmMass
-            self.B1.Mass = upperarmMass
-            forearmhandMass = 0.5 * (self.A2.Mass + self.B2.Mass)
-            self.A2.Mass = forearmhandMass
-            self.B2.Mass = forearmhandMass
-            thighMass = 0.5 * (self.J1.Mass + self.K1.Mass)
-            self.J1.Mass = thighMass
-            self.K1.Mass = thighMass
-            shankfootMass = 0.5 * (self.J2.Mass + self.K2.Mass)
-            self.J2.Mass = shankfootMass
-            self.K2.Mass = shankfootMass
-            if 0:
-                # it doesn't make sense to average these
-                # unless the leg orientations are coupled.
-                upperarmCOM = 0.5 * (self.A1.COM + self.B1.COM)
-                self.A1.COM = upperarmCOM
-                self.B1.COM = upperarmCOM
-                forearmhandCOM = 0.5 * (self.A2.COM + self.B2.COM)
-                self.A2.COM = forearmhandCOM
-                self.B2.COM = forearmhandCOM
-                thighCOM = 0.5 * (self.J1.COM + self.K1.COM)
-                self.J1.COM = thighCOM
-                self.K1.COM = thighCOM
-                shankfootCOM = 0.5 * (self.J2.COM + self.K2.COM)
-                self.J2.COM = shankfootCOM
-                self.K2.COM = shankfootCOM
-            
-            # it only makes sense to change relative inertia.
-            upperarmInertia = 0.5 * (self.A1.relInertia +
-                                     self.B1.relInertia)
-            self.A1.relInertia = upperarmInertia
-            self.B1.relInertia = upperarmInertia
-            forearmhandInertia = 0.5 * (self.A2.relInertia +
-                                        self.B2.relInertia)
-            self.A2.relInertia = forearmhandInertia
-            self.B2.relInertia = forearmhandInertia
-            thighInertia = 0.5 * (self.J1.relInertia +
-                                  self.K1.relInertia)
-            self.J1.relInertia = thighInertia
-            self.K1.relInertia = thighInertia
-            shankfootInertia = 0.5 * (self.J2.relInertia +
-                                      self.K2.relInertia)
-            self.J2.relInertia = shankfootInertia
-            self.K2.relInertia = shankfootInertia
+
+        '''
+        # arms
+        leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
+        rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
+        for i in np.arange(len(leftidxs)):
+            avg = 0.5 * (self.meas[human.measnames[leftidxs[i]]] +
+                         self.meas[human.measnames[rightidx[i]]])
+            self.meas[human.measnames[leftidxs[i]]] = avg
+            self.meas[human.measnames[rightidx[i]]] = avg
 
     def set_CFG(self,idx,value):
         '''Allows the user to set a single configuration variable in CFG without
@@ -249,7 +232,7 @@ class human:
             print "set_CFG(idx,value): first argument must be an integer" \
                   " between 0 and 21, or a valid string index for the" \
                   " CFG dictionary."
-        self.update_segments() 
+        self.update_segments()
 
     def set_CFG_dict(self,CFG):
         '''
@@ -529,8 +512,8 @@ class human:
                                     'perimwidth', meas['Ls3p'], meas['Ls3w']))
         self.Ls.append( sol.stadium('Ls4: shoulder joint centre',
                                     'depthwidth', meas['Ls4d'], meas['Ls4w']))
-        radius = 0.57 * self.Ls[4].radius # see Yeadon's ISEG code
-        thick = self.Ls[4].width / 2.0 - radius
+        radius = 0.6 * self.Ls[4].radius # see Yeadon's ISEG code
+        thick = 0.6 * self.Ls[4].width / 2.0 - radius
         self.Ls.append( sol.stadium('Ls5: acromion',
                                     'thickradius', thick, radius))
         self.Ls.append( sol.stadium('Ls5: acromion/bottom of neck',
@@ -983,11 +966,33 @@ class human:
                                [self.k[3],self.k[4],self.k[5],self.k[6],
                                 self.k[7],self.k[8]], (1,0,0))
 
+    def scale_human_by_mass(self,measmass):
+        '''Mass must be in units of kilograms.
+
+        '''
+        massratio = measmass / self.Mass
+        for i in range(len(dens.Ds)):
+            dens.Ds[i] = dens.Ds[i] * massratio
+        for i in range(len(dens.Da)):
+            dens.Da[i] = dens.Da[i] * massratio
+        for i in range(len(dens.Db)):
+            dens.Db[i] = dens.Db[i] * massratio
+        for i in range(len(dens.Dj)):
+            dens.Dj[i] = dens.Dj[i] * massratio
+        for i in range(len(dens.Dk)):
+            dens.Dk[i] = dens.Dk[i] * massratio
+        self.update_solids()
+        if round(measmass,2) != round(self.Mass,2):
+            print "Error: attempted to scale mass by a " \
+                  "measured mass, but did not succeed. " \
+                  "Measured mass:",measmass,"self.Mass:",self.Mass
+            raise Exception()
+
     def read_measurements(self,fname):
         '''
         '''
         # initialize measurement conversion factor
-        self.measurementconversionfactor = 0 
+        self.measurementconversionfactor = 0
         # initialize measurement dictionary
         self.meas = {}
         # open measurement file
@@ -999,7 +1004,7 @@ class human:
             if (tempstr0.isspace() == False):
                 tempstr1 = tempstr0.partition('#')
                 # skip lines that start with a pound, after only spaces
-                if ((tempstr1[0].isspace() == False) and 
+                if ((tempstr1[0].isspace() == False) and
                     (tempstr1[0].find('=') != -1)):
                     tempstr2 = tempstr1[0].partition('=')
                     varname = tempstr2[0].strip()
@@ -1012,6 +1017,10 @@ class human:
                     # identify varname-varval pairs and assign appropriately
                     if varname == 'measurementconversionfactor':
                         self.measurementconversionfactor = varval
+                    elif varname == 'totalmass':
+                        if varval > 0:
+                            # scale densities
+                            self.measMass = varval
                     else:
                     	if varname in self.meas:
                             # key was already defined

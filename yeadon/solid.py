@@ -301,7 +301,7 @@ class stadiumsolid(solid):
         N = 10
         pos = []
         for i in [0,1]:
-            theta = [np.linspace(0.0,np.pi/2.5,N)]
+            theta = [np.linspace(0.0,np.pi/2,N)]
             x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
             y = self.stads[i].radius * np.sin(theta);
             if self.alignment == 'AP':
@@ -329,7 +329,7 @@ class stadiumsolid(solid):
         '''Generates coordinates to be used for matplotlib purposes.
 
         '''
-        theta = [np.linspace(0.0,np.pi/2.5,5)]
+        theta = [np.linspace(0.0,np.pi/2,5)]
         x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
         y = self.stads[i].radius * np.sin(theta);
         if self.alignment == 'AP':
