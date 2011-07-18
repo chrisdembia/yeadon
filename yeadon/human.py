@@ -1,13 +1,36 @@
 '''The human module defines the human class, which is composed of segments.
-   The human class has methods to define the constituent segments from inputs
-   and to calculate their properties.
+The human class has methods to define the constituent segments from inputs,
+calculates their properties, and manages file input/output.
+
+Typical usage (not using yeadon.ui.start_ui())
+
+::
+
+    # create human object, providing paths to measurement and configuration
+    # filenames (.txt files). Configuration input is optional.
+    H = y.(<measfname>,<CFGfname>)
+    # transform the absolute fixed coordiantes from yeadon's to your system's
+    H.transform_coord_sys(pos,rotmat)
+    # obtain inertia information
+    var1 = H.Mass
+    var2 = H.COM
+    var3 = H.Inertia
+    var4 = H.J1.Mass
+    var5a = H.J1.relCOM
+    var5b = H.J1.COM
+    var6 = H.J1.Inertia
+    var7 = H.J1.solids[0].Mass
+    var8 = H.J1.solids[0].COM
+    var9 = H.J1.solids[1].Inertia``
+
+See documentation for a complete description of functionality.
 '''
 
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 try:
-    from visual import *
+    import visual as vis
 except ImportError:
     print "Yeadon failed to import python-visual. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
@@ -17,26 +40,36 @@ from dtk import inertia # jason's
 import solid as sol
 import segment as seg
 import densities as dens
-import mymath
 
 class human:
     def __init__(self,meas_in,CFG='empty', symmetric=True):
         '''Initializes a human object. Stores inputs as instance variables,
-           defines the names of the configuration variables (CFG) in a class
-           tuple, defines the bounds on the configuration variables in a class
-           2D list, validates the input CFG against the CFG bounds, defines all
-           the solids using the meas input parameter, defines all segments
-           using the solid definitions, averages the segment inertia
-           information (if the option is selected), calculates the inertia
-           parameters (mass, center of mass, inertia tensor) of each solid 
-           and then of the entire human.
+        defines the names of the configuration variables (CFG) in a class
+        tuple, defines the bounds on the configuration variables in a class 2D
+        list, validates the input CFG against the CFG bounds, defines all the
+        solids using the meas input parameter, defines all segments using the
+        solid definitions, averages the segment inertia information (if the
+        option is selected), calculates the inertia parameters (mass, center of
+        mass, inertia tensor) of each solid and then of the entire human.
 
         Parameters
         ----------
-        meas : python module
-            Holds roughly 95 measurements (supposedly in meters) that allow the generation of stadium solids, circles, and ellipsoids with which to define the model's goemetry.
-        CFG : dictionary with 21 entries
-            The configuration of the human (radians).
+        meas_in : str or dict
+            Holds 95 measurements (in meters) that allow the generation of
+            stadium solids and an ellipsoid with which to define the model's
+            goemetry. See sphinx documentation on how to take the measurements.
+            If its type is str, it is the path to a measurements input file.
+            See the template .txt file. If its type is a dict, it is a
+            dictionary with keys that are the names of the variables in
+            the text file. In this latter case, units must be in meters and
+            a measured mass canoot be provided.
+        CFG : dict
+            The configuration of the human (radians). This option is optional.
+            If not provided, the human is in a default configuration in which
+            all joint angles are set to zero.
+        symmetric : bool
+            Optional argument, set to True. Decides whether or not to average
+            the measurements of the left and right limbs of the human.
 
 
         '''
@@ -130,14 +163,13 @@ class human:
         # define segments. this deals with coordinate transformations.
         # and locates the bases of the segments.
         self.coord_sys_pos = np.array([[0],[0],[0]])
-        self.coord_sys_orient = mymath.Rotate3((0,0,0))
+        self.coord_sys_orient = inertia.rotate3((0,0,0))
         self.define_segments()
         # arrange segment pointers into an indexable format
         self.Segments = [ self.P, self.T, self.C,
                           self.A1, self.A2, self.B1, self.B2,
                           self.J1, self.J2, self.K1, self.K2]
         # Yeadon wants to be able to create a symmetrical human.
-        #self.average_segment_properties()
         # calculate inertia properties of all segments.
         for s in self.Segments:
             s.calc_properties()
@@ -149,7 +181,9 @@ class human:
             self.scale_human_by_mass(self.measMass)
 
     def update_solids(self):
-        '''Called by the method yeadon.human.scale_human_by_mass.
+        '''Redefines all solids and then calls yeadon.human.update_segments.
+        Called by the method yeadon.human.scale_human_by_mass. The method is
+        to be used in instances in which measurements change.
 
         '''
         self.define_torso_solids()
@@ -158,10 +192,12 @@ class human:
         self.update_segments()
 
     def update_segments(self):
-        '''Updates all segments. Expected to be called by a GUI or commandline interface when a user has updated joint angles after the human object has been created. Solids do not need to be recreated, but the segments need to be redefined, and so inertia parameters need to be averaged again, and the human's inertia parameters must also be redefined.
+        '''Updates all segments. Called after joint angles are updated, in
+        which case solids do not need to be recreated, but the segments need
+        to be redefined, and the human's inertia parameters (in the global
+        frame) must also be redefined.
 
         '''
-        print "Updating segment properties."
         self.validate_CFG()
         self.define_segments()
         # must redefine this Segments list,
@@ -174,11 +210,13 @@ class human:
         self.calc_properties()
 
     def validate_CFG(self):
-        '''Validates the joint angle degrees of freedom against the CFG bounds specified in the definition of the human object. Prints an error message if there is an issue. Hopefully this will implement sys.stderr eventually.
+        '''Validates the joint angle degrees of freedom against the CFG bounds
+        specified in the definition of the human object. Prints an error
+        message if there is an issue.
 
         Returns
         -------
-        boolval : boolean
+        boolval : bool
             0 if all configuration variables are okay, -1 if there is an issue
 
         '''
@@ -195,10 +233,16 @@ class human:
         return boolval
 
     def average_limbs(self):
-        '''
+        '''Called only if symmetric=True (which is the default). The left and
+        right arms and legs are averaged (the measurements are averaged before
+        the code creates yeadon.solid or yeadon.segment objects. To be
+        perfectly clear, all left and right arms' and legs' lengths,
+        perimeters, widths and depths are averaged between corresponding
+        left and right measurements.
 
         '''
-        # arms
+        # make a list of indices to the correct measurements (torso is not
+        # averaged)
         leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
         rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
         for i in np.arange(len(leftidxs)):
@@ -235,14 +279,22 @@ class human:
         self.update_segments()
 
     def set_CFG_dict(self,CFG):
-        '''
+        '''Allows the user to pass an entirely new CFG dictionary with which
+        to update the human object. Ensure that the dictionary is of the
+        right format (ideally obtain it from a Human object with human.CFG
+        and modify it). After configuration is update, the segments are
+        updated.
+
+        CFG : dict
+            Stores the 21 joint angles.
 
         '''
         self.CFG = CFG
         self.update_segments()
 
     def calc_properties(self):
-        '''Calculates the mass, center of mass, and inertia tensor of the human. The quantities are calculated from the segment quantities. This method also calculates quantities in terms of the standard bicycle coordinate frame (x forward, z down).
+        '''Calculates the mass, center of mass, and inertia tensor of the
+        human. The quantities are calculated from the segment quantities.
 
         '''
         # mass
@@ -262,14 +314,6 @@ class human:
                 inertia.parallel_axis(s.Inertia,
                                       s.Mass,
                                       [dist[0,0],dist[1,0],dist[2,0]]))
-        # center of mass in biker coordinate system
-        self.bikerposCOM = mymath.Rotate3([0,np.pi,np.pi/2]) * self.COM
-        dist = self.bikerposCOM - self.COM
-        self.bikeposInertia = inertia.parallel_axis(
-            mymath.Rotate3([0,np.pi,np.pi/2]) *
-                self.Inertia * mymath.Rotate3([0,np.pi,np.pi/2]).T,
-            self.Mass,
-            [dist[0,0],dist[1,0],dist[2,0]])
 
     def print_properties(self):
         '''Prints human mass, center of mass,and inertia.
@@ -280,7 +324,19 @@ class human:
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
 
     def translate_coord_sys(self,vec):
-        '''
+        '''Moves the cooridinate system from the center of the bottom of the
+        human's pelvis to a location defined by the input to this method.
+        Note that if this method is used along with
+        yeadon.human.rotate_coord_sys, the vector components for the inputs
+        to this function are in the new coordinate frame defined by the input
+        to yeadon.human.rotate_coord_sys (rather than in the original frame
+        of the yeadon module).
+
+        Parameters
+        ----------
+        vec : list or tuple (3,)
+            position of the center of the bottom of the human's torso, with
+            respect to the new coordinate system.
 
         '''
         newpos = np.zeros( (3,1) )
@@ -291,29 +347,67 @@ class human:
         self.update_segments()
 
     def rotate_coord_sys(self,varin):
-        '''
+        '''Rotates the coordinate system, given a list of three rotations
+        about the x, y and z axes. For list or tuple input, the order of the
+        rotations is x, then, y, then z. All rotations are about the
+        original (unrotated) axes (rotations are not relative).
+
+        varin : list or tuple (3,) or np.matrix (3,3)
+            If list or tuple, the rotations in radians about the x, y,
+            and z axes (in that order). If np.matrix, it is a 3x3 rotation
+            matrix. For more information, see the DynamicistToolKit
+            documentation.
 
         '''
         if type(varin) == tuple or type(varin) == list:
-            rotmat = mymath.Rotate3(varin)
+            rotmat = inertia.rotate3(varin)
         else:
             rotmat = varin
         self.coord_sys_orient = rotmat
         self.update_segments()
 
     def transform_coord_sys(self,vec,rotmat):
-        '''
+        '''Calls both yeadon.human.translate_coord_sys and
+        yeadon.human.rotate_coord_sys.
+
+        Parameters
+        ----------
+        vec : list or tuple (3,)
+            See yeadon.human.translate_coord_sys
+        rotmat
 
         '''
         self.translate_coord_sys(vec)
         self.rotate_coord_sys(rotmat)
 
     def combine_inertia(self,objlist):
-        '''
-        must be a list, not a tuple
-        Input string options are:
-        s0 - s7, a0 - a6, b0 - b6, j0 - j8, k0 - k8
-        P, T, C, A1, A2, B1, B2, J1, J2, K1, K2,
+        '''Returns the inertia properties of a combination of solids
+        and/or segments of the human, using the fixed human frame (or the
+        modified fixed frame as given by the user). Be careful with inputs:
+        do not specify a solid that is part of a segment that you have also
+        specified. There is some errorchecking for invalid inputs. This method
+        does not assign anything to any object attributes, it simply returns
+        the desired quantities.
+
+        Parameters
+        ----------
+        objlist : tuple
+            Tuple of strings that identifies solids and/or segments. Options
+            for inputs are:
+                s0 - s7, a0 - a6, b0 - b6, j0 - j8, k0 - k8
+                P, T, C, A1, A2, B1, B2, J1, J2, K1, K2
+
+        Returns
+        -------
+        resultantMass : float
+            Sum of the mass of the input solids and/or segments.
+        resultantCOM : np.array (3,1)
+            Position of the center of mass of the input solids and/or segments.
+            Uses the absolute fixed coordinate system.
+        resultantInertia : np.matrix (3,3)
+            Inertia tensor at the resultantCOM, with axes aligned with the axes
+            of the absolute fixed coordinate system.
+
 
         '''
 
@@ -368,6 +462,27 @@ class human:
         return resultantMass,resultantCOM,resultantInertia
 
     def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
+        '''Draws the human in 3D in a new window using VPython (python-visual).
+        The mouse can be used to control or explore the 3D view.
+        Scroll to zoom in and out, right click to rotate. This method
+        can be followed by other python visual commands (from visual import *)
+        and those objects should be drawn in the same window as the human. For
+        example, multiple humans can be drawn in one window.
+
+        Parameters
+        ----------
+        forward : tuple (3,)
+            Optional. A vector from the position of the 3D view's camera to
+            the origin of the fixed coordinate system. Default is (-1,1,-1)
+        up : tuple (3,)
+            Optional. A vector denoting the "up" direction. Rotations can only
+            be about this vector. Default is (0,0,1).
+        bg : tuple (3,)
+            Optional. Sets the background color of the view.
+            Default is (0,0,0).
+
+
+        '''
         for seg in self.Segments:
             seg.draw_visual()
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
@@ -376,25 +491,50 @@ class human:
                         (0,1,0))
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
                         (0,0,1))
-        scene.forward = forward
-        scene.up = up
-        scene.background = bg
-        scene.autocenter = True
-        return scene
+        vis.scene.forward = forward
+        vis.scene.up = up
+        vis.scene.background = bg
+        vis.scene.autocenter = True
 
     def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
+        '''Draws a vector in a python-visual window. It is expected that this
+        method is called in conjuction with yeadon.human.draw_visual,
+        so that the vectors are drawn in the same window as the human.
+
+        Parameters
+        ----------
+        vec0 : str or np.array (3,1)
+            Starting position of the vector in the fixed global coordinates.
+            If str, it must have the value 'origin'. In this case, the vector
+            is drawn from the origin.
+        vec1 : np.array (3,1)
+            End point of the vector
+        c : tuple (3,)
+            Optional. Specifies the the color of the vector as a tuple, using
+            rgb values (r,g,b) with r,g,b being floats between 0 and 1.
+            Default is (1,1,1)
+        rad : float
+            Optional. Specifies the radius of the shaft of the drawn vector.
+            Default is 0.01, which works well when drawn alongside
+            typical humans.
+
+        '''
         if vec0 == 'origin':
             vec0 = np.array([[0],[0],[0]])
         conelengthfactor = .05
         ax = (1-conelengthfactor) * (vec1 - vec0)
-        cylinder( pos=(vec0[0,0],vec0[1,0],vec0[2,0]),
+        vis.cylinder( pos=(vec0[0,0],vec0[1,0],vec0[2,0]),
                   axis=(ax[0,0],ax[1,0],ax[2,0]), radius=rad, color=c)
         coneax = conelengthfactor*ax
         conepos = vec1 - coneax
-        cone( pos=(conepos[0,0],conepos[1,0],conepos[2,0]),
+        vis.cone( pos=(conepos[0,0],conepos[1,0],conepos[2,0]),
               axis=(coneax[0,0],coneax[1,0],coneax[2,0]), radius=3*rad, color=c)
 
     def draw2D(self):
+        '''Uses the matplotlib library to draw a 2D human, from two
+        projections. Not implemented well.
+
+        '''
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(121, aspect='equal')
         ax4 = fig2.add_subplot(122, aspect='equal')
@@ -403,10 +543,12 @@ class human:
         plt.show()
 
     def draw(self):
-        '''Draws a self by calling the draw methods of all of the segments. Drawing is done by the matplotlib library.
+        '''Draws a 3D human by calling the draw methods of all of the segments.
+        Drawing is done by the matplotlib library. Currently produces many
+        matplotlib warnings, which can be ignored. It is preferred to use the
+        yeadon.human.draw_visual mehod instead of this one.
 
         '''
-        print "Drawing the self."
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
@@ -465,7 +607,8 @@ class human:
         plt.show()
 
     def draw_octant(self,ax,u,v,c):
-        '''Draws an octant of sphere. Assists with drawing the center of mass sphere.
+        '''Draws an octant of sphere in a matplotlib window (Axes3D library).
+        Assists with drawing the center of mass sphere.
 
         Parameters
         ----------
@@ -485,7 +628,9 @@ class human:
                          edgecolor='', color=c)
 
     def define_torso_solids(self):
-        '''Defines the solids (from solid.py) that create the torso of the human. This requires the definition of 2-D stadium levels using the input measurement parameters.
+        '''Defines the solids (from solid.py) that create the torso of
+        the human. This requires the definition of 2D stadium levels using
+        the input measurement parameters.
 
         '''
 
@@ -564,7 +709,9 @@ class human:
                                            s7h))
 
     def define_arm_solids(self):
-        '''Defines the solids (from solid.py) that create the arms of the human. This requires the definition of 2-D stadium levels using the input measurement parameters .
+        '''Defines the solids (from solid.py) that create the arms of the
+        human. This requires the definition of 2D stadium levels using the
+        input measurement parameters .
 
         '''
         meas = self.meas 
@@ -696,7 +843,9 @@ class human:
                                           b6h))
 
     def define_leg_solids(self):
-        '''Defines the solids (from solid.py) that create the legs of the human. This requires the definition of 2-D stadium levels using the input measurement parameters .
+        '''Defines the solids (from solid.py) that create the legs of the
+        human. This requires the definition of 2D stadium levels using
+        the input measurement parameters .
 
         '''
         meas = self.meas
@@ -865,28 +1014,32 @@ class human:
                                           k8h))       
 
     def define_segments(self):
-        '''Define segment objects using previously defined solids. This is where the definition of segment position and rotation really happens. There are 9 segments. Each segment has a base, located at a joint, and an orientation given by the input joint angle parameters.
+        '''Define segment objects using previously defined solids.
+        This is where the definition of segment position and rotation really
+        happens. There are 9 segments. Each segment has a base, located
+        at a joint, and an orientation given by the input joint angle
+        parameters.
 
         '''
         # define all segments
         # pelvis
         Ppos = self.coord_sys_pos
         PRotMat = (self.coord_sys_orient *
-                   mymath.RotateRel([self.CFG['somersalt'],
+                   inertia.rotate3_rel([self.CFG['somersalt'],
                                     self.CFG['tilt'],
                                     self.CFG['twist']]))
         self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
                               [self.s[0],self.s[1]] , (1,0,0))
         # thorax
         Tpos = self.s[1].endpos
-        TRotMat = self.s[1].RotMat * mymath.Rotate3(
+        TRotMat = self.s[1].RotMat * inertia.rotate3(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.segment( 'T: Thorax', Tpos, TRotMat,
                               [self.s[2]], (1,.5,0))
         # chest-head
         Cpos = self.s[2].endpos
-        CRotMat = self.s[2].RotMat * mymath.Rotate3(
+        CRotMat = self.s[2].RotMat * inertia.rotate3(
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
                                      self.CFG['TCspinalTorsion']])
@@ -897,9 +1050,9 @@ class human:
         dpos = np.array([[self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
         A1pos = self.s[3].pos + self.s[3].RotMat * dpos
-        A1RotMat = self.s[3].RotMat * (mymath.Rotate3(
+        A1RotMat = self.s[3].RotMat * (inertia.rotate3(
                                        [0,-np.pi,0]) * 
-                                          mymath.RotateRel(
+                                          inertia.rotate3_rel(
                                           [self.CFG['CA1elevation'],
                                           -self.CFG['CA1abduction'],
                                           -self.CFG['CA1rotation']]))
@@ -907,7 +1060,7 @@ class human:
                                [self.a[0],self.a[1]] , (0,1,0))
         # left forearm-hand
         A2pos = self.a[1].endpos
-        A2RotMat = self.a[1].RotMat * mymath.Rotate3(
+        A2RotMat = self.a[1].RotMat * inertia.rotate3(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self.a[2],self.a[3],self.a[4],self.a[5],
@@ -916,9 +1069,9 @@ class human:
         dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
         B1pos = self.s[3].pos + self.s[3].RotMat * dpos
-        B1RotMat = self.s[3].RotMat * (mymath.Rotate3(
+        B1RotMat = self.s[3].RotMat * (inertia.rotate3(
                                        [0,-np.pi,0]) *
-                                           mymath.RotateRel(
+                                           inertia.rotate3_rel(
                                            [self.CFG['CB1elevation'],
                                            self.CFG['CB1abduction'],
                                            self.CFG['CB1rotation']]))
@@ -926,7 +1079,7 @@ class human:
                                [self.b[0],self.b[1]], (0,1,0))
         # right forearm-hand
         B2pos = self.b[1].endpos
-        B2RotMat = self.b[1].RotMat * mymath.Rotate3(
+        B2RotMat = self.b[1].RotMat * inertia.rotate3(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self.b[2],self.b[3],self.b[4],self.b[5],
@@ -934,16 +1087,16 @@ class human:
         # left thigh
         dpos = np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
         J1pos = self.s[0].pos + self.s[0].RotMat * dpos
-        J1RotMat = self.s[0].RotMat * (mymath.Rotate3(
+        J1RotMat = self.s[0].RotMat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
-                                          mymath.Rotate3(
+                                          inertia.rotate3(
                                           [self.CFG['PJ1flexion'],
                                            -self.CFG['PJ1abduction'],0]))
         self.J1 = seg.segment( 'J1: Left thigh', J1pos, J1RotMat,
                                [self.j[0],self.j[1],self.j[2]], (0,1,0))
         # left shank-foot
         J2pos = self.j[2].endpos
-        J2RotMat = self.j[2].RotMat * mymath.Rotate3(
+        J2RotMat = self.j[2].RotMat * inertia.rotate3(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self.j[3],self.j[4],self.j[5],self.j[6],
@@ -951,23 +1104,30 @@ class human:
         # right thigh
         dpos = np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
         K1pos = self.s[0].pos + self.s[0].RotMat * dpos
-        K1RotMat = self.s[0].RotMat * (mymath.Rotate3(
+        K1RotMat = self.s[0].RotMat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
-                                       mymath.Rotate3(
+                                       inertia.rotate3(
                                           [self.CFG['PK1flexion'],
                                            self.CFG['PK1abduction'],0]))
         self.K1 = seg.segment( 'K1: Right thigh', K1pos, K1RotMat,
                                [self.k[0],self.k[1],self.k[2]], (0,1,0))
         # right shank-foot
         K2pos = self.k[2].endpos
-        K2RotMat = self.k[2].RotMat * mymath.Rotate3(
+        K2RotMat = self.k[2].RotMat * inertia.rotate3(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self.k[3],self.k[4],self.k[5],self.k[6],
                                 self.k[7],self.k[8]], (1,0,0))
 
     def scale_human_by_mass(self,measmass):
-        '''Mass must be in units of kilograms.
+        '''Takes a measured mass and scales all densities by that mass so that
+        the mass of the human is the same as the mesaured mass. Mass must be
+        in units of kilograms to be consistent with the densities used.
+
+        Parameters
+        ----------
+        measmass : float
+            Measured mass of the human in kilograms.
 
         '''
         massratio = measmass / self.Mass
@@ -989,7 +1149,14 @@ class human:
             raise Exception()
 
     def read_measurements(self,fname):
-        '''
+        '''Reads a measurement input .txt file and assigns the measurements
+        to fields in the self.meas dict. This method is called by the
+        constructor.
+
+        Parameters
+        ----------
+        fname : str
+            Filename or path to measurement file.
         '''
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
@@ -1051,7 +1218,12 @@ class human:
             self.meas[key] = val * self.measurementconversionfactor
 
     def write_measurements(self,fname):
-        '''
+        '''Writes the keys and values of the self.meas dict to a text file.
+
+        Parameters
+        ----------
+        fname : str
+            Filename or path to measurement output .txt file.
 
         '''
         fid = open(fname,'w')
@@ -1060,8 +1232,14 @@ class human:
         fid.close()
 
     def write_meas_for_ISEG(self,fname):
-        '''
-        
+        '''Writes the values of the self.meas dict to a .txt file that is
+        formidable as input to Yeadon's ISEG fortran code that performs
+        similar calculations to this package.
+
+        Parameters
+        ----------
+        fname : str
+            Filename or path to ISEG .txt input file.
         '''
         fid = open(fname,'w')
         m = self.meas
@@ -1089,7 +1267,14 @@ class human:
 
     def read_CFG(self,CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
-           There is no error-checking for this yet. EDIT, make more durable.
+        There is no error-checking for this yet. Make sure that the input
+        is consistent with template input .txt files, or with the output
+        from the yeadon.human.write_CFG method.
+
+        Parameters
+        ----------
+        CFGfname : str
+            Filename or path to configuration input .txt file.
 
         '''
         self.CFG = {}
@@ -1101,7 +1286,12 @@ class human:
             i += 1
 
     def write_CFG(self,CFGfname):
-        '''
+        '''Writes the keys and values of the self.CFG dict to a .txt file.
+
+        Parameters
+        ----------
+        CFGfname : str
+            Filename or path to configuration output .txt file
 
         '''
         fid = open(CFGfname,'w')

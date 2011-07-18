@@ -1,31 +1,40 @@
-'''This module contains a user interface for using and manipulating a Human object.
+'''This module contains a user interface for using and manipulating a Human
+object.
  '''
+import numpy as np
+
+from dtk import inertia
 
 import human as hum
-import numpy as np
 
 def start_ui():
     print "Starting YEADON user interface."
     
-    measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
-                 'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
-                 'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',                               'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
-                 'La1p','La2p','La3p','La4p','La5p','La6p','La7p',
-                 'La4w','La5w','La6w','La7w',
-                 'Lb2L','Lb3L','Lb4L','Lb5L','Lb6L','Lb7L','Lb0p',
-                 'Lb1p','Lb2p','Lb3p','Lb4p','Lb5p','Lb6p','Lb7p',
-                 'Lb4w','Lb5w','Lb6w','Lb7w',
-                 'Lj1L','Lj3L','Lj4L','Lj5L','Lj6L','Lj8L','Lj9L',
-                 'Lj1p','Lj2p','Lj3p','Lj4p','Lj5p','Lj6p','Lj7p',
-                 'Lj8p','Lj9p','Lj8w','Lj9w','Lj6d', 
-                 'Lk1L','Lk3L','Lk4L','Lk5L','Lk6L','Lk8L','Lk9L',
-                 'Lk1p','Lk2p','Lk3p','Lk4p','Lk5p','Lk6p','Lk7p',
-                 'Lk8p','Lk9p','Lk8w','Lk9w','Lk6d')
-   # measvals =  (   2.0,   2.8,   5.8,   8.8,   9.4,   1.0,   2.0,
-    #                3.6,   5.3,   4.8,   5.6,   ,    3.,    3.,
+    measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
+    0.493, 'La5w' : 0.0975, 'Ls4w' : 0.343, 'La5L' : 0.049, 'Lb2L' : 0.2995,
+    'Ls4d' : 0.215, 'Lj2p' : 0.581, 'Lb5p' : 0.24, 'Lb5w' : 0.0975, 'Lk8p' :
+    0.245, 'Lk8w' : 0.1015, 'Lj5L' : 0.878, 'La6w' : 0.0975, 'Lk1L' : 0.062,
+    'La6p' : 0.2025, 'Lk1p' : 0.617, 'La6L' : 0.0805, 'Ls5p' : 0.375, 'Lj5p' :
+    0.2475, 'Lk8L' : 0.1535, 'Lb5L' : 0.049, 'La3p' : 0.283, 'Lj9w' : 0.0965,
+    'La4w' : 0.055, 'Ls6L' : 0.152, 'Lb0p' : 0.337, 'Lj8w' : 0.1015, 'Lk2p' :
+    0.581, 'Ls6p' : 0.53, 'Lj9L' : 0.218, 'La3L' : 0.35, 'Lj8p' : 0.245, 'Lj3L'
+    : 0.449, 'La4p' : 0.1685, 'Lk3L' : 0.449, 'Lb3p' : 0.283, 'Ls7L' : 0.208,
+    'Ls7p' : 0.6, 'Lb3L' : 0.35, 'Lk3p' : 0.3915, 'La4L' : 0.564, 'Lj8L' :
+    0.1535, 'Lj3p' : 0.3915, 'Lk4L' : 0.559, 'La1p' : 0.2915, 'Lb6p' : 0.2025,
+    'Lj6L' : 0.05, 'Lb6w' : 0.0975, 'Lj6p' : 0.345, 'Lb6L' : 0.0805, 'Ls0p' :
+    0.97, 'Ls0w' : 0.347, 'Lj6d' : 0.122, 'Ls8L' : 0.308, 'Lk5L' : 0.878,
+    'La2p' : 0.278, 'Lj9p' : 0.215, 'Ls1L' : 0.176, 'Lj1L' : 0.062, 'Lb1p' :
+    0.2915, 'Lj1p' : 0.617, 'Ls1p' : 0.865, 'Ls1w' : 0.317, 'Lk4p' : 0.34,
+    'Lk5p' : 0.2475, 'La2L' : 0.2995, 'Lb4w' : 0.055, 'Lb4p' : 0.1685, 'Lk9p' :
+    0.215, 'Lk9w' : 0.0965, 'Ls2p' : 0.845, 'Lj4L' : 0.559, 'Ls2w' : 0.285,
+    'Lk6L' : 0.05, 'La7w' : 0.047, 'La7p' : 0.1205, 'La7L' : 0.1545, 'Lk6p' :
+    0.345, 'Ls2L' : 0.277, 'Lj4p' : 0.34, 'Lk6d' : 0.122, 'Lk9L' : 0.218,
+    'Lb4L' : 0.564, 'La0p' : 0.337, 'Ls3w' : 0.296, 'Ls3p' : 0.905, 'Lb7p' :
+    0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
+    'Lk7p' : 0.252 }
                      
     # initialize the joint angle data
-    # USER SUPPLIES MEASUREMENT FILE NAME
+    # user supplies names/paths of input text files
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
     print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
           "meters), or a .TXT file"
@@ -48,15 +57,8 @@ def start_ui():
     else:
         H = hum.human(meas,CFG)
     
-    #>>> print 'We are the {} who say "{}!"'.format('knights', 'Ni')
-    #We are the knights who say "Ni!"
-    
     done = 0 # loop end flag
     
-    # used for changing the reference frame of...everything.
-    frames = ('Yeadon','bike')
-    frame = 0
-    nonfr = 1
     while done != 1:
         print "\nYEADON MAIN MENU"
         print "----------------"
@@ -64,12 +66,13 @@ def start_ui():
               "  a: save current joint angles to file\n",\
               "  p: load joint angles from file\n",\
               "  s: format input measurements for ISEG Fortran code\n\n",\
-              "  d: draw human\n\n",\
+              "  t: transform absolute/base/fixed coordinate system\n\n",\
+              "  d: draw 3D human using matplotlib\n",\
+              "  v: draw 3D human using VPython\n\n",\
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
               "  l: print solid properties\n\n",\
-              "  c: combine solids/segments for inertia\n\n",\
-              "  f: use",frames[nonfr],"coordinates\n",\
+              "  c: combine solids/segments for inertia parameters\n\n",\
               "  o: options\n",\
               "  q: quit"
     
@@ -112,17 +115,40 @@ def start_ui():
             else:
                 print "Uh oh, there was an error when trying to write",\
                        "the ISEG input."
-            
-        # DRAW HUMAN
+
+        # TRANSFORM COORDINATE SYSTEM 
+        elif userIn == 't':
+            print "Transforming absolute/base/fixed coordinate system."
+            print "First we will rotate the yeadon coordinate system " \
+                  "with respect to your new, desired coordinate system. " \
+                  "We will first rotate about your x-axis, then your " \
+                  "y-axis, then your z-axis."
+            thetx = raw_input("Angle (rad) about your x-axis: ")
+            thety = raw_input("Angle (rad) about your y-axis: ")
+            thetz = raw_input("Angle (rad) about your z-axis: ")
+            H.rotate_coord_sys(inertia.rotate3(thetx,thety,thetz))
+            print "Now we'll specify the position of yeadon with respect to " \
+                  "your coordinate system. You will provide the three " \
+                  "components, x y and z, in YOUR coordinates."
+            posx = raw_input("X-position (m): ")
+            posy = raw_input("Y-position (m): ")
+            posz = raw_input("Z-position (m): ")
+            H.translate_coord_sys( (posx,posy,posz) )
+            print "All done!"
+
+        # DRAW HUMAN WITH MATPLOTLIB
         elif userIn == 'd':
             print "To continue using the YEADON UI after drawing,",\
                    "close the plot window."
             H.draw()
+
+        # DRAW HUMAN WITH VPYTHON
+        elif userIn == 'v':
+            H.draw_visual()
             
         # PRINT HUMAN PROPERTIES
         elif userIn == 'h':
-            print "\nHuman properties using",frames[frame],\
-                  "coordinate system:\n"
+            print "\nHuman properties."
             H.print_properties()
             
         # PRINT SEGMENT PROPERTIES
@@ -132,56 +158,75 @@ def start_ui():
         # PRINT SOLID PROPERTIES    
         elif userIn == 'l':
             print_solid_properties(H)
+
+        # COMBINE INERTIA PARAMETERS
+        elif userIn == 'c':
+            print "Use the following variables/keywords to select which" \
+                  " solids/segments to combine: "
+            print "     s0 - s7, a0 - a6, b0 - b6, j0 - j8, k0 - k8"
+            print "     P, T, C, A1, A2, B1, B2, J1, J2, K1, K2\n"
+            print "Enter in the keywords one at a time. When you are " \
+                  "done, enter q."
+            combinedone = False
+            combinectr = 0
+            objlist = []
+            while combinedone == False:
+                objtemp = raw_input('Solid/segment #' + str(combinectr) + ': ')
+                if objtemp == 'q':
+                    combinedone == True
+                else:
+                    objlist.append(objtemp)
+            print "Okay, get ready for your results (mass, COM, Inertia)!"
+            combineMass,combineCOM,combineInertia = H.combine_inertia(objlist)
+            print "These values are with respect to your fixed frame."
+            print "Mass (kg):",combineMass
+            print "COM (m):\n",combineCOM
+            print "Inertia (kg-m^2):\n",Inertia
             
-        # USE COORDINATES. see initialized variables above while-loop
-        # for more info.
-        elif userIn == 'f':
-            if frame == 0:
-                frame = 1
-                nonfr = 0
-            elif frame == 1:
-                frame = 0
-                nonfr = 1
-    
-        # BIKE MODE
-        elif userIn == 'b':
-            print "Bike mode is not implemented yet."
-    
         # OPTIONS
         elif userIn == 'o':
             optionsdone = 0
-            sym = ['off','on']
+            sym = ('off','on')
             while optionsdone != 1:
                 print "\nOPTIONS"
                 print "-------"
-                print "  1: toggle symmetric inertia parameters (symmetry is",\
-                       sym[ H.isSymmetric ],"now)\n  q: back to main menu"
+                print "  1: toggle symmetry (symmetry is",\
+                       sym[ int(H.isSymmetric) ],"now)\n", \
+                      "  2: scale human by mass\n", \
+                      "  q: back to main menu"
                 optionIn = raw_input("What would you like to do? ")
                 if optionIn == '1':
-                    if H.isSymmetric == 1:
-                        H.isSymmetrc = 0
-                    elif H.isSymmetric == 0:
-                        H.isSymmetric = 1
-                    print "Symmetric inertia parameters are now turned",sym,"."
+                    if H.isSymmetric == True:
+                        H.isSymmetrc = False
+                        H.meas = meas
+                    elif H.isSymmetric == False:
+                        H.isSymmetric = True
+                        H.average_limbs()
+                    H.update_solids()
+                    print "Symmetry is now turned",sym,"."
+                elif optionIn == '2':
+                    measmass = raw_input("Provide a measured mass with which "\
+                               "to scale the human (kg): ")
+                    H.scale_human_by_mass(float(measmass))
                 elif optionIn == 'q':
                     print "Going back to main menu."
                     optionsdone = 1
                 else:
-                    print "Invalid input"
+                    print "Invalid input."
         elif userIn == 'q':
             print "Quitting YEADON"
             done = 1
         else:
-            print "Invalid input"
+            print "Invalid input."
     
     
 # 3 methods to manage user actions in the main menu (below)
 def modify_joint_angles(H):
-    '''Called by command-line interaction to modify joint angles. Allows the 
-       user to first select a joint angle (from the dictionary CFG) to modify.
-       Then, the user inputs a new value for that joint angle in units of
-       pi-radians. The user continues to modify joint angles until the user
-       quits. The user can quit at any time by entering q.
+    '''Called by command-line interaction to modify joint angles. Allows the
+    user to first select a joint angle (from the dictionary CFG) to modify.
+    Then, the user inputs a new value for that joint angle in units of
+    pi-radians. The user continues to modify joint angles until the user quits.
+    The user can quit at any time by entering q.
 
     '''
     # MUST UPDATE THE DRAW, etc.
@@ -211,17 +256,16 @@ def modify_joint_angles(H):
                 while H.validate_CFG() == -1:
                     valueIn = raw_input("Re-enter a value for this joint: ")
                     CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
-
     H.CFG = CFG
     H.update_segments()
     return H
 
 def print_segment_properties(H):
     '''Called by commandline interaction to choose a segment to print the
-       properties (mass, center of mass, inertia), and to print those
-       properties. See the documentation for the segment class for more
-       information. The user can print properties of segments endlessly until
-       entering q. 
+    properties (mass, center of mass, inertia), and to print those properties.
+    See the documentation for the segment class for more information. The user
+    can print properties of segments endlessly until entering q. 
+
     '''
     printdone = 0
     while printdone != 1:
@@ -242,11 +286,11 @@ def print_segment_properties(H):
         # error check the input
 
 def print_solid_properties(H):
-    '''Called by commandline interaction to print the properties 
-       (mass, center of mass, inertia) of a solid chosen by user inputs.
-       The user first selects a segment, and then chooses a solid within that
-       segment. Then, the properties of that solid are shown. See the
-       documentation for the solid class for more information.
+    '''Called by commandline interaction to print the properties (mass, center
+    of mass, inertia) of a solid chosen by user inputs.  The user first selects
+    a segment, and then chooses a solid within that segment. Then, the
+    properties of that solid are shown. See the documentation for the solid
+    class for more information.
     '''
     printdone = 0
     while printdone != 1:

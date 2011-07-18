@@ -1,20 +1,35 @@
+'''Solid objects are used by the segment module. A solid has a position, and
+orientation (defined by a rotation matrix). This module also contains the
+class definition for stadium objects, which are used to construct
+stadiumsolid solids. The solid class has two children: the stadiumsolid and
+semiellipsoid classes.
+
+'''
+import numpy as np
 import matplotlib.pyplot as mpl
 from mpl_toolkits.mplot3d import Axes3D
-from visual import *
+try:
+    import visual as vis
+except ImportError:
+    print "Yeadon failed to import python-visual. It is possible that you do" \
+          " not have this package. This is fine, it just means that you " \
+          "cannot use the draw_visual() member functions."
+from dtk import inertia # jason's
 
-import numpy as np
-import mymath
 
 class stadium:
-    '''Stadium
+    '''Stadium, the 2D shape.
+
     '''
     def __init__(self,label,inID,in1,in2,alignment='ML'):
-        '''Defines a 2D stadium shape and checks inputs for errors. A stadium, described in Yeadon 1989-ii, is defined by two parameters. Stadia can depracate to circles if their "thickness" is 0.
+        '''Defines a 2D stadium shape and checks inputs for errors. A stadium,
+        described in Yeadon 1990-ii, is defined by two parameters.
+        Stadia can depracate to circles if their "thickness" is 0.
 
         Parameters
         ----------
         label : str
-            Name of the stadium level, according to Yeadon 1989-ii.
+            Name of the stadium level, according to Yeadon 1990-ii.
         inID : str
             Identifies the type of information for the next two inputs.
             'perimwidth' for perimeter and width input, 'depthwidth' for
@@ -75,14 +90,15 @@ class stadium:
             self.alignment = alignment
 
     def plot(self,ax,c):
-        '''Plots the 2D stadium on 3D axes.
+        '''Plots the 2D stadium on 3D axes using matplotlib and its Axes3D
+        class.
 
         Parameters
         ----------
         ax : Axes3D object
             Axis object from the matplotlib library.
         c : str
-            Color
+            Color, as a word. e.g. 'red'
 
         '''
         theta = [np.linspace(0.0,np.pi / 2.0,5)]
@@ -97,10 +113,13 @@ class stadium:
         ax.plot_surface(X3,Y3, np.zeros((2,20)), color=c, alpha=0.5)
         
 class solid:
-    '''Solid
+    '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
+    class manages setting orientation, and calculating properties.
+    
     '''
     def __init__(self,label,density,height):
-        '''Defines a solid. This is a base class. Sets the alpha value to be used for plotting with matplotlib.
+        '''Defines a solid. This is a base class. Sets the alpha value to
+        be used for drawing with matplotlib.
         
         Parameters
         ----------
@@ -115,10 +134,20 @@ class solid:
         self.label = label
         self.density = density
         self.height = height
-        solid.alpha = 1
+        solid.alpha = .5
 
     def set_orientation(self,pos,RotMat):
-        '''Sets the position, rotation matrix of the solid, and calculate the "absolute" properties (center of mass, and inertia tensor) of the solid.
+        '''Sets the position, rotation matrix of the solid, and calculates
+        the "absolute" properties (center of mass, and inertia tensor) of the
+        solid.
+
+        Parameters
+        ----------
+        pos : np.array (3,1)
+            Position of the base of the solid in the absolute fixed coordinates
+            of the human.
+        RotMat : np.matrix (3,3)
+            Orientation of solid, with respect to the fixed coordinate system.
 
         '''
         self.pos = pos
@@ -128,14 +157,16 @@ class solid:
         self.calc_properties()
 
     def calc_properties(self):
-        '''Sets the center of mass and inertia of the solid, both with respect to the fixed human frame.
+        '''Sets the center of mass and inertia of the solid, both with respect
+        to the fixed human frame.
 
         '''
         self.COM = self.pos + self.RotMat * self.relCOM
-        self.Inertia = mymath.RotateInertia(self.RotMat,self.relInertia)
+        self.Inertia = inertia.rotate3_inertia(self.RotMat,self.relInertia)
 
     def print_properties(self):
-        '''Prints the mass, center of mass (local and absolute), and inertia tensor (local and absolute) of the solid.
+        '''Prints the mass, center of mass (local and absolute), and inertia
+        tensor (local and absolute) of the solid.
 
         '''
         print self.label,"properties:\n"
@@ -146,6 +177,7 @@ class solid:
                "COM (kg-m^2):\n",self.relInertia,"\n"
         print "Inertia tensor in fixed human frame about local solid's",\
                "COM (kg-m^2):\n",self.Inertia,"\n"
+
     def draw(self,ax,c):
         print "cannot draw base class solid"
 
@@ -154,7 +186,8 @@ class stadiumsolid(solid):
 
     '''
     def __init__(self,label,density,stadium0,stadium1,height):
-        '''Defines a stadium solid object. Creates its base object, and calculates relative/local inertia properties.
+        '''Defines a stadium solid object. Creates its base object, and
+        calculates relative/local inertia properties.
 
         Parameters
         ----------
@@ -181,7 +214,10 @@ class stadiumsolid(solid):
         self.calc_rel_properties()
         
     def calc_rel_properties(self):
-        '''Calculates mass, relative center of mass, and relative/local inertia, according to formulae in Appendix B of Yeadon 1989-ii. If the stadium solid is arranged anterior-posteriorly, the inertia is rotated by pi/2 about the z axis.
+        '''Calculates mass, relative center of mass, and relative/local
+        inertia, according to formulae in Appendix B of Yeadon 1990-ii. If the
+        stadium solid is arranged anterior-posteriorly, the inertia is rotated
+        by pi/2 about the z axis.
 
         '''
         D = self.density
@@ -223,11 +259,22 @@ class stadiumsolid(solid):
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterior-posterior orientation
-            self.relInertia = mymath.RotateInertia(
-                              mymath.Rotate3([0,0,np.pi/2]),self.relInertia)
+            self.relInertia = inertia.rotate3_inertia(
+                              inertia.rotate3([0,0,np.pi/2]),self.relInertia)
 
     def draw(self,ax,c):
-        '''Draws stadium solid using matplotlib's mplot3d library. Plotted with a non-one value for alpha. Also places the solid's label near the center of mass of the solid. Adjusts the plot for solids oriented anterior-posteriorly. Plots coordinate axes of the solid at the base of the solid.
+        '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
+        a non-one value for alpha. Also places the solid's label near the
+        center of mass of the solid. Adjusts the plot for solids oriented
+        anterior-posteriorly. Plots coordinate axes of the solid at the base of
+        the solid.
+
+        Parameters
+        ----------
+        ax : plt.axes
+            Matplotlib axes upon which to draw.
+        c : str
+            Color (e.g. 'red') to use for drawing the solid
 
         '''
         X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
@@ -270,7 +317,18 @@ class stadiumsolid(solid):
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
     def draw2D(self,ax,ax2,c):
-        '''
+        '''Draws a solid from a front and side view, in two dimensions, using
+        the matplotlib library. Not implemented well.
+
+        Parameters
+        ----------
+        ax : plt.axes
+            Matplotlib axes for drawing the front view of the solid.
+        ax2 : plt.axes
+            Matplotlib axes for drawing the side view of the solid.
+        c : str
+            Color (e.g. 'red')
+
         '''
         X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
         X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
@@ -295,9 +353,21 @@ class stadiumsolid(solid):
                          0*Xpts + 10, alpha=solid.alpha)
 
     def draw_visual(self, c):
-        convex(pos = self.make_pos_visual(), color=c)
+        '''Draws the stadium in 3D in a VPython window. Only one line of code!
+
+        Parameters
+        ----------
+        c : tuple (3,)
+            Color as an rgb tuple, with values between 0 and 1.
+
+        '''
+        vis.convex(pos = self.make_pos_visual(), color=c)
 
     def make_pos_visual(self):
+        '''Creates a list of x,y,z points to use for drawing a convex shape in
+        VPython (the method yeadon.solid.draw_visual)
+
+        '''
         N = 10
         pos = []
         for i in [0,1]:
@@ -375,7 +445,10 @@ class semiellipsoid(solid):
     '''Semiellipsoid.
     '''
     def __init__(self,label,density,baseperim,height):
-        '''Defines a semiellipsoid (solid) object. Creates its base object, and calculates relative/local inertia properties. The base is circular (its height axis is pointed upwards), so only 2 parameters are needed to define the semiellipsoid.
+        '''Defines a semiellipsoid (solid) object. Creates its base object, and
+        calculates relative/local inertia properties. The base is circular (its
+        height axis is pointed upwards), so only 2 parameters are needed to
+        define the semiellipsoid.
 
         Parameters
         ----------
@@ -385,8 +458,6 @@ class semiellipsoid(solid):
             Density of the solid (kg/m^3).
         baseperimeter : float
             The base is circular.
-        radius : float
-            Calculated for base perimeter.
         height : float
             The remaining minor axis.
 
@@ -398,7 +469,8 @@ class semiellipsoid(solid):
         self.calc_rel_properties()
 
     def calc_rel_properties(self):
-        '''Calculates mass, relative center of mass, and relative/local inertia, according to formulae in Appendix B of Yeadon 1989-ii.
+        '''Calculates mass, relative center of mass, and relative/local
+        inertia, according to somewhat commonly availble formulae.
 
         '''
         D = self.density
@@ -415,7 +487,18 @@ class semiellipsoid(solid):
                                   [0.0,0.0,Izcom]])
 
     def draw(self,ax,c):
-        '''Draws semiellipsoid using matplotlib's mplot3d library. Plotted with a non-one value for alpha. Also places the solid's label near the center of mass of the solid. Plots coordinate axes of the solid at the base of the solid. Code is modified from matplotlib documentation for mplot3d.
+        '''Draws semiellipsoid using matplotlib's mplot3d library. Plotted with
+        a non-one value for alpha. Also places the solid's label near the
+        center of mass of the solid. Plots coordinate axes of the solid at the
+        base of the solid. Code is modified from matplotlib documentation for
+        mplot3d.
+
+        Parameters
+        ----------
+        ax : plt.Axes3D
+            Matplotlib axes to draw upon.
+         c : str
+            Color (e.g. 'red').
 
         '''
         N = 30
@@ -441,11 +524,19 @@ class semiellipsoid(solid):
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
     def draw2D(self,ax,ax2,c):
+        '''Not implemented.
+
+        '''
         print "NOT IMPLEMENTED YET"
 
     def draw_visual(self,c):
+        '''Draws an ellipse in VPython. Ideally would only draw the top half of
+        the ellipse, but draws the entire ellipse. This disadvantage makes it
+        seem as if the head is more "round" than it actually is.
+
+        '''
         ax = self.RotMat * np.array([[0],[0],[1]])
-        ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
+        vis.ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
                          axis = (ax[0,0],ax[1,0],ax[2,0]),
                          length=self.height,
                          height=self.radius*2,

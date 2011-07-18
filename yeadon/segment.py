@@ -1,13 +1,21 @@
+'''Segment objects are used by the human module. A segment has a position, and
+an orientation. All constituent solids of a segment have the same orientation.
+That is to say that the base of the segment is at a joint in the human. The
+user does not interact with this module.
+
+'''
 import numpy as np
 
 from dtk import inertia # jason moore's
 
 import solid
-import mymath
 
 class segment:
     def __init__(self,label,pos,RotMat,solids,color):
-        '''Initializes a segment object. Stores inputs as instance variables, calculates the orientation of the segment's child solids, and calculates the "relative" inertia parameters (mass, center of mass and inertia) of the segment.
+        '''Initializes a segment object. Stores inputs as instance variables,
+        calculates the orientation of the segment's child solids, and
+        calculates the "relative" inertia parameters (mass, center of mass
+        and inertia) of the segment.
 
         Parameters
         ----------
@@ -22,8 +30,9 @@ class segment:
             human frame.
         solids : list of solid objects
             The solid objects that compose the segment
-        color : str
+        color : tuple (3,)
             Color with which to plot this segment in the plotting functions.
+            RGB tuple with float values between 0 and 1.
 
         '''
         self.label = label
@@ -41,7 +50,12 @@ class segment:
        
  
     def set_orientations(self):
-        '''Sets the position (self.pos) and rotation matrix (self.RotMat) for all solids in the segment by calling each constituent solid's setOrientation method. The position of the i-th solid, expressed in the fixed human reference frame, is given by the sum of the segment's base position and the directed height of all the solids of the segment up to the i-th solid.
+        '''Sets the position (self.pos) and rotation matrix (self.RotMat)
+        for all solids in the segment by calling each constituent
+        solid's set_orientation method. The position of the i-th solid,
+        expressed in the fixed human reference frame, is given by the sum
+        of the segment's base position and the directed height of all the
+        solids of the segment up to the i-th solid.
 
         '''
         # pos and RotMat for first solid
@@ -53,7 +67,10 @@ class segment:
                 self.solids[i].set_orientation(pos,self.RotMat)
             
     def calc_rel_properties(self):
-        '''Calculates the mass, relative/local center of mass, and relative/local inertia tensor (about the segment's center of mass). Also computes the center of mass of each constituent solid with respect to the segment's base in the segment's reference frame.
+        '''Calculates the mass, relative/local center of mass, and
+        relative/local inertia tensor (about the segment's center of mass).
+        Also computes the center of mass of each constituent solid with
+        respect to the segment's base in the segment's reference frame.
 
         '''
         # mass
@@ -67,7 +84,8 @@ class segment:
         for i in np.arange(self.nSolids):
             if i != 0:
                 self.solidpos.append( self.solidpos[i-1] +
-                                      self.solids[i-1].height * mymath.zunit)
+                                      self.solids[i-1].height * 
+                                      np.array([[0,0,1]]).T)
         # center of mass of each solid w.r.t. segment orientation and
         # segment's origin
         self.solidCOM = []    
@@ -91,13 +109,18 @@ class segment:
                                       [dist[0,0],dist[1,0],dist[2,0]]))
             
     def calc_properties(self):
-        '''Calculates the segment's center of mass with respect to the fixed human frame origin (in the fixed human reference frame) and the segment's inertia in the fixed human frame but about the segment's center of mass.
+        '''Calculates the segment's center of mass with respect to the
+        fixed human frame origin (in the fixed human reference frame) and the
+        segment's inertia in the fixed human frame but about the segment's
+        center of mass.
 
         '''
         # center of mass
         self.COM = self.pos + self.RotMat * self.relCOM
         # inertia in frame f w.r.t. segment's COM
-        self.Inertia = mymath.RotateInertia(self.RotMat,self.relInertia)
+        self.Inertia = inertia.rotate3_inertia(self.RotMat,self.relInertia)
+        # an alternative way of calculating absolute inertia tensor,
+        # implemented for validation purposes.
         # inertia in frame f w.r.t. segment's COM
         self.Inertia2 = np.mat(np.zeros((3,3)))
         for s in self.solids:
@@ -107,7 +130,8 @@ class segment:
                                     [dist[0,0],dist[1,0],dist[2,0]]))
 
     def print_properties(self):
-        '''Prints mass, center of mass (in segment's and fixed human frames), and inertia (in segment's and fixed human frames).
+        '''Prints mass, center of mass (in segment's and fixed human frames),
+        and inertia (in segment's and fixed human frames).
 
         '''
         print self.label,"properties:\n"
@@ -120,14 +144,16 @@ class segment:
                "COM (kg-m^2):\n",self.Inertia,"\n"
         
     def print_solid_properties(self):
-        '''Calls the print_properties() member method of each of this segment's solids. See the solid class's definition of print_properties(self) for more detail.
+        '''Calls the print_properties() member method of each of this
+        segment's solids. See the solid class's definition of
+        print_properties(self) for more detail.
 
         '''
         for s in self.solids:
             s.print_properties()
 
     def draw(self,ax):
-        '''Draws all the solids within a segment.
+        '''Draws all the solids within a segment using matplotlib.
 
         '''
         for idx in np.arange(self.nSolids):
@@ -143,7 +169,8 @@ class segment:
                         color='r')
 
     def draw2D(self,ax,ax2):
-        '''Draws in two dimensions all the solids within a segment.
+        '''Draws in two dimensions all the solids within this segment using
+        matplotlib. Does not perform well.
 
         '''
         for idx in np.arange(self.nSolids):
@@ -151,5 +178,8 @@ class segment:
             self.solids[idx].draw2D(ax, ax2, self.color)
 
     def draw_visual(self):
+        '''Draws in a 3D VPython window all the solids within this segment.
+
+        '''
         for s in self.solids:
             s.draw_visual(self.color)
