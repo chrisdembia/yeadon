@@ -20,11 +20,11 @@ Directories
 ===========
 
 ``yeadon/`` is the root directory of this packages
-    ``/`` contains two template input .txt files
-    ``build/`` is filled up when creating documentation or installing the package
-    ``dist/`` is filled when running "python setup.p sdist" in bash.
-    ``doc/`` contains source documents for building sphinx documentation.
-    yeadon/ contains the python source files
+``/`` contains two template input .txt files
+``build/`` is filled up when creating documentation or installing the package
+``dist/`` is filled when running "python setup.p sdist" in bash.
+``doc/`` contains source documents for building sphinx documentation.
+``yeadon/`` contains the python source files
 
 
 Installing
@@ -33,14 +33,13 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-    numpy (python-numpy) numpy.scipy.orgzo
-    matplotlib (python-matplotlib) matplotlib.sourceforge.net
-    vpython (python-visual) www.vpython.org
-    sphinx sphinx.pocoo.org (optional, needed to create documentation)
+-numpy (python-numpy) numpy.scipy.orgzo
+-matplotlib (python-matplotlib) matplotlib.sourceforge.net
+-vpython (python-visual) www.vpython.org
+-sphinx sphinx.pocoo.org (optional, needed to create documentation)
 
 In Linux systems, you may be able to obtain those four packages by opening a
-terminal window (CTRL-ALT-T) and typing the following line:
-
+terminal window (CTRL-ALT-T) and typing the following line::
     sudo apt-get install python-numpy python-matplotlib python-visual
 
 For other systems (Windows or Mac), visit the websites for the packages,
@@ -56,6 +55,7 @@ Linux system, you can also open up a terminal window and execute the
 lines below to install the package, assuming you have Python 2.7 installed.
 
 ::
+
     $cd ~/    #(or choose any dir. to download the files to)
     $sudo apt-get install git
     $git clone https://github.com/moorepants/DynamicistToolKit
@@ -98,11 +98,13 @@ In a python script or in the python command prompt (IDLE), import the library
 with a line like
 
 ::
+
     >>>import yeadon as y
 
 You can begin the command line interface by executing
 
 ::
+
     >>>y.start_ui()
 
 Then you can follow the instructions provided in the command line interface.
@@ -110,6 +112,7 @@ The other way to interact with the package is by creating a human object
 with a line (perhaps in your own code) like
 
 ::
+
     >>>H = y.human(<measfilename>,<CFGfilename>)
 
 where <measfilename> and <CFGfilename> are replaced by strings that contain
@@ -118,6 +121,7 @@ basics on how to use a human object, you can go into a python command prompt
 (IDLE) and type
 
 ::
+
     >>>import yeadon as y
     >>>help(y.human)
 
