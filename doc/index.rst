@@ -26,9 +26,10 @@ from the sample text input files in the root yeadon/ directory.
 The README.txt contains installation instructions.
 
 This package was developed during the Summer of 2011 at the University of
-California, Davis, to aid with the bicycle research of Jason Moore and Dale Luke
-Peterson in the Sports Biomechanics Lab of Professor Mont Hubbard. Learn more
-about the Sports Biomechanics Lab at `biosport.ucdavis.edu <http://biosport.ucdavis.edu>`_.
+California, Davis, to aid with the bicycle research of Jason Moore and Dale
+Luke Peterson in the Sports Biomechanics Lab of Professor Mont Hubbard. Learn
+more about the Sports Biomechanics Lab at `biosport.ucdavis.edu
+<http://biosport.ucdavis.edu>`_.
 
 Indices and tables
 ==================
@@ -36,5 +37,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-
