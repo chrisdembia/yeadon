@@ -6,27 +6,29 @@
 Welcome to yeadon's documentation!
 ==================================
 
-It is expected that the user of this package has read Yeadon's 1990 papers, especially Yeadon 1990-ii. There are four papers, identified by numerals i-iv.
-
-
-
-Contents:
+Contents of this documentation:
 
 .. toctree::
    :maxdepth: 1
 
+   overview.rst
    modules.rst
    usage.rst
    measurements.rst
    configuration.rst
    releasenotes.rst
 
-A summary of the contents of his four papers is provided:
-i:
-ii:
-iii:
-iv:
-Differences between Yeadon and this code: fixed coordinate system.
+Information about this package can also be obtained from within python with
+commands such as help(yeadon) and help(yeadon.human) (assuming the user has
+imported yeadon) or from the README.txt file in the root yeadon/ directory, or
+from the sample text input files in the root yeadon/ directory.
+
+The README.txt contains installation instructions.
+
+This package was developed during the Summer of 2011 at the University of
+California, Davis, to aid with the bicycle research of Jason Moore and Dale Luke
+Peterson in the Sports Biomechanics Lab of Professor Mont Hubbard. Learn more
+about the Sports Biomechanics Lab at `biosport.ucdavis.edu <http://biosport.ucdavis.edu>`_.
 
 Indices and tables
 ==================
@@ -36,4 +38,3 @@ Indices and tables
 * :ref:`search`
 
 
-[1] Yeadon

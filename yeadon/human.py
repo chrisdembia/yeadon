@@ -352,6 +352,8 @@ class human:
         rotations is x, then, y, then z. All rotations are about the
         original (unrotated) axes (rotations are not relative).
 
+        Parameters
+        ----------
         varin : list or tuple (3,) or np.matrix (3,3)
             If list or tuple, the rotations in radians about the x, y,
             and z axes (in that order). If np.matrix, it is a 3x3 rotation

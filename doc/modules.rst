@@ -17,12 +17,3 @@ Modules
    solid.rst
    ui.rst
    densities.rst
-
-:mod:`inertia` Module
----------------------
-
-.. automodule:: yeadon.inertia
-    :members:
-    :undoc-members:
-    :show-inheritance:
-

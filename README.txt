@@ -7,7 +7,20 @@ in (Yeadon,1990). The package allows for the input of both measurements and
 configuration variables (joint angles), and provides 3D graphical output
 using the VPython package.
 
+The package was developed on a Linux Ubuntu personal computer, and so this
+README has that bent to it.
+
 M. R. Yeadon, 1990. The simulation of aerial movement-ii. mathematical inertia model of the human body. Journal of Biomechanics, 23:67-74.
+
+Directories
+===========
+
+yeadon/ is the root directory of this packages
+    / contains two template input .txt files
+    build/ is filled up when creating documentation or installing the package
+    dist/ is filled when running "python setup.p sdist" in bash.
+    doc/ contains source documents for building sphinx documentation.
+    yeadon/ contains the python source files
 
 
 Installing
@@ -16,7 +29,7 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-    numpy (python-numpy) numpy.scipy.org
+    numpy (python-numpy) numpy.scipy.orgzo
     matplotlib (python-matplotlib) matplotlib.sourceforge.net
     vpython (python-visual) www.vpython.org
     sphinx sphinx.pocoo.org (optional, needed to create documentation)
