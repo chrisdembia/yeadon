@@ -40,7 +40,9 @@ widely-used packages:
 - `vpython`__ optional, used for pretty visualization (debian: python-visual)
 .. __: http://www.vpython.org
 - `sphinx`__  optional, needed to create documentation (debian: python-sphinx)
-.. __: sphinx.pocoo.org
+.. __: http://sphinx.pocoo.org
+    - numpydoc__ sphinx extension
+.. __: http://pypi.python.org/pypi/numpydoc
 
 In Linux systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
