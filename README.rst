@@ -34,13 +34,13 @@ This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
 - `Numpy`__ (debian: python-numpy)
-.. __:: http://numpy.scipy.org
+.. __: http://numpy.scipy.org
 - `matplotlib`__ (debian: python-matplotlib)
-.. __:: http://matplotlib.sourceforge.net
+.. __: http://matplotlib.sourceforge.net
 - `vpython`__ optional, used for pretty visualization (debian: python-visual)
-.. __:: http://www.vpython.org
+.. __: http://www.vpython.org
 - `sphinx`__  optional, needed to create documentation (debian: python-sphinx)
-.. __:: sphinx.pocoo.org
+.. __: sphinx.pocoo.org
 
 In Linux systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
