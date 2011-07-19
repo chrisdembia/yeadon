@@ -19,12 +19,12 @@ Model of the Human Body. Journal of Biomechanics, 23:67-74.
 Directories
 ===========
 
-``yeadon/`` is the root directory of this packages
-``/`` contains two template input .txt files
-``build/`` is filled up when creating documentation or installing the package
-``dist/`` is filled when running "python setup.p sdist" in bash.
-``doc/`` contains source documents for building sphinx documentation.
-``yeadon/`` contains the python source files
+- ``yeadon/`` is the root directory of this package
+- ``/`` contains two template input .txt files
+- ``build/`` is filled up when creating documentation or installing the package
+- ``dist/`` is filled when running "python setup.p sdist" in bash.
+- ``doc/`` contains source documents for building sphinx documentation.
+- ``yeadon/`` contains the python source files for the yeadon package
 
 
 Installing
@@ -33,17 +33,23 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
--numpy (python-numpy) numpy.scipy.orgzo
--matplotlib (python-matplotlib) matplotlib.sourceforge.net
--vpython (python-visual) www.vpython.org
--sphinx sphinx.pocoo.org (optional, needed to create documentation)
+- numpy__ (debian: python-numpy)
+.. __:: http://numpy.scipy.org
+- matplotlib__ (debian: python-matplotlib)
+.. __:: http://matplotlib.sourceforge.net
+- vpython__ optional, used for pretty visualization (debian: python-visual)
+.. __:: http://www.vpython.org
+- sphinx__  optional, needed to create documentation (debian: python-sphinx)
+.. __:: sphinx.pocoo.org
 
 In Linux systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
-    sudo apt-get install python-numpy python-matplotlib python-visual
+
+    apt-get install python-numpy python-matplotlib # required
+    apt-get install python-sphinx python-visual # optional packages
 
 For other systems (Windows or Mac), visit the websites for the packages,
-given above.
+given above for installation instructions.
 
 The code also depends on a package called DynamicistToolKit. This is
 available from a GIT repository hosted by www.github.com at
@@ -56,9 +62,9 @@ lines below to install the package, assuming you have Python 2.7 installed.
 
 ::
 
-    $cd ~/    #(or choose any dir. to download the files to)
-    $sudo apt-get install git
-    $git clone https://github.com/moorepants/DynamicistToolKit
+    $cd ~/    # or choose any dir. to download the files to
+    $apt-get install git
+    $git clone git://github.com/moorepants/DynamicistToolKit
     $cd DynamicistToolKit
     $python setup.py install
 
@@ -70,7 +76,7 @@ on www.github.com as a GIT repository at
 You can install the python package in Linux with the commands along the lines
 of::
     $cd ~/
-    $sudo apt-get install git
+    $apt-get install git
     $git clone https://github.com/fitze/yeadon
     $cd yeadon
     $python setup.py install
@@ -80,12 +86,14 @@ the yeadon documentation if you have the python sphinx package (see above) by
 typing, in the same yeadon/ directory
 
 ::
+
     $cd doc/
     $make html
 
 to make HTML documentation in the yeadon/doc/_build/html folder, or
 
 ::
+
     $cd doc/
     $make latex  #(or: make latexpdf)
 
