@@ -21,8 +21,6 @@ Directories
 
 - ``yeadon/`` is the root directory of this package
 - ``/`` contains two template input .txt files
-- ``build/`` is filled up when creating documentation or installing the package
-- ``dist/`` is filled when running "python setup.p sdist" in bash.
 - ``doc/`` contains source documents for building sphinx documentation.
 - ``yeadon/`` contains the python source files for the yeadon package
 

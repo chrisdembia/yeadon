@@ -118,6 +118,8 @@ class human:
                             [-np.pi/2, np.pi/2],
                             [0, np.pi],
                             [0, np.pi]]
+        # initialize measurement dictionary
+        self.meas = {}
         # if measurements input is a module, just assign. else, read in file
         if type(meas_in) == dict:
             self.measurementconversionfactor = 1
@@ -1162,8 +1164,6 @@ class human:
         '''
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
-        # initialize measurement dictionary
-        self.meas = {}
         # open measurement file
         fid = open(fname,'r')
         # loop until all 95 parameters are read in

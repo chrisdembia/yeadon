@@ -29,6 +29,7 @@ this endeavor is left up to the user. The package does not deal at all with
 angular momentum (the topic of paper iii).
 
 There are a few key differences between Yeadon's model and this model.
+
 - In Yeadon's model, the fixed coordinate axes of the human are defined in a
   complicated way, such that the fixed axes are not fixed to any one body
   segment. In this package, the fixed coordinate system is "fixed" to the
