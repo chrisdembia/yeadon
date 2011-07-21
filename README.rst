@@ -33,14 +33,17 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-- `Numpy`__ (debian: python-numpy)
-.. __: http://numpy.scipy.org
-- `matplotlib`__ (debian: python-matplotlib)
-.. __: http://matplotlib.sourceforge.net
-- `vpython`__ optional, used for pretty visualization (debian: python-visual)
-.. __: http://www.vpython.org
-- `sphinx`__  optional, needed to create documentation (debian: python-sphinx)
-.. __: sphinx.pocoo.org
+- Numpy_ (debian: python-numpy)
+- Matplotlib_ (debian: python-matplotlib)
+- vPython_ optional, used for pretty visualization (debian: python-visual)
+- Sphinx_  optional, needed to create documentation (debian: python-sphinx)
+ - numpydoc_ sphinx extension
+
+.. _Numpy: http://numpy.scipy.org
+.. _Matplotlib: http://matplotlib.sourceforge.net
+.. _vPython: http://www.vpython.org
+.. _Sphinx: http://sphinx.pocoo.org
+.. _numpydoc: http://pypi.python.org/pypi/numpydoc
 
 In Linux systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
