@@ -46,11 +46,11 @@ Getting measurements into the code
 There are three options for getting measurements into the code.
 
  - Use the ``meastemplate.txt`` file in the yeadon/ directory, or
-   :download:`here <../meastemplate.txt>`.
+   :download:`here <../misc/meastemplate.txt>`.
  - Use the ``measform.PDF`` form in the yeadon/ directory, or :download:`here
-   <../measform.pdf>`. If you install the python package pdfminer, you can run
+   <../misc/measform.pdf>`. If you install the python package pdfminer, you can run
    the python script measpdf2txt.py in yeadon/, or :download:`here
-   <../measpdf2txt.py>`.
+   <../misc/measpdf2txt.py>`.
  - Provide a python dictionary (type dict) containing all the appropriate
    fields. You can obtain a dictionary from the variable H.meas. The keys for
    the dictionary are the names of the variables as they are in the

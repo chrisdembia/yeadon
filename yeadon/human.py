@@ -1029,7 +1029,7 @@ class human:
         # pelvis
         Ppos = self.coord_sys_pos
         PRotMat = (self.coord_sys_orient *
-                   inertia.rotate3_rel([self.CFG['somersalt'],
+                   inertia.euler_123([self.CFG['somersalt'],
                                     self.CFG['tilt'],
                                     self.CFG['twist']]))
         self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
@@ -1056,7 +1056,7 @@ class human:
         A1pos = self.s[3].pos + self.s[3].RotMat * dpos
         A1RotMat = self.s[3].RotMat * (inertia.rotate3(
                                        [0,-np.pi,0]) * 
-                                          inertia.rotate3_rel(
+                                          inertia.euler_123(
                                           [self.CFG['CA1elevation'],
                                           -self.CFG['CA1abduction'],
                                           -self.CFG['CA1rotation']]))
@@ -1075,7 +1075,7 @@ class human:
         B1pos = self.s[3].pos + self.s[3].RotMat * dpos
         B1RotMat = self.s[3].RotMat * (inertia.rotate3(
                                        [0,-np.pi,0]) *
-                                           inertia.rotate3_rel(
+                                           inertia.euler_123(
                                            [self.CFG['CB1elevation'],
                                            self.CFG['CB1abduction'],
                                            self.CFG['CB1rotation']]))

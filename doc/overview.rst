@@ -45,4 +45,4 @@ There are a few key differences between Yeadon's model and this model.
   (e.g. A1, J1, etc.) are unchanged.
 
 [1] Yeadon, M. R. (1990c). The Simulation of Aerial Movement-ii. A Mathematical
-Model of the Human Body. Journal of Biomechanics, 23:67-74
+Model of the Human Body. Journal of Biomechanics, 23:67-74.
