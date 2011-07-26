@@ -37,15 +37,21 @@ The user does not interact directly with any of the modules aside from
 Features
 ========
 
-- **Print inertia properties** There are methods to print the properties of
-   the entire human, of segments, or of solids. These are:
+**Print inertia properties**
+    There are methods to print the properties of the entire human, of segments,
+    or of solids. These are:
+
     - ``H.print_properties()``
     - ``H.J1.print_properties()``
     - ``H.J1.print_solid_properties()``
+
     where J1 is just an example of a segment. These commands print the
     information to the python command window or a terminal.
-- **Return inertia properties** It may be desirable to directly access the
-   data from the attributes as below:
+
+**Return inertia properties**
+    It may be desirable to directly access the data from the attributes as
+    below:
+
     - ``H.Mass``
     - ``H.COM``
     - ``H.Inertia``
@@ -59,8 +65,12 @@ Features
     - ``H.j[0].COM``
     - ``H.j[0].relInertia``
     - ``H.j[0].Inertia``
+
     See below for a full list of all segment objects and solid objects.
-- **Draw** There are three methods for drawing the human.
+
+**Draw**
+    There are three methods for drawing the human.
+
     - ``H.draw()``: matplotlib, 3D. This was the first method implemented, and
       does not look too great because matplotlib does not manage depth of the
       objects.
@@ -68,23 +78,30 @@ Features
       much unusable.
     - ``H.draw_visual()``: python-visual. This works pretty well. Requires the
       VPython (python-visual) package.
-- **Combine inertia** Provides the mass, center of mass, and inertia tensor
-   for a combination of solids and/or segments. This can be done from the
-   method ``yeadon.human.combine_inertia``. See the help for the method to
-   to use it.
-- **Scale by mass** Set the mass of the human to be a measured mass by scaling
-   the densities that the code uses. This is done by providing a positive value
-   for ``totalmass`` in the measurement text input file.
-- **Symmetry** The measurements for the left and right limbs are averaged to
-   create symmetrical limbs. This may be desirable depending on a user's use of
-   the package. By default, this average is set to occur, It can be turned off
-   for a human by using a third input to the human constructor of ``False``.
-- **File Input/Output** The measurements can be written to a txt file using
-   ``yeadon.human.write_measurements``. The configuration can be written using
-   ``yeadon.human.write_CFG``. The measurements can be converted and written to
-   a text file that is ready for Yeadon's ISEG fortran code that performs many
-   of the same calculations as this packge by using
-   ``yeadon.human.write_meas_for_ISEG``.
+
+**Combine inertia**
+    Provides the mass, center of mass, and inertia tensor for a combination of
+    solids and/or segments. This can be done from the method
+    ``yeadon.human.combine_inertia``. See the help for the method to to use it.
+
+**Scale by mass**
+    Set the mass of the human to be a measured mass by scaling the densities
+    that the code uses. This is done by providing a positive value for
+    ``totalmass`` in the measurement text input file.
+
+**Symmetry**
+    The measurements for the left and right limbs are averaged to create
+    symmetrical limbs. This may be desirable depending on a user's use of the
+    package. By default, this average is set to occur, It can be turned off for
+    a human by using a third input to the human constructor of ``False``.
+
+**File Input/Output**
+    The measurements can be written to a txt file using
+    ``yeadon.human.write_measurements``. The configuration can be written using
+    ``yeadon.human.write_CFG``. The measurements can be converted and written
+    to a text file that is ready for Yeadon's ISEG fortran code that performs
+    many of the same calculations as this packge by using
+    ``yeadon.human.write_meas_for_ISEG``.
 
 The human segment attributes
 ----------------------------
