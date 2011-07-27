@@ -42,6 +42,7 @@ Features
     - ``H.print_properties()``
     - ``H.J1.print_properties()``
     - ``H.J1.print_solid_properties()``
+
     where J1 is just an example of a segment. These commands print the
     information to the python command window or a terminal.
 - **Return inertia properties** It may be desirable to directly access the
@@ -59,6 +60,7 @@ Features
     - ``H.j[0].COM``
     - ``H.j[0].relInertia``
     - ``H.j[0].Inertia``
+
     See below for a full list of all segment objects and solid objects.
 - **Draw** There are three methods for drawing the human.
     - ``H.draw()``: matplotlib, 3D. This was the first method implemented, and
@@ -68,6 +70,7 @@ Features
       much unusable.
     - ``H.draw_visual()``: python-visual. This works pretty well. Requires the
       VPython (python-visual) package.
+
 - **Combine inertia** Provides the mass, center of mass, and inertia tensor
    for a combination of solids and/or segments. This can be done from the
    method ``yeadon.human.combine_inertia``. See the help for the method to
