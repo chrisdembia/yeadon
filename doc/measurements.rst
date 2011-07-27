@@ -16,6 +16,7 @@ stadium solids, and one semi-ellipsoid.
 
 .. image:: stadium.png
    :scale: 15 %
+
 A circle can be defined by a stadium solid whose thickness is zero, :math:`t = 0`.
 
 *Stadium solids* are defined by two stadia, as well as the height :math:`h` of
