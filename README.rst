@@ -52,8 +52,10 @@ terminal window (CTRL-ALT-T) and typing the following line::
 For other systems (Windows or Mac), visit the websites for the packages,
 given above for installation instructions.
 
-The code also depends on a package called DynamicistToolKit. This is
-available from a GIT repository hosted by www.github.com at
+The code also depends on a package called DynamicistToolKit. The relevant code
+from DynamicistToolKit has been included in this package. If you'd like to get
+the entire DynamicistToolKit package, it is available from a GIT repository
+hosted by www.github.com at
 
     https://github.com/moorepants/DynamicistToolKit
 
