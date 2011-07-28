@@ -79,25 +79,6 @@ Features
     - ``H.draw_visual()``: python-visual. This works pretty well. Requires the
       VPython (python-visual) package.
 
-<<<<<<< HEAD
-- **Combine inertia** Provides the mass, center of mass, and inertia tensor
-   for a combination of solids and/or segments. This can be done from the
-   method ``yeadon.human.combine_inertia``. See the help for the method to
-   to use it.
-- **Scale by mass** Set the mass of the human to be a measured mass by scaling
-   the densities that the code uses. This is done by providing a positive value
-   for ``totalmass`` in the measurement text input file.
-- **Symmetry** The measurements for the left and right limbs are averaged to
-   create symmetrical limbs. This may be desirable depending on a user's use of
-   the package. By default, this average is set to occur, It can be turned off
-   for a human by using a third input to the human constructor of ``False``.
-- **File Input/Output** The measurements can be written to a txt file using
-   ``yeadon.human.write_measurements``. The configuration can be written using
-   ``yeadon.human.write_CFG``. The measurements can be converted and written to
-   a text file that is ready for Yeadon's ISEG fortran code that performs many
-   of the same calculations as this packge by using
-   ``yeadon.human.write_meas_for_ISEG``.
-=======
 **Combine inertia**
     Provides the mass, center of mass, and inertia tensor for a combination of
     solids and/or segments. This can be done from the method
@@ -121,7 +102,6 @@ Features
     to a text file that is ready for Yeadon's ISEG fortran code that performs
     many of the same calculations as this packge by using
     ``yeadon.human.write_meas_for_ISEG``.
->>>>>>> f4a7e372c2308ef49ae4e321df68c58ae229148f
 
 The human segment attributes
 ----------------------------
