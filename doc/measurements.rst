@@ -99,3 +99,11 @@ the Notes of the image below this section.
    the neck.
 
 .. image:: cld72_yeadon_meas_0716.png
+
+Sample measurement files
+------------------------
+Here are measurement data files for three real-life people.
+ - :download:`male1 <../misc/samplemeasurements/male1.txt>`
+ - :download:`male2 <../misc/samplemeasurements/male2.txt>`
+ - :download:`male3 <../misc/samplemeasurements/male3.txt>`
+ - :download:`female1 <../misc/samplemeasurements/female1.txt>`

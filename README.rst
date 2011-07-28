@@ -35,7 +35,7 @@ widely-used packages:
 - Matplotlib_ (debian: python-matplotlib)
 - vPython_ optional, used for pretty visualization (debian: python-visual)
 - Sphinx_  optional, needed to create documentation (debian: python-sphinx)
- - numpydoc_ sphinx extension
+- numpydoc_ sphinx extension
 
 .. _Numpy: http://numpy.scipy.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
@@ -77,7 +77,10 @@ on www.github.com as a GIT repository at
     https://github.com/fitze/yeadon
 
 You can install the python package in Linux with the commands along the lines
-of::
+of
+
+::
+
     $cd ~/
     $apt-get install git
     $git clone https://github.com/fitze/yeadon

@@ -8,5 +8,4 @@ setup(
     packages=['yeadon','dtk'],
     license='LICENSE.txt',
     long_description=open('README.rst').read(),
-    requires=['dtk',]
 )
