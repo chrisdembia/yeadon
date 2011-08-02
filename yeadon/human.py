@@ -1090,7 +1090,8 @@ class human:
                                [self.b[2],self.b[3],self.b[4],self.b[5],
                                 self.b[6]], (1,0,0))
         # left thigh
-        dpos = np.array([[self.s[0].stads[0].thick],[0.0],[0.0]])
+        dpos = np.array([[.5*self.s[0].stads[0].thick+
+                          .5*self.s[0].stads[0].radius],[0.0],[0.0]])
         J1pos = self.s[0].pos + self.s[0].RotMat * dpos
         J1RotMat = self.s[0].RotMat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
@@ -1107,7 +1108,8 @@ class human:
                                [self.j[3],self.j[4],self.j[5],self.j[6],
                                 self.j[7],self.j[8]], (1,0,0))
         # right thigh
-        dpos = np.array([[-self.s[0].stads[0].thick],[0.0],[0.0]])
+        dpos = np.array([[-.5*self.s[0].stads[0].thick-
+                           .5*self.s[0].stads[0].radius],[0.0],[0.0]])
         K1pos = self.s[0].pos + self.s[0].RotMat * dpos
         K1RotMat = self.s[0].RotMat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
