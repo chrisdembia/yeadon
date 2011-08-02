@@ -1283,12 +1283,17 @@ class human:
 
         '''
         self.CFG = {}
-        fid = open(CFGfname,'r')
         i = 0
-        for line in fid:
-            tempstr = line.partition('=')
-            self.CFG[human.CFGnames[i]] = float(tempstr[2])
-            i += 1
+        with open(CFGfname, 'r') as fid:
+            for line in fid:
+                # skip lines that are comment lines
+                if not line.strip().startswith('#'):
+                    # remove any whitespace characters and comments at the end
+                    # of the line, then split the right and left side of the
+                    # equality
+                    tempstr = line.strip().split('#')[0].split('=')
+                    self.CFG[human.CFGnames[i]] = float(tempstr[1])
+                    i += 1
 
     def write_CFG(self,CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
