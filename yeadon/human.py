@@ -499,6 +499,7 @@ class human:
         vis.scene.up = up
         vis.scene.background = bg
         vis.scene.autocenter = True
+        #vis.scene.exit = False
 
     def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
         '''Draws a vector in a python-visual window. It is expected that this
