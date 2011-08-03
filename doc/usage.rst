@@ -57,12 +57,18 @@ Features
     - ``H.Inertia``
     - ``H.J1.Mass``
     - ``H.J1.relCOM`` (in the local coordinates of the J1 segment)
+    - ``H.J1.pos`` (in fixed human coordinates; position of the "root" of a
+      segment)
     - ``H.J1.COM``
+    - ``H.J1.endpos`` (in fixed human coordinates; position of "tip" of a
+      segment)
     - ``H.J1.relInertia`` (in the local coordinates of the J1 segment)
     - ``H.J1.Inertia``
     - ``H.j[0].Mass``
     - ``H.j[0].relCOM``
+    - ``H.j[0].pos``
     - ``H.j[0].COM``
+    - ``H.j[0].endpos``
     - ``H.j[0].relInertia``
     - ``H.j[0].Inertia``
 
