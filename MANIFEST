@@ -22,6 +22,16 @@ doc/ui.rst
 doc/usage.rst
 dtk/__init__.py
 dtk/inertia.py
+misc/cld72_yeadon_cfg_0718.svg
+misc/cld72_yeadon_meas_0716.svg
+misc/measform.pdf
+misc/measform.tex
+misc/measpdf2txt.py
+misc/meastemplate.txt
+misc/samplemeasurements/female1.txt
+misc/samplemeasurements/male1.txt
+misc/samplemeasurements/male2.txt
+misc/samplemeasurements/male3.txt
 yeadon/__init__.py
 yeadon/densities.py
 yeadon/human.py

@@ -3,3 +3,4 @@ recursive-include doc *.rst
 include doc/*.png
 include doc/Makefile
 include doc/conf.py
+recursive-include misc *
