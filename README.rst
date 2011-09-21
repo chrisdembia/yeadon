@@ -24,7 +24,6 @@ Directories
 - ``doc/`` contains source documents for building sphinx documentation.
 - ``yeadon/`` contains the python source files for the yeadon package
 
-
 Installing
 ==========
 
@@ -46,59 +45,29 @@ widely-used packages:
 In Linux systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
 
-    apt-get install python-numpy python-matplotlib # required
-    apt-get install python-sphinx python-visual # optional packages
+    $apt-get install python-numpy python-matplotlib # required
+    $apt-get install python-sphinx python-visual # optional packages
 
 For other systems (Windows or Mac), visit the websites for the packages,
 given above for installation instructions.
 
-The code also depends on a package called DynamicistToolKit. The relevant code
-from DynamicistToolKit has been included in this package. If you'd like to get
-the entire DynamicistToolKit package, it is available from a GIT repository
-hosted by www.github.com at
+Once you download the yeadon package and decompress it, you can install in
+Linux with the commands along the lines of::
 
-    https://github.com/moorepants/DynamicistToolKit
-
-You can download that python package from the URL above. If you are using a
-Linux system, you can also open up a terminal window and execute the
-lines below to install the package, assuming you have Python 2.7 installed.
-
-::
-
-    $cd ~/    # or choose any dir. to download the files to
-    $apt-get install git
-    $git clone git://github.com/moorepants/DynamicistToolKit
-    $cd DynamicistToolKit
     $python setup.py install
 
-The procedure for installing this yeadon package is similar. It is available
-on www.github.com as a GIT repository at
+or simply use a tool like `pip` ::
 
-    https://github.com/fitze/yeadon
-
-You can install the python package in Linux with the commands along the lines
-of
-
-::
-
-    $cd ~/
-    $apt-get install git
-    $git clone https://github.com/fitze/yeadon
-    $cd yeadon
-    $python setup.py install
+    $pip install yeadon
 
 Again, this assumes that you have installed Python 2.7. You can build (create)
 the yeadon documentation if you have the python sphinx package (see above) by
-typing, in the same yeadon/ directory
-
-::
+typing, in the same yeadon/ directory::
 
     $cd doc/
     $make html
 
-to make HTML documentation in the yeadon/doc/_build/html folder, or
-
-::
+to make HTML documentation in the yeadon/doc/_build/html folder, or::
 
     $cd doc/
     $make latex  #(or: make latexpdf)
@@ -127,12 +96,11 @@ with a line (perhaps in your own code) like
 
 ::
 
-    >>>H = y.human(<measfilename>,<CFGfilename>)
+    >>>H = y.human(<measfilename>, <CFGfilename>)
 
-where <measfilename> and <CFGfilename> are replaced by strings that contain
-a relative or absolute path to the appropriate input .txt files. For more
-basics on how to use a human object, you can go into a python command prompt
-(IDLE) and type
+where `<measfilename>` and `<CFGfilename>` are replaced by strings that contain
+a relative or absolute path to the appropriate input `.txt` files. For more
+basics on how to use a human object, you can go into a python command prompt and type
 
 ::
 
@@ -141,5 +109,10 @@ basics on how to use a human object, you can go into a python command prompt
 
 See the HTML or PDF documentation for more information.
 
+Contact
+=======
+
 Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
 comments.
+
+Post issues to http://github.com/fitze/yeadon/issues.
