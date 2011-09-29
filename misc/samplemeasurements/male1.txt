@@ -4,8 +4,9 @@
 # There are 95 measurements, consisting of lengths, perimeters, widths, and
 # depths.
 #
-# For details about how the measurements are to be taken, consult the 
-# journal article Yeadon 1989-ii or the documentation of this python package.
+# For details about how the measurements are to be taken, consult the journal
+# article Yeadon 1989-ii or the documentation
+# <http://packages.python.org/yeadon/> of this python package.
 #
 # CONVERSION FACTOR to convert measurements INTO meters
 # (set to 1 if measurements are in meters, 0.001 if measurements are in mm,
@@ -53,7 +54,7 @@ Ls2w=25.1
 Ls3w=28
 Ls4w=30.3
 #
-# depth: the presence of the shoulder joint at Ls4, the shoulder joint centre, 
+# depth: the presence of the shoulder joint at Ls4, the shoulder joint centre,
 # makes it difficult to measure the width of the Ls4 stadium. Therefore the
 # depth (=2r) of the stadium is measured instead.
 Ls4d=15.1
@@ -62,7 +63,7 @@ Ls4d=15.1
 ##############################################################################
 # LEFT ARM
 #
-# lenghts measured from La0, shoulder joint centre:
+# lengths measured from La0, shoulder joint centre:
 # La1L is not measured because it is set to be .5 * La2L.
 # Accordingly, La1p should be measured at the location .5 * La2L
 La2L=26.1
