@@ -3,9 +3,10 @@ input txt file formidable for use with the yeadon package.
 
 Usage: at a bash command prompt, type
 
-    python measpdf2txt.py <pdffname>
+    python measpdf2txt.py <pdffname> <txtname>
 
-where <pdffname> is the name of a measurement PDF form. such as measform.pdf
+where <pdffname> is the name of a measurement PDF form, such as measform.pdf
+and <txtname> is the name of the output text file, such as output.txt.
 
 Dependencies:
 
@@ -27,7 +28,7 @@ parser.set_document(doc)
 doc.set_parser(parser)
 doc.initialize('')
 
-fo = open('outputmeas.txt', 'w')
+fo = open(sys.argv[2], 'w')
 
 fields = resolve1(doc.catalog['AcroForm'])['Fields']
 
