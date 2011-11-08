@@ -6,8 +6,7 @@ semiellipsoid classes.
 
 '''
 import numpy as np
-import matplotlib.pyplot as mpl
-from mpl_toolkits.mplot3d import Axes3D
+
 try:
     import visual as vis
 except ImportError:
@@ -111,16 +110,16 @@ class stadium:
         X3 = np.concatenate( (X2, np.nan*X2), axis = 0)
         Y3 = np.concatenate( (Y2, np.nan*Y2), axis = 0)
         ax.plot_surface(X3,Y3, np.zeros((2,20)), color=c, alpha=0.5)
-        
+
 class solid:
     '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
-    
+
     '''
     def __init__(self,label,density,height):
         '''Defines a solid. This is a base class. Sets the alpha value to
         be used for drawing with matplotlib.
-        
+
         Parameters
         ----------
         label : str
@@ -201,18 +200,18 @@ class stadiumsolid(solid):
             Upper stadium of the stadium solid.
         height : float
             Distance between the lower and upper stadia.
-       
+
         '''
         solid.__init__(self,label,density,height)
         self.stads = [stadium0,stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anterior-posterior,
         # inertia must be rotated, and the plots must be modified
-        if (self.stads[0].alignment == 'AP' or 
+        if (self.stads[0].alignment == 'AP' or
             self.stads[1].alignment == 'AP'):
             self.alignment = 'AP'
         self.calc_rel_properties()
-        
+
     def calc_rel_properties(self):
         '''Calculates mass, relative center of mass, and relative/local
         inertia, according to formulae in Appendix B of Yeadon 1990-ii. If the
@@ -230,7 +229,7 @@ class stadiumsolid(solid):
         if (t0 == 0):
             b = 1.0
         else:
-            b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!! 
+            b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
         self.Mass = D * h * r0 * (4.0 * t0 * self.F1(a,b) +
                                   np.pi * r0 * self.F1(a,a))
         zcom = D * (h**2.0) * (4.0 * r0 * t0 * self.F2(a,b) +
@@ -242,7 +241,7 @@ class stadiumsolid(solid):
                          4.0 * (r0**3.0) * t0 * self.F4(b,a) +
                          np.pi * (r0**4.0) * self.F4(a,a) * 0.5 )
         Iy = (D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                       np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) + 
+                       np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) +
                        8.0 * (r0**3.0) * t0*self.F4(b,a) / 3.0 +
                       np.pi * (r0**4.0) * self.F4(a,a) * 0.25) +
               D * (h**3.0) * (4.0 * r0 * t0 * self.F3(a,b) +
@@ -262,7 +261,7 @@ class stadiumsolid(solid):
             self.relInertia = inertia.rotate3_inertia(
                               inertia.rotate3([0,0,np.pi/2]),self.relInertia)
 
-    def draw(self,ax,c):
+    def draw(self, ax, c):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
         a non-one value for alpha. Also places the solid's label near the
         center of mass of the solid. Adjusts the plot for solids oriented
