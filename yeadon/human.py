@@ -271,9 +271,9 @@ class human:
 
         '''
         if type(idx)==int:
-            CFG[CFGnames[idx]] = value
+            self.CFG[self.CFGnames[idx]] = value
         elif type(idx)==str:
-            CFG[idx] = value
+            self.CFG[idx] = value
         else:
             print "set_CFG(idx,value): first argument must be an integer" \
                   " between 0 and 21, or a valid string index for the" \
