@@ -487,8 +487,8 @@ class human:
 
 
         '''
-        for seg in self.Segments:
-            seg.draw_visual()
+        for s in self.Segments:
+            s.draw_visual()
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
                         (1,0,0))
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
@@ -543,8 +543,8 @@ class human:
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(121, aspect='equal')
         ax4 = fig2.add_subplot(122, aspect='equal')
-        for seg in self.Segments:
-            seg.draw2D(ax2,ax4)
+        for s in self.Segments:
+            s.draw2D(ax2,ax4)
         plt.show()
 
     def draw(self):
@@ -557,8 +557,8 @@ class human:
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
-        for seg in self.Segments:
-            seg.draw(ax)
+        for s in self.Segments:
+            s.draw(ax)
         # fixed coordinate frame axes
         ax.plot( np.array([0,.3]),
                  np.array([0,0]),
@@ -653,7 +653,7 @@ class human:
         self.Ls = []
         self.s = []
         self.Ls.append( sol.stadium('Ls0: hip joint centre',
-                                    'perimwidth', meas['Ls0p'], meas['Ls0w'])) 
+                                    'perimwidth', meas['Ls0p'], meas['Ls0w']))
         self.Ls.append( sol.stadium('Ls1: umbilicus',
                                     'perimwidth', meas['Ls1p'], meas['Ls1w']))
         self.Ls.append( sol.stadium('Ls2: lowest front rib',
@@ -719,7 +719,7 @@ class human:
         input measurement parameters .
 
         '''
-        meas = self.meas 
+        meas = self.meas
         # get solid heights from length measurements
         a0h = meas['La2L'] * 0.5
         a1h = meas['La2L'] - meas['La2L'] * 0.5
@@ -935,7 +935,7 @@ class human:
                                           dens.Dj[8],
                                           self.Lj[8],
                                           self.Lj[9],
-                                          j8h))       
+                                          j8h))
         # get solid heights from length measurements
         k0h = meas['Lk1L']
         k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
@@ -1011,12 +1011,12 @@ class human:
                                           dens.Dk[7],
                                           self.Lk[7],
                                           self.Lk[8],
-                                          k7h))    
+                                          k7h))
         self.k.append( sol.stadiumsolid( 'k8: ball',
                                           dens.Dk[8],
                                           self.Lk[8],
                                           self.Lk[9],
-                                          k8h))       
+                                          k8h))
 
     def define_segments(self):
         '''Define segment objects using previously defined solids.
@@ -1056,7 +1056,7 @@ class human:
                          [self.s[3].height]])
         A1pos = self.s[3].pos + self.s[3].RotMat * dpos
         A1RotMat = self.s[3].RotMat * (inertia.rotate3(
-                                       [0,-np.pi,0]) * 
+                                       [0,-np.pi,0]) *
                                           inertia.euler_123(
                                           [self.CFG['CA1elevation'],
                                           -self.CFG['CA1abduction'],
