@@ -1293,7 +1293,6 @@ class human:
                     # of the line, then split the right and left side of the
                     # equality
                     tempstr = line.strip().split('#')[0].split('=')
-                    print tempstr
                     if tempstr[0] not in human.CFGnames:
                         mes = ('{}'.format(tempstr[0]) +
                             ' is not a correct variable name.')
