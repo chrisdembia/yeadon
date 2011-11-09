@@ -1274,7 +1274,7 @@ class human:
 
     def read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
-        There is no error-checking for this yet. Make sure that the input
+        There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
         from the yeadon.human.write_CFG method.
 
@@ -1293,7 +1293,15 @@ class human:
                     # of the line, then split the right and left side of the
                     # equality
                     tempstr = line.strip().split('#')[0].split('=')
+                    print tempstr
+                    if tempstr[0] not in human.CFGnames:
+                        mes = ('{}'.format(tempstr[0]) +
+                            ' is not a correct variable name.')
+                        raise StandardError(mes)
                     self.CFG[tempstr[0]] = float(tempstr[1])
+
+        if len(self.CFG.keys()) < len(self.CFGnames):
+            raise StandardError('You have not supplied all of the joint angles in the CFG file.')
 
     def write_CFG(self,CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
