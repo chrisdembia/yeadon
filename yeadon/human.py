@@ -1272,7 +1272,7 @@ class human:
         fid.close()
         return 0
 
-    def read_CFG(self,CFGfname):
+    def read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
         There is no error-checking for this yet. Make sure that the input
         is consistent with template input .txt files, or with the output
@@ -1285,7 +1285,6 @@ class human:
 
         '''
         self.CFG = {}
-        i = 0
         with open(CFGfname, 'r') as fid:
             for line in fid:
                 # skip lines that are comment lines
@@ -1294,8 +1293,7 @@ class human:
                     # of the line, then split the right and left side of the
                     # equality
                     tempstr = line.strip().split('#')[0].split('=')
-                    self.CFG[human.CFGnames[i]] = float(tempstr[1])
-                    i += 1
+                    self.CFG[tempstr[0]] = float(tempstr[1])
 
     def write_CFG(self,CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
