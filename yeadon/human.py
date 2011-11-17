@@ -1151,10 +1151,11 @@ class human:
         for i in range(len(dens.Dk)):
             dens.Dk[i] = dens.Dk[i] * massratio
         self.update_solids()
-        if round(measmass,2) != round(self.Mass,2):
+        if round(measmass, 2) != round(self.Mass, 2):
             print "Error: attempted to scale mass by a " \
                   "measured mass, but did not succeed. " \
-                  "Measured mass:",measmass,"self.Mass:",self.Mass
+                  "Measured mass:", round(measmass,
+                          2),"self.Mass:",round(self.Mass, 2)
             raise Exception()
 
     def read_measurements(self,fname):
