@@ -42,7 +42,67 @@ import segment as seg
 import densities as dens
 
 class human:
-    def __init__(self,meas_in,CFG='empty', symmetric=True):
+    measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
+                 'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
+                 'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',
+                 'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
+                 'La1p','La2p','La3p','La4p','La5p','La6p','La7p',
+                 'La4w','La5w','La6w','La7w',
+                 'Lb2L','Lb3L','Lb4L','Lb5L','Lb6L','Lb7L','Lb0p',
+                 'Lb1p','Lb2p','Lb3p','Lb4p','Lb5p','Lb6p','Lb7p',
+                 'Lb4w','Lb5w','Lb6w','Lb7w',
+                 'Lj1L','Lj3L','Lj4L','Lj5L','Lj6L','Lj8L','Lj9L',
+                 'Lj1p','Lj2p','Lj3p','Lj4p','Lj5p','Lj6p','Lj7p',
+                 'Lj8p','Lj9p','Lj8w','Lj9w','Lj6d',
+                 'Lk1L','Lk3L','Lk4L','Lk5L','Lk6L','Lk8L','Lk9L',
+                 'Lk1p','Lk2p','Lk3p','Lk4p','Lk5p','Lk6p','Lk7p',
+                 'Lk8p','Lk9p','Lk8w','Lk9w','Lk6d')
+
+    CFGnames = ('somersalt',
+                'tilt',
+                'twist',
+                'PTsagittalFlexion',
+                'PTfrontalFlexion',
+                'TCspinalTorsion',
+                'TClateralSpinalFlexion',
+                'CA1elevation',
+                'CA1abduction',
+                'CA1rotation',
+                'CB1elevation',
+                'CB1abduction',
+                'CB1rotation',
+                'A1A2flexion',
+                'B1B2flexion',
+                'PJ1flexion',
+                'PJ1abduction',
+                'PK1flexion',
+                'PK1abduction',
+                'J1J2flexion',
+                'K1K2flexion')
+
+    CFGbounds = [[-np.pi, np.pi],
+                 [-np.pi, np.pi],
+                 [-np.pi, np.pi],
+                 [-np.pi/2, np.pi],
+                 [-np.pi/2, np.pi/2],
+                 [-np.pi/2, np.pi/2],
+                 [-np.pi/2, np.pi/2],
+                 [-np.pi/2, np.pi*3/2],
+                 [-np.pi*3/2, np.pi],
+                 [-np.pi, np.pi],
+                 [-np.pi/2, np.pi*3/2],
+                 [-np.pi*3/2, np.pi],
+                 [-np.pi, np.pi],
+                 [0, np.pi],
+                 [0, np.pi],
+                 [-np.pi/2, np.pi],
+                 [-np.pi/2, np.pi/2],
+                 [-np.pi/2, np.pi],
+                 [-np.pi/2, np.pi/2],
+                 [0, np.pi],
+                 [0, np.pi]]
+
+    def __init__(self, meas_in, CFG=None, symmetric=True):
         '''Initializes a human object. Stores inputs as instance variables,
         defines the names of the configuration variables (CFG) in a class
         tuple, defines the bounds on the configuration variables in a class 2D
@@ -75,49 +135,6 @@ class human:
         '''
         self.isSymmetric = symmetric
         self.measMass = -1
-        human.measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
-                           'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
-                           'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',                               'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
-                           'La1p','La2p','La3p','La4p','La5p','La6p','La7p',
-                           'La4w','La5w','La6w','La7w',
-                           'Lb2L','Lb3L','Lb4L','Lb5L','Lb6L','Lb7L','Lb0p',
-                           'Lb1p','Lb2p','Lb3p','Lb4p','Lb5p','Lb6p','Lb7p',
-                           'Lb4w','Lb5w','Lb6w','Lb7w',
-                           'Lj1L','Lj3L','Lj4L','Lj5L','Lj6L','Lj8L','Lj9L',
-                           'Lj1p','Lj2p','Lj3p','Lj4p','Lj5p','Lj6p','Lj7p',
-                           'Lj8p','Lj9p','Lj8w','Lj9w','Lj6d', 
-                           'Lk1L','Lk3L','Lk4L','Lk5L','Lk6L','Lk8L','Lk9L',
-                           'Lk1p','Lk2p','Lk3p','Lk4p','Lk5p','Lk6p','Lk7p',
-                           'Lk8p','Lk9p','Lk8w','Lk9w','Lk6d')
-        human.CFGnames = ('somersalt', 'tilt', 'twist',
-                          'PTsagittalFlexion', 'PTfrontalFlexion',
-                          'TCspinalTorsion', 'TClateralSpinalFlexion',
-                          'CA1elevation', 'CA1abduction', 'CA1rotation',
-                          'CB1elevation', 'CB1abduction', 'CB1rotation',
-                          'A1A2flexion', 'B1B2flexion', 'PJ1flexion',
-                          'PJ1abduction', 'PK1flexion', 'PK1abduction',
-                          'J1J2flexion', 'K1K2flexion')
-        human.CFGbounds = [ [-np.pi, np.pi],
-                            [-np.pi, np.pi],
-                            [-np.pi, np.pi],
-                            [-np.pi/2, np.pi],
-                            [-np.pi/2, np.pi/2],
-                            [-np.pi/2, np.pi/2],
-                            [-np.pi/2, np.pi/2],
-                            [-np.pi/2, np.pi*3/2],
-                            [-np.pi*3/2, np.pi],
-                            [-np.pi, np.pi],
-                            [-np.pi/2, np.pi*3/2],
-                            [-np.pi*3/2, np.pi],
-                            [-np.pi, np.pi],
-                            [0, np.pi],
-                            [0, np.pi],
-                            [-np.pi/2, np.pi],
-                            [-np.pi/2, np.pi/2],
-                            [-np.pi/2, np.pi],
-                            [-np.pi/2, np.pi/2],
-                            [0, np.pi],
-                            [0, np.pi]]
         # initialize measurement dictionary
         self.meas = {}
         # if measurements input is a module, just assign. else, read in file
@@ -129,33 +146,18 @@ class human:
         # average left and right limbs for symmetry (maybe)
         if self.isSymmetric==True:
             self.average_limbs()
+
         # if configuration input is a dictionary, just assign. else, read in
-        if (CFG == 'empty' ):
-            self.CFG = {      'somersalt' : 0.0,
-                                   'tilt' : 0.0,
-                                  'twist' : 0.0,
-                      'PTsagittalFlexion' : 0.0,
-                       'PTfrontalFlexion' : 0.0,
-                        'TCspinalTorsion' : 0.0,
-                 'TClateralSpinalFlexion' : 0.0,
-                           'CA1elevation' : 0.0,
-                           'CA1abduction' : 0.0,
-                            'CA1rotation' : 0.0,
-                           'CB1elevation' : 0.0,
-                           'CB1abduction' : 0.0,
-                            'CB1rotation' : 0.0,
-                            'A1A2flexion' : 0.0,
-                            'B1B2flexion' : 0.0,
-                             'PJ1flexion' : 0.0,
-                           'PJ1abduction' : 0.0,
-                             'PK1flexion' : 0.0,
-                           'PK1abduction' : 0.0,
-                            'J1J2flexion' : 0.0,
-                            'K1K2flexion' : 0.0}
+        # the file.
+        if CFG is None: # set all joint angles to zero
+            self.CFG = {}
+            for key in human.CFGnames:
+                self.CFG[key] = 0.0
         elif type(CFG) == dict:
             self.CFG = CFG
         elif type(CFG) == str:
             self.read_CFG(CFG)
+
         # check CFG input against CFG bounds
         self.validate_CFG()
         # define all solids.
@@ -253,7 +255,7 @@ class human:
             self.meas[human.measnames[leftidxs[i]]] = avg
             self.meas[human.measnames[rightidx[i]]] = avg
 
-    def set_CFG(self,idx,value):
+    def set_CFG(self, idx, value):
         '''Allows the user to set a single configuration variable in CFG without
            using the command line interface. CFG is a dictionary that holds all
            21 configuration variables. Then, this function validates and
@@ -263,7 +265,7 @@ class human:
            ----------
            idx : int or str
                Index into configuration variable dictionary CFG. If int, must
-               be between 0 and 21. If str, must be a valid name of a 
+               be between 0 and 21. If str, must be a valid name of a
                configuration variable.
            value : float
                New value for the configuration variable identified by idx.
@@ -271,16 +273,16 @@ class human:
 
         '''
         if type(idx)==int:
-            CFG[CFGnames[idx]] = value
+            self.CFG[self.CFGnames[idx]] = value
         elif type(idx)==str:
-            CFG[idx] = value
+            self.CFG[idx] = value
         else:
             print "set_CFG(idx,value): first argument must be an integer" \
                   " between 0 and 21, or a valid string index for the" \
                   " CFG dictionary."
         self.update_segments()
 
-    def set_CFG_dict(self,CFG):
+    def set_CFG_dict(self, CFG):
         '''Allows the user to pass an entirely new CFG dictionary with which
         to update the human object. Ensure that the dictionary is of the
         right format (ideally obtain it from a Human object with human.CFG
@@ -487,8 +489,8 @@ class human:
 
 
         '''
-        for seg in self.Segments:
-            seg.draw_visual()
+        for s in self.Segments:
+            s.draw_visual()
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
                         (1,0,0))
         self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
@@ -543,8 +545,8 @@ class human:
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(121, aspect='equal')
         ax4 = fig2.add_subplot(122, aspect='equal')
-        for seg in self.Segments:
-            seg.draw2D(ax2,ax4)
+        for s in self.Segments:
+            s.draw2D(ax2,ax4)
         plt.show()
 
     def draw(self):
@@ -557,8 +559,8 @@ class human:
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
-        for seg in self.Segments:
-            seg.draw(ax)
+        for s in self.Segments:
+            s.draw(ax)
         # fixed coordinate frame axes
         ax.plot( np.array([0,.3]),
                  np.array([0,0]),
@@ -653,7 +655,7 @@ class human:
         self.Ls = []
         self.s = []
         self.Ls.append( sol.stadium('Ls0: hip joint centre',
-                                    'perimwidth', meas['Ls0p'], meas['Ls0w'])) 
+                                    'perimwidth', meas['Ls0p'], meas['Ls0w']))
         self.Ls.append( sol.stadium('Ls1: umbilicus',
                                     'perimwidth', meas['Ls1p'], meas['Ls1w']))
         self.Ls.append( sol.stadium('Ls2: lowest front rib',
@@ -719,7 +721,7 @@ class human:
         input measurement parameters .
 
         '''
-        meas = self.meas 
+        meas = self.meas
         # get solid heights from length measurements
         a0h = meas['La2L'] * 0.5
         a1h = meas['La2L'] - meas['La2L'] * 0.5
@@ -935,7 +937,7 @@ class human:
                                           dens.Dj[8],
                                           self.Lj[8],
                                           self.Lj[9],
-                                          j8h))       
+                                          j8h))
         # get solid heights from length measurements
         k0h = meas['Lk1L']
         k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
@@ -1011,12 +1013,12 @@ class human:
                                           dens.Dk[7],
                                           self.Lk[7],
                                           self.Lk[8],
-                                          k7h))    
+                                          k7h))
         self.k.append( sol.stadiumsolid( 'k8: ball',
                                           dens.Dk[8],
                                           self.Lk[8],
                                           self.Lk[9],
-                                          k8h))       
+                                          k8h))
 
     def define_segments(self):
         '''Define segment objects using previously defined solids.
@@ -1056,7 +1058,7 @@ class human:
                          [self.s[3].height]])
         A1pos = self.s[3].pos + self.s[3].RotMat * dpos
         A1RotMat = self.s[3].RotMat * (inertia.rotate3(
-                                       [0,-np.pi,0]) * 
+                                       [0,-np.pi,0]) *
                                           inertia.euler_123(
                                           [self.CFG['CA1elevation'],
                                           -self.CFG['CA1abduction'],
@@ -1270,9 +1272,9 @@ class human:
         fid.close()
         return 0
 
-    def read_CFG(self,CFGfname):
+    def read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
-        There is no error-checking for this yet. Make sure that the input
+        There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
         from the yeadon.human.write_CFG method.
 
@@ -1283,7 +1285,6 @@ class human:
 
         '''
         self.CFG = {}
-        i = 0
         with open(CFGfname, 'r') as fid:
             for line in fid:
                 # skip lines that are comment lines
@@ -1292,8 +1293,16 @@ class human:
                     # of the line, then split the right and left side of the
                     # equality
                     tempstr = line.strip().split('#')[0].split('=')
-                    self.CFG[human.CFGnames[i]] = float(tempstr[1])
-                    i += 1
+                    if tempstr[0]:
+                        if tempstr[0] not in human.CFGnames:
+                            mes = ('{}'.format(tempstr[0]) +
+                                ' is not a correct variable name.')
+                            raise StandardError(mes)
+                        else:
+                            self.CFG[tempstr[0]] = float(tempstr[1])
+
+        if len(self.CFG.keys()) < len(self.CFGnames):
+            raise StandardError('You have not supplied all of the joint angles in the CFG file.')
 
     def write_CFG(self,CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
