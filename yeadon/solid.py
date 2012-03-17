@@ -13,7 +13,7 @@ except ImportError:
     print "Yeadon failed to import python-visual. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_visual() member functions."
-from dtk import inertia # jason's
+import inertia # jason's
 
 
 class stadium:
