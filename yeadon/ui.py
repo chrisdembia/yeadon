@@ -9,7 +9,7 @@ import human as hum
 
 def start_ui():
     print "Starting YEADON user interface."
-    
+
     measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
     0.493, 'La5w' : 0.0975, 'Ls4w' : 0.343, 'La5L' : 0.049, 'Lb2L' : 0.2995,
     'Ls4d' : 0.215, 'Lj2p' : 0.581, 'Lb5p' : 0.24, 'Lb5w' : 0.0975, 'Lk8p' :
@@ -32,7 +32,7 @@ def start_ui():
     'Lb4L' : 0.564, 'La0p' : 0.337, 'Ls3w' : 0.296, 'Ls3p' : 0.905, 'Lb7p' :
     0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
     'Lk7p' : 0.252 }
-                     
+
     # initialize the joint angle data
     # user supplies names/paths of input text files
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
@@ -49,16 +49,16 @@ def start_ui():
           " or a .TXT file"
     CFG = raw_input("Type the name of the dict variable "\
                     "or the .TXT filename (for all joint angles as zero," \
-                    " just hit enter): ") 
+                    " just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
     if CFG == '':
         H = hum.human(meas)
     else:
         H = hum.human(meas,CFG)
-    
+
     done = 0 # loop end flag
-    
+
     while done != 1:
         print "\nYEADON MAIN MENU"
         print "----------------"
@@ -75,15 +75,15 @@ def start_ui():
               "  c: combine solids/segments for inertia parameters\n\n",\
               "  o: options\n",\
               "  q: quit"
-    
+
         userIn = raw_input("What would you like to do next? ")
         print ""
-        
+
         # MODIFY JOINT ANGLES
         if userIn == 'j':
             # this function is defined above
             H = modify_joint_angles(H)
-            
+
         # SAVE CURRENT JOINT ANGLES
         elif userIn == 'a':
             fname = raw_input("The joint angle dictionary CFG will be pickled" \
@@ -93,7 +93,7 @@ def start_ui():
             if fname != 'q':
                 H.write_CFG(fname)
                 print "The joint angles have been saved in",fname,".pickle."
-    
+
         # LOAD JOINT ANGLES
         elif userIn == 'p':
             print "Be careful with this, because there is no error checking"\
@@ -105,7 +105,7 @@ def start_ui():
             if fname != 'q':
                 H.read_CFG(fname)
                 print "The joint angles in",fname,".pickle have been loaded."
-    
+
         # FORMAT INPUT MEASUREMENTS FOR ISEG FORTRAN CODE
         elif userIn == 's':
             fname = raw_input("Enter the file name to which you would like" \
@@ -116,7 +116,7 @@ def start_ui():
                 print "Uh oh, there was an error when trying to write",\
                        "the ISEG input."
 
-        # TRANSFORM COORDINATE SYSTEM 
+        # TRANSFORM COORDINATE SYSTEM
         elif userIn == 't':
             print "Transforming absolute/base/fixed coordinate system."
             print "First we will rotate the yeadon coordinate system " \
@@ -145,17 +145,17 @@ def start_ui():
         # DRAW HUMAN WITH VPYTHON
         elif userIn == 'v':
             H.draw_visual()
-            
+
         # PRINT HUMAN PROPERTIES
         elif userIn == 'h':
             print "\nHuman properties."
             H.print_properties()
-            
+
         # PRINT SEGMENT PROPERTIES
         elif userIn == 'g':
-            print_segment_properties(H)    
-            
-        # PRINT SOLID PROPERTIES    
+            print_segment_properties(H)
+
+        # PRINT SOLID PROPERTIES
         elif userIn == 'l':
             print_solid_properties(H)
 
@@ -168,21 +168,22 @@ def start_ui():
             print "Enter in the keywords one at a time. When you are " \
                   "done, enter q."
             combinedone = False
-            combinectr = 0
+            combinectr = 1
             objlist = []
             while combinedone == False:
                 objtemp = raw_input('Solid/segment #' + str(combinectr) + ': ')
                 if objtemp == 'q':
-                    combinedone == True
+                    combinedone = True
                 else:
                     objlist.append(objtemp)
+                    combinectr += 1
             print "Okay, get ready for your results (mass, COM, Inertia)!"
             combineMass,combineCOM,combineInertia = H.combine_inertia(objlist)
             print "These values are with respect to your fixed frame."
             print "Mass (kg):",combineMass
             print "COM (m):\n",combineCOM
-            print "Inertia (kg-m^2):\n",Inertia
-            
+            print "Inertia (kg-m^2):\n",combineInertia
+
         # OPTIONS
         elif userIn == 'o':
             optionsdone = 0
@@ -218,8 +219,8 @@ def start_ui():
             done = 1
         else:
             print "Invalid input."
-    
-    
+
+
 # 3 methods to manage user actions in the main menu (below)
 def modify_joint_angles(H):
     '''Called by command-line interaction to modify joint angles. Allows the
@@ -264,7 +265,7 @@ def print_segment_properties(H):
     '''Called by commandline interaction to choose a segment to print the
     properties (mass, center of mass, inertia), and to print those properties.
     See the documentation for the segment class for more information. The user
-    can print properties of segments endlessly until entering q. 
+    can print properties of segments endlessly until entering q.
 
     '''
     printdone = 0
@@ -345,7 +346,7 @@ CFGskydiver = {      'somersalt' : 0.0,
             'PK1flexion' : np.pi/2,
           'PK1abduction' : np.pi/2,
            'J1J2flexion' : np.pi/2,
-           'K1K2flexion' : np.pi/2}        
+           'K1K2flexion' : np.pi/2}
 
 # almost in a bike-riding position
 CFGbiker = {      'somersalt' : np.pi/2 * 0.2,
@@ -368,5 +369,5 @@ CFGbiker = {      'somersalt' : np.pi/2 * 0.2,
             'PK1flexion' : np.pi/2 * 1.2,
           'PK1abduction' : 0.0,
            'J1J2flexion' : np.pi/2 * 1.2,
-           'K1K2flexion' : np.pi/2 * 1.2}   
+           'K1K2flexion' : np.pi/2 * 1.2}
 
