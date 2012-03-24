@@ -153,9 +153,9 @@ def start_ui():
             
         # PRINT SEGMENT PROPERTIES
         elif userIn == 'g':
-            print_segment_properties(H)    
-            
-        # PRINT SOLID PROPERTIES    
+            print_segment_properties(H)
+
+        # PRINT SOLID PROPERTIES
         elif userIn == 'l':
             print_solid_properties(H)
 
@@ -173,16 +173,16 @@ def start_ui():
             while combinedone == False:
                 objtemp = raw_input('Solid/segment #' + str(combinectr) + ': ')
                 if objtemp == 'q':
-                    combinedone == True
+                    combinedone = True
                 else:
                     objlist.append(objtemp)
             print "Okay, get ready for your results (mass, COM, Inertia)!"
             combineMass,combineCOM,combineInertia = H.combine_inertia(objlist)
             print "These values are with respect to your fixed frame."
-            print "Mass (kg):",combineMass
-            print "COM (m):\n",combineCOM
-            print "Inertia (kg-m^2):\n",Inertia
-            
+            print "Mass (kg):", combineMass
+            print "COM (m):\n", combineCOM
+            print "Inertia (kg-m^2):\n", combineInertia
+
         # OPTIONS
         elif userIn == 'o':
             optionsdone = 0
