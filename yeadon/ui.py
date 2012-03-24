@@ -180,9 +180,15 @@ def start_ui():
             print "Okay, get ready for your results (mass, COM, Inertia)!"
             combineMass,combineCOM,combineInertia = H.combine_inertia(objlist)
             print "These values are with respect to your fixed frame."
+<<<<<<< HEAD
             print "Mass (kg):",combineMass
             print "COM (m):\n",combineCOM
             print "Inertia (kg-m^2):\n",combineInertia
+=======
+            print "Mass (kg):", combineMass
+            print "COM (m):\n", combineCOM
+            print "Inertia (kg-m^2):\n", combineInertia
+>>>>>>> aa7410405c0fac34bd5369fb43a1246e6f50bae6
 
         # OPTIONS
         elif userIn == 'o':

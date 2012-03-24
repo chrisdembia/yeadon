@@ -6,7 +6,7 @@ user does not interact with this module.
 '''
 import numpy as np
 
-from dtk import inertia # jason moore's
+import inertia # jason moore's
 
 class segment:
     def __init__(self, label, pos, RotMat, solids, color):
