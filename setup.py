@@ -9,5 +9,5 @@ setup(
     url="http://pypi.python.org/pypi/yeadon",
     license='LICENSE.txt',
     long_description=open('README.rst').read(),
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'numpy'],
 )
