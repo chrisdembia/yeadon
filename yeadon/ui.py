@@ -53,9 +53,9 @@ def start_ui():
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
     if CFG == '':
-        H = hum.human(meas)
+        H = hum.Human(meas)
     else:
-        H = hum.human(meas,CFG)
+        H = hum.Human(meas,CFG)
 
     done = 0 # loop end flag
 

@@ -16,7 +16,7 @@ except ImportError:
 import inertia # jason's
 
 
-class stadium:
+class Stadium(object):
     '''Stadium, the 2D shape.
 
     '''
@@ -111,11 +111,14 @@ class stadium:
         Y3 = np.concatenate( (Y2, np.nan*Y2), axis = 0)
         ax.plot_surface(X3,Y3, np.zeros((2,20)), color=c, alpha=0.5)
 
-class solid:
+class Solid(object):
     '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
 
     '''
+    # Transparency for plotting.
+    alpha = .5
+
     def __init__(self,label,density,height):
         '''Defines a solid. This is a base class. Sets the alpha value to
         be used for drawing with matplotlib.
@@ -133,7 +136,6 @@ class solid:
         self.label = label
         self.density = density
         self.height = height
-        solid.alpha = .5
 
     def set_orientation(self,pos,RotMat):
         '''Sets the position, rotation matrix of the solid, and calculates
@@ -180,7 +182,7 @@ class solid:
     def draw(self,ax,c):
         print "cannot draw base class solid"
 
-class stadiumsolid(solid):
+class StadiumSolid(Solid):
     '''Stadium solid. Derived from the solid class.
 
     '''
@@ -194,15 +196,15 @@ class stadiumsolid(solid):
             Name of the solid.
         density : float
             Density of the solid (kg/m^3).
-        stadium0 : stadium object
+        stadium0 : :py:class:`Stadium`
             Lower stadium of the stadium solid.
-        stadium1 : stadium object
+        stadium1 : :py:class:`Stadium`
             Upper stadium of the stadium solid.
         height : float
             Distance between the lower and upper stadia.
 
         '''
-        solid.__init__(self,label,density,height)
+        super(StadiumSolid, self).__init__(label,density,height)
         self.stads = [stadium0,stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anterior-posterior,
@@ -282,7 +284,7 @@ class stadiumsolid(solid):
             Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
             Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
             Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=solid.alpha, edgecolor='');
+            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, edgecolor='');
             if 0:
                 if idx == 8:
                     print "IDX IS 8\n",Xpts,'\n',Ypts,'\n',Zpts
@@ -290,10 +292,10 @@ class stadiumsolid(solid):
                     print "IDX IS 9\n",Xpts,'\n',Ypts,'\n',Zpts
         # draw stad0
         ax.plot_surface( X0toplot, Y0toplot, Z0toplot,
-                         color=c, alpha=solid.alpha)
+                         color=c, alpha=Solid.alpha)
         # draw stad1
         ax.plot_surface( X1toplot, Y1toplot, Z1toplot,
-                         color=c, alpha=solid.alpha)
+                         color=c, alpha=Solid.alpha)
         # rotated unit vectors (unit x prime, etc)
         uxp = self.RotMat * np.array([[1],[0],[0]]) + self.pos
         uyp = self.RotMat * np.array([[0],[1],[0]]) + self.pos
@@ -328,7 +330,7 @@ class stadiumsolid(solid):
 
     def make_pos_visual(self):
         '''Creates a list of x,y,z points to use for drawing a convex shape in
-        VPython (the method yeadon.solid.draw_visual)
+        VPython (the method yeadon.Solid.draw_visual)
 
         '''
         N = 10
@@ -404,7 +406,7 @@ class stadiumsolid(solid):
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
 
-class semiellipsoid(solid):
+class Semiellipsoid(Solid):
     '''Semiellipsoid.
     '''
     def __init__(self,label,density,baseperim,height):
@@ -425,7 +427,7 @@ class semiellipsoid(solid):
             The remaining minor axis.
 
         '''
-        solid.__init__(self,label,density,height)
+        super(Semiellipsoid, self).__init__(label,density,height)
         self.baseperimeter = baseperim
         self.radius = self.baseperimeter/(2.0*np.pi)
 
@@ -482,7 +484,7 @@ class semiellipsoid(solid):
         z = self.pos[2,0] + z
         # must rotate the x y and z
         ax.plot_surface( x, y, z, rstride=4, cstride=4,
-                         color=c, alpha=solid.alpha , edgecolor='')
+                         color=c, alpha=Solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 

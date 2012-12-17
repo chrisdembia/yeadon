@@ -41,7 +41,7 @@ import solid as sol
 import segment as seg
 import densities as dens
 
-class human:
+class Human(object):
     measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
                  'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
                  'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',
@@ -151,7 +151,7 @@ class human:
         # the file.
         if CFG is None: # set all joint angles to zero
             self.CFG = {}
-            for key in human.CFGnames:
+            for key in Human.CFGnames:
                 self.CFG[key] = 0.0
         elif type(CFG) == dict:
             self.CFG = CFG
@@ -185,8 +185,8 @@ class human:
             self.scale_human_by_mass(self.measMass)
 
     def update_solids(self):
-        '''Redefines all solids and then calls yeadon.human.update_segments.
-        Called by the method yeadon.human.scale_human_by_mass. The method is
+        '''Redefines all solids and then calls yeadon.Human.update_segments.
+        Called by the method yeadon.Human.scale_human_by_mass. The method is
         to be used in instances in which measurements change.
 
         '''
@@ -226,20 +226,20 @@ class human:
         '''
         boolval = 0
         for i in np.arange(len(self.CFG)):
-            if (self.CFG[human.CFGnames[i]] < human.CFGbounds[i][0] or
-                self.CFG[human.CFGnames[i]] > human.CFGbounds[i][1]):
-                print "Joint angle",human.CFGnames[i],"=",\
-                      self.CFG[human.CFGnames[i]]/np.pi,\
+            if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
+                self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
+                print "Joint angle",Human.CFGnames[i],"=",\
+                      self.CFG[Human.CFGnames[i]]/np.pi,\
                       "pi-rad is out of range. Must be between",\
-                      human.CFGbounds[i][0]/np.pi,"and",\
-                      human.CFGbounds[i][1]/np.pi,"pi-rad"
+                      Human.CFGbounds[i][0]/np.pi,"and",\
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad"
                 boolval = -1
         return boolval
 
     def average_limbs(self):
         '''Called only if symmetric=True (which is the default). The left and
         right arms and legs are averaged (the measurements are averaged before
-        the code creates yeadon.solid or yeadon.segment objects. To be
+        the code creates yeadon.Solid or yeadon.Segment objects. To be
         perfectly clear, all left and right arms' and legs' lengths,
         perimeters, widths and depths are averaged between corresponding
         left and right measurements.
@@ -250,10 +250,10 @@ class human:
         leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
         rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
         for i in np.arange(len(leftidxs)):
-            avg = 0.5 * (self.meas[human.measnames[leftidxs[i]]] +
-                         self.meas[human.measnames[rightidx[i]]])
-            self.meas[human.measnames[leftidxs[i]]] = avg
-            self.meas[human.measnames[rightidx[i]]] = avg
+            avg = 0.5 * (self.meas[Human.measnames[leftidxs[i]]] +
+                         self.meas[Human.measnames[rightidx[i]]])
+            self.meas[Human.measnames[leftidxs[i]]] = avg
+            self.meas[Human.measnames[rightidx[i]]] = avg
 
     def set_CFG(self, idx, value):
         '''Allows the user to set a single configuration variable in CFG without
@@ -285,7 +285,7 @@ class human:
     def set_CFG_dict(self, CFG):
         '''Allows the user to pass an entirely new CFG dictionary with which
         to update the human object. Ensure that the dictionary is of the
-        right format (ideally obtain it from a Human object with human.CFG
+        right format (ideally obtain it from a Human object with Human.CFG
         and modify it). After configuration is update, the segments are
         updated.
 
@@ -331,9 +331,9 @@ class human:
         '''Moves the cooridinate system from the center of the bottom of the
         human's pelvis to a location defined by the input to this method.
         Note that if this method is used along with
-        yeadon.human.rotate_coord_sys, the vector components for the inputs
+        yeadon.Human.rotate_coord_sys, the vector components for the inputs
         to this function are in the new coordinate frame defined by the input
-        to yeadon.human.rotate_coord_sys (rather than in the original frame
+        to yeadon.Human.rotate_coord_sys (rather than in the original frame
         of the yeadon module).
 
         Parameters
@@ -373,13 +373,13 @@ class human:
         self.update_segments()
 
     def transform_coord_sys(self,vec,rotmat):
-        '''Calls both yeadon.human.translate_coord_sys and
-        yeadon.human.rotate_coord_sys.
+        '''Calls both yeadon.Human.translate_coord_sys and
+        yeadon.Human.rotate_coord_sys.
 
         Parameters
         ----------
         vec : list or tuple (3,)
-            See yeadon.human.translate_coord_sys
+            See yeadon.Human.translate_coord_sys
         rotmat
 
         '''
@@ -429,7 +429,7 @@ class human:
         # error-checking
         for key in (solidkeys + segmentkeys):
             if objlist.count(key) > 1:
-                print "In yeadon.human.human.combine_inertia(), an object is" \
+                print "In yeadon.human.Human.combine_inertia(), an object is" \
                       " listed more than once. A solid/segment can only be" \
                       " listed once."
                 raise Exception()
@@ -439,7 +439,7 @@ class human:
                 for solobj in objlist:
                     for segsol in ObjDict[segkey].solids:
                         if solobj == segsol.label[0:2]:
-                            print "In yeadon.human.human.combine_inertia()," \
+                            print "In yeadon.human.Human.combine_inertia()," \
                                   " a solid",solobj,"and its parent segment", \
                                   segkey,"have both been given as inputs." \
                                   " This duplicates that solid."
@@ -449,7 +449,7 @@ class human:
         resultantMoment = np.zeros( (3,1) )
         for objstr in objlist:
             if ObjDict.has_key(objstr) == False:
-                print "In yeadon.human.human.combine_inertia(),", \
+                print "In yeadon.human.Human.combine_inertia(),", \
                       "the string",objstr,"does not identify a segment", \
                       "or solid of the human."
                 raise Exception()
@@ -505,7 +505,7 @@ class human:
 
     def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
         '''Draws a vector in a python-visual window. It is expected that this
-        method is called in conjuction with yeadon.human.draw_visual,
+        method is called in conjuction with yeadon.Human.draw_visual,
         so that the vectors are drawn in the same window as the human.
 
         Parameters
@@ -541,7 +541,7 @@ class human:
         '''Draws a 3D human by calling the draw methods of all of the segments.
         Drawing is done by the matplotlib library. Currently produces many
         matplotlib warnings, which can be ignored. It is preferred to use the
-        yeadon.human.draw_visual mehod instead of this one.
+        yeadon.Human.draw_visual mehod instead of this one.
 
         '''
         fig = plt.figure()
@@ -608,7 +608,7 @@ class human:
         Parameters
         ----------
         ax : Axes3D object
-            Axes on which to plot, defined by human.plot(self).
+            Axes on which to plot, defined by Human.plot(self).
         u : numpy.array
         v : numpy.array
         c : string
@@ -642,63 +642,63 @@ class human:
         # torso
         self.Ls = []
         self.s = []
-        self.Ls.append( sol.stadium('Ls0: hip joint centre',
+        self.Ls.append( sol.Stadium('Ls0: hip joint centre',
                                     'perimwidth', meas['Ls0p'], meas['Ls0w']))
-        self.Ls.append( sol.stadium('Ls1: umbilicus',
+        self.Ls.append( sol.Stadium('Ls1: umbilicus',
                                     'perimwidth', meas['Ls1p'], meas['Ls1w']))
-        self.Ls.append( sol.stadium('Ls2: lowest front rib',
+        self.Ls.append( sol.Stadium('Ls2: lowest front rib',
                                     'perimwidth', meas['Ls2p'], meas['Ls2w']))
-        self.Ls.append( sol.stadium('Ls3: nipple',
+        self.Ls.append( sol.Stadium('Ls3: nipple',
                                     'perimwidth', meas['Ls3p'], meas['Ls3w']))
-        self.Ls.append( sol.stadium('Ls4: shoulder joint centre',
+        self.Ls.append( sol.Stadium('Ls4: shoulder joint centre',
                                     'depthwidth', meas['Ls4d'], meas['Ls4w']))
         radius = 0.6 * self.Ls[4].radius # see Yeadon's ISEG code
         thick = 0.6 * self.Ls[4].width / 2.0 - radius
-        self.Ls.append( sol.stadium('Ls5: acromion',
+        self.Ls.append( sol.Stadium('Ls5: acromion',
                                     'thickradius', thick, radius))
-        self.Ls.append( sol.stadium('Ls5: acromion/bottom of neck',
+        self.Ls.append( sol.Stadium('Ls5: acromion/bottom of neck',
                                     'perim',meas['Ls5p'], '=p'))
-        self.Ls.append( sol.stadium('Ls6: beneath nose',
+        self.Ls.append( sol.Stadium('Ls6: beneath nose',
                                     'perim', meas['Ls6p'], '=p'))
-        self.Ls.append( sol.stadium('Ls7: above ear',
+        self.Ls.append( sol.Stadium('Ls7: above ear',
                                     'perim', meas['Ls7p'], '=p'))
         # define solids: this can definitely be done in a loop
-        self.s.append( sol.stadiumsolid( 's0: hip joint centre',
+        self.s.append( sol.StadiumSolid( 's0: hip joint centre',
                                           dens.Ds[0],
                                           self.Ls[0],
                                           self.Ls[1],
                                           s0h))
-        self.s.append( sol.stadiumsolid( 's1: umbilicus',
+        self.s.append( sol.StadiumSolid( 's1: umbilicus',
                                           dens.Ds[1],
                                           self.Ls[1],
                                           self.Ls[2],
                                           s1h))
-        self.s.append( sol.stadiumsolid( 's2: lowest front rib',
+        self.s.append( sol.StadiumSolid( 's2: lowest front rib',
                                           dens.Ds[2],
                                           self.Ls[2],
                                           self.Ls[3],
                                           s2h))
-        self.s.append( sol.stadiumsolid( 's3: nipple',
+        self.s.append( sol.StadiumSolid( 's3: nipple',
                                           dens.Ds[3],
                                           self.Ls[3],
                                           self.Ls[4],
                                           s3h))
-        self.s.append( sol.stadiumsolid( 's4: shoulder joint centre',
+        self.s.append( sol.StadiumSolid( 's4: shoulder joint centre',
                                           dens.Ds[4],
                                           self.Ls[4],
                                           self.Ls[5],
                                           s4h))
-        self.s.append( sol.stadiumsolid( 's5: acromion',
+        self.s.append( sol.StadiumSolid( 's5: acromion',
                                           dens.Ds[5],
                                           self.Ls[6],
                                           self.Ls[7],
                                           s5h))
-        self.s.append( sol.stadiumsolid( 's6: beneath nose',
+        self.s.append( sol.StadiumSolid( 's6: beneath nose',
                                           dens.Ds[6],
                                           self.Ls[7],
                                           self.Ls[8],
                                           s6h))
-        self.s.append( sol.semiellipsoid( 's7: above ear',
+        self.s.append( sol.Semiellipsoid( 's7: above ear',
                                            dens.Ds[7],
                                            meas['Ls7p'],
                                            s7h))
@@ -721,54 +721,54 @@ class human:
         # left arm
         self.La = []
         self.a = []
-        self.La.append( sol.stadium('La0: shoulder joint centre',
+        self.La.append( sol.Stadium('La0: shoulder joint centre',
                                     'perim', meas['La0p'], '=p'))
-        self.La.append( sol.stadium('La1: mid-arm',
+        self.La.append( sol.Stadium('La1: mid-arm',
                                     'perim', meas['La1p'], '=p'))
-        self.La.append( sol.stadium('La2: lowest front rib',
+        self.La.append( sol.Stadium('La2: lowest front rib',
                                     'perim', meas['La2p'], '=p'))
-        self.La.append( sol.stadium('La3: nipple',
+        self.La.append( sol.Stadium('La3: nipple',
                                     'perim', meas['La3p'], '=p'))
-        self.La.append( sol.stadium('La4: wrist joint centre',
+        self.La.append( sol.Stadium('La4: wrist joint centre',
                                     'perimwidth', meas['La4p'], meas['La4w']))
-        self.La.append( sol.stadium('La5: acromion',
+        self.La.append( sol.Stadium('La5: acromion',
                                     'perimwidth', meas['La5p'], meas['La5w']))
-        self.La.append( sol.stadium('La6: knuckles',
+        self.La.append( sol.Stadium('La6: knuckles',
                                     'perimwidth', meas['La6p'], meas['La6w']))
-        self.La.append( sol.stadium('La7: fingernails',
+        self.La.append( sol.Stadium('La7: fingernails',
                                     'perimwidth', meas['La7p'], meas['La7w']))
         # define left arm solids
-        self.a.append( sol.stadiumsolid( 'a0: shoulder joint centre',
+        self.a.append( sol.StadiumSolid( 'a0: shoulder joint centre',
                                           dens.Da[0],
                                           self.La[0],
                                           self.La[1],
                                           a0h))
-        self.a.append( sol.stadiumsolid( 'a1: mid-arm',
+        self.a.append( sol.StadiumSolid( 'a1: mid-arm',
                                           dens.Da[1],
                                           self.La[1],
                                           self.La[2],
                                           a1h))
-        self.a.append( sol.stadiumsolid( 'a2: elbow joint centre',
+        self.a.append( sol.StadiumSolid( 'a2: elbow joint centre',
                                           dens.Da[2],
                                           self.La[2],
                                           self.La[3],
                                           a2h))
-        self.a.append( sol.stadiumsolid( 'a3: maximum forearm perimeter',
+        self.a.append( sol.StadiumSolid( 'a3: maximum forearm perimeter',
                                           dens.Da[3],
                                           self.La[3],
                                           self.La[4],
                                           a3h))
-        self.a.append( sol.stadiumsolid( 'a4: wrist joint centre',
+        self.a.append( sol.StadiumSolid( 'a4: wrist joint centre',
                                           dens.Da[4],
                                           self.La[4],
                                           self.La[5],
                                           a4h))
-        self.a.append( sol.stadiumsolid( 'a5: base of thumb',
+        self.a.append( sol.StadiumSolid( 'a5: base of thumb',
                                           dens.Da[5],
                                           self.La[5],
                                           self.La[6],
                                           a5h))
-        self.a.append( sol.stadiumsolid( 'a6: knuckles',
+        self.a.append( sol.StadiumSolid( 'a6: knuckles',
                                           dens.Da[6],
                                           self.La[6],
                                           self.La[7],
@@ -784,54 +784,54 @@ class human:
         # right arm
         self.Lb = []
         self.b = []
-        self.Lb.append( sol.stadium('Lb0: shoulder joint centre',
+        self.Lb.append( sol.Stadium('Lb0: shoulder joint centre',
                                     'perim', meas['Lb0p'], '=p'))
-        self.Lb.append( sol.stadium('Lb1: mid-arm',
+        self.Lb.append( sol.Stadium('Lb1: mid-arm',
                                     'perim', meas['Lb1p'], '=p'))
-        self.Lb.append( sol.stadium('Lb2: lowest front rib',
+        self.Lb.append( sol.Stadium('Lb2: lowest front rib',
                                     'perim', meas['Lb2p'], '=p'))
-        self.Lb.append( sol.stadium('Lb3: nipple',
+        self.Lb.append( sol.Stadium('Lb3: nipple',
                                     'perim', meas['Lb3p'], '=p'))
-        self.Lb.append( sol.stadium('Lb4: wrist joint centre',
+        self.Lb.append( sol.Stadium('Lb4: wrist joint centre',
                                     'perimwidth', meas['Lb4p'], meas['Lb4w']))
-        self.Lb.append( sol.stadium('Lb5: acromion',
+        self.Lb.append( sol.Stadium('Lb5: acromion',
                                     'perimwidth', meas['Lb5p'], meas['Lb5w']))
-        self.Lb.append( sol.stadium('Lb6: knuckles',
+        self.Lb.append( sol.Stadium('Lb6: knuckles',
                                     'perimwidth', meas['Lb6p'], meas['Lb6w']))
-        self.Lb.append( sol.stadium('Lb7: fingernails',
+        self.Lb.append( sol.Stadium('Lb7: fingernails',
                                     'perimwidth', meas['Lb7p'], meas['Lb7w']))
         # define right arm solids
-        self.b.append( sol.stadiumsolid( 'b0: shoulder joint centre',
+        self.b.append( sol.StadiumSolid( 'b0: shoulder joint centre',
                                           dens.Db[0],
                                           self.Lb[0],
                                           self.Lb[1],
                                           b0h))
-        self.b.append( sol.stadiumsolid( 'b1: mid-arm',
+        self.b.append( sol.StadiumSolid( 'b1: mid-arm',
                                           dens.Db[1],
                                           self.Lb[1],
                                           self.Lb[2],
                                           b1h))
-        self.b.append( sol.stadiumsolid( 'b2: elbow joint centre',
+        self.b.append( sol.StadiumSolid( 'b2: elbow joint centre',
                                           dens.Db[2],
                                           self.Lb[2],
                                           self.Lb[3],
                                           b2h))
-        self.b.append( sol.stadiumsolid( 'b3: maximum forearm perimeter',
+        self.b.append( sol.StadiumSolid( 'b3: maximum forearm perimeter',
                                           dens.Db[3],
                                           self.Lb[3],
                                           self.Lb[4],
                                           b3h))
-        self.b.append( sol.stadiumsolid( 'b4: wrist joint centre',
+        self.b.append( sol.StadiumSolid( 'b4: wrist joint centre',
                                           dens.Db[4],
                                           self.Lb[4],
                                           self.Lb[5],
                                           b4h))
-        self.b.append( sol.stadiumsolid( 'b5: base of thumb',
+        self.b.append( sol.StadiumSolid( 'b5: base of thumb',
                                           dens.Db[5],
                                           self.Lb[5],
                                           self.Lb[6],
                                           b5h))
-        self.b.append( sol.stadiumsolid( 'b6: knuckles',
+        self.b.append( sol.StadiumSolid( 'b6: knuckles',
                                           dens.Db[6],
                                           self.Lb[6],
                                           self.Lb[7],
@@ -859,69 +859,69 @@ class human:
         self.j = []
         Lj0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
-        self.Lj.append( sol.stadium('Lj0: hip joint centre',
+        self.Lj.append( sol.Stadium('Lj0: hip joint centre',
                                     'perim', Lj0p, '=p'))
-        self.Lj.append( sol.stadium('Lj1: crotch',
+        self.Lj.append( sol.Stadium('Lj1: crotch',
                                     'perim', meas['Lj1p'], '=p'))
-        self.Lj.append( sol.stadium('Lj2: mid-thigh',
+        self.Lj.append( sol.Stadium('Lj2: mid-thigh',
                                     'perim', meas['Lj2p'], '=p'))
-        self.Lj.append( sol.stadium('Lj3: knee joint centre',
+        self.Lj.append( sol.Stadium('Lj3: knee joint centre',
                                     'perim', meas['Lj3p'], '=p'))
-        self.Lj.append( sol.stadium('Lj4: maximum calf perimeter',
+        self.Lj.append( sol.Stadium('Lj4: maximum calf perimeter',
                                     'perim', meas['Lj4p'], '=p'))
-        self.Lj.append( sol.stadium('Lj5: ankle joint centre',
+        self.Lj.append( sol.Stadium('Lj5: ankle joint centre',
                                     'perim', meas['Lj5p'], '=p'))
-        self.Lj.append( sol.stadium('Lj6: heel',
+        self.Lj.append( sol.Stadium('Lj6: heel',
                                     'perimwidth', meas['Lj6p'], meas['Lj6d'],
                                     'AP'))
-        self.Lj.append( sol.stadium('Lj7: arch',
+        self.Lj.append( sol.Stadium('Lj7: arch',
                                     'perim', meas['Lj7p'], '=p'))
-        self.Lj.append( sol.stadium('Lj8: ball',
+        self.Lj.append( sol.Stadium('Lj8: ball',
                                     'perimwidth', meas['Lj8p'], meas['Lj8w']))
-        self.Lj.append( sol.stadium('Lj9: toe nails',
+        self.Lj.append( sol.Stadium('Lj9: toe nails',
                                     'perimwidth', meas['Lj9p'], meas['Lj9w']))
         # define left leg solids
-        self.j.append( sol.stadiumsolid( 'j0: hip joint centre',
+        self.j.append( sol.StadiumSolid( 'j0: hip joint centre',
                                           dens.Dj[0],
                                           self.Lj[0],
                                           self.Lj[1],
                                           j0h))
-        self.j.append( sol.stadiumsolid( 'j1: crotch',
+        self.j.append( sol.StadiumSolid( 'j1: crotch',
                                           dens.Dj[1],
                                           self.Lj[1],
                                           self.Lj[2],
                                           j1h))
-        self.j.append( sol.stadiumsolid( 'j2: mid-thigh',
+        self.j.append( sol.StadiumSolid( 'j2: mid-thigh',
                                           dens.Dj[2],
                                           self.Lj[2],
                                           self.Lj[3],
                                           j2h))
-        self.j.append( sol.stadiumsolid( 'j3: knee joint centre',
+        self.j.append( sol.StadiumSolid( 'j3: knee joint centre',
                                           dens.Dj[3],
                                           self.Lj[3],
                                           self.Lj[4],
                                           j3h))
-        self.j.append( sol.stadiumsolid( 'j4: maximum calf parimeter',
+        self.j.append( sol.StadiumSolid( 'j4: maximum calf parimeter',
                                           dens.Dj[4],
                                           self.Lj[4],
                                           self.Lj[5],
                                           j4h))
-        self.j.append( sol.stadiumsolid( 'j5: ankle joint centre',
+        self.j.append( sol.StadiumSolid( 'j5: ankle joint centre',
                                           dens.Dj[5],
                                           self.Lj[5],
                                           self.Lj[6],
                                           j5h))
-        self.j.append( sol.stadiumsolid( 'j6: heel',
+        self.j.append( sol.StadiumSolid( 'j6: heel',
                                           dens.Dj[6],
                                           self.Lj[6],
                                           self.Lj[7],
                                           j6h))
-        self.j.append( sol.stadiumsolid( 'j7: arch',
+        self.j.append( sol.StadiumSolid( 'j7: arch',
                                           dens.Dj[7],
                                           self.Lj[7],
                                           self.Lj[8],
                                           j7h))
-        self.j.append( sol.stadiumsolid( 'k8: ball',
+        self.j.append( sol.StadiumSolid( 'k8: ball',
                                           dens.Dj[8],
                                           self.Lj[8],
                                           self.Lj[9],
@@ -941,68 +941,68 @@ class human:
         self.k = []
         Lk0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
-        self.Lk.append( sol.stadium('Lk0: hip joint centre',
+        self.Lk.append( sol.Stadium('Lk0: hip joint centre',
                                     'perim', Lk0p, '=p'))
-        self.Lk.append( sol.stadium('Lk1: crotch',
+        self.Lk.append( sol.Stadium('Lk1: crotch',
                                     'perim', meas['Lk1p'], '=p'))
-        self.Lk.append( sol.stadium('Lk2: mid-thigh',
+        self.Lk.append( sol.Stadium('Lk2: mid-thigh',
                                     'perim', meas['Lk2p'], '=p'))
-        self.Lk.append( sol.stadium('Lk3: knee joint centre',
+        self.Lk.append( sol.Stadium('Lk3: knee joint centre',
                                     'perim', meas['Lk3p'], '=p'))
-        self.Lk.append( sol.stadium('Lk4: maximum calf perimeter',
+        self.Lk.append( sol.Stadium('Lk4: maximum calf perimeter',
                                     'perim', meas['Lk4p'], '=p'))
-        self.Lk.append( sol.stadium('Lk5: ankle joint centre',
+        self.Lk.append( sol.Stadium('Lk5: ankle joint centre',
                                     'perim', meas['Lk5p'], '=p'))
-        self.Lk.append( sol.stadium('Lk6: heel',
+        self.Lk.append( sol.Stadium('Lk6: heel',
                                     'perimwidth', meas['Lk6p'], meas['Lk6d'],
                                     'AP'))
-        self.Lk.append( sol.stadium('Lk7: arch',
+        self.Lk.append( sol.Stadium('Lk7: arch',
                                     'perim', meas['Lk7p'], '=p'))
-        self.Lk.append( sol.stadium('Lk8: ball',
+        self.Lk.append( sol.Stadium('Lk8: ball',
                                     'perimwidth', meas['Lk8p'], meas['Lk8w']))
-        self.Lk.append( sol.stadium('Lk9: toe nails',
+        self.Lk.append( sol.Stadium('Lk9: toe nails',
                                     'perimwidth', meas['Lk9p'], meas['Lk9w']))
-        self.k.append( sol.stadiumsolid( 'k0: hip joint centre',
+        self.k.append( sol.StadiumSolid( 'k0: hip joint centre',
                                           dens.Dk[0],
                                           self.Lk[0],
                                           self.Lk[1],
                                           k0h))
-        self.k.append( sol.stadiumsolid( 'k1: crotch',
+        self.k.append( sol.StadiumSolid( 'k1: crotch',
                                           dens.Dk[1],
                                           self.Lk[1],
                                           self.Lk[2],
                                           k1h))
-        self.k.append( sol.stadiumsolid( 'k2: mid-thigh',
+        self.k.append( sol.StadiumSolid( 'k2: mid-thigh',
                                           dens.Dk[2],
                                           self.Lk[2],
                                           self.Lk[3],
                                           k2h))
-        self.k.append( sol.stadiumsolid( 'k3: knee joint centre',
+        self.k.append( sol.StadiumSolid( 'k3: knee joint centre',
                                           dens.Dk[3],
                                           self.Lk[3],
                                           self.Lk[4],
                                           k3h))
-        self.k.append( sol.stadiumsolid( 'k4: maximum calf perimeter',
+        self.k.append( sol.StadiumSolid( 'k4: maximum calf perimeter',
                                           dens.Dk[4],
                                           self.Lk[4],
                                           self.Lk[5],
                                           k4h))
-        self.k.append( sol.stadiumsolid( 'k5: ankle joint centre',
+        self.k.append( sol.StadiumSolid( 'k5: ankle joint centre',
                                           dens.Dk[5],
                                           self.Lk[5],
                                           self.Lk[6],
                                           k5h))
-        self.k.append( sol.stadiumsolid( 'k6: heel',
+        self.k.append( sol.StadiumSolid( 'k6: heel',
                                           dens.Dk[6],
                                           self.Lk[6],
                                           self.Lk[7],
                                           k6h))
-        self.k.append( sol.stadiumsolid( 'k7: arch',
+        self.k.append( sol.StadiumSolid( 'k7: arch',
                                           dens.Dk[7],
                                           self.Lk[7],
                                           self.Lk[8],
                                           k7h))
-        self.k.append( sol.stadiumsolid( 'k8: ball',
+        self.k.append( sol.StadiumSolid( 'k8: ball',
                                           dens.Dk[8],
                                           self.Lk[8],
                                           self.Lk[9],
@@ -1023,14 +1023,14 @@ class human:
                    inertia.euler_123([self.CFG['somersalt'],
                                     self.CFG['tilt'],
                                     self.CFG['twist']]))
-        self.P = seg.segment( 'P: Pelvis', Ppos, PRotMat,
+        self.P = seg.Segment( 'P: Pelvis', Ppos, PRotMat,
                               [self.s[0],self.s[1]] , (1,0,0))
         # thorax
         Tpos = self.s[1].endpos
         TRotMat = self.s[1].RotMat * inertia.rotate3(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
-        self.T = seg.segment( 'T: Thorax', Tpos, TRotMat,
+        self.T = seg.Segment( 'T: Thorax', Tpos, TRotMat,
                               [self.s[2]], (1,.5,0))
         # chest-head
         Cpos = self.s[2].endpos
@@ -1038,7 +1038,7 @@ class human:
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
                                      self.CFG['TCspinalTorsion']])
-        self.C = seg.segment( 'C: Chest-head', Cpos, CRotMat,
+        self.C = seg.Segment( 'C: Chest-head', Cpos, CRotMat,
                               [self.s[3],self.s[4],self.s[5],self.s[6],
                                self.s[7]], (1,1,0))
         # left upper arm
@@ -1051,13 +1051,13 @@ class human:
                                           [self.CFG['CA1elevation'],
                                           -self.CFG['CA1abduction'],
                                           -self.CFG['CA1rotation']]))
-        self.A1 = seg.segment( 'A1: Left upper arm', A1pos, A1RotMat,
+        self.A1 = seg.Segment( 'A1: Left upper arm', A1pos, A1RotMat,
                                [self.a[0],self.a[1]] , (0,1,0))
         # left forearm-hand
         A2pos = self.a[1].endpos
         A2RotMat = self.a[1].RotMat * inertia.rotate3(
                                      [self.CFG['A1A2flexion'],0,0])
-        self.A2 = seg.segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
+        self.A2 = seg.Segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self.a[2],self.a[3],self.a[4],self.a[5],
                                 self.a[6]], (1,0,0))
         # right upper arm
@@ -1070,13 +1070,13 @@ class human:
                                            [self.CFG['CB1elevation'],
                                            self.CFG['CB1abduction'],
                                            self.CFG['CB1rotation']]))
-        self.B1 = seg.segment( 'B1: Right upper arm', B1pos, B1RotMat,
+        self.B1 = seg.Segment( 'B1: Right upper arm', B1pos, B1RotMat,
                                [self.b[0],self.b[1]], (0,1,0))
         # right forearm-hand
         B2pos = self.b[1].endpos
         B2RotMat = self.b[1].RotMat * inertia.rotate3(
                                      [self.CFG['B1B2flexion'],0,0])
-        self.B2 = seg.segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
+        self.B2 = seg.Segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self.b[2],self.b[3],self.b[4],self.b[5],
                                 self.b[6]], (1,0,0))
         # left thigh
@@ -1088,13 +1088,13 @@ class human:
                                           inertia.rotate3(
                                           [self.CFG['PJ1flexion'],
                                            -self.CFG['PJ1abduction'],0]))
-        self.J1 = seg.segment( 'J1: Left thigh', J1pos, J1RotMat,
+        self.J1 = seg.Segment( 'J1: Left thigh', J1pos, J1RotMat,
                                [self.j[0],self.j[1],self.j[2]], (0,1,0))
         # left shank-foot
         J2pos = self.j[2].endpos
         J2RotMat = self.j[2].RotMat * inertia.rotate3(
                                      [-self.CFG['J1J2flexion'],0,0])
-        self.J2 = seg.segment( 'J2: Left shank-foot', J2pos, J2RotMat,
+        self.J2 = seg.Segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self.j[3],self.j[4],self.j[5],self.j[6],
                                 self.j[7],self.j[8]], (1,0,0))
         # right thigh
@@ -1106,13 +1106,13 @@ class human:
                                        inertia.rotate3(
                                           [self.CFG['PK1flexion'],
                                            self.CFG['PK1abduction'],0]))
-        self.K1 = seg.segment( 'K1: Right thigh', K1pos, K1RotMat,
+        self.K1 = seg.Segment( 'K1: Right thigh', K1pos, K1RotMat,
                                [self.k[0],self.k[1],self.k[2]], (0,1,0))
         # right shank-foot
         K2pos = self.k[2].endpos
         K2RotMat = self.k[2].RotMat * inertia.rotate3(
                                       [-self.CFG['K1K2flexion'],0,0])
-        self.K2 = seg.segment( 'K2: Right shank-foot', K2pos, K2RotMat,
+        self.K2 = seg.Segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self.k[3],self.k[4],self.k[5],self.k[6],
                                 self.k[7],self.k[8]], (1,0,0))
 
@@ -1172,7 +1172,7 @@ class human:
                     tempstr2 = tempstr1[0].partition('=')
                     varname = tempstr2[0].strip()
                     if len(tempstr2[2]) == 0:
-                       print "Error in human.read_measurements(fname):" \
+                       print "Error in Human.read_measurements(fname):" \
                              " variable",varname,"does not have a value."
                        raise Exception()
                     else:
@@ -1187,13 +1187,13 @@ class human:
                     else:
                     	if varname in self.meas:
                             # key was already defined
-                            print "Error in human.read_measurements(fname):" \
+                            print "Error in Human.read_measurements(fname):" \
                                   " variable",varname,"has been defined " \
                                   "multiple times in input measurement file",\
                                   fname
                         else:
                             if [x for x in self.measnames if x==varname] == []:
-                                print "Error in human.read_measurements"\
+                                print "Error in Human.read_measurements"\
                                       "(fname): variable name",varname,"in " \
                                       "file",fname,"is not a valid " \
                                       "name for a measurement."
@@ -1202,11 +1202,11 @@ class human:
                                 # okay, go ahead and assign the measurement!
                                 self.meas[varname] = float(varval)
         if len(self.meas) != len(self.measnames):
-            print "Error in human.read_measurements(fname): there should be", \
+            print "Error in Human.read_measurements(fname): there should be", \
                   len(self.measnames),"measurements, but",len(self.meas), \
                   "were found."
         if self.measurementconversionfactor == 0:
-            print "Error in human.read_measurements(fname): no variable " \
+            print "Error in Human.read_measurements(fname): no variable " \
                   "measurementconversionfactor has been provided. Set as 1 " \
                   "if measurements are given in meters."
         # multiply all values by conversion factor
@@ -1265,7 +1265,7 @@ class human:
         '''Reads in a text file that contains the joint angles of the human.
         There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
-        from the yeadon.human.write_CFG method.
+        from the yeadon.Human.write_CFG method.
 
         Parameters
         ----------
@@ -1283,7 +1283,7 @@ class human:
                     # equality
                     tempstr = line.strip().split('#')[0].split('=')
                     if tempstr[0]:
-                        if tempstr[0] not in human.CFGnames:
+                        if tempstr[0] not in Human.CFGnames:
                             mes = ('{}'.format(tempstr[0]) +
                                 ' is not a correct variable name.')
                             raise StandardError(mes)

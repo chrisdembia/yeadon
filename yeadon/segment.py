@@ -6,9 +6,9 @@ user does not interact with this module.
 '''
 import numpy as np
 
-import inertia # jason moore's
+import inertia
 
-class segment:
+class Segment(object):
     def __init__(self, label, pos, RotMat, solids, color):
         '''Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
