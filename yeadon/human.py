@@ -537,18 +537,6 @@ class human:
         vis.cone( pos=(conepos[0,0],conepos[1,0],conepos[2,0]),
               axis=(coneax[0,0],coneax[1,0],coneax[2,0]), radius=3*rad, color=c)
 
-    def draw2D(self):
-        '''Uses the matplotlib library to draw a 2D human, from two
-        projections. Not implemented well.
-
-        '''
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(121, aspect='equal')
-        ax4 = fig2.add_subplot(122, aspect='equal')
-        for s in self.Segments:
-            s.draw2D(ax2,ax4)
-        plt.show()
-
     def draw(self):
         '''Draws a 3D human by calling the draw methods of all of the segments.
         Drawing is done by the matplotlib library. Currently produces many

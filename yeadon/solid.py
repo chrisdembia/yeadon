@@ -315,42 +315,6 @@ class stadiumsolid(solid):
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
-    def draw2D(self,ax,ax2,c):
-        '''Draws a solid from a front and side view, in two dimensions, using
-        the matplotlib library. Not implemented well.
-
-        Parameters
-        ----------
-        ax : plt.axes
-            Matplotlib axes for drawing the front view of the solid.
-        ax2 : plt.axes
-            Matplotlib axes for drawing the side view of the solid.
-        c : str
-            Color (e.g. 'red')
-
-        '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
-        for idx in np.arange(X0.size-1):
-            Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
-            Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
-            Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.pcolormesh( Xpts, Zpts, 0*Xpts+10,alpha=solid.alpha);
-        # draw stad0
-        ax.pcolormesh( Xpts, Zpts,
-                         0*Xpts+10, alpha=solid.alpha)
-        # draw stad1
-        ax.pcolormesh( Xpts, Zpts,
-                         0*Xpts + 10, alpha=solid.alpha)
-        for idx in np.arange(X0.size-1):
-            ax2.pcolormesh( Ypts, Zpts, 0*Xpts+10,alpha=solid.alpha);
-        # draw stad0
-        ax2.pcolormesh( Ypts, Zpts,
-                         0*Xpts+10, alpha=solid.alpha)
-        # draw stad1
-        ax2.pcolormesh( Ypts, Zpts,
-                         0*Xpts + 10, alpha=solid.alpha)
-
     def draw_visual(self, c):
         '''Draws the stadium in 3D in a VPython window. Only one line of code!
 
@@ -521,12 +485,6 @@ class semiellipsoid(solid):
                          color=c, alpha=solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
-
-    def draw2D(self,ax,ax2,c):
-        '''Not implemented.
-
-        '''
-        print "NOT IMPLEMENTED YET"
 
     def draw_visual(self,c):
         '''Draws an ellipse in VPython. Ideally would only draw the top half of

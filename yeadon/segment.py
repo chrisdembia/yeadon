@@ -166,15 +166,6 @@ class segment:
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
                         color='r')
 
-    def draw2D(self, ax, ax2):
-        '''Draws in two dimensions all the solids within this segment using
-        matplotlib. Does not perform well.
-
-        '''
-        for idx in np.arange(self.nSolids):
-            print "Drawing solid", self.solids[idx].label, "."
-            self.solids[idx].draw2D(ax, ax2, self.color)
-
     def draw_visual(self):
         '''Draws in a 3D VPython window all the solids within this segment.
 
