@@ -3,7 +3,7 @@ object.
  '''
 import numpy as np
 
-from dtk import inertia
+import inertia
 
 import human as hum
 
