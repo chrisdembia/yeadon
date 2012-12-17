@@ -30,19 +30,22 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-- Numpy_ (debian: python-numpy)
+- setuptools_ or distribute_ for installation
+- NumPy_ (debian: python-numpy)
 - Matplotlib_ (debian: python-matplotlib)
 - vPython_ optional, used for pretty visualization (debian: python-visual)
 - Sphinx_  optional, needed to create documentation (debian: python-sphinx)
-- numpydoc_ sphinx extension
+- numpydoc_ optional, sphinx extension for NumPy style doc formatting
 
+.. _setuptools: http://pypi.python.org/pypi/setuptools
+.. _distribute: http://pypi.python.org/pypi/distribute
 .. _Numpy: http://numpy.scipy.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
 .. _vPython: http://www.vpython.org
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pypi.python.org/pypi/numpydoc
 
-In Linux systems, you may be able to obtain those four packages by opening a
+In Debian systems, you may be able to obtain those four packages by opening a
 terminal window (CTRL-ALT-T) and typing the following line::
 
     $apt-get install python-numpy python-matplotlib # required
@@ -51,12 +54,12 @@ terminal window (CTRL-ALT-T) and typing the following line::
 For other systems (Windows or Mac), visit the websites for the packages,
 given above for installation instructions.
 
-Once you download the yeadon package and decompress it, you can install in
-Linux with the commands along the lines of::
+Once you download the yeadon package and decompress it, you can install with
+the commands along the lines of::
 
     $python setup.py install
 
-or simply use a tool like `pip` ::
+or simply use a tool like `pip` to download and install from PyPi::
 
     $pip install yeadon
 
@@ -115,4 +118,5 @@ Contact
 Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
 comments.
 
-Post issues to http://github.com/fitze/yeadon/issues.
+All development is handled at http://github.com/fitze/yeadon/, including issue
+tracking.
