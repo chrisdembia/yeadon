@@ -75,7 +75,9 @@ to make HTML documentation in the yeadon/doc/_build/html folder, or::
     $cd doc/
     $make latex  #(or: make latexpdf)
 
-to generate LaTeX source files in the yeadon/doc/_build/latex.
+to generate LaTeX source files in the yeadon/doc/_build/latex. Note that to
+generate documentation, one also needs the `numpydoc` package. Alternatively,
+one can just access the documentation through the `PyPi` site.
 
 Usage
 =====
