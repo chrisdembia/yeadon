@@ -24,7 +24,7 @@ executing methods.
 ::
 
     import yeadon
-    H = yeadon.human(<meas>,<cfg>)
+    H = yeadon.Human(<meas>, <cfg>)
 
 Where ``<meas>`` and ``<cfg>`` are either paths to input .txt files, or
 dictionaries. The ``<cfg>`` argument is optional. The constructor for the human
@@ -75,13 +75,11 @@ Features
     See below for a full list of all segment objects and solid objects.
 
 **Draw**
-    There are three methods for drawing the human.
+    There are two methods for drawing the human.
 
     - ``H.draw()``: matplotlib, 3D. This was the first method implemented, and
       does not look too great because matplotlib does not manage depth of the
       objects.
-    - ``H.draw2D()``: matplotlib, 2D. Not implemented well currently, pretty
-      much unusable.
     - ``H.draw_visual()``: python-visual. This works pretty well. Requires the
       VPython (python-visual) package.
 
