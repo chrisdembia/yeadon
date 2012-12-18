@@ -18,10 +18,10 @@ class TestSegments(unittest.TestCase):
         """Creates the surfaces and solids needed to create a segment."""
 
         # Make a few surfaces.
-        surfA = sol.Stadium('surfA', 'perimwidth', 3, 1)
-        surfB = sol.Stadium('surfB', 'depthwidth', 3, 4)
-        surfC = sol.Stadium('surfC', 'thickradius', 5, 6)
-        surfD = sol.Stadium('surfD', 'perimwidth', 9, 4)
+        surfA = sol.Stadium('Ls0: hip joint centre', 'perimwidth', 3, 1)
+        surfB = sol.Stadium('Ls1: umbilicus', 'depthwidth', 3, 4)
+        surfC = sol.Stadium('Ls2: lowest front rib', 'thickradius', 5, 6)
+        surfD = sol.Stadium('Ls3: nipple', 'perimwidth', 9, 4)
         # Make solids for use with segments.
         self.solidAB = sol.StadiumSolid('stadsolAB', 2, surfA, surfB, 5)
         self.solidBC = sol.StadiumSolid('stadsolBC', 3, surfB, surfC, 6)

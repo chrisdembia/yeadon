@@ -10,6 +10,9 @@ import os
 import yeadon.human as hum
 import yeadon.densities as dens
 
+# TODO Jason: maybe the better test is to just check against the output of
+# ISEG.
+
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
 
