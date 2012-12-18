@@ -6,6 +6,8 @@ semiellipsoid classes.
 
 '''
 import textwrap
+import warnings
+
 import numpy as np
 
 try:
