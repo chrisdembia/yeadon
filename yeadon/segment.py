@@ -122,9 +122,13 @@ class Segment(object):
 
     def print_properties(self):
         '''Prints mass, center of mass (in segment's and fixed human frames),
-        and inertia (in segment's and fixed human frames).
+        and inertia (in segment's and fixed human frames). Calls
+        ``calc_properties`` if COM or Inertia is not defiend for the segment.
 
         '''
+        # self.COM, etc. needs to be defined first.
+        if not hasattr(self, 'COM') or not hasattr(self, 'Inertia'):
+            self.calc_properties()
         print self.label, "properties:\n"
         print "Mass (kg):", self.Mass, "\n"
         print "COM in local segment frame (m):\n", self.relCOM, "\n"

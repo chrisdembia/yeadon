@@ -188,12 +188,11 @@ class TestSegments(unittest.TestCase):
         # Create the segment.
         seg1 = seg.Segment(label, pos, rot, solids, color)
 
-        # Calling print_properties too early doesn't work.
-        self.assertRaises(AttributeError, seg1.print_properties)
-
-        seg1.calc_properties()
+        # For capturing print.
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
+
+        # Calling print_properties before calc_properties should still work.
         seg1.print_properties()
         sys.stdout = old_stdout
         desStr = ("seg1 properties:\n\n" +
@@ -216,9 +215,21 @@ class TestSegments(unittest.TestCase):
                 "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
                 " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
                 " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
+        print "hi"
+        print mystdout.getvalue()
         self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_print_solid_properties(self):
+
+        # Create parameters.
+        label = 'seg1'
+        pos = np.array([[1], [2], [3]])
+        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        solids = [self.solidAB, self.solidBC, self.solidCD]
+        color = (1, 0, 0)
+
+        # Create the segment.
+        seg1 = seg.Segment(label, pos, rot, solids, color)
         pass
 
     def test_draw(self):
