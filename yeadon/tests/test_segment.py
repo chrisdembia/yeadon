@@ -230,7 +230,8 @@ class TestSegments(unittest.TestCase):
 
         # Create the segment.
         seg1 = seg.Segment(label, pos, rot, solids, color)
-        pass
+        seg1.print_solidproperties()
+        assert False
 
     def test_draw(self):
         pass
