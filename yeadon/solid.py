@@ -5,25 +5,74 @@ stadiumsolid solids. The solid class has two children: the stadiumsolid and
 semiellipsoid classes.
 
 '''
+import textwrap
 import numpy as np
 
 try:
     import visual as vis
 except ImportError:
+    # TODO: Make this a warning
     print "Yeadon failed to import python-visual. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_visual() member functions."
-import inertia # jason's
+
+import inertia
 
 
 class Stadium(object):
     '''Stadium, the 2D shape.
 
     '''
-    def __init__(self,label,inID,in1,in2,alignment='ML'):
+    validStadiaLabels = {
+        'Ls0': 'hip joint centre',
+        'Ls1': 'umbilicus',
+        'Ls2': 'lowest front rib',
+        'Ls3': 'nipple',
+        'Ls4': 'shoulder joint centre',
+        'Ls5': 'acromion',
+        'Ls6': 'beneath nose',
+        'Ls7': 'above ear',
+        'La0': 'shoulder joint centre',
+        'La1': 'mid-arm',
+        'La2': 'lowest front rib',
+        'La3': 'nipple',
+        'La4': 'wrist joint centre',
+        'La5': 'acromion',
+        'La6': 'knuckles',
+        'La7': 'fingernails',
+        'Lb0': 'shoulder joint centre',
+        'Lb1': 'mid-arm',
+        'Lb2': 'lowest front rib',
+        'Lb3': 'nipple',
+        'Lb4': 'wrist joint centre',
+        'Lb5': 'acromion',
+        'Lb6': 'knuckles',
+        'Lb7': 'fingernails',
+        'Lj0': 'hip joint centre',
+        'Lj1': 'crotch',
+        'Lj2': 'mid-thigh',
+        'Lj3': 'knee joint centre',
+        'Lj4': 'maximum calf perimeter',
+        'Lj5': 'ankle joint centre',
+        'Lj6': 'heel',
+        'Lj7': 'arch',
+        'Lj8': 'ball',
+        'Lj9': 'toe nails',
+        'Lk0': 'hip joint centre',
+        'Lk1': 'crotch',
+        'Lk2': 'mid-thigh',
+        'Lk3': 'knee joint centre',
+        'Lk4': 'maximum calf perimeter',
+        'Lk5': 'ankle joint centre',
+        'Lk6': 'heel',
+        'Lk7': 'arch',
+        'Lk8': 'ball',
+        'Lk9': 'toe nails'}
+
+    def __init__(self, label, inID, in1, in2=None, alignment='ML'):
         '''Defines a 2D stadium shape and checks inputs for errors. A stadium,
-        described in Yeadon 1990-ii, is defined by two parameters.
-        Stadia can depracate to circles if their "thickness" is 0.
+        described in Yeadon 1990-ii, is defined by two parameters.  Stadia can
+        depracate to circles if their "thickness" is 0.
 
         Parameters
         ----------
@@ -32,8 +81,8 @@ class Stadium(object):
         inID : str
             Identifies the type of information for the next two inputs.
             'perimwidth' for perimeter and width input, 'depthwidth' for
-            depth and width input, 'perim' or 'radius' for a circle,
-            'thickradius' for thickness and radius input.
+            depth and width input, 'perimeter' or 'radius' for a circle,
+            'thicknessradius' for thickness and radius input.
         in1 : float
             Either perimeter, depth, or thickness, as determined by inID
         in2 : float
@@ -44,51 +93,59 @@ class Stadium(object):
             supplied. The only 'AP' stadiums should be at the heels.
 
         '''
-        self.label = label
+        if label == 'Ls5: acromion/bottom of neck':
+            self.label = label
+        elif label in [lab + ': ' + desc for lab, desc in
+                self.validStadiaLabels.items()]:
+            self.label = label
+        else:
+            raise ValueError("'{}' is not a valid label.".format(label))
+
         if inID == 'perimwidth':
-            self.perim = in1
+            self.perimeter = in1
             self.width = in2
-            self.thick = ((np.pi * self.width - self.perim) /
+            self.thickness = ((np.pi * self.width - self.perimeter) /
                           (2.0 * np.pi - 4.0))
-            self.radius = ((self.perim - 2.0 * self.width)  /
+            self.radius = ((self.perimeter - 2.0 * self.width)  /
                            (2.0 * np.pi - 4.0))
         elif inID == 'depthwidth':
             self.width = in2
-            self.perim = 2.0 * in2 + (np.pi - 2.0) * in1
-            self.thick = ((np.pi * self.width - self.perim) /
+            self.perimeter = 2.0 * in2 + (np.pi - 2.0) * in1
+            self.thickness = ((np.pi * self.width - self.perimeter) /
                           (2.0 * np.pi - 4.0))
-            self.radius = (self.perim - 2.0 * self.width) / (2.0 * np.pi - 4.0)
-        elif inID == 'perim':
-            self.perim = in1
-            self.width = self.perim / np.pi
-            self.thick = 0.0
-            self.radius = self.perim / (2.0 * np.pi)
+            self.radius = (self.perimeter - 2.0 * self.width) / (2.0 * np.pi - 4.0)
+        elif inID == 'perimeter':
+            self.perimeter = in1
+            self.width = self.perimeter / np.pi
+            self.thickness = 0.0
+            self.radius = self.perimeter / (2.0 * np.pi)
         elif inID == 'radius':
             self.radius = in1
-            self.perim = 2.0 * np.pi * self.radius
-            self.thick = 0.0
-            self.width = self.perim / np.pi
-        elif inID == 'thickradius':
-            self.thick = in1
+            self.perimeter = 2.0 * np.pi * self.radius
+            self.thickness = 0.0
+            self.width = self.perimeter / np.pi
+        elif inID == 'thicknessradius':
+            self.thickness = in1
             self.radius = in2
-            self.perim = 4.0 * self.thick + 2.0 * np.pi * self.radius
-            self.width = 2.0 * self.thick + 2.0 * self.radius
+            self.perimeter = 4.0 * self.thickness + 2.0 * np.pi * self.radius
+            self.width = 2.0 * self.thickness + 2.0 * self.radius
         else:
-            print "Error: stadium",self.label,"not defined properly,",\
-                   "must use inID pw, dw, or p"
-        if self.radius <= 0 or self.thick < 0:
-            print "Error: stadium",self.label,"is defined incorrectly,",\
-                   "r must be positive and t must be nonnegative. r = ",\
-                   self.radius, " and t = ", self.thick, ". This means that",\
-                   "2 < perimeter/width < pi. Currently, this ratio is",\
-                   self.perim/self.width
+            raise ValueError("Error: stadium " + self.label +
+                " not defined properly, " + inID + " is not valid. You must " +
+                "use inID= perimwidth, depthwidth, perimeter, or radius.")
+        if self.radius <= 0 or self.thickness < 0:
+            raise StandardError(textwrap.dedent("""Error: stadium '{}' is defined
+                incorrectly, r must be positive and t must be nonnegative. r =
+                {} and t = {} . This means that 2 < perimeter/width < pi.
+                Currently, this ratio is {}.""").format(self.label, self.radius,
+                self.thickness, self.perimeter / self.width))
         if alignment != 'AP' and alignment != 'ML':
-            print "Error: stadium",self.label,"alignment is not valid,",\
-                   "must be either AP or ML"
+            raise ValueError("Error: stadium " + self.label +
+                " alignment is not valid, must be either AP or ML")
         else:
             self.alignment = alignment
 
-    def plot(self,ax,c):
+    def plot(self, ax, c):
         '''Plots the 2D stadium on 3D axes using matplotlib and its Axes3D
         class.
 
@@ -100,16 +157,16 @@ class Stadium(object):
             Color, as a word. e.g. 'red'
 
         '''
-        theta = [np.linspace(0.0,np.pi / 2.0,5)]
-        x = self.thick + self.radius * np.cos(theta);
+        theta = [np.linspace(0.0, np.pi / 2.0, 5)]
+        x = self.thickness + self.radius * np.cos(theta);
         y = self.radius * np.sin(theta);
         xrev = x[:, ::-1]
         yrev = y[:, ::-1]
         X2 = np.concatenate( (x, -xrev, -x, xrev ), axis = 1)
         Y2 = np.concatenate( (y, yrev, -y, -yrev ), axis = 1)
-        X3 = np.concatenate( (X2, np.nan*X2), axis = 0)
-        Y3 = np.concatenate( (Y2, np.nan*Y2), axis = 0)
-        ax.plot_surface(X3,Y3, np.zeros((2,20)), color=c, alpha=0.5)
+        X3 = np.concatenate( (X2, np.nan * X2), axis = 0)
+        Y3 = np.concatenate( (Y2, np.nan * Y2), axis = 0)
+        ax.plot_surface(X3, Y3, np.zeros((2, 20)), color=c, alpha=0.5)
 
 class Solid(object):
     '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
@@ -119,7 +176,7 @@ class Solid(object):
     # Transparency for plotting.
     alpha = .5
 
-    def __init__(self,label,density,height):
+    def __init__(self, label, density, height):
         '''Defines a solid. This is a base class. Sets the alpha value to
         be used for drawing with matplotlib.
 
@@ -133,11 +190,16 @@ class Solid(object):
             Distance from bottom to top of the solid
 
         '''
+        #TODO: Check for valid labels
         self.label = label
+        #TODO: Check that these two are floats
         self.density = density
         self.height = height
+        self.relInertia = np.zeros((3, 3)) # this gets set in subclasses
+        self.Mass = 0.0
+        self.relCOM = np.array([[0.0], [0.0], [0.0]])
 
-    def set_orientation(self,pos,RotMat):
+    def set_orientation(self, pos, rot_mat):
         '''Sets the position, rotation matrix of the solid, and calculates
         the "absolute" properties (center of mass, and inertia tensor) of the
         solid.
@@ -147,14 +209,14 @@ class Solid(object):
         pos : np.array (3,1)
             Position of the base of the solid in the absolute fixed coordinates
             of the human.
-        RotMat : np.matrix (3,3)
+        rot_mat : np.matrix (3,3)
             Orientation of solid, with respect to the fixed coordinate system.
 
         '''
         self.pos = pos
-        self.RotMat = RotMat
-        self.endpos = self.pos + (self.height * self.RotMat *
-                                  np.array([[0],[0],[1]]))
+        self.rot_mat = rot_mat
+        self.endpos = self.pos + (self.height * self.rot_mat *
+                                  np.array([[0], [0], [1]]))
         self.calc_properties()
 
     def calc_properties(self):
@@ -162,25 +224,36 @@ class Solid(object):
         to the fixed human frame.
 
         '''
-        self.COM = self.pos + self.RotMat * self.relCOM
-        self.Inertia = inertia.rotate3_inertia(self.RotMat,self.relInertia)
+        try:
+            try:
+                self.COM = self.pos + self.rot_mat * self.relCOM
+            except AttributeError as err:
+                err.message = err.message + \
+                    '. You must set the orientation before attempting ' + \
+                    'to calculate the properties.'
+                raise
+        except AttributeError as e:
+            print(e.message)
+
+        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
 
     def print_properties(self):
         '''Prints the mass, center of mass (local and absolute), and inertia
         tensor (local and absolute) of the solid.
 
         '''
-        print self.label,"properties:\n"
-        print "Mass (kg):",self.Mass,"\n"
-        print "COM in local solid's frame (m):\n",self.relCOM,"\n"
-        print "COM in fixed human frame (m):\n",self.COM,"\n"
+        print self.label, "properties:\n"
+        print "Mass (kg):", self.Mass,"\n"
+        print "COM in local solid's frame (m):\n", self.relCOM,"\n"
+        print "COM in fixed human frame (m):\n", self.COM,"\n"
         print "Inertia tensor in solid's frame about local solid's",\
-               "COM (kg-m^2):\n",self.relInertia,"\n"
+               "COM (kg-m^2):\n", self.relInertia,"\n"
         print "Inertia tensor in fixed human frame about local solid's",\
-               "COM (kg-m^2):\n",self.Inertia,"\n"
+               "COM (kg-m^2):\n", self.Inertia,"\n"
 
-    def draw(self,ax,c):
-        print "cannot draw base class solid"
+    def draw(self, ax, c):
+        #TODO: Make into warning
+        print "Cannot draw from base class solid, use a subclass like StadiumSolid or SemiEllipsoidSolid)."
 
 class StadiumSolid(Solid):
     '''Stadium solid. Derived from the solid class.
@@ -224,9 +297,9 @@ class StadiumSolid(Solid):
         D = self.density
         h = self.height
         r0 = self.stads[0].radius
-        t0 = self.stads[0].thick
+        t0 = self.stads[0].thickness
         r1 = self.stads[1].radius
-        t1 = self.stads[1].thick
+        t1 = self.stads[1].thickness
         a = (r1 - r0) / r0
         if (t0 == 0):
             b = 1.0
@@ -297,9 +370,9 @@ class StadiumSolid(Solid):
         ax.plot_surface( X1toplot, Y1toplot, Z1toplot,
                          color=c, alpha=Solid.alpha)
         # rotated unit vectors (unit x prime, etc)
-        uxp = self.RotMat * np.array([[1],[0],[0]]) + self.pos
-        uyp = self.RotMat * np.array([[0],[1],[0]]) + self.pos
-        uzp = self.RotMat * np.array([[0],[0],[1]]) + self.pos
+        uxp = self.rot_mat * np.array([[1],[0],[0]]) + self.pos
+        uyp = self.rot_mat * np.array([[0],[1],[0]]) + self.pos
+        uzp = self.rot_mat * np.array([[0],[0],[1]]) + self.pos
         if 0:
             ax.plot( np.array([self.pos[0,0],uxp[0]]),
                      np.array([self.pos[1,0],uxp[1]]),
@@ -337,7 +410,7 @@ class StadiumSolid(Solid):
         pos = []
         for i in [0,1]:
             theta = [np.linspace(0.0,np.pi/2,N)]
-            x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
+            x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
             y = self.stads[i].radius * np.sin(theta);
             if self.alignment == 'AP':
                 temp = x
@@ -350,7 +423,7 @@ class StadiumSolid(Solid):
             Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
             Z = i*self.height*np.ones((1,N*4))
             POSES = np.concatenate( (X, Y, Z), axis=0)
-            POSES = self.RotMat * POSES
+            POSES = self.rot_mat * POSES
             X,Y,Z = np.vsplit(POSES,3)
             X = X + self.pos[0]
             Y = Y + self.pos[1]
@@ -365,7 +438,7 @@ class StadiumSolid(Solid):
 
         '''
         theta = [np.linspace(0.0,np.pi/2,5)]
-        x = self.stads[i].thick + self.stads[i].radius * np.cos(theta);
+        x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
         y = self.stads[i].radius * np.sin(theta);
         if self.alignment == 'AP':
             temp = x
@@ -378,7 +451,7 @@ class StadiumSolid(Solid):
         Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
         Z = i*self.height*np.ones((1,20))
         POSES = np.concatenate( (X, Y, Z), axis=0)
-        POSES = self.RotMat * POSES
+        POSES = self.rot_mat * POSES
         X,Y,Z = np.vsplit(POSES,3)
         X = X + self.pos[0]
         Y = Y + self.pos[1]
@@ -475,7 +548,7 @@ class Semiellipsoid(Solid):
         for i in np.arange(N):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = self.RotMat * POS
+                POS = self.rot_mat * POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]
@@ -494,7 +567,7 @@ class Semiellipsoid(Solid):
         seem as if the head is more "round" than it actually is.
 
         '''
-        ax = self.RotMat * np.array([[0],[0],[1]])
+        ax = self.rot_mat * np.array([[0],[0],[1]])
         vis.ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
                          axis = (ax[0,0],ax[1,0],ax[2,0]),
                          length=self.height,

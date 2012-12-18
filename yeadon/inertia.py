@@ -322,7 +322,7 @@ def euler_123(angles):
 
     return R1 * R2 * R3
 
-def rotate3_inertia(RotMat, relInertia):
+def rotate3_inertia(rot_mat, relInertia):
     """
     Rotates an inertia tensor. A derivation of the formula in this function
     can be found in Crandall 1968, Dynamics of mechanical and electromechanical
@@ -333,7 +333,7 @@ def rotate3_inertia(RotMat, relInertia):
 
     Parameters
     ----------
-    RotMat : numpy.matrix, shape(3,3)
+    rot_mat : numpy.matrix, shape(3,3)
         Three-dimensional rotation matrix specifying the coordinate frame that
         the input inertia tensor is in, with respect to a fixed coordinate
         system in which one desires to express the inertia tensor.
@@ -347,4 +347,4 @@ def rotate3_inertia(RotMat, relInertia):
         Inertia tensor with respect to a fixed coordinate system ("unrotated").
 
     """
-    return RotMat * relInertia * RotMat.T
+    return rot_mat * relInertia * rot_mat.T

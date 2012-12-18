@@ -20,7 +20,7 @@ class TestSegments(unittest.TestCase):
         # Make a few surfaces.
         surfA = sol.Stadium('Ls0: hip joint centre', 'perimwidth', 3, 1)
         surfB = sol.Stadium('Ls1: umbilicus', 'depthwidth', 3, 4)
-        surfC = sol.Stadium('Ls2: lowest front rib', 'thickradius', 5, 6)
+        surfC = sol.Stadium('Ls2: lowest front rib', 'thicknessradius', 5, 6)
         surfD = sol.Stadium('Ls3: nipple', 'perimwidth', 9, 4)
         # Make solids for use with segments.
         self.solidAB = sol.StadiumSolid('stadsolAB', 2, surfA, surfB, 5)
@@ -44,7 +44,7 @@ class TestSegments(unittest.TestCase):
         # Check that parameters were set.
         assert seg1.label == label
         assert (seg1.pos == pos).all()
-        assert (seg1.RotMat == rot).all()
+        assert (seg1.rot_mat == rot).all()
         assert seg1.solids == solids
         assert seg1.nSolids == len(solids)
         assert seg1.color == color
@@ -52,20 +52,20 @@ class TestSegments(unittest.TestCase):
         # -- Check the other constructor actions.
         # Setting orientations of all constituent solids.
         assert (seg1.solids[0].pos == pos).all()
-        assert (seg1.solids[0].RotMat == rot).all()
+        assert (seg1.solids[0].rot_mat == rot).all()
         pos2 = np.array([[6], [2], [3]])
         assert (seg1.solids[0].endpos == pos2).all()
 
         # 2nd solid in the segment.
         assert (seg1.solids[1].pos == pos2).all()
-        assert (seg1.solids[1].RotMat == rot).all()
+        assert (seg1.solids[1].rot_mat == rot).all()
         # See definition of solids in setUp().
         pos3 = pos2 + np.array([[6],[0],[0]])
         assert (seg1.solids[1].endpos == pos3).all()
 
         # 3rd solid in the segment.
         assert (seg1.solids[2].pos == pos3).all()
-        assert (seg1.solids[2].RotMat == rot).all()
+        assert (seg1.solids[2].rot_mat == rot).all()
         # See definition of solids in setUp().
         pos4 = pos3 + np.array([[7],[0],[0]])
         assert (seg1.solids[2].endpos == pos4).all()
@@ -249,5 +249,3 @@ class TestSegments(unittest.TestCase):
         # TODO could compare printed SVG's or use matplotlib's ability
         # to compare bitmaps.
         pass
-
-

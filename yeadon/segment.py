@@ -9,7 +9,7 @@ import numpy as np
 import inertia
 
 class Segment(object):
-    def __init__(self, label, pos, RotMat, solids, color):
+    def __init__(self, label, pos, rot_mat, solids, color):
         '''Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
         calculates the "relative" inertia parameters (mass, center of mass
@@ -22,7 +22,7 @@ class Segment(object):
         pos : numpy.array, shape(3,1)
             The vector position of the segment's base,
             with respect to the fixed human frame.
-        RotMat : numpy.matrix, shape(3,3)
+        rot_mat : numpy.matrix, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
             human frame.
@@ -37,7 +37,7 @@ class Segment(object):
         if pos.shape != (3, 1):
             raise ValueError("Position must be 3-D.")
         self.pos = pos
-        self.RotMat = RotMat
+        self.rot_mat = rot_mat
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
@@ -50,7 +50,7 @@ class Segment(object):
 
 
     def set_orientations(self):
-        '''Sets the position (self.pos) and rotation matrix (self.RotMat)
+        '''Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent
         solid's set_orientation method. The position of the i-th solid,
         expressed in the fixed human reference frame, is given by the sum
@@ -58,13 +58,13 @@ class Segment(object):
         solids of the segment up to the i-th solid.
 
         '''
-        # pos and RotMat for first solid
-        self.solids[0].set_orientation(self.pos, self.RotMat)
-        # pos and RotMat for remaining solids
+        # pos and rot_mat for first solid
+        self.solids[0].set_orientation(self.pos, self.rot_mat)
+        # pos and rot_mat for remaining solids
         for i in np.arange(self.nSolids):
             if i != 0:
                 pos = self.solids[i-1].endpos
-                self.solids[i].set_orientation(pos, self.RotMat)
+                self.solids[i].set_orientation(pos, self.rot_mat)
 
     def calc_rel_properties(self):
         '''Calculates the mass, relative/local center of mass, and
@@ -116,9 +116,9 @@ class Segment(object):
 
         '''
         # center of mass
-        self.COM = self.pos + self.RotMat * self.relCOM
+        self.COM = self.pos + self.rot_mat * self.relCOM
         # inertia in frame f w.r.t. segment's COM
-        self.Inertia = inertia.rotate3_inertia(self.RotMat, self.relInertia)
+        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
 
     def print_properties(self):
         '''Prints mass, center of mass (in segment's and fixed human frames),
