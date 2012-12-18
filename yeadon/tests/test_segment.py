@@ -2,6 +2,9 @@ import unittest
 import nose
 import numpy as np
 from numpy import testing, pi
+# For redirecting stdout.
+from cStringIO import StringIO
+import sys
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -132,7 +135,7 @@ class TestSegments(unittest.TestCase):
         # Wrong type rot.
         self.assertRaises(ValueError, seg.Segment, label, pos, pos, solids,
                 color)
-        # Wrong dimension rot.
+        # Wrong dimensions rot.
         self.assertRaises(ValueError, seg.Segment, label, pos, np.mat(pos),
                 solids, color)
         # Empty solids.
@@ -150,6 +153,8 @@ class TestSegments(unittest.TestCase):
             "2"], color)
 
     def test_calc_properties(self):
+        """Ensures proper calculation of global-frame COM and Inertia."""
+
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
@@ -160,10 +165,58 @@ class TestSegments(unittest.TestCase):
         # Create the segment.
         seg1 = seg.Segment(label, pos, rot, solids, color)
         seg1.calc_properties()
-        assert False
+
+        testing.assert_allclose(seg1.COM,
+                np.array([[seg1.relCOM[2, 0] + 1, 2, 3]]).T)
+        desXInertia = seg1.relInertia[2, 2]
+        desYInertia = seg1.relInertia[1, 1]
+        desZInertia = seg1.relInertia[0, 0]
+        desInertia = np.mat(np.diag(np.array(
+                [desXInertia, desYInertia, desZInertia])))
+        testing.assert_allclose(seg1.Inertia, desInertia, atol=1e-10)
 
     def test_print_properties(self):
-        pass
+        """Ensures the proper printing of segment mass properties. """
+
+        # Create parameters.
+        label = 'seg1'
+        pos = np.array([[1], [2], [3]])
+        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        solids = [self.solidAB, self.solidBC, self.solidCD]
+        color = (1, 0, 0)
+
+        # Create the segment.
+        seg1 = seg.Segment(label, pos, rot, solids, color)
+
+        # Calling print_properties too early doesn't work.
+        self.assertRaises(AttributeError, seg1.print_properties)
+
+        seg1.calc_properties()
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        seg1.print_properties()
+        sys.stdout = old_stdout
+        desStr = ("seg1 properties:\n\n" +
+                "Mass (kg): 4299.15404857 \n\n" +
+                "COM in local segment frame (m):\n" +
+                "[[  0.       ]\n" +
+                " [  0.       ]\n" +
+                " [ 11.3248746]] \n\n" +
+                "COM in fixed human frame (m):\n" +
+                "[[ 12.3248746]\n" +
+                " [  2.       ]\n" +
+                " [  3.       ]] \n\n" +
+                "Inertia tensor in segment frame about local segment " +
+                "COM (kg-m^2):\n" + 
+                "[[  50287.48961483       0.               0.        ]\n" +
+                " [      0.          113733.59619149       0.        ]\n" +
+                " [      0.               0.          112963.70547987]] \n\n" +
+                "Inertia tensor in fixed human frame about local segment " +
+                "COM (kg-m^2):\n" +
+                "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
+                " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
+                " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
+        self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_print_solid_properties(self):
         pass

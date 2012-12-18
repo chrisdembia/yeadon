@@ -8,7 +8,7 @@ Typical usage (not using yeadon.ui.start_ui())
 
     # create human object, providing paths to measurement and configuration
     # filenames (.txt files). Configuration input is optional.
-    H = y.(<measfname>,<CFGfname>)
+    H = y.Human(<measfname>, <CFGfname>)
     # transform the absolute fixed coordiantes from yeadon's to your system's
     H.transform_coord_sys(pos,rotmat)
     # obtain inertia information
