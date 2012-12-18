@@ -150,7 +150,17 @@ class TestSegments(unittest.TestCase):
             "2"], color)
 
     def test_calc_properties(self):
-        pass
+        # Create parameters.
+        label = 'seg1'
+        pos = np.array([[1], [2], [3]])
+        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        solids = [self.solidAB, self.solidBC, self.solidCD]
+        color = (1, 0, 0)
+
+        # Create the segment.
+        seg1 = seg.Segment(label, pos, rot, solids, color)
+        seg1.calc_properties()
+        assert False
 
     def test_print_properties(self):
         pass

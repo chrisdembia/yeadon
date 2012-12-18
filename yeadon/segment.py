@@ -45,7 +45,7 @@ class Segment(object):
         # calculate relative/local properties.
         self.set_orientations()
         self.endpos = self.solids[-1].endpos
-        self.length = np.linalg.norm(self.endpos-self.pos)
+        self.length = np.linalg.norm(self.endpos - self.pos)
         self.calc_rel_properties()
 
 
@@ -119,15 +119,6 @@ class Segment(object):
         self.COM = self.pos + self.RotMat * self.relCOM
         # inertia in frame f w.r.t. segment's COM
         self.Inertia = inertia.rotate3_inertia(self.RotMat, self.relInertia)
-        # an alternative way of calculating absolute inertia tensor,
-        # implemented for validation purposes.
-        # inertia in frame f w.r.t. segment's COM
-        self.Inertia2 = np.mat(np.zeros((3, 3)))
-        for s in self.solids:
-            dist = s.COM - self.COM
-            self.Inertia2 += np.mat(inertia.parallel_axis(
-                                    s.Inertia, s.Mass,
-                                    [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
     def print_properties(self):
         '''Prints mass, center of mass (in segment's and fixed human frames),
