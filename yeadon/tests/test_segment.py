@@ -230,7 +230,12 @@ class TestSegments(unittest.TestCase):
 
         # Create the segment.
         seg1 = seg.Segment(label, pos, rot, solids, color)
-        seg1.print_solidproperties()
+        sys.stdout = mystdout = StringIO()
+        f = open('temp.txt', 'w')
+        seg1.print_solid_properties()
+
+        f.write(mystdout.getvalue())
+        f.close()
         assert False
 
     def test_draw(self):
