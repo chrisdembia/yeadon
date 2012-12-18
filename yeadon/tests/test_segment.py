@@ -106,9 +106,55 @@ class TestSegments(unittest.TestCase):
         testing.assert_allclose(seg1.relInertia, desRelInertia)
 
     def test_init_bad_input(self):
-        # Ensures only proper input gets through.
-        # pos = np.array([1, 2, 3]) <-- NOT OKAY, but internal.
-        pass
+        """Ensures only proper constructor arguments get through. Exercises
+        duck-typing.
+
+        """
+        # Create default parameters.
+        label = 'seg1'
+        pos = np.array([[1], [2], [3]])
+        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        solids = [self.solidAB, self.solidBC, self.solidCD]
+        color = (1, 0, 0)
+
+        # Empty position.
+        self.assertRaises(AttributeError, seg.Segment, label, [], rot, solids,
+                color)
+
+        # Non-numpy position.
+        self.assertRaises(AttributeError, seg.Segment, label, [0, 0, 0], rot,
+                solids, color)
+
+        # Wrong dimensions.
+        self.assertRaises(ValueError, seg.Segment, label, pos[1:2,:], rot,
+                solids, color)
+
+        # Empty rotation.
+        self.assertRaises(ValueError, seg.Segment, label, pos, [], solids,
+                color)
+
+        # Wrong type rot.
+        self.assertRaises(ValueError, seg.Segment, label, pos, pos, solids,
+                color)
+
+        # Wrong dimension rot.
+        self.assertRaises(ValueError, seg.Segment, label, pos, np.mat(pos),
+                solids, color)
+
+        # Empty solids.
+        self.assertRaises(IndexError, seg.Segment, label, pos, rot, [], color)
+
+        # Missing color.
+        self.assertRaises(TypeError, seg.Segment, label, pos, rot, solids)
+
+        # Test just having one solid; make sure we do not depend on a segment
+        # having multiple solids.
+        # Should not raise exception.
+        seg1 = seg.Segment(label, pos, rot, [self.solidAB], color)
+
+        # Objects in the solids list are not actually `Solid`'s.
+        self.assertRaises(AttributeError, seg.Segment, label, pos, rot, ["1",
+            "2"], color)
 
     def test_calc_properties(self):
         pass
@@ -121,8 +167,6 @@ class TestSegments(unittest.TestCase):
 
     def test_draw(self):
         pass
-
-
 
         # TODO take care of global COM/Inertia.
 

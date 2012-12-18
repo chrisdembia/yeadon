@@ -22,7 +22,7 @@ class Segment(object):
         pos : numpy.array, shape(3,1)
             The vector position of the segment's base,
             with respect to the fixed human frame.
-        Rotmat : numpy.matrix, shape(3,3)
+        RotMat : numpy.matrix, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
             human frame.
@@ -34,6 +34,8 @@ class Segment(object):
 
         '''
         self.label = label
+        if pos.shape != (3, 1):
+            raise ValueError("Position must be 3-D.")
         self.pos = pos
         self.RotMat = RotMat
         self.solids = solids
