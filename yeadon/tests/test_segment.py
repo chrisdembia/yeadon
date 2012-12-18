@@ -120,30 +120,23 @@ class TestSegments(unittest.TestCase):
         # Empty position.
         self.assertRaises(AttributeError, seg.Segment, label, [], rot, solids,
                 color)
-
         # Non-numpy position.
         self.assertRaises(AttributeError, seg.Segment, label, [0, 0, 0], rot,
                 solids, color)
-
         # Wrong dimensions.
         self.assertRaises(ValueError, seg.Segment, label, pos[1:2,:], rot,
                 solids, color)
-
         # Empty rotation.
         self.assertRaises(ValueError, seg.Segment, label, pos, [], solids,
                 color)
-
         # Wrong type rot.
         self.assertRaises(ValueError, seg.Segment, label, pos, pos, solids,
                 color)
-
         # Wrong dimension rot.
         self.assertRaises(ValueError, seg.Segment, label, pos, np.mat(pos),
                 solids, color)
-
         # Empty solids.
         self.assertRaises(IndexError, seg.Segment, label, pos, rot, [], color)
-
         # Missing color.
         self.assertRaises(TypeError, seg.Segment, label, pos, rot, solids)
 
