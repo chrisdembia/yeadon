@@ -5,6 +5,7 @@ from numpy import testing, pi
 # For redirecting stdout.
 from cStringIO import StringIO
 import sys
+import os
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -230,13 +231,14 @@ class TestSegments(unittest.TestCase):
 
         # Create the segment.
         seg1 = seg.Segment(label, pos, rot, solids, color)
-        sys.stdout = mystdout = StringIO()
-        f = open('temp.txt', 'w')
-        seg1.print_solid_properties()
 
-        f.write(mystdout.getvalue())
-        f.close()
-        assert False
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        seg1.print_solid_properties()
+        sys.stdout = old_stdout
+        desStr = open(os.path.join(os.path.split(__file__)[0],
+            'segment_print_solid_des.txt'), 'r').read()
+        self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_draw(self):
         pass
