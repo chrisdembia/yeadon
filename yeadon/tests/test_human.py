@@ -67,19 +67,19 @@ class TestHuman(unittest.TestCase):
         # TODO
         self.assertEquals(len(h.Ls), 9)
         self.assertEquals(h.Ls[0].label, 'Ls0: hip joint centre')
-        self.assertEquals(h.Ls[0].perim, meas['Ls0p'])
+        self.assertEquals(h.Ls[0].perimeter, meas['Ls0p'])
         self.assertEquals(h.Ls[0].width, meas['Ls0w'])
 
         self.assertEquals(h.Ls[1].label, 'Ls1: umbilicus')
-        self.assertEquals(h.Ls[1].perim, meas['Ls1p'])
+        self.assertEquals(h.Ls[1].perimeter, meas['Ls1p'])
         self.assertEquals(h.Ls[1].width, meas['Ls1w'])
 
         self.assertEquals(h.Ls[2].label, 'Ls2: lowest front rib')
-        self.assertEquals(h.Ls[2].perim, meas['Ls2p'])
+        self.assertEquals(h.Ls[2].perimeter, meas['Ls2p'])
         self.assertEquals(h.Ls[2].width, meas['Ls2w'])
 
         self.assertEquals(h.Ls[3].label, 'Ls3: nipple')
-        self.assertEquals(h.Ls[3].perim, meas['Ls3p'])
+        self.assertEquals(h.Ls[3].perimeter, meas['Ls3p'])
         self.assertEquals(h.Ls[3].width, meas['Ls3w'])
 
         self.assertEquals(h.Ls[4].label, 'Ls4: shoulder joint centre')
@@ -88,20 +88,20 @@ class TestHuman(unittest.TestCase):
 
         # TODO Hard-coded parameters for the acromion from yeadon.
         self.assertEquals(h.Ls[5].label, 'Ls5: acromion')
-        self.assertEquals(h.Ls[5].thick, meas['Ls5p'])
+        self.assertEquals(h.Ls[5].thickness, meas['Ls5p'])
         self.assertEquals(h.Ls[5].radius, meas['Ls5w'])
 
         self.assertEquals(h.Ls[6].label, 'Ls5: acromion/bottom of neck')
-        self.assertEquals(h.Ls[6].perim, meas['Ls5p'])
-        self.assertEquals(h.Ls[6].thick, 0)
+        self.assertEquals(h.Ls[6].perimeter, meas['Ls5p'])
+        self.assertEquals(h.Ls[6].thickness, 0)
 
         self.assertEquals(h.Ls[7].label, 'Ls6: beneath nose')
-        self.assertEquals(h.Ls[7].perim, meas['Ls6p'])
-        self.assertEquals(h.Ls[7].thick, 0)
+        self.assertEquals(h.Ls[7].perimeter, meas['Ls6p'])
+        self.assertEquals(h.Ls[7].thickness, 0)
 
         self.assertEquals(h.Ls[8].label, 'Ls7: above ear')
-        self.assertEquals(h.Ls[8].perim, meas['Ls7p'])
-        self.assertEquals(h.Ls[8].thick, 0)
+        self.assertEquals(h.Ls[8].perimeter, meas['Ls7p'])
+        self.assertEquals(h.Ls[8].thickness, 0)
 
         self.assertEquals(len(h.s), 8)
         self.assertEquals(h.s[0].label, 's0: hip joint centre')

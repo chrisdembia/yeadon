@@ -110,30 +110,3 @@ Dk = Dj.copy()
 # Dj9 = Dj9 # = DensityOfSegmentsConverted[9]
 
 # print "Segment densities loaded."
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
