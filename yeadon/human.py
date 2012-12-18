@@ -637,8 +637,19 @@ class Human(object):
                                     'perimwidth', meas['Ls3p'], meas['Ls3w']))
         self.Ls.append( sol.Stadium('Ls4: shoulder joint centre',
                                     'depthwidth', meas['Ls4d'], meas['Ls4w']))
-        radius = 0.6 * self.Ls[4].radius # see Yeadon's ISEG code
-        thick = 0.6 * self.Ls[4].width / 2.0 - radius
+        # Yeadon's ISEG code uses the value 0.57. Up through version 0.95 of
+        # this package, we used the value 0.6 instead. There was no good
+        # justification for this, other than that 0.57 seemed equally
+        # unjustifiable. The reason why the next two lines exist at all is
+        # that it's not possible to measure a perimeter, etc at the acromion,
+        # so we find this stadium's parameters as a function of the Ls4
+        # parameters.
+        # Previous code:
+        #radius = 0.6 * self.Ls[4].radius # see Yeadon's ISEG code
+        #thick = 0.6 * self.Ls[4].width / 2.0 - radius
+        # New code:
+        radius = 0.57 * self.Ls[4].radius
+        thick = self.Ls[4].width / 2.0 - radius
         self.Ls.append( sol.Stadium('Ls5: acromion',
                                     'thickradius', thick, radius))
         self.Ls.append( sol.Stadium('Ls5: acromion/bottom of neck',
