@@ -322,7 +322,7 @@ def euler_123(angles):
 
     return R1 * R2 * R3
 
-def rotate3_inertia(RotMat,relInertia):
+def rotate3_inertia(RotMat, relInertia):
     """
     Rotates an inertia tensor. A derivation of the formula in this function
     can be found in Crandall 1968, Dynamics of mechanical and electromechanical
