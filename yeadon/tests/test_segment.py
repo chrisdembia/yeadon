@@ -241,8 +241,8 @@ class TestSegments(unittest.TestCase):
         self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_draw(self):
+        # TODO could compare printed SVG's or use matplotlib's ability
+        # to compare bitmaps.
         pass
-
-        # TODO take care of global COM/Inertia.
 
 
