@@ -128,9 +128,9 @@ class Human(object):
             If not provided, the human is in a default configuration in which
             all joint angles are set to zero.
         symmetric : bool
-            Optional argument, set to True. Decides whether or not to average
-            the measurements of the left and right limbs of the human.
-
+            Optional argument, set to True by default. Decides whether or not
+            to average the measurements of the left and right limbs of the
+            human.
 
         '''
         self.isSymmetric = symmetric
@@ -144,12 +144,13 @@ class Human(object):
         elif type(meas_in) == str:
             self.read_measurements(meas_in)
         # average left and right limbs for symmetry (maybe)
-        if self.isSymmetric==True:
+        if self.isSymmetric == True:
             self.average_limbs()
 
         # if configuration input is a dictionary, just assign. else, read in
         # the file.
-        if CFG is None: # set all joint angles to zero
+        if CFG is None: 
+            # set all joint angles to zero
             self.CFG = {}
             for key in Human.CFGnames:
                 self.CFG[key] = 0.0
@@ -158,29 +159,12 @@ class Human(object):
         elif type(CFG) == str:
             self.read_CFG(CFG)
 
-        # check CFG input against CFG bounds
-        self.validate_CFG()
-        # define all solids.
-        self.define_torso_solids()
-        self.define_arm_solids()
-        self.define_leg_solids()
-        # define segments. this deals with coordinate transformations.
-        # and locates the bases of the segments.
         self.coord_sys_pos = np.array([[0],[0],[0]])
         self.coord_sys_orient = inertia.rotate3((0,0,0))
-        self.define_segments()
-        # arrange segment pointers into an indexable format
-        self.Segments = [ self.P, self.T, self.C,
-                          self.A1, self.A2, self.B1, self.B2,
-                          self.J1, self.J2, self.K1, self.K2]
-        # Yeadon wants to be able to create a symmetrical human.
-        # calculate inertia properties of all segments.
-        for s in self.Segments:
-            s.calc_properties()
-        # this next call must happen after the previous
-        # per-segment call because human properties depend on segment
-        # properties.
-        self.calc_properties()
+
+        # update_solids will define all solids, validate CFG, define segments,
+        # and calculate segment and human mass properties.
+        self.update_solids()
         if self.measMass > 0:
             self.scale_human_by_mass(self.measMass)
 
@@ -211,6 +195,7 @@ class Human(object):
                           self.J1, self.J2, self.K1, self.K2]
         for s in self.Segments:
             s.calc_properties()
+        # Must update segment properties before updating the human properties.
         self.calc_properties()
 
     def validate_CFG(self):
