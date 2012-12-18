@@ -320,7 +320,7 @@ class Human(object):
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
     def print_properties(self):
-        '''Prints human mass, center of mass,and inertia.
+        '''Prints human mass, center of mass, and inertia.
 
         '''
         print "Mass (kg):", self.Mass, "\n"

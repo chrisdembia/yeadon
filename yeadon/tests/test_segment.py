@@ -8,8 +8,11 @@ import yeadon.segment as seg
 from yeadon import inertia
 
 class TestSegments(unittest.TestCase):
+    """Tests the :py:class:`Segment` class."""
 
     def setUp(self):
+        """Creates the surfaces and solids needed to create a segment."""
+
         # Make a few surfaces.
         surfA = sol.Stadium('surfA', 'perimwidth', 3, 1)
         surfB = sol.Stadium('surfB', 'depthwidth', 3, 4)
@@ -21,6 +24,9 @@ class TestSegments(unittest.TestCase):
         self.solidCD = sol.StadiumSolid('stadsolCD', 4, surfC, surfD, 7)
 
     def test_init_real_input(self):
+        """Ensures the constructor for valid input makes correct calculations.
+
+        """
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
@@ -43,12 +49,81 @@ class TestSegments(unittest.TestCase):
         # Setting orientations of all constituent solids.
         assert (seg1.solids[0].pos == pos).all()
         assert (seg1.solids[0].RotMat == rot).all()
-        print seg1.solids[0].endpos
-        assert (seg1.solids[0].endpos == np.array([[6], [2], [3]])).all()
+        pos2 = np.array([[6], [2], [3]])
+        assert (seg1.solids[0].endpos == pos2).all()
+
+        # 2nd solid in the segment.
+        assert (seg1.solids[1].pos == pos2).all()
+        assert (seg1.solids[1].RotMat == rot).all()
+        # See definition of solids in setUp().
+        pos3 = pos2 + np.array([[6],[0],[0]])
+        assert (seg1.solids[1].endpos == pos3).all()
+
+        # 3rd solid in the segment.
+        assert (seg1.solids[2].pos == pos3).all()
+        assert (seg1.solids[2].RotMat == rot).all()
+        # See definition of solids in setUp().
+        pos4 = pos3 + np.array([[7],[0],[0]])
+        assert (seg1.solids[2].endpos == pos4).all()
+
+        # Other segment-wide attributes we define.
+        assert (seg1.endpos == pos4).all()
+        assert (seg1.length == (5 + 6 + 7)).all()
+
+        # -- The constructor then calls calc_rel_properties().
+        desMass = self.solidAB.Mass + self.solidBC.Mass + self.solidCD.Mass
+        testing.assert_almost_equal(seg1.Mass, desMass)
+
+        desRelCOM = (self.solidAB.Mass * self.solidAB.relCOM +
+                self.solidBC.Mass * (
+                    self.solidBC.relCOM + np.array([[0, 0, 5]]).T) +
+                self.solidCD.Mass * (
+                    self.solidCD.relCOM + np.array([[0, 0, 11]]).T)) / desMass
+        testing.assert_allclose(seg1.relCOM, desRelCOM);
+
+        relCOM_AB = self.solidAB.relCOM
+        relCOM_BC = (np.array([[0, 0, self.solidAB.height]]).T + 
+                self.solidBC.relCOM)
+        relCOM_CD = (
+                np.array([[0, 0, self.solidAB.height+self.solidBC.height]]).T + 
+                self.solidCD.relCOM)
+        desXInertia = (self.solidAB.relInertia[0, 0] + self.solidAB.Mass * (
+                    relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
+                self.solidBC.relInertia[0, 0] + self.solidBC.Mass * (
+                        relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
+                self.solidCD.relInertia[0, 0] + self.solidCD.Mass * (
+                        relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
+        desYInertia = (self.solidAB.relInertia[1, 1] + self.solidAB.Mass * (
+                    relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
+                self.solidBC.relInertia[1, 1] + self.solidBC.Mass * (
+                        relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
+                self.solidCD.relInertia[1, 1] + self.solidCD.Mass * (
+                        relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
+        desZInertia = (self.solidAB.relInertia[2, 2] +
+                self.solidBC.relInertia[2, 2] + self.solidCD.relInertia[2, 2])
+        desRelInertia = np.diag(np.array(
+                [desXInertia, desYInertia, desZInertia]))
+        testing.assert_allclose(seg1.relInertia, desRelInertia)
 
     def test_init_bad_input(self):
         # Ensures only proper input gets through.
         # pos = np.array([1, 2, 3]) <-- NOT OKAY, but internal.
         pass
+
+    def test_calc_properties(self):
+        pass
+
+    def test_print_properties(self):
+        pass
+
+    def test_print_solid_properties(self):
+        pass
+
+    def test_draw(self):
+        pass
+
+
+
+        # TODO take care of global COM/Inertia.
 
 
