@@ -1,6 +1,8 @@
 '''This module contains a user interface for using and manipulating a Human
 object.
  '''
+import os
+
 import numpy as np
 
 import inertia
@@ -38,24 +40,44 @@ def start_ui():
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
     print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
           "meters), or a .TXT file"
-    temp = raw_input("Type the name of the dict variable "\
-                     "or the .TXT filename (to use preloaded measurements," \
-                     " just hit enter): ")
+    temp = raw_input("Type the name of the .TXT filename (to use preloaded " 
+                    "measurements just hit enter): ")
     if temp == '':
         meas = measPreload
     else:
-        meas = temp
+        file_exist_meas = os.path.exists(temp)
+        while not file_exist_meas:
+            temp = raw_input("Please type the correct name of the .TXT filename " 
+                            "(or just use preloaded measurements just hit enter): ")
+            file_exist_meas = os.path.exists(temp)
+
+            if temp == '':
+                meas = measPreload
+                break
+            elif file_exist_meas:
+                meas = temp
+
     print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
-    CFG = raw_input("Type the name of the dict variable "\
-                    "or the .TXT filename (for all joint angles as zero," \
-                    " just hit enter): ")
+    CFG = raw_input("Type the name of the .TXT filename (for all joint angles " 
+                    "as zero, just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
+
     if CFG == '':
         H = hum.Human(meas)
     else:
-        H = hum.Human(meas,CFG)
+        file_exist_CFG = os.path.exists(CFG)
+        while not file_exist_CFG:
+            CFG = raw_input("Please type the correct name of the .TXT filename " 
+                            "(for all joint angles as zero, just hit enter): ")
+            file_exist_CFG = os.path.exists(CFG)
+
+            if CFG == '':
+                H = hum.Human(meas)
+                break
+            elif file_exist_CFG:
+                H = hum.Human(meas, CFG)
 
     done = 0 # loop end flag
 
