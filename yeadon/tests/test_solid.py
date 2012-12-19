@@ -3,6 +3,8 @@
 from numpy import testing, pi, array, matrix, sin, cos, zeros
 from yeadon.solid import Stadium, Solid
 
+# TODO Test Stadium negative radius/thickness issue in constructor.
+
 def test_stadium():
 
     # define some useful functions for 2D stadia

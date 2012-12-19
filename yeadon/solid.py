@@ -117,15 +117,9 @@ class Stadium(object):
                           (2.0 * np.pi - 4.0))
             self.radius = (self.perimeter - 2.0 * self.width) / (2.0 * np.pi - 4.0)
         elif inID == 'perimeter':
-            self.perimeter = in1
-            self.width = self.perimeter / np.pi
-            self.thickness = 0.0
-            self.radius = self.perimeter / (2.0 * np.pi)
+            self._set_as_circle(in1 / (2.0 * np.pi))
         elif inID == 'radius':
-            self.radius = in1
-            self.perimeter = 2.0 * np.pi * self.radius
-            self.thickness = 0.0
-            self.width = self.perimeter / np.pi
+            self._set_as_circle(in1)
         elif inID == 'thicknessradius':
             self.thickness = in1
             self.radius = in2
@@ -141,11 +135,24 @@ class Stadium(object):
                 {} and t = {} . This means that 2 < perimeter/width < pi.
                 Currently, this ratio is {}.""").format(self.label, self.radius,
                 self.thickness, self.perimeter / self.width))
+            if inID == 'perimwidth':
+                self._set_as_circle(in1 / (2.0 * np.pi))
+                print "Fix: stadium set as circle with perimeter as given."
+            elif inID == 'depthwidth':
+                self._set_as_circle(2 * in2)
+                print "Fix: stadium set as circle with diameter of given width."
         if alignment != 'AP' and alignment != 'ML':
             raise ValueError("Error: stadium " + self.label +
                 " alignment is not valid, must be either AP or ML")
         else:
             self.alignment = alignment
+    
+    def _set_as_circle(self, radius):
+        """Sets radius, perimeter, thickness, and width if thickness is 0."""
+        self.radius = radius
+        self.perimeter = 2.0 * np.pi * self.radius
+        self.thickness = 0.0
+        self.width = self.perimeter / np.pi
 
     def plot(self, ax, c):
         '''Plots the 2D stadium on 3D axes using matplotlib and its Axes3D
