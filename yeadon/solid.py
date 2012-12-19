@@ -136,7 +136,7 @@ class Stadium(object):
                 " not defined properly, " + inID + " is not valid. You must " +
                 "use inID= perimwidth, depthwidth, perimeter, or radius.")
         if self.radius <= 0 or self.thickness < 0:
-            raise StandardError(textwrap.dedent("""Error: stadium '{}' is defined
+            warnings.warn(textwrap.dedent("""Error: stadium '{}' is defined
                 incorrectly, r must be positive and t must be nonnegative. r =
                 {} and t = {} . This means that 2 < perimeter/width < pi.
                 Currently, this ratio is {}.""").format(self.label, self.radius,
