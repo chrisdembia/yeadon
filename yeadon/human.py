@@ -648,16 +648,16 @@ class Human(object):
         #radius = 0.6 * self.Ls[4].radius # see Yeadon's ISEG code
         #thick = 0.6 * self.Ls[4].width / 2.0 - radius
         # New code:
-        radius = 0.57 * self.Ls[4].radius
-        thick = self.Ls[4].width / 2.0 - radius
+        radiusLs5 = 0.57 * self.Ls[4].radius
+        thicknessLs5 = self.Ls[4].width / 2.0 - radiusLs5
         self.Ls.append( sol.Stadium('Ls5: acromion',
-                                    'thickradius', thick, radius))
+                                    'thicknessradius', thicknessLs5, radiusLs5))
         self.Ls.append( sol.Stadium('Ls5: acromion/bottom of neck',
-                                    'perim',meas['Ls5p'], '=p'))
+                                    'perimeter',meas['Ls5p'], '=p'))
         self.Ls.append( sol.Stadium('Ls6: beneath nose',
-                                    'perim', meas['Ls6p'], '=p'))
+                                    'perimeter', meas['Ls6p'], '=p'))
         self.Ls.append( sol.Stadium('Ls7: above ear',
-                                    'perim', meas['Ls7p'], '=p'))
+                                    'perimeter', meas['Ls7p'], '=p'))
         # define solids: this can definitely be done in a loop
         self.s.append( sol.StadiumSolid( 's0: hip joint centre',
                                           dens.Ds[0],
@@ -718,13 +718,13 @@ class Human(object):
         self.La = []
         self.a = []
         self.La.append( sol.Stadium('La0: shoulder joint centre',
-                                    'perim', meas['La0p'], '=p'))
+                                    'perimeter', meas['La0p'], '=p'))
         self.La.append( sol.Stadium('La1: mid-arm',
-                                    'perim', meas['La1p'], '=p'))
+                                    'perimeter', meas['La1p'], '=p'))
         self.La.append( sol.Stadium('La2: lowest front rib',
-                                    'perim', meas['La2p'], '=p'))
+                                    'perimeter', meas['La2p'], '=p'))
         self.La.append( sol.Stadium('La3: nipple',
-                                    'perim', meas['La3p'], '=p'))
+                                    'perimeter', meas['La3p'], '=p'))
         self.La.append( sol.Stadium('La4: wrist joint centre',
                                     'perimwidth', meas['La4p'], meas['La4w']))
         self.La.append( sol.Stadium('La5: acromion',
@@ -781,13 +781,13 @@ class Human(object):
         self.Lb = []
         self.b = []
         self.Lb.append( sol.Stadium('Lb0: shoulder joint centre',
-                                    'perim', meas['Lb0p'], '=p'))
+                                    'perimeter', meas['Lb0p'], '=p'))
         self.Lb.append( sol.Stadium('Lb1: mid-arm',
-                                    'perim', meas['Lb1p'], '=p'))
+                                    'perimeter', meas['Lb1p'], '=p'))
         self.Lb.append( sol.Stadium('Lb2: lowest front rib',
-                                    'perim', meas['Lb2p'], '=p'))
+                                    'perimeter', meas['Lb2p'], '=p'))
         self.Lb.append( sol.Stadium('Lb3: nipple',
-                                    'perim', meas['Lb3p'], '=p'))
+                                    'perimeter', meas['Lb3p'], '=p'))
         self.Lb.append( sol.Stadium('Lb4: wrist joint centre',
                                     'perimwidth', meas['Lb4p'], meas['Lb4w']))
         self.Lb.append( sol.Stadium('Lb5: acromion',
@@ -856,22 +856,22 @@ class Human(object):
         Lj0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
         self.Lj.append( sol.Stadium('Lj0: hip joint centre',
-                                    'perim', Lj0p, '=p'))
+                                    'perimeter', Lj0p, '=p'))
         self.Lj.append( sol.Stadium('Lj1: crotch',
-                                    'perim', meas['Lj1p'], '=p'))
+                                    'perimeter', meas['Lj1p'], '=p'))
         self.Lj.append( sol.Stadium('Lj2: mid-thigh',
-                                    'perim', meas['Lj2p'], '=p'))
+                                    'perimeter', meas['Lj2p'], '=p'))
         self.Lj.append( sol.Stadium('Lj3: knee joint centre',
-                                    'perim', meas['Lj3p'], '=p'))
+                                    'perimeter', meas['Lj3p'], '=p'))
         self.Lj.append( sol.Stadium('Lj4: maximum calf perimeter',
-                                    'perim', meas['Lj4p'], '=p'))
+                                    'perimeter', meas['Lj4p'], '=p'))
         self.Lj.append( sol.Stadium('Lj5: ankle joint centre',
-                                    'perim', meas['Lj5p'], '=p'))
+                                    'perimeter', meas['Lj5p'], '=p'))
         self.Lj.append( sol.Stadium('Lj6: heel',
                                     'perimwidth', meas['Lj6p'], meas['Lj6d'],
                                     'AP'))
         self.Lj.append( sol.Stadium('Lj7: arch',
-                                    'perim', meas['Lj7p'], '=p'))
+                                    'perimeter', meas['Lj7p'], '=p'))
         self.Lj.append( sol.Stadium('Lj8: ball',
                                     'perimwidth', meas['Lj8p'], meas['Lj8w']))
         self.Lj.append( sol.Stadium('Lj9: toe nails',
@@ -938,22 +938,22 @@ class Human(object):
         Lk0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self.Ls[0].radius *
                                                 self.Ls[0].width))
         self.Lk.append( sol.Stadium('Lk0: hip joint centre',
-                                    'perim', Lk0p, '=p'))
+                                    'perimeter', Lk0p, '=p'))
         self.Lk.append( sol.Stadium('Lk1: crotch',
-                                    'perim', meas['Lk1p'], '=p'))
+                                    'perimeter', meas['Lk1p'], '=p'))
         self.Lk.append( sol.Stadium('Lk2: mid-thigh',
-                                    'perim', meas['Lk2p'], '=p'))
+                                    'perimeter', meas['Lk2p'], '=p'))
         self.Lk.append( sol.Stadium('Lk3: knee joint centre',
-                                    'perim', meas['Lk3p'], '=p'))
+                                    'perimeter', meas['Lk3p'], '=p'))
         self.Lk.append( sol.Stadium('Lk4: maximum calf perimeter',
-                                    'perim', meas['Lk4p'], '=p'))
+                                    'perimeter', meas['Lk4p'], '=p'))
         self.Lk.append( sol.Stadium('Lk5: ankle joint centre',
-                                    'perim', meas['Lk5p'], '=p'))
+                                    'perimeter', meas['Lk5p'], '=p'))
         self.Lk.append( sol.Stadium('Lk6: heel',
                                     'perimwidth', meas['Lk6p'], meas['Lk6d'],
                                     'AP'))
         self.Lk.append( sol.Stadium('Lk7: arch',
-                                    'perim', meas['Lk7p'], '=p'))
+                                    'perimeter', meas['Lk7p'], '=p'))
         self.Lk.append( sol.Stadium('Lk8: ball',
                                     'perimwidth', meas['Lk8p'], meas['Lk8w']))
         self.Lk.append( sol.Stadium('Lk9: toe nails',
@@ -1023,14 +1023,14 @@ class Human(object):
                               [self.s[0],self.s[1]] , (1,0,0))
         # thorax
         Tpos = self.s[1].endpos
-        TRotMat = self.s[1].RotMat * inertia.rotate3(
+        TRotMat = self.s[1].rot_mat * inertia.rotate3(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.Segment( 'T: Thorax', Tpos, TRotMat,
                               [self.s[2]], (1,.5,0))
         # chest-head
         Cpos = self.s[2].endpos
-        CRotMat = self.s[2].RotMat * inertia.rotate3(
+        CRotMat = self.s[2].rot_mat * inertia.rotate3(
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
                                      self.CFG['TCspinalTorsion']])
@@ -1040,8 +1040,8 @@ class Human(object):
         # left upper arm
         dpos = np.array([[self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
-        A1pos = self.s[3].pos + self.s[3].RotMat * dpos
-        A1RotMat = self.s[3].RotMat * (inertia.rotate3(
+        A1pos = self.s[3].pos + self.s[3].rot_mat * dpos
+        A1RotMat = self.s[3].rot_mat * (inertia.rotate3(
                                        [0,-np.pi,0]) *
                                           inertia.euler_123(
                                           [self.CFG['CA1elevation'],
@@ -1051,7 +1051,7 @@ class Human(object):
                                [self.a[0],self.a[1]] , (0,1,0))
         # left forearm-hand
         A2pos = self.a[1].endpos
-        A2RotMat = self.a[1].RotMat * inertia.rotate3(
+        A2RotMat = self.a[1].rot_mat * inertia.rotate3(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.Segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self.a[2],self.a[3],self.a[4],self.a[5],
@@ -1059,8 +1059,8 @@ class Human(object):
         # right upper arm
         dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
-        B1pos = self.s[3].pos + self.s[3].RotMat * dpos
-        B1RotMat = self.s[3].RotMat * (inertia.rotate3(
+        B1pos = self.s[3].pos + self.s[3].rot_mat * dpos
+        B1RotMat = self.s[3].rot_mat * (inertia.rotate3(
                                        [0,-np.pi,0]) *
                                            inertia.euler_123(
                                            [self.CFG['CB1elevation'],
@@ -1070,16 +1070,16 @@ class Human(object):
                                [self.b[0],self.b[1]], (0,1,0))
         # right forearm-hand
         B2pos = self.b[1].endpos
-        B2RotMat = self.b[1].RotMat * inertia.rotate3(
+        B2RotMat = self.b[1].rot_mat * inertia.rotate3(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.Segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self.b[2],self.b[3],self.b[4],self.b[5],
                                 self.b[6]], (1,0,0))
         # left thigh
-        dpos = np.array([[.5*self.s[0].stads[0].thick+
+        dpos = np.array([[.5*self.s[0].stads[0].thickness+
                           .5*self.s[0].stads[0].radius],[0.0],[0.0]])
-        J1pos = self.s[0].pos + self.s[0].RotMat * dpos
-        J1RotMat = self.s[0].RotMat * (inertia.rotate3(
+        J1pos = self.s[0].pos + self.s[0].rot_mat * dpos
+        J1RotMat = self.s[0].rot_mat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
                                           inertia.rotate3(
                                           [self.CFG['PJ1flexion'],
@@ -1088,16 +1088,16 @@ class Human(object):
                                [self.j[0],self.j[1],self.j[2]], (0,1,0))
         # left shank-foot
         J2pos = self.j[2].endpos
-        J2RotMat = self.j[2].RotMat * inertia.rotate3(
+        J2RotMat = self.j[2].rot_mat * inertia.rotate3(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.Segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self.j[3],self.j[4],self.j[5],self.j[6],
                                 self.j[7],self.j[8]], (1,0,0))
         # right thigh
-        dpos = np.array([[-.5*self.s[0].stads[0].thick-
+        dpos = np.array([[-.5*self.s[0].stads[0].thickness-
                            .5*self.s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self.s[0].pos + self.s[0].RotMat * dpos
-        K1RotMat = self.s[0].RotMat * (inertia.rotate3(
+        K1pos = self.s[0].pos + self.s[0].rot_mat * dpos
+        K1RotMat = self.s[0].rot_mat * (inertia.rotate3(
                                        np.array([0,np.pi,0])) *
                                        inertia.rotate3(
                                           [self.CFG['PK1flexion'],
@@ -1106,7 +1106,7 @@ class Human(object):
                                [self.k[0],self.k[1],self.k[2]], (0,1,0))
         # right shank-foot
         K2pos = self.k[2].endpos
-        K2RotMat = self.k[2].RotMat * inertia.rotate3(
+        K2RotMat = self.k[2].rot_mat * inertia.rotate3(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.Segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self.k[3],self.k[4],self.k[5],self.k[6],
@@ -1302,4 +1302,5 @@ class Human(object):
         for key,val in self.CFG.items():
             fid.write(key + "=" + val)
         fid.close()
+
 
