@@ -47,9 +47,8 @@ def start_ui():
         meas = temp
     print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
-    CFG = raw_input("Type the name of the dict variable "\
-                    "or the .TXT filename (for all joint angles as zero," \
-                    " just hit enter): ")
+    CFG = raw_input("Type the name of the .TXT filename (for all joint angles" 
+                    "as zero, just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
     if CFG == '':
