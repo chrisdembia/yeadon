@@ -38,16 +38,15 @@ def start_ui():
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
     print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
           "meters), or a .TXT file"
-    temp = raw_input("Type the name of the dict variable "\
-                     "or the .TXT filename (to use preloaded measurements," \
-                     " just hit enter): ")
+    temp = raw_input("Type the name of the .TXT filename (to use preloaded " 
+                    "measurements just hit enter): ")
     if temp == '':
         meas = measPreload
     else:
         meas = temp
     print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
-    CFG = raw_input("Type the name of the .TXT filename (for all joint angles" 
+    CFG = raw_input("Type the name of the .TXT filename (for all joint angles " 
                     "as zero, just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
