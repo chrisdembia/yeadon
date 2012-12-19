@@ -2,7 +2,7 @@
 object.
  '''
 import os
-import pdb
+
 import numpy as np
 
 import inertia
