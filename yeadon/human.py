@@ -30,6 +30,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 try:
+    from mayavi import mlab
+except ImportError:
+    print "Yeadon failed to import mayavi. It is possible that you do" \
+          " not have this package. This is fine, it just means that you " \
+          "cannot use the draw_mayavi() member functions."
+try:
     import visual as vis
 except ImportError:
     print "Yeadon failed to import python-visual. It is possible that you do" \
@@ -451,6 +457,12 @@ class Human(object):
                                        obj.Mass,
                                        [dist[0,0],dist[1,0],dist[2,0]]))
         return resultantMass,resultantCOM,resultantInertia
+
+    def draw_mayavi(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
+        ''' TODO '''
+        fig = mlab.figure()
+        for s in self.Segments:
+            s.draw_mayavi(fig)
 
     def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
         '''Draws the human in 3D in a new window using VPython (python-visual).

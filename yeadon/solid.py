@@ -7,9 +7,16 @@ semiellipsoid classes.
 '''
 import textwrap
 import warnings
+import pdb
 
 import numpy as np
 
+try:
+    from mayavi import mlab
+except ImportError:
+    print "Yeadon failed to import mayavi. It is possible that you do" \
+          " not have this package. This is fine, it just means that you " \
+          "cannot use the draw_mayavi() member functions."
 try:
     import visual as vis
 except ImportError:
@@ -399,6 +406,15 @@ class StadiumSolid(Solid):
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
+    def draw_mayavi(self, fig, col):
+        ''' TODO '''
+        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
+        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        Xpts = np.array(np.concatenate( (X0, X1), axis=0))
+        Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
+        Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
+        mlab.mesh(Xpts, Ypts, Zpts, figure=fig, color=col, opacity=Solid.alpha)
+
     def draw_visual(self, c):
         '''Draws the stadium in 3D in a VPython window. Only one line of code!
 
@@ -570,7 +586,27 @@ class Semiellipsoid(Solid):
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
-    def draw_visual(self,c):
+    def draw_mayavi(self, fig, col):
+        ''' TODO '''
+        N = 30
+        u = np.linspace(0, 2.0 * np.pi, N)
+        v = np.linspace(0, np.pi / 2.0, N)
+        x = self.radius * np.outer(np.cos(u), np.sin(v))
+        y = self.radius * np.outer(np.sin(u), np.sin(v))
+        z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
+        for i in np.arange(N):
+            for j in np.arange(N):
+                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
+                POS = self.rot_mat * POS
+                x[i,j] = POS[0,0]
+                y[i,j] = POS[1,0]
+                z[i,j] = POS[2,0]
+        x = self.pos[0,0] + x
+        y = self.pos[1,0] + y
+        z = self.pos[2,0] + z
+        mlab.mesh(x, y, z, figure=fig, color=col, opacity=Solid.alpha)
+
+    def draw_visual(self, c):
         '''Draws an ellipse in VPython. Ideally would only draw the top half of
         the ellipse, but draws the entire ellipse. This disadvantage makes it
         seem as if the head is more "round" than it actually is.

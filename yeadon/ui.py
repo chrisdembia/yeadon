@@ -90,7 +90,8 @@ def start_ui():
               "  s: format input measurements for ISEG Fortran code\n\n",\
               "  t: transform absolute/base/fixed coordinate system\n\n",\
               "  d: draw 3D human using matplotlib\n",\
-              "  v: draw 3D human using VPython\n\n",\
+              "  v: draw 3D human using VPython\n",\
+              "  m: draw 3D human using MayaVi\n\n",\
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
               "  l: print solid properties\n\n",\
@@ -167,6 +168,10 @@ def start_ui():
         # DRAW HUMAN WITH VPYTHON
         elif userIn == 'v':
             H.draw_visual()
+
+        # DRAW HUMAN WITH MAYAVI
+        elif userIn == 'm':
+            H.draw_mayavi()
 
         # PRINT HUMAN PROPERTIES
         elif userIn == 'h':
