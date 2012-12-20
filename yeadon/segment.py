@@ -164,7 +164,9 @@ class Segment(object):
                         color='r')
 
     def draw_mayavi(self, figure):
-        ''' TODO '''
+        '''Draws in a MayaVi window all the solids within this segment.
+
+        '''
         for s in self.solids:
             s.draw_mayavi(figure, self.color)
 

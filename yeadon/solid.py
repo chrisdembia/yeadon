@@ -7,7 +7,6 @@ semiellipsoid classes.
 '''
 import textwrap
 import warnings
-import pdb
 
 import numpy as np
 
@@ -407,7 +406,16 @@ class StadiumSolid(Solid):
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
     def draw_mayavi(self, fig, col):
-        ''' TODO '''
+        '''Draws the stadium in 3D using MayaVi.
+        
+        Parameters
+        ----------
+        fig : :py:class:`mayavi.mlab.figure`
+            MayaVi figure in which to draw the mesh.
+        col : tuple (3,)
+            Color as an rgb tuple, with values between 0 and 1.
+
+        '''
         X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
         X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
@@ -459,7 +467,7 @@ class StadiumSolid(Solid):
         return pos
 
     def make_pos(self,i):
-        '''Generates coordinates to be used for matplotlib purposes.
+        '''Generates coordinates to be used for 3D visualization purposes.
 
         '''
         theta = [np.linspace(0.0,np.pi/2,5)]
@@ -564,46 +572,24 @@ class Semiellipsoid(Solid):
             Color (e.g. 'red').
 
         '''
-        N = 30
-        u = np.linspace(0, 2.0 * np.pi, N)
-        v = np.linspace(0, np.pi / 2.0, N)
-        x = self.radius * np.outer(np.cos(u), np.sin(v))
-        y = self.radius * np.outer(np.sin(u), np.sin(v))
-        z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
-        for i in np.arange(N):
-            for j in np.arange(N):
-                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = self.rot_mat * POS
-                x[i,j] = POS[0,0]
-                y[i,j] = POS[1,0]
-                z[i,j] = POS[2,0]
-        x = self.pos[0,0] + x
-        y = self.pos[1,0] + y
-        z = self.pos[2,0] + z
-        # must rotate the x y and z
+        x, y, z = self._make_pos()
         ax.plot_surface( x, y, z, rstride=4, cstride=4,
                          color=c, alpha=Solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
     def draw_mayavi(self, fig, col):
-        ''' TODO '''
-        N = 30
-        u = np.linspace(0, 2.0 * np.pi, N)
-        v = np.linspace(0, np.pi / 2.0, N)
-        x = self.radius * np.outer(np.cos(u), np.sin(v))
-        y = self.radius * np.outer(np.sin(u), np.sin(v))
-        z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
-        for i in np.arange(N):
-            for j in np.arange(N):
-                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = self.rot_mat * POS
-                x[i,j] = POS[0,0]
-                y[i,j] = POS[1,0]
-                z[i,j] = POS[2,0]
-        x = self.pos[0,0] + x
-        y = self.pos[1,0] + y
-        z = self.pos[2,0] + z
+        '''Draws the semiellipsoid in 3D using MayaVi.
+        
+        Parameters
+        ----------
+        fig : :py:class:`mayavi.mlab.figure`
+            MayaVi figure in which to draw the mesh.
+        col : tuple (3,)
+            Color as an rgb tuple, with values between 0 and 1.
+
+        '''
+        x, y, z = self._make_pos()
         mlab.mesh(x, y, z, figure=fig, color=col, opacity=Solid.alpha)
 
     def draw_visual(self, c):
@@ -619,3 +605,25 @@ class Semiellipsoid(Solid):
                          height=self.radius*2,
                          width=self.radius*2,
                          color=c)
+    def _make_pos(self):
+        '''Generates coordinates to be used for 3D visualization purposes.
+
+        '''
+        N = 30
+        u = np.linspace(0, 2.0 * np.pi, N)
+        v = np.linspace(0, np.pi / 2.0, N)
+        x = self.radius * np.outer(np.cos(u), np.sin(v))
+        y = self.radius * np.outer(np.sin(u), np.sin(v))
+        z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
+        for i in np.arange(N):
+            for j in np.arange(N):
+                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
+                POS = self.rot_mat * POS
+                x[i,j] = POS[0,0]
+                y[i,j] = POS[1,0]
+                z[i,j] = POS[2,0]
+        x = self.pos[0,0] + x
+        y = self.pos[1,0] + y
+        z = self.pos[2,0] + z
+        return x, y, z
+

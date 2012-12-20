@@ -458,8 +458,11 @@ class Human(object):
                                        [dist[0,0],dist[1,0],dist[2,0]]))
         return resultantMass,resultantCOM,resultantInertia
 
-    def draw_mayavi(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
-        ''' TODO '''
+    def draw_mayavi(self):
+        '''Draws the human in 3D in a new window using MayaVi.
+        The mouse can be used to control or explore the 3D view.
+
+        '''
         fig = mlab.figure()
         for s in self.Segments:
             s.draw_mayavi(fig)
