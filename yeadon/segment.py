@@ -163,12 +163,12 @@ class Segment(object):
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
                         color='r')
 
-    def draw_mayavi(self, figure):
+    def draw_mayavi(self, mlabobj):
         '''Draws in a MayaVi window all the solids within this segment.
 
         '''
         for s in self.solids:
-            s.draw_mayavi(figure, self.color)
+            s.draw_mayavi(mlabobj, self.color)
 
     def draw_visual(self):
         '''Draws in a 3D VPython window all the solids within this segment.

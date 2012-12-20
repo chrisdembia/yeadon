@@ -9,13 +9,6 @@ import textwrap
 import warnings
 
 import numpy as np
-
-try:
-    from mayavi import mlab
-except ImportError:
-    print "Yeadon failed to import mayavi. It is possible that you do" \
-          " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_mayavi() member functions."
 try:
     import visual as vis
 except ImportError:
@@ -405,13 +398,13 @@ class StadiumSolid(Solid):
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
-    def draw_mayavi(self, fig, col):
+    def draw_mayavi(self, mlabobj, col):
         '''Draws the stadium in 3D using MayaVi.
         
         Parameters
         ----------
-        fig : :py:class:`mayavi.mlab.figure`
-            MayaVi figure in which to draw the mesh.
+        mlabobj : 
+            The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
@@ -421,7 +414,7 @@ class StadiumSolid(Solid):
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
-        mlab.mesh(Xpts, Ypts, Zpts, figure=fig, color=col, opacity=Solid.alpha)
+        mlabobj.mesh(Xpts, Ypts, Zpts, color=col, opacity=Solid.alpha)
 
     def draw_visual(self, c):
         '''Draws the stadium in 3D in a VPython window. Only one line of code!
@@ -578,19 +571,19 @@ class Semiellipsoid(Solid):
         (labelstring,b,c) = self.label.partition(':')
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
-    def draw_mayavi(self, fig, col):
+    def draw_mayavi(self, mlabobj, col):
         '''Draws the semiellipsoid in 3D using MayaVi.
         
         Parameters
         ----------
-        fig : :py:class:`mayavi.mlab.figure`
-            MayaVi figure in which to draw the mesh.
+        mlabobj : 
+            The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
         x, y, z = self._make_pos()
-        mlab.mesh(x, y, z, figure=fig, color=col, opacity=Solid.alpha)
+        mlabobj.mesh(x, y, z, color=col, opacity=Solid.alpha)
 
     def draw_visual(self, c):
         '''Draws an ellipse in VPython. Ideally would only draw the top half of
