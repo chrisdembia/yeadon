@@ -34,6 +34,7 @@ widely-used packages:
 - NumPy_ (debian: python-numpy)
 - Matplotlib_ (debian: python-matplotlib)
 - vPython_ optional, used for pretty visualization (debian: python-visual)
+- mayavi_ optional, used for pretty visualization
 - Sphinx_  optional, needed to create documentation (debian: python-sphinx)
 - numpydoc_ optional, sphinx extension for NumPy style doc formatting
 
@@ -42,14 +43,15 @@ widely-used packages:
 .. _Numpy: http://numpy.scipy.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
 .. _vPython: http://www.vpython.org
+.. _MayaVi: http://mayavi.sourceforge.net
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pypi.python.org/pypi/numpydoc
 
-In Debian systems, you may be able to obtain those four packages by opening a
-terminal window (CTRL-ALT-T) and typing the following line::
+In Debian systems, you may be able to obtain some of these packages by opening
+a terminal window (CTRL-ALT-T) and typing the following lines::
 
     $apt-get install python-numpy python-matplotlib # required
-    $apt-get install python-sphinx python-visual # optional packages
+    $apt-get install python-sphinx python-visual mayavi2 # optional packages
 
 For other systems (Windows or Mac), visit the websites for the packages,
 given above for installation instructions.
