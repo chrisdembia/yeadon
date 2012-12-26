@@ -465,6 +465,19 @@ class Human(object):
         '''
         for s in self.Segments:
             s.draw_mayavi(mlabobj)
+        L = 0.4
+        x_cone, y_cone, z_cone = self._make_mayavi_cone_pos()
+        mlabobj.mesh(x_cone, y_cone, z_cone + L, color=(0, 0, 1))
+        mlabobj.mesh(x_cone, z_cone + L, y_cone, color=(0, 1, 0))
+        mlabobj.mesh(z_cone + L, x_cone, y_cone, color=(1, 0, 0))
+        x_cyl, y_cyl, z_cyl = self._make_mayavi_cyl_pos()
+        mlabobj.mesh(x_cyl, y_cyl, z_cyl, color=(0, 0, 1))
+        mlabobj.mesh(x_cyl, z_cyl, y_cyl, color=(0, 1, 0))
+        mlabobj.mesh(z_cyl, x_cyl, y_cyl, color=(1, 0, 0))
+        #x_plate,  y_plate, z_plate = self._make_mayavi_plate_pos()
+        #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
+        #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
+        #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
 
     def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
         '''Draws the human in 3D in a new window using VPython (python-visual).
@@ -486,7 +499,6 @@ class Human(object):
             Optional. Sets the background color of the view.
             Default is (0,0,0).
 
-
         '''
         for s in self.Segments:
             s.draw_visual()
@@ -501,6 +513,30 @@ class Human(object):
         vis.scene.background = bg
         vis.scene.autocenter = True
         #vis.scene.exit = False
+
+    def _make_mayavi_cone_pos(self):
+        L2 = 0.04
+        R2 = L2
+        [theta, z] = np.mgrid[0:3*np.pi*(1+2/10):np.pi/10, 0:L2+L2/10:L2/10]
+        r = R2 * (1 - z/L2)
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        return x, y, z
+
+    def _make_mayavi_cyl_pos(self):
+        L1 = 0.4
+        R1 = 0.02
+        [theta, z] = np.mgrid[0:3*np.pi*(1+2/10):np.pi/10, 0:L1+L1/10:L1/10]
+        x = R1 * np.cos(theta)
+        y = R1 * np.sin(theta)
+        return x, y, z
+
+    def _make_mayavi_plate_pos(self):
+        R1 = 0.04
+        [theta, z] = np.mgrid[0:3*np.pi*(1+2/10):np.pi/10, 0:.02:.01]
+        x = R1 * np.cos(theta)
+        y = R1 * np.sin(theta)
+        return x, y, z
 
     def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
         '''Draws a vector in a python-visual window. It is expected that this
