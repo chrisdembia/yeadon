@@ -84,7 +84,7 @@ the Notes of the image below this section.
  - Length exceptions: Lengths to arm level 1 and leg levels 2 and 7 are not
    measured. The length from La0 to La1 (or Lb0 to Lb2) is set as half the
    length from La0 to La2 (or Lb0 to Lb2). The lengths to leg levels 2 and 7
-   are calculated as averages of the two length around leg levels 2 and 7.
+   are calculated as averages of the two lengths around leg levels 2 and 7.
  - Levels that are circles (degenerate stadiums): Arm levels 0-3 (the first
    four arm levels) and leg levels 0-5 and 7 (the first six and the arch). For
    these, only a perimeter measurement is required (no width or depth is
