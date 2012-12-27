@@ -148,7 +148,7 @@ class Human(object):
             self.measurementconversionfactor = 1
             self.meas = meas_in
         elif type(meas_in) == str:
-            self.read_measurements(meas_in)
+            self._read_measurements(meas_in)
         # average left and right limbs for symmetry (maybe)
         if self.isSymmetric == True:
             self.average_limbs()
@@ -180,9 +180,9 @@ class Human(object):
         to be used in instances in which measurements change.
 
         '''
-        self.define_torso_solids()
-        self.define_arm_solids()
-        self.define_leg_solids()
+        self._define_torso_solids()
+        self._define_arm_solids()
+        self._define_leg_segments()
         self.update_segments()
 
     def update_segments(self):
@@ -193,7 +193,7 @@ class Human(object):
 
         '''
         self.validate_CFG()
-        self.define_segments()
+        self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
         self.Segments = [ self.P, self.T, self.C,
@@ -502,11 +502,11 @@ class Human(object):
         '''
         for s in self.Segments:
             s.draw_visual()
-        self.draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
+        self._draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
                         (1,0,0))
-        self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
+        self._draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
                         (0,1,0))
-        self.draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
+        self._draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
                         (0,0,1))
         vis.scene.forward = forward
         vis.scene.up = up
@@ -538,7 +538,7 @@ class Human(object):
         y = R1 * np.sin(theta)
         return x, y, z
 
-    def draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
+    def _draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
         '''Draws a vector in a python-visual window. It is expected that this
         method is called in conjuction with yeadon.Human.draw_visual,
         so that the vectors are drawn in the same window as the human.
@@ -601,28 +601,28 @@ class Human(object):
         N = 30
         u = np.linspace(0, 0.5 * np.pi, 30)
         v = np.linspace(0, np.pi/2, 30)
-        self.draw_octant(ax,u,v,'b')
+        self._draw_octant(ax,u,v,'b')
         u = np.linspace(np.pi, 3/2 * np.pi, 30)
         v = np.linspace(0, np.pi / 2, 30)
-        self.draw_octant(ax,u,v,'b')
+        self._draw_octant(ax,u,v,'b')
         u = np.linspace(np.pi / 2, np.pi, 30)
         v = np.linspace(np.pi / 2, np.pi, 30)
-        self.draw_octant(ax,u,v,'b')
+        self._draw_octant(ax,u,v,'b')
         u = np.linspace( 3/2 * np.pi, 2 * np.pi, 30)
         v = np.linspace(np.pi / 2, np.pi, 30)
-        self.draw_octant(ax,u,v,'b')
+        self._draw_octant(ax,u,v,'b')
         u = np.linspace(0.5 * np.pi, np.pi, 30)
         v = np.linspace(0, np.pi / 2, 30)
-        self.draw_octant(ax,u,v,'w')
+        self._draw_octant(ax,u,v,'w')
         u = np.linspace(3/2 * np.pi, 2 * np.pi, 30)
         v = np.linspace(0, np.pi / 2, 30)
-        self.draw_octant(ax,u,v,'w')
+        self._draw_octant(ax,u,v,'w')
         u = np.linspace(0, np.pi / 2, 30)
         v = np.linspace(np.pi / 2, np.pi, 30)
-        self.draw_octant(ax,u,v,'w')
+        self._draw_octant(ax,u,v,'w')
         u = np.linspace( np.pi, 3/2 * np.pi, 30)
         v = np.linspace(np.pi / 2, np.pi, 30)
-        self.draw_octant(ax,u,v,'w')
+        self._draw_octant(ax,u,v,'w')
         # "axis equal"
         limval = 1
         ax.set_xlim3d(-limval + self.coord_sys_pos[0,0],
@@ -636,7 +636,7 @@ class Human(object):
         # show the plot window, this is a loop actually
         plt.show()
 
-    def draw_octant(self,ax,u,v,c):
+:   def _draw_octant(self,ax,u,v,c):
         '''Draws an octant of sphere in a matplotlib window (Axes3D library).
         Assists with drawing the center of mass sphere.
 
@@ -657,7 +657,7 @@ class Human(object):
         ax.plot_surface( x, y, z,  rstride=4, cstride=4,
                          edgecolor='', color=c)
 
-    def define_torso_solids(self):
+    def _define_torso_solids(self):
         '''Defines the solids (from solid.py) that create the torso of
         the human. This requires the definition of 2D stadium levels using
         the input measurement parameters.
@@ -749,7 +749,7 @@ class Human(object):
                                            meas['Ls7p'],
                                            s7h))
 
-    def define_arm_solids(self):
+    def _define_arm_solids(self):
         '''Defines the solids (from solid.py) that create the arms of the
         human. This requires the definition of 2D stadium levels using the
         input measurement parameters .
@@ -883,7 +883,7 @@ class Human(object):
                                           self.Lb[7],
                                           b6h))
 
-    def define_leg_solids(self):
+    def _define_leg_segments(self):
         '''Defines the solids (from solid.py) that create the legs of the
         human. This requires the definition of 2D stadium levels using
         the input measurement parameters .
@@ -1054,7 +1054,7 @@ class Human(object):
                                           self.Lk[9],
                                           k8h))
 
-    def define_segments(self):
+    def _define_segments(self):
         '''Define segment objects using previously defined solids.
         This is where the definition of segment position and rotation really
         happens. There are 9 segments. Each segment has a base, located
@@ -1192,7 +1192,7 @@ class Human(object):
                           2),"self.Mass:",round(self.Mass, 2)
             raise Exception()
 
-    def read_measurements(self,fname):
+    def _read_measurements(self,fname):
         '''Reads a measurement input .txt file and assigns the measurements
         to fields in the self.meas dict. This method is called by the
         constructor.
@@ -1218,7 +1218,7 @@ class Human(object):
                     tempstr2 = tempstr1[0].partition('=')
                     varname = tempstr2[0].strip()
                     if len(tempstr2[2]) == 0:
-                       print "Error in Human.read_measurements(fname):" \
+                       print "Error in Human._read_measurements(fname):" \
                              " variable",varname,"does not have a value."
                        raise Exception()
                     else:
@@ -1233,13 +1233,13 @@ class Human(object):
                     else:
                     	if varname in self.meas:
                             # key was already defined
-                            print "Error in Human.read_measurements(fname):" \
+                            print "Error in Human._read_measurements(fname):" \
                                   " variable",varname,"has been defined " \
                                   "multiple times in input measurement file",\
                                   fname
                         else:
                             if [x for x in self.measnames if x==varname] == []:
-                                print "Error in Human.read_measurements"\
+                                print "Error in Human._read_measurements"\
                                       "(fname): variable name",varname,"in " \
                                       "file",fname,"is not a valid " \
                                       "name for a measurement."
@@ -1248,11 +1248,11 @@ class Human(object):
                                 # okay, go ahead and assign the measurement!
                                 self.meas[varname] = float(varval)
         if len(self.meas) != len(self.measnames):
-            print "Error in Human.read_measurements(fname): there should be", \
+            print "Error in Human._read_measurements(fname): there should be", \
                   len(self.measnames),"measurements, but",len(self.meas), \
                   "were found."
         if self.measurementconversionfactor == 0:
-            print "Error in Human.read_measurements(fname): no variable " \
+            print "Error in Human._read_measurements(fname): no variable " \
                   "measurementconversionfactor has been provided. Set as 1 " \
                   "if measurements are given in meters."
         # multiply all values by conversion factor

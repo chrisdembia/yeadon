@@ -96,107 +96,107 @@ class GUI(HasTraits):
         self.H.draw_mayavi(self.scene.mlab)
 
     @on_trait_change('somersalt')
-    def update_somersalt(self):
+    def _update_somersalt(self):
         self.H.set_CFG('somersalt', self.somersalt)
         self._update_mayavi()
 
     @on_trait_change('tilt')
-    def update_tilt(self):
+    def _update_tilt(self):
         self.H.set_CFG('tilt', self.tilt)
         self._update_mayavi()
 
     @on_trait_change('twist')
-    def update_twist(self):
+    def _update_twist(self):
         self.H.set_CFG('twist', self.twist)
         self._update_mayavi()
 
     @on_trait_change('PTsagittalFlexion')
-    def update_PTsagittalFlexion(self):
+    def _update_PTsagittalFlexion(self):
         self.H.set_CFG('PTsagittalFlexion', self.PTsagittalFlexion)
         self._update_mayavi()
 
     @on_trait_change('PTfrontalFlexion')
-    def update_PTfrontalFlexion(self):
+    def _update_PTfrontalFlexion(self):
         self.H.set_CFG('PTfrontalFlexion', self.PTfrontalFlexion)
         self._update_mayavi()
 
     @on_trait_change('TCspinalTorsion')
-    def update_TCspinalTorsion(self):
+    def _update_TCspinalTorsion(self):
         self.H.set_CFG('TCspinalTorsion', self.TCspinalTorsion)
         self._update_mayavi()
 
     @on_trait_change('TClateralSpinalFlexion')
-    def update_TClateralSpinalFlexion(self):
+    def _update_TClateralSpinalFlexion(self):
         self.H.set_CFG('TClateralSpinalFlexion', self.TClateralSpinalFlexion)
         self._update_mayavi()
 
     @on_trait_change('CA1elevation')
-    def update_CA1elevation(self):
+    def _update_CA1elevation(self):
         self.H.set_CFG('CA1elevation', self.CA1elevation)
         self._update_mayavi()
 
     @on_trait_change('CA1abduction')
-    def update_CA1abduction(self):
+    def _update_CA1abduction(self):
         self.H.set_CFG('CA1abduction', self.CA1abduction)
         self._update_mayavi()
 
     @on_trait_change('CA1rotation')
-    def update_CA1rotation(self):
+    def _update_CA1rotation(self):
         self.H.set_CFG('CA1rotation', self.CA1rotation)
         self._update_mayavi()
 
     @on_trait_change('CB1elevation')
-    def update_CB1elevation(self):
+    def _update_CB1elevation(self):
         self.H.set_CFG('CB1elevation', self.CB1elevation)
         self._update_mayavi()
 
     @on_trait_change('CB1abduction')
-    def update_CB1abduction(self):
+    def _update_CB1abduction(self):
         self.H.set_CFG('CB1abduction', self.CB1abduction)
         self._update_mayavi()
 
     @on_trait_change('CB1rotation')
-    def update_CB1rotation(self):
+    def _update_CB1rotation(self):
         self.H.set_CFG('CB1rotation', self.CB1rotation)
         self._update_mayavi()
 
     @on_trait_change('A1A2flexion')
-    def update_A1A2flexion(self):
+    def _update_A1A2flexion(self):
         self.H.set_CFG('A1A2flexion', self.A1A2flexion)
         self._update_mayavi()
 
     @on_trait_change('B1B2flexion')
-    def update_B1B2flexion(self):
+    def _update_B1B2flexion(self):
         self.H.set_CFG('B1B2flexion', self.B1B2flexion)
         self._update_mayavi()
 
     @on_trait_change('PJ1flexion')
-    def update_PJ1flexion(self):
+    def _update_PJ1flexion(self):
         self.H.set_CFG('PJ1flexion', self.PJ1flexion)
         self._update_mayavi()
 
     @on_trait_change('PJ1abduction')
-    def update_PJ1abduction(self):
+    def _update_PJ1abduction(self):
         self.H.set_CFG('PJ1abduction', self.PJ1abduction)
         self._update_mayavi()
 
     @on_trait_change('PK1flexion')
-    def update_PK1flexion(self):
+    def _update_PK1flexion(self):
         self.H.set_CFG('PK1flexion', self.PK1flexion)
         self._update_mayavi()
 
     @on_trait_change('PK1abduction')
-    def update_PK1abduction(self):
+    def _update_PK1abduction(self):
         self.H.set_CFG('PK1abduction', self.PK1abduction)
         self._update_mayavi()
 
     @on_trait_change('J1J2flexion')
-    def update_J1J2flexion(self):
+    def _update_J1J2flexion(self):
         self.H.set_CFG('J1J2flexion', self.J1J2flexion)
         self._update_mayavi()
 
     @on_trait_change('K1K2flexion')
-    def update_K1K2flexion(self):
+    def _update_K1K2flexion(self):
         self.H.set_CFG('K1K2flexion', self.K1K2flexion)
         self._update_mayavi()
 

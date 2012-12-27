@@ -313,28 +313,28 @@ class StadiumSolid(Solid):
             b = 1.0
         else:
             b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
-        self.Mass = D * h * r0 * (4.0 * t0 * self.F1(a,b) +
-                                  np.pi * r0 * self.F1(a,a))
-        zcom = D * (h**2.0) * (4.0 * r0 * t0 * self.F2(a,b) +
-                               np.pi * (r0**2.0) * self.F2(a,a)) / self.Mass
+        self.Mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
+                                  np.pi * r0 * self._F1(a,a))
+        zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
+                               np.pi * (r0**2.0) * self._F2(a,a)) / self.Mass
         self.relCOM = np.array([[0.0],[0.0],[zcom]])
         # moments of inertia
-        Izcom = D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                         np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) +
-                         4.0 * (r0**3.0) * t0 * self.F4(b,a) +
-                         np.pi * (r0**4.0) * self.F4(a,a) * 0.5 )
-        Iy = (D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                       np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) +
-                       8.0 * (r0**3.0) * t0*self.F4(b,a) / 3.0 +
-                      np.pi * (r0**4.0) * self.F4(a,a) * 0.25) +
-              D * (h**3.0) * (4.0 * r0 * t0 * self.F3(a,b) +
-                              np.pi * (r0**2.0) * self.F3(a,a)))
+        Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                         np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
+                         4.0 * (r0**3.0) * t0 * self._F4(b,a) +
+                         np.pi * (r0**4.0) * self._F4(a,a) * 0.5 )
+        Iy = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                       np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
+                       8.0 * (r0**3.0) * t0*self._F4(b,a) / 3.0 +
+                      np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
+              D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
+                              np.pi * (r0**2.0) * self._F3(a,a)))
         # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE
         Iycom = Iy - self.Mass * (zcom**2.0)
-        Ix = (D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                       np.pi * (r0**4.0) * self.F4(a,a) * 0.25) +
-              D * (h**3.0) * (4.0 * r0 * t0 * self.F3(a,b) +
-                              np.pi * (r0**2.0) * self.F3(a,a)))
+        Ix = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                       np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
+              D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
+                              np.pi * (r0**2.0) * self._F3(a,a)))
         Ixcom = Ix - self.Mass*(zcom**2.0)
         self.relInertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
@@ -359,8 +359,8 @@ class StadiumSolid(Solid):
             Color (e.g. 'red') to use for drawing the solid
 
         '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self._make_pos(0)
+        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self._make_pos(1)
         for idx in np.arange(X0.size-1):
             Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
             Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
@@ -409,8 +409,8 @@ class StadiumSolid(Solid):
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self._make_pos(0)
+        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self._make_pos(1)
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
@@ -425,9 +425,9 @@ class StadiumSolid(Solid):
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        vis.convex(pos = self.make_pos_visual(), color=c)
+        vis.convex(pos = self._make_pos_visual(), color=c)
 
-    def make_pos_visual(self):
+    def _make_pos_visual(self):
         '''Creates a list of x,y,z points to use for drawing a convex shape in
         VPython (the method yeadon.Solid.draw_visual)
 
@@ -459,7 +459,7 @@ class StadiumSolid(Solid):
                 pos.append( (POSES[0,j], POSES[1,j], POSES[2,j]) )
         return pos
 
-    def make_pos(self,i):
+    def _make_pos(self,i):
         '''Generates coordinates to be used for 3D visualization purposes.
 
         '''
@@ -487,20 +487,20 @@ class StadiumSolid(Solid):
         Ztoplot = np.array(np.concatenate((Z, np.nan*Z)))
         return X,Y,Z,Xtoplot,Ytoplot,Ztoplot
 
-    def F1(self,a,b):
+    def _F1(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
-    def F2(self,a,b):
+    def _F2(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
-    def F3(self,a,b):
+    def _F3(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
-    def F4(self,a,b):
+    def _F4(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
-    def F5(self,a,b):
+    def _F5(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
