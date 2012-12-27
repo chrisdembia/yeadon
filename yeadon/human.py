@@ -134,7 +134,7 @@ class Human(object):
 
         '''
         self.isSymmetric = symmetric
-        self.measMass = -1
+        self.meas_mass = -1
         # initialize measurement dictionary
         self.meas = {}
         # if measurements input is a module, just assign. else, read in file
@@ -165,8 +165,8 @@ class Human(object):
         # update_solids will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
         self.update_solids()
-        if self.measMass > 0:
-            self.scale_human_by_mass(self.measMass)
+        if self.meas_mass > 0:
+            self.scale_human_by_mass(self.meas_mass)
 
     def update_solids(self):
         '''Redefines all solids and then calls yeadon.Human.update_segments.
@@ -1153,7 +1153,7 @@ class Human(object):
                     elif varname == 'totalmass':
                         if varval > 0:
                             # scale densities
-                            self.measMass = varval
+                            self.meas_mass = varval
                     else:
                     	if varname in self.meas:
                             # key was already defined

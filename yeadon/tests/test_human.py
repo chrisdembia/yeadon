@@ -25,7 +25,7 @@ class TestHuman(unittest.TestCase):
         meas = h.meas
 
         assert h.isSymmetric == True
-        assert h.measMass == -1
+        assert h.meas_mass == -1
         # reading measurements.
         assert len(h.meas) == 95
         # TODO
