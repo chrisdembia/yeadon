@@ -416,49 +416,6 @@ class StadiumSolid(Solid):
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
         mlabobj.mesh(Xpts, Ypts, Zpts, color=col, opacity=Solid.alpha)
 
-    def draw_visual(self, c):
-        '''Draws the stadium in 3D in a VPython window. Only one line of code!
-
-        Parameters
-        ----------
-        c : tuple (3,)
-            Color as an rgb tuple, with values between 0 and 1.
-
-        '''
-        vis.convex(pos = self._make_pos_visual(), color=c)
-
-    def _make_pos_visual(self):
-        '''Creates a list of x,y,z points to use for drawing a convex shape in
-        VPython (the method yeadon.Solid.draw_visual)
-
-        '''
-        N = 10
-        pos = []
-        for i in [0,1]:
-            theta = [np.linspace(0.0,np.pi/2,N)]
-            x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
-            y = self.stads[i].radius * np.sin(theta);
-            if self.alignment == 'AP':
-                temp = x
-                x = y
-                y = temp
-                del temp
-            xrev = x[:, ::-1]
-            yrev = y[:, ::-1]
-            X = np.concatenate( (x, -xrev, -x, xrev), axis=1)
-            Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
-            Z = i*self.height*np.ones((1,N*4))
-            POSES = np.concatenate( (X, Y, Z), axis=0)
-            POSES = self.rot_mat * POSES
-            X,Y,Z = np.vsplit(POSES,3)
-            X = X + self.pos[0]
-            Y = Y + self.pos[1]
-            Z = Z + self.pos[2]
-            POSES = np.concatenate( (X, Y, Z), axis=0)
-            for j in np.arange(N*4):
-                pos.append( (POSES[0,j], POSES[1,j], POSES[2,j]) )
-        return pos
-
     def _make_pos(self,i):
         '''Generates coordinates to be used for 3D visualization purposes.
 
@@ -585,19 +542,6 @@ class Semiellipsoid(Solid):
         x, y, z = self._make_pos()
         mlabobj.mesh(x, y, z, color=col, opacity=Solid.alpha)
 
-    def draw_visual(self, c):
-        '''Draws an ellipse in VPython. Ideally would only draw the top half of
-        the ellipse, but draws the entire ellipse. This disadvantage makes it
-        seem as if the head is more "round" than it actually is.
-
-        '''
-        ax = self.rot_mat * np.array([[0],[0],[1]])
-        vis.ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
-                         axis = (ax[0,0],ax[1,0],ax[2,0]),
-                         length=self.height,
-                         height=self.radius*2,
-                         width=self.radius*2,
-                         color=c)
     def _make_pos(self):
         '''Generates coordinates to be used for 3D visualization purposes.
 

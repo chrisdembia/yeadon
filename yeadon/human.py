@@ -35,12 +35,6 @@ except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_mayavi() member functions."
-try:
-    import visual as vis
-except ImportError:
-    print "Yeadon failed to import python-visual. It is possible that you do" \
-          " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_visual() member functions."
 import inertia
 
 import solid as sol
@@ -479,41 +473,6 @@ class Human(object):
         #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
         #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
 
-    def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
-        '''Draws the human in 3D in a new window using VPython (python-visual).
-        The mouse can be used to control or explore the 3D view.
-        Scroll to zoom in and out, right click to rotate. This method
-        can be followed by other python visual commands (from visual import *)
-        and those objects should be drawn in the same window as the human. For
-        example, multiple humans can be drawn in one window.
-
-        Parameters
-        ----------
-        forward : tuple (3,)
-            Optional. A vector from the position of the 3D view's camera to
-            the origin of the fixed coordinate system. Default is (-1,1,-1)
-        up : tuple (3,)
-            Optional. A vector denoting the "up" direction. Rotations can only
-            be about this vector. Default is (0,0,1).
-        bg : tuple (3,)
-            Optional. Sets the background color of the view.
-            Default is (0,0,0).
-
-        '''
-        for s in self.Segments:
-            s.draw_visual()
-        self._draw_vector(np.array([[0],[0],[0]]),np.array([[.5],[0],[0]]),
-                        (1,0,0))
-        self._draw_vector(np.array([[0],[0],[0]]),np.array([[0],[.5],[0]]),
-                        (0,1,0))
-        self._draw_vector(np.array([[0],[0],[0]]),np.array([[0],[0],[.5]]),
-                        (0,0,1))
-        vis.scene.forward = forward
-        vis.scene.up = up
-        vis.scene.background = bg
-        vis.scene.autocenter = True
-        #vis.scene.exit = False
-
     def _make_mayavi_cone_pos(self):
         L2 = 0.04
         R2 = L2
@@ -538,45 +497,10 @@ class Human(object):
         y = R1 * np.sin(theta)
         return x, y, z
 
-    def _draw_vector(self,vec0,vec1, c=(1,1,1), rad=.01):
-        '''Draws a vector in a python-visual window. It is expected that this
-        method is called in conjuction with yeadon.Human.draw_visual,
-        so that the vectors are drawn in the same window as the human.
-
-        Parameters
-        ----------
-        vec0 : str or np.array (3,1)
-            Starting position of the vector in the fixed global coordinates.
-            If str, it must have the value 'origin'. In this case, the vector
-            is drawn from the origin.
-        vec1 : np.array (3,1)
-            End point of the vector
-        c : tuple (3,)
-            Optional. Specifies the the color of the vector as a tuple, using
-            rgb values (r,g,b) with r,g,b being floats between 0 and 1.
-            Default is (1,1,1)
-        rad : float
-            Optional. Specifies the radius of the shaft of the drawn vector.
-            Default is 0.01, which works well when drawn alongside
-            typical humans.
-
-        '''
-        if vec0 == 'origin':
-            vec0 = np.array([[0],[0],[0]])
-        conelengthfactor = .05
-        ax = (1-conelengthfactor) * (vec1 - vec0)
-        vis.cylinder( pos=(vec0[0,0],vec0[1,0],vec0[2,0]),
-                  axis=(ax[0,0],ax[1,0],ax[2,0]), radius=rad, color=c)
-        coneax = conelengthfactor*ax
-        conepos = vec1 - coneax
-        vis.cone( pos=(conepos[0,0],conepos[1,0],conepos[2,0]),
-              axis=(coneax[0,0],coneax[1,0],coneax[2,0]), radius=3*rad, color=c)
-
     def draw(self):
         '''Draws a 3D human by calling the draw methods of all of the segments.
         Drawing is done by the matplotlib library. Currently produces many
-        matplotlib warnings, which can be ignored. It is preferred to use the
-        yeadon.Human.draw_visual mehod instead of this one.
+        matplotlib warnings, which can be ignored.
 
         '''
         fig = plt.figure()
@@ -636,7 +560,7 @@ class Human(object):
         # show the plot window, this is a loop actually
         plt.show()
 
-:   def _draw_octant(self,ax,u,v,c):
+    def _draw_octant(self,ax,u,v,c):
         '''Draws an octant of sphere in a matplotlib window (Axes3D library).
         Assists with drawing the center of mass sphere.
 

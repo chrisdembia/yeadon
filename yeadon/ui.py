@@ -90,7 +90,6 @@ def start_ui():
               "  s: format input measurements for ISEG Fortran code\n\n",\
               "  t: transform absolute/base/fixed coordinate system\n\n",\
               "  d: draw 3D human using matplotlib\n",\
-              "  v: draw 3D human using VPython\n",\
               "  m: draw 3D human using MayaVi\n\n",\
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
@@ -164,10 +163,6 @@ def start_ui():
             print "To continue using the YEADON UI after drawing,",\
                    "close the plot window."
             H.draw()
-
-        # DRAW HUMAN WITH VPYTHON
-        elif userIn == 'v':
-            H.draw_visual()
 
         # DRAW HUMAN WITH MAYAVI
         elif userIn == 'm':

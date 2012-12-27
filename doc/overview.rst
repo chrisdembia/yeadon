@@ -11,7 +11,7 @@ A summary of the content of his four papers is provided:
   from film
 - ii: modeling human geometry using stadium solids
 - iii: inertia transforms and angular momentum of the stadium solids
-- iv: joint description
+- iv: simulation verification
 
 The measurements page in this documentation describes the particularly relevant
 parts of paper ii, while the configuration page does the same for paper iv.
