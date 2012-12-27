@@ -75,13 +75,13 @@ class TestSegments(unittest.TestCase):
         assert (seg1.length == (5 + 6 + 7)).all()
 
         # -- The constructor then calls calc_rel_properties().
-        desMass = self.solidAB.Mass + self.solidBC.Mass + self.solidCD.Mass
-        testing.assert_almost_equal(seg1.Mass, desMass)
+        desMass = self.solidAB.mass + self.solidBC.mass + self.solidCD.mass
+        testing.assert_almost_equal(seg1.mass, desMass)
 
-        desRelCOM = (self.solidAB.Mass * self.solidAB.relCOM +
-                self.solidBC.Mass * (
+        desRelCOM = (self.solidAB.mass * self.solidAB.relCOM +
+                self.solidBC.mass * (
                     self.solidBC.relCOM + np.array([[0, 0, 5]]).T) +
-                self.solidCD.Mass * (
+                self.solidCD.mass * (
                     self.solidCD.relCOM + np.array([[0, 0, 11]]).T)) / desMass
         testing.assert_allclose(seg1.relCOM, desRelCOM);
 
@@ -94,17 +94,17 @@ class TestSegments(unittest.TestCase):
                 self.solidCD.relCOM)
 
         # Inertia for each direction.
-        desXInertia = (self.solidAB.relInertia[0, 0] + self.solidAB.Mass * (
+        desXInertia = (self.solidAB.relInertia[0, 0] + self.solidAB.mass * (
                     relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
-                self.solidBC.relInertia[0, 0] + self.solidBC.Mass * (
+                self.solidBC.relInertia[0, 0] + self.solidBC.mass * (
                         relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
-                self.solidCD.relInertia[0, 0] + self.solidCD.Mass * (
+                self.solidCD.relInertia[0, 0] + self.solidCD.mass * (
                         relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
-        desYInertia = (self.solidAB.relInertia[1, 1] + self.solidAB.Mass * (
+        desYInertia = (self.solidAB.relInertia[1, 1] + self.solidAB.mass * (
                     relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
-                self.solidBC.relInertia[1, 1] + self.solidBC.Mass * (
+                self.solidBC.relInertia[1, 1] + self.solidBC.mass * (
                         relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
-                self.solidCD.relInertia[1, 1] + self.solidCD.Mass * (
+                self.solidCD.relInertia[1, 1] + self.solidCD.mass * (
                         relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
         desZInertia = (self.solidAB.relInertia[2, 2] +
                 self.solidBC.relInertia[2, 2] + self.solidCD.relInertia[2, 2])

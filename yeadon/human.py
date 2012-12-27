@@ -12,14 +12,14 @@ Typical usage (not using yeadon.ui.start_ui())
     # transform the absolute fixed coordiantes from yeadon's to your system's
     H.transform_coord_sys(pos,rotmat)
     # obtain inertia information
-    var1 = H.Mass
+    var1 = H.mass
     var2 = H.COM
     var3 = H.Inertia
-    var4 = H.J1.Mass
+    var4 = H.J1.mass
     var5a = H.J1.relCOM
     var5b = H.J1.COM
     var6 = H.J1.Inertia
-    var7 = H.J1.solids[0].Mass
+    var7 = H.J1.solids[0].mass
     var8 = H.J1.solids[0].COM
     var9 = H.J1.solids[1].Inertia``
 
@@ -287,28 +287,28 @@ class Human(object):
 
         '''
         # mass
-        self.Mass = 0.0;
+        self.mass = 0.0;
         for s in self.Segments:
-            self.Mass += s.Mass
+            self.mass += s.mass
         # center of mass
         moment = np.zeros((3,1))
         for s in self.Segments:
-            moment += s.Mass * s.COM
-        self.COM = moment / self.Mass
+            moment += s.mass * s.COM
+        self.COM = moment / self.mass
         # inertia
         self.Inertia = np.mat(np.zeros((3,3)))
         for s in self.Segments:
             dist = s.COM - self.COM
             self.Inertia += np.mat(
                 inertia.parallel_axis(s.Inertia,
-                                      s.Mass,
+                                      s.mass,
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
     def print_properties(self):
         '''Prints human mass, center of mass, and inertia.
 
         '''
-        print "Mass (kg):", self.Mass, "\n"
+        print "Mass (kg):", self.mass, "\n"
         print "COM  (m):\n", self.COM, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
 
@@ -439,8 +439,8 @@ class Human(object):
                       "or solid of the human."
                 raise Exception()
             obj = ObjDict[objstr]
-            resultantMass += obj.Mass
-            resultantMoment += obj.Mass * obj.COM
+            resultantMass += obj.mass
+            resultantMoment += obj.mass * obj.COM
         resultantCOM = resultantMoment / resultantMass
         resultantInertia = np.mat(np.zeros( (3,3) ))
         for objstr in objlist:
@@ -448,7 +448,7 @@ class Human(object):
             dist = obj.COM - resultantCOM
             resultantInertia += np.mat(inertia.parallel_axis(
                                        obj.Inertia,
-                                       obj.Mass,
+                                       obj.mass,
                                        [dist[0,0],dist[1,0],dist[2,0]]))
         return resultantMass,resultantCOM,resultantInertia
 
@@ -1097,7 +1097,7 @@ class Human(object):
             Measured mass of the human in kilograms.
 
         '''
-        massratio = measmass / self.Mass
+        massratio = measmass / self.mass
         for i in range(len(dens.Ds)):
             dens.Ds[i] = dens.Ds[i] * massratio
         for i in range(len(dens.Da)):
@@ -1109,11 +1109,11 @@ class Human(object):
         for i in range(len(dens.Dk)):
             dens.Dk[i] = dens.Dk[i] * massratio
         self.update_solids()
-        if round(measmass, 2) != round(self.Mass, 2):
+        if round(measmass, 2) != round(self.mass, 2):
             print "Error: attempted to scale mass by a " \
                   "measured mass, but did not succeed. " \
                   "Measured mass:", round(measmass,
-                          2),"self.Mass:",round(self.Mass, 2)
+                          2),"self.mass:",round(self.mass, 2)
             raise Exception()
 
     def _read_measurements(self,fname):

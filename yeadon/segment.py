@@ -74,9 +74,9 @@ class Segment(object):
 
         '''
         # mass
-        self.Mass = 0.0
+        self.mass = 0.0
         for s in self.solids:
-            self.Mass += s.Mass
+            self.mass += s.mass
         # relative position of each solid w.r.t. segment orientation and
         # segment's origin
         self.solidpos = []
@@ -97,15 +97,15 @@ class Segment(object):
         # relative center of mass
         relmoment = np.zeros((3, 1))
         for i in np.arange(self.nSolids):
-            relmoment += self.solids[i].Mass * self.solidCOM[i]
-        self.relCOM = relmoment / self.Mass
+            relmoment += self.solids[i].mass * self.solidCOM[i]
+        self.relCOM = relmoment / self.mass
         # relative Inertia
         self.relInertia = np.mat(np.zeros((3, 3)))
         for i in np.arange(self.nSolids):
             dist = self.solidCOM[i] - self.relCOM
             self.relInertia += np.mat(inertia.parallel_axis(
                                       self.solids[i].relInertia,
-                                      self.solids[i].Mass,
+                                      self.solids[i].mass,
                                       [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
     def calc_properties(self):
@@ -130,7 +130,7 @@ class Segment(object):
         if not hasattr(self, 'COM') or not hasattr(self, 'Inertia'):
             self.calc_properties()
         print self.label, "properties:\n"
-        print "Mass (kg):", self.Mass, "\n"
+        print "Mass (kg):", self.mass, "\n"
         print "COM in local segment frame (m):\n", self.relCOM, "\n"
         print "COM in fixed human frame (m):\n", self.COM, "\n"
         print "Inertia tensor in segment frame about local segment",\

@@ -204,7 +204,7 @@ class Solid(object):
         self.density = density
         self.height = height
         self.relInertia = np.zeros((3, 3)) # this gets set in subclasses
-        self.Mass = 0.0
+        self.mass = 0.0
         self.relCOM = np.array([[0.0], [0.0], [0.0]])
 
     def set_orientation(self, pos, rot_mat):
@@ -251,7 +251,7 @@ class Solid(object):
 
         '''
         print self.label, "properties:\n"
-        print "Mass (kg):", self.Mass,"\n"
+        print "Mass (kg):", self.mass,"\n"
         print "COM in local solid's frame (m):\n", self.relCOM,"\n"
         print "COM in fixed human frame (m):\n", self.COM,"\n"
         print "Inertia tensor in solid's frame about local solid's",\
@@ -313,10 +313,10 @@ class StadiumSolid(Solid):
             b = 1.0
         else:
             b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
-        self.Mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
+        self.mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
                                   np.pi * r0 * self._F1(a,a))
         zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
-                               np.pi * (r0**2.0) * self._F2(a,a)) / self.Mass
+                               np.pi * (r0**2.0) * self._F2(a,a)) / self.mass
         self.relCOM = np.array([[0.0],[0.0],[zcom]])
         # moments of inertia
         Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
@@ -330,12 +330,12 @@ class StadiumSolid(Solid):
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
         # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE
-        Iycom = Iy - self.Mass * (zcom**2.0)
+        Iycom = Iy - self.mass * (zcom**2.0)
         Ix = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                        np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
-        Ixcom = Ix - self.Mass*(zcom**2.0)
+        Ixcom = Ix - self.mass*(zcom**2.0)
         self.relInertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
@@ -497,7 +497,7 @@ class Semiellipsoid(Solid):
         D = self.density
         r = self.radius
         h = self.height
-        self.Mass = D * 2.0/3.0 * np.pi * (r**2) * h
+        self.mass = D * 2.0/3.0 * np.pi * (r**2) * h
         self.relCOM = np.array([[0.0],[0.0],[3.0/8.0 * h]])
         Izcom = D * 4.0/15.0 * np.pi * (r**4.0) * h
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
