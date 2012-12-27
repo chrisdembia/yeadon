@@ -27,7 +27,7 @@ measurements outlined here. The measurements consist of *lengths* :math:`L` (not
 heights), perimeters :math:`p`, heights :math:`h`, and depths :math:`d`.
 
 By measuring the parameters that define the stadia ('levels') and the distance
-between these stadia, we can created 39 stadium solids, which are lofted
+between these stadia, we can create 39 stadium solids, which are lofted
 stadia. Each stadium is shared by two stadium solids, except for the stadia at
 the end of the hands and feet. In general, the stadia are defined by measuring
 perimeter and width, since these are easier to physically measure. There are a
