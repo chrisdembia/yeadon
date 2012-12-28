@@ -50,8 +50,8 @@ widely-used packages:
 In Debian systems, you may be able to obtain some of these packages by opening
 a terminal window (CTRL-ALT-T) and typing the following lines::
 
-    $apt-get install python-numpy python-matplotlib # required
-    $apt-get install python-sphinx python-visual mayavi2 # optional packages
+    $ apt-get install python-numpy python-matplotlib # required
+    $ apt-get install python-sphinx python-visual mayavi2 # optional packages
 
 For other systems (Windows or Mac), visit the websites for the packages,
 given above for installation instructions.
@@ -59,23 +59,23 @@ given above for installation instructions.
 Once you download the yeadon package and decompress it, you can install with
 the commands along the lines of::
 
-    $python setup.py install
+    $ python setup.py install
 
 or simply use a tool like `pip` to download and install from PyPi::
 
-    $pip install yeadon
+    $ pip install yeadon
 
 Again, this assumes that you have installed Python 2.7. You can build (create)
 the yeadon documentation if you have the python sphinx package (see above) by
 typing, in the same yeadon/ directory::
 
-    $cd doc/
-    $make html
+    $ cd doc/
+    $ make html
 
 to make HTML documentation in the yeadon/doc/_build/html folder, or::
 
-    $cd doc/
-    $make latex  #(or: make latexpdf)
+    $ cd doc/
+    $ make latex  #(or: make latexpdf)
 
 to generate LaTeX source files in the yeadon/doc/_build/latex. Note that to
 generate documentation, one also needs the `numpydoc` package. Alternatively,
@@ -89,13 +89,13 @@ with a line like
 
 ::
 
-    >>>import yeadon as y
+    >>> import yeadon as y
 
 You can begin the command line interface by executing
 
 ::
 
-    >>>y.start_ui()
+    >>> y.start_ui()
 
 Then you can follow the instructions provided in the command line interface.
 The other way to interact with the package is by creating a human object
@@ -103,7 +103,7 @@ with a line (perhaps in your own code) like
 
 ::
 
-    >>>H = y.human(<measfilename>, <CFGfilename>)
+    >>> H = y.human(<measfilename>, <CFGfilename>)
 
 where `<measfilename>` and `<CFGfilename>` are replaced by strings that contain
 a relative or absolute path to the appropriate input `.txt` files. For more
@@ -111,8 +111,8 @@ basics on how to use a human object, you can go into a python command prompt and
 
 ::
 
-    >>>import yeadon as y
-    >>>help(y.human)
+    >>> import yeadon as y
+    >>> help(y.human)
 
 See the HTML or PDF documentation for more information.
 
