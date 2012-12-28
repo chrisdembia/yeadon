@@ -203,7 +203,7 @@ class Solid(object):
         #TODO: Check that these two are floats
         self.density = density
         self.height = height
-        self.relInertia = np.zeros((3, 3)) # this gets set in subclasses
+        self.rel_inertia = np.zeros((3, 3)) # this gets set in subclasses
         self.mass = 0.0
         self.rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
 
@@ -243,7 +243,7 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
+        self.inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
         '''Prints the mass, center of mass (local and absolute), and inertia
@@ -255,9 +255,9 @@ class Solid(object):
         print "COM in local solid's frame (m):\n", self.rel_center_of_mass,"\n"
         print "COM in fixed human frame (m):\n", self.center_of_mass,"\n"
         print "Inertia tensor in solid's frame about local solid's",\
-               "COM (kg-m^2):\n", self.relInertia,"\n"
+               "COM (kg-m^2):\n", self.rel_inertia,"\n"
         print "Inertia tensor in fixed human frame about local solid's",\
-               "COM (kg-m^2):\n", self.Inertia,"\n"
+               "COM (kg-m^2):\n", self.inertia,"\n"
 
     def draw(self, ax, c):
         #TODO: Make into warning
@@ -337,13 +337,13 @@ class StadiumSolid(Solid):
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
         Ixcom = Ix - self.mass*(zcom**2.0)
-        self.relInertia = np.mat([[Ixcom,0.0,0.0],
+        self.rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterior-posterior orientation
-            self.relInertia = inertia.rotate3_inertia(
-                              inertia.rotate3([0,0,np.pi/2]),self.relInertia)
+            self.rel_inertia = inertia.rotate3_inertia(
+                              inertia.rotate3([0,0,np.pi/2]),self.rel_inertia)
 
     def draw(self, ax, c):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
@@ -505,7 +505,7 @@ class Semiellipsoid(Solid):
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
             3.0/32.0 * (r**2.0) * (h**3.0))
         Ixcom = Iycom
-        self.relInertia = np.mat([[Ixcom,0.0,0.0],
+        self.rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
 

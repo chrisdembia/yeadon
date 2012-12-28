@@ -14,14 +14,14 @@ Typical usage (not using yeadon.ui.start_ui())
     # obtain inertia information
     var1 = H.mass
     var2 = H.center_of_mass
-    var3 = H.Inertia
+    var3 = H.inertia
     var4 = H.J1.mass
     var5a = H.J1.rel_center_of_mass
     var5b = H.J1.center_of_mass
-    var6 = H.J1.Inertia
+    var6 = H.J1.inertia
     var7 = H.J1.solids[0].mass
     var8 = H.J1.solids[0].center_of_mass
-    var9 = H.J1.solids[1].Inertia``
+    var9 = H.J1.solids[1].inertia``
 
 See documentation for a complete description of functionality.
 '''
@@ -296,11 +296,11 @@ class Human(object):
             moment += s.mass * s.center_of_mass
         self.center_of_mass = moment / self.mass
         # inertia
-        self.Inertia = np.mat(np.zeros((3,3)))
+        self.inertia = np.mat(np.zeros((3,3)))
         for s in self.Segments:
             dist = s.center_of_mass - self.center_of_mass
-            self.Inertia += np.mat(
-                inertia.parallel_axis(s.Inertia,
+            self.inertia += np.mat(
+                inertia.parallel_axis(s.inertia,
                                       s.mass,
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
@@ -310,7 +310,7 @@ class Human(object):
         '''
         print "Mass (kg):", self.mass, "\n"
         print "COM  (m):\n", self.center_of_mass, "\n"
-        print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
+        print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
 
     def translate_coord_sys(self,vec):
         '''Moves the cooridinate system from the center of the bottom of the
@@ -447,10 +447,10 @@ class Human(object):
             obj = ObjDict[objstr]
             dist = obj.center_of_mass - resultantCOM
             resultantInertia += np.mat(inertia.parallel_axis(
-                                       obj.Inertia,
+                                       obj.inertia,
                                        obj.mass,
                                        [dist[0,0],dist[1,0],dist[2,0]]))
-        return resultantMass,resultantCOM,resultantInertia
+        return resultantMass, resultantCOM, resultantInertia
 
     def draw_mayavi(self, mlabobj=mlab):
         '''Draws the human in 3D in a new window using MayaVi.

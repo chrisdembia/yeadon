@@ -95,25 +95,25 @@ class TestSegments(unittest.TestCase):
                 self.solidCD.rel_center_of_mass)
 
         # Inertia for each direction.
-        desXInertia = (self.solidAB.relInertia[0, 0] + self.solidAB.mass * (
+        desXInertia = (self.solidAB.rel_inertia[0, 0] + self.solidAB.mass * (
                     relCOM_AB[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
-                self.solidBC.relInertia[0, 0] + self.solidBC.mass * (
+                self.solidBC.rel_inertia[0, 0] + self.solidBC.mass * (
                         relCOM_BC[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
-                self.solidCD.relInertia[0, 0] + self.solidCD.mass * (
+                self.solidCD.rel_inertia[0, 0] + self.solidCD.mass * (
                         relCOM_CD[2, 0] - seg1.rel_center_of_mass[2, 0])**2)
-        desYInertia = (self.solidAB.relInertia[1, 1] + self.solidAB.mass * (
+        desYInertia = (self.solidAB.rel_inertia[1, 1] + self.solidAB.mass * (
                     relCOM_AB[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
-                self.solidBC.relInertia[1, 1] + self.solidBC.mass * (
+                self.solidBC.rel_inertia[1, 1] + self.solidBC.mass * (
                         relCOM_BC[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
-                self.solidCD.relInertia[1, 1] + self.solidCD.mass * (
+                self.solidCD.rel_inertia[1, 1] + self.solidCD.mass * (
                         relCOM_CD[2, 0] - seg1.rel_center_of_mass[2, 0])**2)
-        desZInertia = (self.solidAB.relInertia[2, 2] +
-                self.solidBC.relInertia[2, 2] + self.solidCD.relInertia[2, 2])
+        desZInertia = (self.solidAB.rel_inertia[2, 2] +
+                self.solidBC.rel_inertia[2, 2] + self.solidCD.rel_inertia[2, 2])
         # Combine components into array.
         desRelInertia = np.diag(np.array(
                 [desXInertia, desYInertia, desZInertia]))
         # Compare.
-        testing.assert_allclose(seg1.relInertia, desRelInertia)
+        testing.assert_allclose(seg1.rel_inertia, desRelInertia)
 
     def test_init_bad_input(self):
         """Ensures only proper constructor arguments get through. Exercises
@@ -175,12 +175,12 @@ class TestSegments(unittest.TestCase):
 
         testing.assert_allclose(seg1.center_of_mass,
                 np.array([[seg1.rel_center_of_mass[2, 0] + 1, 2, 3]]).T)
-        desXInertia = seg1.relInertia[2, 2]
-        desYInertia = seg1.relInertia[1, 1]
-        desZInertia = seg1.relInertia[0, 0]
+        desXInertia = seg1.rel_inertia[2, 2]
+        desYInertia = seg1.rel_inertia[1, 1]
+        desZInertia = seg1.rel_inertia[0, 0]
         desInertia = np.mat(np.diag(np.array(
                 [desXInertia, desYInertia, desZInertia])))
-        testing.assert_allclose(seg1.Inertia, desInertia, atol=1e-10)
+        testing.assert_allclose(seg1.inertia, desInertia, atol=1e-10)
 
     def test_print_properties(self):
         """Ensures the proper printing of segment mass properties. """

@@ -100,11 +100,11 @@ class Segment(object):
             relmoment += self.solids[i].mass * solidCOM[i]
         self.rel_center_of_mass = relmoment / self.mass
         # relative Inertia
-        self.relInertia = np.mat(np.zeros((3, 3)))
+        self.rel_inertia = np.mat(np.zeros((3, 3)))
         for i in np.arange(self.nSolids):
             dist = solidCOM[i] - self.rel_center_of_mass
-            self.relInertia += np.mat(inertia.parallel_axis(
-                                      self.solids[i].relInertia,
+            self.rel_inertia += np.mat(inertia.parallel_axis(
+                                      self.solids[i].rel_inertia,
                                       self.solids[i].mass,
                                       [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
@@ -118,7 +118,7 @@ class Segment(object):
         # center of mass
         self.center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
-        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
+        self.inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
         '''Prints mass, center of mass (in segment's and fixed human frames),
@@ -127,16 +127,16 @@ class Segment(object):
 
         '''
         # self.COM, etc. needs to be defined first.
-        if not hasattr(self, 'center_of_mass') or not hasattr(self, 'Inertia'):
+        if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
             self.calc_properties()
         print self.label, "properties:\n"
         print "Mass (kg):", self.mass, "\n"
         print "COM in local segment frame (m):\n", self.rel_center_of_mass, "\n"
         print "COM in fixed human frame (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor in segment frame about local segment",\
-               "COM (kg-m^2):\n", self.relInertia, "\n"
+               "COM (kg-m^2):\n", self.rel_inertia, "\n"
         print "Inertia tensor in fixed human frame about local segment",\
-               "COM (kg-m^2):\n", self.Inertia, "\n"
+               "COM (kg-m^2):\n", self.inertia, "\n"
 
     def print_solid_properties(self):
         '''Calls the print_properties() member method of each of this
