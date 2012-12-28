@@ -205,7 +205,7 @@ class Solid(object):
         self.height = height
         self.relInertia = np.zeros((3, 3)) # this gets set in subclasses
         self.mass = 0.0
-        self.relCOM = np.array([[0.0], [0.0], [0.0]])
+        self.rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
 
     def set_orientation(self, pos, rot_mat):
         '''Sets the position, rotation matrix of the solid, and calculates
@@ -234,7 +234,7 @@ class Solid(object):
         '''
         try:
             try:
-                self.COM = self.pos + self.rot_mat * self.relCOM
+                self.center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
             except AttributeError as err:
                 err.message = err.message + \
                     '. You must set the orientation before attempting ' + \
@@ -252,8 +252,8 @@ class Solid(object):
         '''
         print self.label, "properties:\n"
         print "Mass (kg):", self.mass,"\n"
-        print "COM in local solid's frame (m):\n", self.relCOM,"\n"
-        print "COM in fixed human frame (m):\n", self.COM,"\n"
+        print "COM in local solid's frame (m):\n", self.rel_center_of_mass,"\n"
+        print "COM in fixed human frame (m):\n", self.center_of_mass,"\n"
         print "Inertia tensor in solid's frame about local solid's",\
                "COM (kg-m^2):\n", self.relInertia,"\n"
         print "Inertia tensor in fixed human frame about local solid's",\
@@ -261,7 +261,8 @@ class Solid(object):
 
     def draw(self, ax, c):
         #TODO: Make into warning
-        print "Cannot draw from base class solid, use a subclass like StadiumSolid or SemiEllipsoidSolid)."
+        raise NotImplementedError("Cannot draw from base class Solid, use a "
+                "subclass like StadiumSolid or SemiEllipsoidSolid).")
 
 class StadiumSolid(Solid):
     '''Stadium solid. Derived from the solid class.
@@ -317,7 +318,7 @@ class StadiumSolid(Solid):
                                   np.pi * r0 * self._F1(a,a))
         zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
                                np.pi * (r0**2.0) * self._F2(a,a)) / self.mass
-        self.relCOM = np.array([[0.0],[0.0],[zcom]])
+        self.rel_center_of_mass = np.array([[0.0],[0.0],[zcom]])
         # moments of inertia
         Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                          np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
@@ -396,7 +397,8 @@ class StadiumSolid(Solid):
                      color=(0,0,1,0), linewidth = 2)
         # place solid's text label on the plot
         (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
+        ax.text(self.center_of_mass[0], self.center_of_mass[1],
+                self.center_of_mass[2], labelstring)
 
     def draw_mayavi(self, mlabobj, col):
         '''Draws the stadium in 3D using MayaVi.
@@ -498,7 +500,7 @@ class Semiellipsoid(Solid):
         r = self.radius
         h = self.height
         self.mass = D * 2.0/3.0 * np.pi * (r**2) * h
-        self.relCOM = np.array([[0.0],[0.0],[3.0/8.0 * h]])
+        self.rel_center_of_mass = np.array([[0.0],[0.0],[3.0/8.0 * h]])
         Izcom = D * 4.0/15.0 * np.pi * (r**4.0) * h
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
             3.0/32.0 * (r**2.0) * (h**3.0))
@@ -526,7 +528,8 @@ class Semiellipsoid(Solid):
         ax.plot_surface( x, y, z, rstride=4, cstride=4,
                          color=c, alpha=Solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
+        ax.text(self.center_of_mass[0], self.center_of_mass[1],
+                self.center_of_mass[2], labelstring)
 
     def draw_mayavi(self, mlabobj, col):
         '''Draws the semiellipsoid in 3D using MayaVi.

@@ -13,14 +13,14 @@ Typical usage (not using yeadon.ui.start_ui())
     H.transform_coord_sys(pos,rotmat)
     # obtain inertia information
     var1 = H.mass
-    var2 = H.COM
+    var2 = H.center_of_mass
     var3 = H.Inertia
     var4 = H.J1.mass
-    var5a = H.J1.relCOM
-    var5b = H.J1.COM
+    var5a = H.J1.rel_center_of_mass
+    var5b = H.J1.center_of_mass
     var6 = H.J1.Inertia
     var7 = H.J1.solids[0].mass
-    var8 = H.J1.solids[0].COM
+    var8 = H.J1.solids[0].center_of_mass
     var9 = H.J1.solids[1].Inertia``
 
 See documentation for a complete description of functionality.
@@ -293,12 +293,12 @@ class Human(object):
         # center of mass
         moment = np.zeros((3,1))
         for s in self.Segments:
-            moment += s.mass * s.COM
-        self.COM = moment / self.mass
+            moment += s.mass * s.center_of_mass
+        self.center_of_mass = moment / self.mass
         # inertia
         self.Inertia = np.mat(np.zeros((3,3)))
         for s in self.Segments:
-            dist = s.COM - self.COM
+            dist = s.center_of_mass - self.center_of_mass
             self.Inertia += np.mat(
                 inertia.parallel_axis(s.Inertia,
                                       s.mass,
@@ -309,7 +309,7 @@ class Human(object):
 
         '''
         print "Mass (kg):", self.mass, "\n"
-        print "COM  (m):\n", self.COM, "\n"
+        print "COM  (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.Inertia, "\n"
 
     def translate_coord_sys(self,vec):
@@ -440,12 +440,12 @@ class Human(object):
                 raise Exception()
             obj = ObjDict[objstr]
             resultantMass += obj.mass
-            resultantMoment += obj.mass * obj.COM
+            resultantMoment += obj.mass * obj.center_of_mass
         resultantCOM = resultantMoment / resultantMass
         resultantInertia = np.mat(np.zeros( (3,3) ))
         for objstr in objlist:
             obj = ObjDict[objstr]
-            dist = obj.COM - resultantCOM
+            dist = obj.center_of_mass - resultantCOM
             resultantInertia += np.mat(inertia.parallel_axis(
                                        obj.Inertia,
                                        obj.mass,
@@ -575,9 +575,9 @@ class Human(object):
 
         '''
         R = 0.05
-        x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0,0]
-        y = R * np.outer(np.sin(u), np.sin(v)) + self.COM[1,0]
-        z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2,0]
+        x = R * np.outer(np.cos(u), np.sin(v)) + self.center_of_mass[0,0]
+        y = R * np.outer(np.sin(u), np.sin(v)) + self.center_of_mass[1,0]
+        z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.center_of_mass[2,0]
         ax.plot_surface( x, y, z,  rstride=4, cstride=4,
                          edgecolor='', color=c)
 

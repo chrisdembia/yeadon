@@ -78,34 +78,35 @@ class TestSegments(unittest.TestCase):
         desMass = self.solidAB.mass + self.solidBC.mass + self.solidCD.mass
         testing.assert_almost_equal(seg1.mass, desMass)
 
-        desRelCOM = (self.solidAB.mass * self.solidAB.relCOM +
+        desRelCOM = (self.solidAB.mass * self.solidAB.rel_center_of_mass +
                 self.solidBC.mass * (
-                    self.solidBC.relCOM + np.array([[0, 0, 5]]).T) +
+                    self.solidBC.rel_center_of_mass + np.array([[0, 0, 5]]).T) +
                 self.solidCD.mass * (
-                    self.solidCD.relCOM + np.array([[0, 0, 11]]).T)) / desMass
-        testing.assert_allclose(seg1.relCOM, desRelCOM);
+                    self.solidCD.rel_center_of_mass + np.array([[0, 0,
+                        11]]).T)) / desMass
+        testing.assert_allclose(seg1.rel_center_of_mass, desRelCOM);
 
         # Helper definitions
-        relCOM_AB = self.solidAB.relCOM
+        relCOM_AB = self.solidAB.rel_center_of_mass
         relCOM_BC = (np.array([[0, 0, self.solidAB.height]]).T + 
-                self.solidBC.relCOM)
+                self.solidBC.rel_center_of_mass)
         relCOM_CD = (
                 np.array([[0, 0, self.solidAB.height+self.solidBC.height]]).T + 
-                self.solidCD.relCOM)
+                self.solidCD.rel_center_of_mass)
 
         # Inertia for each direction.
         desXInertia = (self.solidAB.relInertia[0, 0] + self.solidAB.mass * (
-                    relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
+                    relCOM_AB[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
                 self.solidBC.relInertia[0, 0] + self.solidBC.mass * (
-                        relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
+                        relCOM_BC[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
                 self.solidCD.relInertia[0, 0] + self.solidCD.mass * (
-                        relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
+                        relCOM_CD[2, 0] - seg1.rel_center_of_mass[2, 0])**2)
         desYInertia = (self.solidAB.relInertia[1, 1] + self.solidAB.mass * (
-                    relCOM_AB[2, 0] - seg1.relCOM[2, 0])**2 +
+                    relCOM_AB[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
                 self.solidBC.relInertia[1, 1] + self.solidBC.mass * (
-                        relCOM_BC[2, 0] - seg1.relCOM[2, 0])**2 +
+                        relCOM_BC[2, 0] - seg1.rel_center_of_mass[2, 0])**2 +
                 self.solidCD.relInertia[1, 1] + self.solidCD.mass * (
-                        relCOM_CD[2, 0] - seg1.relCOM[2, 0])**2)
+                        relCOM_CD[2, 0] - seg1.rel_center_of_mass[2, 0])**2)
         desZInertia = (self.solidAB.relInertia[2, 2] +
                 self.solidBC.relInertia[2, 2] + self.solidCD.relInertia[2, 2])
         # Combine components into array.
@@ -172,8 +173,8 @@ class TestSegments(unittest.TestCase):
         seg1 = seg.Segment(label, pos, rot, solids, color)
         seg1.calc_properties()
 
-        testing.assert_allclose(seg1.COM,
-                np.array([[seg1.relCOM[2, 0] + 1, 2, 3]]).T)
+        testing.assert_allclose(seg1.center_of_mass,
+                np.array([[seg1.rel_center_of_mass[2, 0] + 1, 2, 3]]).T)
         desXInertia = seg1.relInertia[2, 2]
         desYInertia = seg1.relInertia[1, 1]
         desZInertia = seg1.relInertia[0, 0]
