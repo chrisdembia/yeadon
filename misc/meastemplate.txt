@@ -179,7 +179,7 @@ Lj9w=
 #
 # stadium depths:
 # this stadium is rotated 90 degrees from the other, so that its longitudinal
-# axis is oriented anterior-posteriorly (from back to front)
+# axis is oriented anteroposteriorly (from back to front)
 Lj6d=
 #
 ##############################################################################
@@ -216,5 +216,5 @@ Lk9w=
 #
 # stadium depths:
 # this stadium is rotated 90 degrees from the other, so that its longitudinal
-# axis is oriented anterior-posteriorly (from back to front)
+# axis is oriented anteroposteriorly (from back to front)
 Lk6d=
