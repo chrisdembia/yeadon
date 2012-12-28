@@ -343,7 +343,8 @@ class StadiumSolid(Solid):
             Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
             Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
             Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, edgecolor='');
+            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, 
+                    edgecolor='');
             if 0:
                 if idx == 8:
                     print "IDX IS 8\n",Xpts,'\n',Ypts,'\n',Zpts
