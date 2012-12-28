@@ -27,7 +27,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
      inkscape:cx="241.20658"
-     inkscape:cy="727.41151"
+     inkscape:cy="355.98294"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1160,7 +1160,7 @@
          id="tspan4140-7-6-5-5-3"
          sodipodi:role="line"><tspan
            style="fill:#ff8080;fill-opacity:1"
-           id="tspan4096">segment, name, solids</tspan><tspan
+           id="tspan4096">segment, label, solids</tspan><tspan
            style="font-size:8.3014946px;baseline-shift:super"
            id="tspan4119">9</tspan></tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
@@ -1609,7 +1609,7 @@
          y="356.08459"
          x="46.771194"
          id="tspan4140-4-4"
-         sodipodi:role="line">level, name, measurements needed</tspan></text>
+         sodipodi:role="line">level, label, measurements needed</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4138-2-1-6-4-9-5-2-0-5-0-8-2-3-2"
