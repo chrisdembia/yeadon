@@ -170,10 +170,3 @@ class Segment(object):
         '''
         for s in self.solids:
             s.draw_mayavi(mlabobj, self.color)
-
-    def draw_visual(self):
-        '''Draws in a 3D VPython window all the solids within this segment.
-
-        '''
-        for s in self.solids:
-            s.draw_visual(self.color)
