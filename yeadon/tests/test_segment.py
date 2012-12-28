@@ -34,7 +34,7 @@ class TestSegments(unittest.TestCase):
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
-        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
         solids = [self.solidAB, self.solidBC, self.solidCD]
         color = (1, 0, 0)
 
@@ -122,7 +122,7 @@ class TestSegments(unittest.TestCase):
         # Create default parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
-        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
         solids = [self.solidAB, self.solidBC, self.solidCD]
         color = (1, 0, 0)
 
@@ -164,7 +164,7 @@ class TestSegments(unittest.TestCase):
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
-        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
         solids = [self.solidAB, self.solidBC, self.solidCD]
         color = (1, 0, 0)
 
@@ -187,7 +187,7 @@ class TestSegments(unittest.TestCase):
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
-        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
         solids = [self.solidAB, self.solidBC, self.solidCD]
         color = (1, 0, 0)
 
@@ -230,7 +230,7 @@ class TestSegments(unittest.TestCase):
         # Create parameters.
         label = 'seg1'
         pos = np.array([[1], [2], [3]])
-        rot = inertia.rotate3([pi / 2, pi / 2, pi / 2])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
         solids = [self.solidAB, self.solidBC, self.solidCD]
         color = (1, 0, 0)
 

@@ -349,7 +349,7 @@ class StadiumSolid(Solid):
         if self.alignment == 'AP':
             # rearrange to anterior-posterior orientation
             self.relInertia = inertia.rotate3_inertia(
-                              inertia.rotate3([0,0,np.pi/2]),self.relInertia)
+                              inertia.rotate_space_123([0,0,np.pi/2]),self.relInertia)
 
     def draw(self, ax, c):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with

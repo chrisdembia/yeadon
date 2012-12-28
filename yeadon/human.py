@@ -166,7 +166,7 @@ class Human(object):
             self.read_CFG(CFG)
 
         self.coord_sys_pos = np.array([[0],[0],[0]])
-        self.coord_sys_orient = inertia.rotate3((0,0,0))
+        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
 
         # update_solids will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
@@ -344,20 +344,19 @@ class Human(object):
     def rotate_coord_sys(self,varin):
         '''Rotates the coordinate system, given a list of three rotations
         about the x, y and z axes. For list or tuple input, the order of the
-        rotations is x, then, y, then z. All rotations are about the
+        rotations is x, then, y, then z (i.e. Euler 1-2-3, X-Y-Z). All rotations are about the
         original (unrotated) axes (rotations are not relative).
 
         Parameters
         ----------
         varin : list or tuple (3,) or np.matrix (3,3)
-            If list or tuple, the rotations in radians about the x, y,
-            and z axes (in that order). If np.matrix, it is a 3x3 rotation
-            matrix. For more information, see the DynamicistToolKit
-            documentation.
+            If list or tuple, the rotations in radians about the x, y, and z
+            axes (in that order). If np.matrix, it is a 3x3 rotation matrix.
+            For more information, see the inertia.rotate_space_123 documentation.
 
         '''
         if type(varin) == tuple or type(varin) == list:
-            rotmat = inertia.rotate3(varin)
+            rotmat = inertia.rotate_space_123(varin)
         else:
             rotmat = varin
         self.coord_sys_orient = rotmat
@@ -1038,14 +1037,14 @@ class Human(object):
                               [self.s[0],self.s[1]] , (1,0,0))
         # thorax
         Tpos = self.s[1].endpos
-        TRotMat = self.s[1].rot_mat * inertia.rotate3(
+        TRotMat = self.s[1].rot_mat * inertia.rotate_space_123(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.Segment( 'T: Thorax', Tpos, TRotMat,
                               [self.s[2]], (1,.5,0))
         # chest-head
         Cpos = self.s[2].endpos
-        CRotMat = self.s[2].rot_mat * inertia.rotate3(
+        CRotMat = self.s[2].rot_mat * inertia.rotate_space_123(
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
                                      self.CFG['TCspinalTorsion']])
@@ -1056,7 +1055,7 @@ class Human(object):
         dpos = np.array([[self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
         A1pos = self.s[3].pos + self.s[3].rot_mat * dpos
-        A1RotMat = self.s[3].rot_mat * (inertia.rotate3(
+        A1RotMat = self.s[3].rot_mat * (inertia.rotate_space_123(
                                        [0,-np.pi,0]) *
                                           inertia.euler_123(
                                           [self.CFG['CA1elevation'],
@@ -1066,7 +1065,7 @@ class Human(object):
                                [self.a[0],self.a[1]] , (0,1,0))
         # left forearm-hand
         A2pos = self.a[1].endpos
-        A2RotMat = self.a[1].rot_mat * inertia.rotate3(
+        A2RotMat = self.a[1].rot_mat * inertia.rotate_space_123(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.Segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self.a[2],self.a[3],self.a[4],self.a[5],
@@ -1075,7 +1074,7 @@ class Human(object):
         dpos = np.array([[-self.s[3].stads[1].width/2],[0.0],
                          [self.s[3].height]])
         B1pos = self.s[3].pos + self.s[3].rot_mat * dpos
-        B1RotMat = self.s[3].rot_mat * (inertia.rotate3(
+        B1RotMat = self.s[3].rot_mat * (inertia.rotate_space_123(
                                        [0,-np.pi,0]) *
                                            inertia.euler_123(
                                            [self.CFG['CB1elevation'],
@@ -1085,7 +1084,7 @@ class Human(object):
                                [self.b[0],self.b[1]], (0,1,0))
         # right forearm-hand
         B2pos = self.b[1].endpos
-        B2RotMat = self.b[1].rot_mat * inertia.rotate3(
+        B2RotMat = self.b[1].rot_mat * inertia.rotate_space_123(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.Segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self.b[2],self.b[3],self.b[4],self.b[5],
@@ -1094,16 +1093,16 @@ class Human(object):
         dpos = np.array([[.5*self.s[0].stads[0].thickness+
                           .5*self.s[0].stads[0].radius],[0.0],[0.0]])
         J1pos = self.s[0].pos + self.s[0].rot_mat * dpos
-        J1RotMat = self.s[0].rot_mat * (inertia.rotate3(
+        J1RotMat = self.s[0].rot_mat * (inertia.rotate_space_123(
                                        np.array([0,np.pi,0])) *
-                                          inertia.rotate3(
+                                          inertia.rotate_space_123(
                                           [self.CFG['PJ1flexion'],
                                            -self.CFG['PJ1abduction'],0]))
         self.J1 = seg.Segment( 'J1: Left thigh', J1pos, J1RotMat,
                                [self.j[0],self.j[1],self.j[2]], (0,1,0))
         # left shank-foot
         J2pos = self.j[2].endpos
-        J2RotMat = self.j[2].rot_mat * inertia.rotate3(
+        J2RotMat = self.j[2].rot_mat * inertia.rotate_space_123(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.Segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self.j[3],self.j[4],self.j[5],self.j[6],
@@ -1112,16 +1111,16 @@ class Human(object):
         dpos = np.array([[-.5*self.s[0].stads[0].thickness-
                            .5*self.s[0].stads[0].radius],[0.0],[0.0]])
         K1pos = self.s[0].pos + self.s[0].rot_mat * dpos
-        K1RotMat = self.s[0].rot_mat * (inertia.rotate3(
+        K1RotMat = self.s[0].rot_mat * (inertia.rotate_space_123(
                                        np.array([0,np.pi,0])) *
-                                       inertia.rotate3(
+                                       inertia.rotate_space_123(
                                           [self.CFG['PK1flexion'],
                                            self.CFG['PK1abduction'],0]))
         self.K1 = seg.Segment( 'K1: Right thigh', K1pos, K1RotMat,
                                [self.k[0],self.k[1],self.k[2]], (0,1,0))
         # right shank-foot
         K2pos = self.k[2].endpos
-        K2RotMat = self.k[2].rot_mat * inertia.rotate3(
+        K2RotMat = self.k[2].rot_mat * inertia.rotate_space_123(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.Segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self.k[3],self.k[4],self.k[5],self.k[6],
