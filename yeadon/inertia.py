@@ -1,52 +1,5 @@
 import numpy as np
 
-def compound_pendulum_inertia(m, g, l, T):
-    '''Returns the moment of inertia for an object hung as a compound
-    pendulum.
-
-    Parameters
-    ----------
-    m : float
-        Mass of the pendulum.
-    g : float
-        Acceration due to gravity.
-    l : float
-        Length of the pendulum.
-    T : float
-        The period of oscillation.
-
-    Returns
-    -------
-    I : float
-        Moment of interia of the pendulum.
-
-    '''
-
-    I = (T / 2. / np.pi)**2. * m * g * l - m * l**2.
-
-    return I
-
-def torsional_pendulum_inertia(k, T):
-    '''Calculate the moment of inertia for an ideal torsional pendulum.
-
-    Parameters:
-    -----------
-    k : float
-        Torsional stiffness.
-    T : float
-        Period of oscillation.
-
-    Returns:
-    --------
-    I : float
-        Moment of inertia.
-
-    '''
-
-    I = k * T**2 / 4. / np.pi**2
-
-    return I
-
 def parallel_axis(Ic, m, d):
     '''Returns the moment of inertia of a body about a different point.
 
@@ -77,164 +30,11 @@ def parallel_axis(Ic, m, d):
     dMat[2] = np.array([-a * c, -b * c, a**2 + b**2])
     return Ic + m * dMat
 
-def inertia_components(jay, beta):
-    '''Returns the 2D orthogonal inertia tensor.
-
-    When at least three moments of inertia and their axes orientations are
-    known relative to a common inertial frame of a planar object, the orthoganal
-    moments of inertia relative the frame are computed.
-
-    Parameters
-    ----------
-    jay : ndarray, shape(n,)
-        An array of at least three moments of inertia. (n >= 3)
-    beta : ndarray, shape(n,)
-        An array of orientation angles corresponding to the moments of inertia
-        in jay.
-
-    Returns
-    -------
-    eye : ndarray, shape(3,)
-        Ixx, Ixz, Izz
-
-    '''
-    sb = np.sin(beta)
-    cb = np.cos(beta)
-    betaMat = np.matrix(np.vstack((cb**2, -2 * sb * cb, sb**2)).T)
-    eye = np.squeeze(np.asarray(np.dot(betaMat.I, jay)))
-    return eye
-
-def tube_inertia(l, m, ro, ri):
-    '''Calculate the moment of inertia for a tube (or rod) where the x axis is
-    aligned with the tube's axis.
-
-    Parameters
-    ----------
-    l : float
-        The length of the tube.
-    m : float
-        The mass of the tube.
-    ro : float
-        The outer radius of the tube.
-    ri : float
-        The inner radius of the tube. Set this to zero if it is a rod instead
-        of a tube.
-
-    Returns
-    -------
-    Ix : float
-        Moment of inertia about tube axis.
-    Iy, Iz : float
-        Moment of inertia about normal axis.
-
-    '''
-    Ix = m / 2. * (ro**2 + ri**2)
-    Iy = m / 12. * (3 * ro**2 + 3 * ri**2 + l**2)
-    Iz = Iy
-    return Ix, Iy, Iz
-
-def cylinder_inertia(l, m, ro, ri):
+def rotate_space_123(angles):
     """
-    Calculate the moment of inertia for a hollow cylinder (or solid cylinder) where the x axis is
-    aligned with the cylinder's axis.
-
-    Parameters
-    ----------
-    l : float
-        The length of the cylinder.
-    m : float
-        The mass of the cylinder.
-    ro : float
-        The outer radius of the cylinder.
-    ri : float
-        The inner radius of the cylinder. Set this to zero for a solid cylinder.
-
-    Returns
-    -------
-    Ix : float
-        Moment of inertia about cylinder axis.
-    Iy, Iz : float
-        Moment of inertia about cylinder axis.
-
-    """
-    Ix = m / 2. * (ro**2 + ri**2)
-    Iy = m / 12. * (3 * ro**2 + 3 * ri**2 + l**2)
-    Iz = Iy
-    return Ix, Iy, Iz
-
-def total_com(coordinates, masses):
-    """
-    Returns the center of mass of a group of objects if the indivdual
-    centers of mass and mass is provided.
-
-    coordinates : ndarray, shape(3,n)
-        The rows are the x, y and z coordinates, respectively and the columns
-        are for each object.
-    masses : ndarray, shape(3,)
-        An array of the masses of multiple objects, the order should correspond
-        to the columns of coordinates.
-
-    Returns
-    -------
-    mT : float
-        Total mass of the objects.
-    cT : ndarray, shape(3,)
-        The x, y, and z coordinates of the total center of mass.
-
-    """
-    products = masses * coordinates
-    mT = np.sum(masses)
-    cT = np.sum(products, axis=1) / mT
-    return mT, cT
-
-def rotate_inertia_about_y(I, angle):
-    """
-    Returns inertia tensor rotated through angle about the Y axis.
-
-    Parameters
-    ----------
-    I : ndarray, shape(3,)
-        An inertia tensor.
-    angle : float
-        Angle in radians about the positive Y axis of which to rotate the
-        inertia tensor.
-
-    """
-    ca = np.cos(angle)
-    sa = np.sin(angle)
-    C = np.matrix([[ca, 0., -sa],
-                   [0., 1., 0.],
-                   [sa, 0., ca]])
-    Irot = C * I * C.T
-    return np.array(Irot)
-
-def principal_axes(I):
-    """
-    Returns the principal moments of inertia and the orientation.
-
-    Parameters
-    ----------
-    I : ndarray, shape(3,3)
-        An inertia tensor.
-
-    Returns
-    -------
-    Ip : ndarray, shape(3,)
-        The principal moments of inertia. This is sorted smallest to largest.
-    C : ndarray, shape(3,3)
-        The rotation matrix.
-
-    """
-    Ip, C = np.linalg.eig(I)
-    indices = np.argsort(Ip)
-    Ip = Ip[indices]
-    C = C.T[indices]
-    return Ip, C
-
-def rotate3(angles):
-    """
-    Produces a three-dimensional rotation matrix as rotations around the
-    three cartesian axes.
+    Returns the direction cosine matrix relating a reference frame B rotated
+    relative to reference frame A through the x, y, then z axes of reference
+    frame A (spaced fixed rotations).
 
     Parameters
     ----------
@@ -250,6 +50,23 @@ def rotate3(angles):
     -------
     R : numpy.matrix, shape(3,3)
         Three dimensional rotation matrix about three different orthogonal axes.
+
+    Notes
+    -----
+
+    R = |c2 * c3    s1 * s2 * c3 - s3 * c1   c1 * s2 * c3 + s3 * s1|
+        |c2 * s3    s1 * s2 * s3 + c3 * c1   c1 * s2 * s3 - c3 * s1|
+        |-s2        s1 * c2                  c1 * c2               |
+
+    where
+
+    s1, s2, s3 = sine of the first, second and third angles, respectively
+    c1, c2, c3 = cosine of the first, second and third angles, respectively
+
+    So the unit vector b1 in the B frame can be expressed in the A frame (unit
+    vectors a1, a2, a3) with:
+
+    b1 = c2 * c3 * a1 + c2 * s3 * a2 - s2 * a3
 
     """
     cx = np.cos(angles[0])
@@ -277,7 +94,8 @@ def rotate3(angles):
 
 def euler_123(angles):
     """
-    Returns the direction cosine matrix as a function of the Euler 123 angles.
+    Returns the direction cosine matrix as a function of the Euler 123 angles
+    (body fixed rotation).
 
     Parameters
     ----------
@@ -298,7 +116,26 @@ def euler_123(angles):
     R : numpy.matrix, shape(3,3)
         Three dimensional rotation matrix about three different orthogonal axes.
 
+    Notes
+    -----
+
+    R = | c2 * c3                  -c2 * s3                   s2     |
+        | s1 * s2 * c3 + s3 * c1   -s1 * s2 * s3 + c3 * c1   -s1 * c2|
+        |-c1 * s2 * c3 + s3 * s1    c1 * s2 * s3 + c3 * s1    c1 * c2|
+
+    where
+
+    s1, s2, s3 = sine of the first, second and third angles, respectively
+    c1, c2, c3 = cosine of the first, second and third angles, respectively
+
+    So the unit vector b1 in the B frame can be expressed in the A frame (unit
+    vectors a1, a2, a3) with:
+
+    b1 = c2 * c3 * a1 + (s1 * s2 * c3 + s3 * c1) * a2 +
+         (-c1 * c2 * c3 + s3 * s1) * a3
+
     """
+
     cphi = np.cos(angles[0])
     sphi = np.sin(angles[0])
 
@@ -348,3 +185,51 @@ def rotate3_inertia(rot_mat, relInertia):
 
     """
     return rot_mat * relInertia * rot_mat.T
+
+def total_com(coordinates, masses):
+    """
+    Returns the center of mass of a group of objects if the indivdual
+    centers of mass and mass is provided.
+
+    coordinates : ndarray, shape(3,n)
+        The rows are the x, y and z coordinates, respectively and the columns
+        are for each object.
+    masses : ndarray, shape(3,)
+        An array of the masses of multiple objects, the order should correspond
+        to the columns of coordinates.
+
+    Returns
+    -------
+    mT : float
+        Total mass of the objects.
+    cT : ndarray, shape(3,)
+        The x, y, and z coordinates of the total center of mass.
+
+    """
+    products = masses * coordinates
+    mT = np.sum(masses)
+    cT = np.sum(products, axis=1) / mT
+    return mT, cT
+
+def principal_axes(I):
+    """
+    Returns the principal moments of inertia and the orientation.
+
+    Parameters
+    ----------
+    I : ndarray, shape(3,3)
+        An inertia tensor.
+
+    Returns
+    -------
+    Ip : ndarray, shape(3,)
+        The principal moments of inertia. This is sorted smallest to largest.
+    C : ndarray, shape(3,3)
+        The rotation matrix.
+
+    """
+    Ip, C = np.linalg.eig(I)
+    indices = np.argsort(Ip)
+    Ip = Ip[indices]
+    C = C.T[indices]
+    return Ip, C
