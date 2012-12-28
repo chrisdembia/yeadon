@@ -43,13 +43,13 @@ class Segment(object):
         self.color = color
         # must set the position of constituent solids before being able to
         # calculate relative/local properties.
-        self.set_orientations()
+        self._set_orientations()
         self.endpos = self.solids[-1].endpos
         self.length = np.linalg.norm(self.endpos - self.pos)
         self.calc_rel_properties()
 
 
-    def set_orientations(self):
+    def _set_orientations(self):
         '''Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent
         solid's set_orientation method. The position of the i-th solid,
