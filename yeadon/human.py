@@ -190,10 +190,10 @@ class Human(object):
         self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
-        self.Segments = [ self.P, self.T, self.C,
+        self.segments = [ self.P, self.T, self.C,
                           self.A1, self.A2, self.B1, self.B2,
                           self.J1, self.J2, self.K1, self.K2]
-        for s in self.Segments:
+        for s in self.segments:
             s.calc_properties()
         # Must update segment properties before updating the human properties.
         self.calc_properties()
@@ -288,16 +288,16 @@ class Human(object):
         '''
         # mass
         self.mass = 0.0;
-        for s in self.Segments:
+        for s in self.segments:
             self.mass += s.mass
         # center of mass
         moment = np.zeros((3,1))
-        for s in self.Segments:
+        for s in self.segments:
             moment += s.mass * s.center_of_mass
         self.center_of_mass = moment / self.mass
         # inertia
         self.inertia = np.mat(np.zeros((3,3)))
-        for s in self.Segments:
+        for s in self.segments:
             dist = s.center_of_mass - self.center_of_mass
             self.inertia += np.mat(
                 inertia.parallel_axis(s.inertia,
@@ -410,7 +410,7 @@ class Human(object):
                       'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
         segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
         solidvals = self._s + self._a + self._b + self._j + self._k
-        ObjDict = dict(zip(solidkeys + segmentkeys,solidvals + self.Segments))
+        ObjDict = dict(zip(solidkeys + segmentkeys,solidvals + self.segments))
         # error-checking
         for key in (solidkeys + segmentkeys):
             if objlist.count(key) > 1:
@@ -457,7 +457,7 @@ class Human(object):
         The mouse can be used to control or explore the 3D view.
 
         '''
-        for s in self.Segments:
+        for s in self.segments:
             s.draw_mayavi(mlabobj)
         L = 0.4
         x_cone, y_cone, z_cone = self._make_mayavi_cone_pos()
@@ -506,7 +506,7 @@ class Human(object):
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
-        for s in self.Segments:
+        for s in self.segments:
             s.draw(ax)
         # fixed coordinate frame axes
         ax.plot( np.array([0,.3]),
