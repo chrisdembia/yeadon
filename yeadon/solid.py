@@ -90,7 +90,7 @@ class Stadium(object):
             Either width, or radius, as determined by inID
         alignment = 'ML' : str
             Identifies the long direction of the stadium. 'ML' stands for
-            medio-lateral. Aleternatively, 'AP' (anterior-posterior) can be
+            medio-lateral. Aleternatively, 'AP' (anteroposterior) can be
             supplied. The only 'AP' stadiums should be at the heels.
 
         '''
@@ -266,7 +266,7 @@ class StadiumSolid(Solid):
         super(StadiumSolid, self).__init__(label,density,height)
         self.stads = [stadium0,stadium1]
         self.alignment = 'ML'
-        # if either stadium is oriented anterior-posterior,
+        # if either stadium is oriented anteroposteriorly.
         # inertia must be rotated, and the plots must be modified
         if (self.stads[0].alignment == 'AP' or
             self.stads[1].alignment == 'AP'):
@@ -276,7 +276,7 @@ class StadiumSolid(Solid):
     def calc_rel_properties(self):
         '''Calculates mass, relative center of mass, and relative/local
         inertia, according to formulae in Appendix B of Yeadon 1990-ii. If the
-        stadium solid is arranged anterior-posteriorly, the inertia is rotated
+        stadium solid is arranged anteroposteriorly, the inertia is rotated
         by pi/2 about the z axis.
 
         '''
@@ -318,7 +318,7 @@ class StadiumSolid(Solid):
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
-            # rearrange to anterior-posterior orientation
+            # rearrange to anterorposterior orientation
             self.rel_inertia = inertia.rotate3_inertia(
                               inertia.rotate3([0,0,np.pi/2]),self.rel_inertia)
 
@@ -326,7 +326,7 @@ class StadiumSolid(Solid):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
         a non-one value for alpha. Also places the solid's label near the
         center of mass of the solid. Adjusts the plot for solids oriented
-        anterior-posteriorly. Plots coordinate axes of the solid at the base of
+        anteroposteriorly. Plots coordinate axes of the solid at the base of
         the solid.
 
         Parameters
