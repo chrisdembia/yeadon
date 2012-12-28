@@ -153,29 +153,6 @@ class Stadium(object):
         self.thickness = 0.0
         self.width = self.perimeter / np.pi
 
-    def plot(self, ax, c):
-        '''Plots the 2D stadium on 3D axes using matplotlib and its Axes3D
-        class.
-
-        Parameters
-        ----------
-        ax : Axes3D object
-            Axis object from the matplotlib library.
-        c : str
-            Color, as a word. e.g. 'red'
-
-        '''
-        theta = [np.linspace(0.0, np.pi / 2.0, 5)]
-        x = self.thickness + self.radius * np.cos(theta);
-        y = self.radius * np.sin(theta);
-        xrev = x[:, ::-1]
-        yrev = y[:, ::-1]
-        X2 = np.concatenate( (x, -xrev, -x, xrev ), axis = 1)
-        Y2 = np.concatenate( (y, yrev, -y, -yrev ), axis = 1)
-        X3 = np.concatenate( (X2, np.nan * X2), axis = 0)
-        Y3 = np.concatenate( (Y2, np.nan * Y2), axis = 0)
-        ax.plot_surface(X3, Y3, np.zeros((2, 20)), color=c, alpha=0.5)
-
 class Solid(object):
     '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
