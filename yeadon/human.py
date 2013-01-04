@@ -130,10 +130,10 @@ class Human(object):
         symmetric : bool
             Optional argument, set to True by default. Decides whether or not
             to average the measurements of the left and right limbs of the
-            human.
+            human. This has nothing to with the configuration being symmetric.
 
         '''
-        self.isSymmetric = symmetric
+        self.is_symmetric = symmetric
         self.meas_mass = -1
         # initialize measurement dictionary
         self.meas = {}
@@ -144,8 +144,8 @@ class Human(object):
         elif type(meas_in) == str:
             self._read_measurements(meas_in)
         # average left and right limbs for symmetry (maybe)
-        if self.isSymmetric == True:
-            self.average_limbs()
+        if self.is_symmetric == True:
+            self._average_limbs()
 
         # if configuration input is a dictionary, just assign. else, read in
         # the file.
@@ -221,7 +221,7 @@ class Human(object):
                 boolval = -1
         return boolval
 
-    def average_limbs(self):
+    def _average_limbs(self):
         '''Called only if symmetric=True (which is the default). The left and
         right arms and legs are averaged (the measurements are averaged before
         the code creates yeadon.Solid or yeadon.Segment objects. To be
