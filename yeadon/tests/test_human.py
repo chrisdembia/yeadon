@@ -245,6 +245,11 @@ class TestHuman(unittest.TestCase):
 
 
 # TODO translating the entire human: check resulting inertia properties.
+# TODO make sure mass scaling works appropriately.
 
 # TODO compare ISEG output to our output.
 # TODO test CFGbounds functionality.
+# TODO reading measurement input file: test bad input:
+    # missing a measurement
+    # value is zero
+    # repeating a measurement/key

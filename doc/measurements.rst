@@ -47,7 +47,8 @@ Getting measurements into the code
 There are three options for getting measurements into the code.
 
  - Use the ``meastemplate.txt`` file in the yeadon/ directory, or
-   :download:`here <../misc/meastemplate.txt>`.
+   :download:`here <../misc/meastemplate.txt>`. The file uses the `YAML`_
+   syntax.
  - Use the ``measform.PDF`` form in the yeadon/ directory, or :download:`here
    <../misc/measform.pdf>`. If you install the python package pdfminer, you can run
    the python script measpdf2txt.py in yeadon/, or :download:`here
@@ -66,7 +67,7 @@ In the first two cases, you can provide a value for the variable
 your measurements into meters. For example, if you took measurements in
 millimeters, this variable would have the value 0.001. If you are inputting
 using a dictionary, the units must be correct (and density scaling must be done
-by calling yeadon.human.scale_human_by_mass.
+by calling :py:meth:`yeadon.human.scale_human_by_mass()`.
 
 It was mentioned above that lengths, not heights, are measured. That is to say
 that the inputs in the meastemplate.txt file are cumulative length
@@ -107,3 +108,5 @@ Here are measurement data files for three real-life people.
  - :download:`male2 <../misc/samplemeasurements/male2.txt>`
  - :download:`male3 <../misc/samplemeasurements/male3.txt>`
  - :download:`female1 <../misc/samplemeasurements/female1.txt>`
+
+.. _YAML: http://www.yaml.org/

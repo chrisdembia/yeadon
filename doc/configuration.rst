@@ -8,7 +8,7 @@ There are two ways to provide the configuration to the package. Both are valid
 CFG arguments when creating a human object.
 
  - A configuration .txt file, such as CFGtemplate.txt in yeadon/, or
-   :download:`here <../CFGtemplate.txt>`.
+   :download:`here <../CFGtemplate.txt>`. This file follows `YAML`_ syntax.
  - Provide a dictionary with the correct keys. The keys are exactly as written
    in the image below. One can also access the yeadon.human.CFG variable to see
    what the dictionary looks like.
@@ -25,3 +25,4 @@ Location of joint centres
 
 .. image:: cld72_yeadon_cfg_0718.png
 
+.. _YAML: http://www.yaml.org

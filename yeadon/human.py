@@ -26,6 +26,8 @@ Typical usage (not using yeadon.ui.start_ui())
 See documentation for a complete description of functionality.
 '''
 
+import copy
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -35,6 +37,8 @@ except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_mayavi() member functions."
+import yaml
+
 import inertia
 
 import solid as sol
@@ -136,7 +140,7 @@ class Human(object):
         self.is_symmetric = symmetric
         self.meas_mass = -1
         # initialize measurement dictionary
-        self.meas = {}
+        self.meas = dict()
         # if measurements input is a module, just assign. else, read in file
         if type(meas_in) == dict:
             self.measurementconversionfactor = 1
@@ -151,7 +155,7 @@ class Human(object):
         # the file.
         if CFG is None: 
             # set all joint angles to zero
-            self.CFG = {}
+            self.CFG = dict()
             for key in Human.CFGnames:
                 self.CFG[key] = 0.0
         elif type(CFG) == dict:
@@ -1085,7 +1089,7 @@ class Human(object):
                                [self._k[3],self._k[4],self._k[5],self._k[6],
                                 self._k[7],self._k[8]], (1,0,0))
 
-    def scale_human_by_mass(self,measmass):
+    def scale_human_by_mass(self, measmass):
         '''Takes a measured mass and scales all densities by that mass so that
         the mass of the human is the same as the mesaured mass. Mass must be
         in units of kilograms to be consistent with the densities used.
@@ -1115,75 +1119,58 @@ class Human(object):
                           2),"self.mass:",round(self.mass, 2)
             raise Exception()
 
-    def _read_measurements(self,fname):
-        '''Reads a measurement input .txt file and assigns the measurements
-        to fields in the self.meas dict. This method is called by the
-        constructor.
+    def _read_measurements(self, fname):
+        '''Reads a measurement input .txt file, in YAML format,  and assigns
+        the measurements to fields in the self.meas dict. This method is called
+        by the constructor.
 
         Parameters
         ----------
         fname : str
             Filename or path to measurement file.
+
         '''
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
         # open measurement file
         fid = open(fname,'r')
+        mydict = yaml.load(fid.read())
+        fid.close()
         # loop until all 95 parameters are read in
-        for line in fid:
-            tempstr0 = line
-            # skip the line if it is empty
-            if (tempstr0.isspace() == False):
-                tempstr1 = tempstr0.partition('#')
-                # skip lines that start with a pound, after only spaces
-                if ((tempstr1[0].isspace() == False) and
-                    (tempstr1[0].find('=') != -1)):
-                    tempstr2 = tempstr1[0].partition('=')
-                    varname = tempstr2[0].strip()
-                    if len(tempstr2[2]) == 0:
-                       print "Error in Human._read_measurements(fname):" \
-                             " variable",varname,"does not have a value."
-                       raise Exception()
-                    else:
-                       varval = float(tempstr2[2])
-                    # identify varname-varval pairs and assign appropriately
-                    if varname == 'measurementconversionfactor':
-                        self.measurementconversionfactor = varval
-                    elif varname == 'totalmass':
-                        if varval > 0:
-                            # scale densities
-                            self.meas_mass = varval
-                    else:
-                    	if varname in self.meas:
-                            # key was already defined
-                            print "Error in Human._read_measurements(fname):" \
-                                  " variable",varname,"has been defined " \
-                                  "multiple times in input measurement file",\
-                                  fname
-                        else:
-                            if [x for x in self.measnames if x==varname] == []:
-                                print "Error in Human._read_measurements"\
-                                      "(fname): variable name",varname,"in " \
-                                      "file",fname,"is not a valid " \
-                                      "name for a measurement."
-                                raise Exception()
-                            else:
-                                # okay, go ahead and assign the measurement!
-                                self.meas[varname] = float(varval)
+        for key, val in mydict.items():
+            # If inappropriate value.
+            if val == None or val <= 0:
+                raise ValueError("Variable {0} has inappropriate value.".format(
+                    val))
+            if key == 'measurementconversionfactor':
+                self.measurementconversionfactor = val
+            elif key == 'totalmass':
+                # scale densities
+                self.meas_mass = val
+            else:
+                # If key is unexpected.
+                if key not in self.measnames:
+                    raise ValueError("Variable {0} is not valid name for a "
+                        "measurement.".format(key))
+                # If key was already defined.
+                if key in self.meas:
+                    raise Exception("Variable {0} has been defined multiple "
+                            "times in input measurement file.".format(key))
+                # okay, go ahead and assign the measurement!
+                self.meas[key] = float(val)
         if len(self.meas) != len(self.measnames):
-            print "Error in Human._read_measurements(fname): there should be", \
-                  len(self.measnames),"measurements, but",len(self.meas), \
-                  "were found."
+            raise Exception("There should be {0} measurements, but {1} were "
+                    " found.".format(len(self.measnames), len(self.meas)))
         if self.measurementconversionfactor == 0:
-            print "Error in Human._read_measurements(fname): no variable " \
-                  "measurementconversionfactor has been provided. Set as 1 " \
-                  "if measurements are given in meters."
+            raise Exception("Variable measurementconversionfactor not provided."
+                    " Set as 1 if measurements are given in meters.")
         # multiply all values by conversion factor
-        for key,val in self.meas.items():
+        for key, val in self.meas.items():
             self.meas[key] = val * self.measurementconversionfactor
 
     def write_measurements(self,fname):
         '''Writes the keys and values of the self.meas dict to a text file.
+        Units of measurements is meters.
 
         Parameters
         ----------
@@ -1191,9 +1178,14 @@ class Human(object):
             Filename or path to measurement output .txt file.
 
         '''
-        fid = open(fname,'w')
-        for key,val in self.meas.items():
-            fid.write(key + "=" + val)
+        # Need to make sure we don't modify self.meas: make shallow copy.
+        mydict = copy.copy(self.meas)
+        # Add total mass.
+        mydict['totalmass'] = self.meas_mass
+        # Add measurement conversion factor.
+        mydict['measurementconversionfactor'] = 1
+        fid = open(fname, 'w')
+        yaml.dump(mydict, fid, default_flow_style=False)
         fid.close()
 
     def write_meas_for_ISEG(self,fname):
@@ -1242,27 +1234,22 @@ class Human(object):
             Filename or path to configuration input .txt file.
 
         '''
-        self.CFG = {}
+        self.CFG = dict()
         with open(CFGfname, 'r') as fid:
-            for line in fid:
-                # skip lines that are comment lines
-                if not line.strip().startswith('#'):
-                    # remove any whitespace characters and comments at the end
-                    # of the line, then split the right and left side of the
-                    # equality
-                    tempstr = line.strip().split('#')[0].split('=')
-                    if tempstr[0]:
-                        if tempstr[0] not in Human.CFGnames:
-                            mes = ('{}'.format(tempstr[0]) +
-                                ' is not a correct variable name.')
-                            raise StandardError(mes)
-                        else:
-                            self.CFG[tempstr[0]] = float(tempstr[1])
+            mydict = yaml.load(fid.read())
+            for key, val in mydict.items():
+                if key not in self.CFGnames:
+                    mes = ('{}'.format(tempstr[0]) +
+                            ' is not a correct variable name.')
+                    raise StandardError(mes)
+                self.CFG[key] = float(val)
+            fid.close()
 
-        if len(self.CFG.keys()) < len(self.CFGnames):
-            raise StandardError('You have not supplied all of the joint angles in the CFG file.')
+        if len(self.CFG) == len(self.CFGnames):
+            raise StandardError("You have not supplied all of the joint angles"
+                    "in the CFG file.")
 
-    def write_CFG(self,CFGfname):
+    def write_CFG(self, CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
 
         Parameters
@@ -1271,9 +1258,8 @@ class Human(object):
             Filename or path to configuration output .txt file
 
         '''
-        fid = open(CFGfname,'w')
-        for key,val in self.CFG.items():
-            fid.write(key + "=" + val)
+        fid = open(CFGfname, 'w')
+        yaml.dump(self.CFG, fid, default_flow_style=False)
         fid.close()
 
 
