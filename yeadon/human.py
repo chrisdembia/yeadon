@@ -1133,7 +1133,7 @@ class Human(object):
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
         # open measurement file
-        fid = open(fname,'r')
+        fid = open(fname, 'r')
         mydict = yaml.load(fid.read())
         fid.close()
         # loop until all 95 parameters are read in
@@ -1141,7 +1141,7 @@ class Human(object):
             # If inappropriate value.
             if val == None or val <= 0:
                 raise ValueError("Variable {0} has inappropriate value.".format(
-                    val))
+                    key))
             if key == 'measurementconversionfactor':
                 self.measurementconversionfactor = val
             elif key == 'totalmass':
@@ -1152,18 +1152,14 @@ class Human(object):
                 if key not in self.measnames:
                     raise ValueError("Variable {0} is not valid name for a "
                         "measurement.".format(key))
-                # If key was already defined.
-                if key in self.meas:
-                    raise Exception("Variable {0} has been defined multiple "
-                            "times in input measurement file.".format(key))
-                # okay, go ahead and assign the measurement!
                 self.meas[key] = float(val)
         if len(self.meas) != len(self.measnames):
             raise Exception("There should be {0} measurements, but {1} were "
-                    " found.".format(len(self.measnames), len(self.meas)))
+                    "found.".format(len(self.measnames), len(self.meas)))
         if self.measurementconversionfactor == 0:
-            raise Exception("Variable measurementconversionfactor not provided."
-                    " Set as 1 if measurements are given in meters.")
+            raise Exception("Variable measurementconversionfactor not "
+                    "provided or is 0. Set as 1 if measurements are given "
+                    "in meters.")
         # multiply all values by conversion factor
         for key, val in self.meas.items():
             self.meas[key] = val * self.measurementconversionfactor

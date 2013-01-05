@@ -146,6 +146,8 @@ class TestHuman(unittest.TestCase):
 
         # Initialize measurements using the dict from the previous one.
         h2 = hum.Human(h.meas)
+        # Crude test...
+        testing.assert_almost_equal(h.mass, h2.mass)
 
         # - Inspect symmetry.
         # Symmetric by default.
@@ -155,17 +157,64 @@ class TestHuman(unittest.TestCase):
         self.assertEqual(h.A1.mass, h.B1.mass)
         self.assertEqual(h.A2.mass, h.B2.mass)
 
+    def test_init_symmetry_off(self):
+        """Uses misc/samplemeasurements/male1.txt."""
+
+        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
+                'misc', 'samplemeasurements', 'male1.txt')
+        h = hum.Human(measPath, symmetric=False)
+
+        self.assertFalse(h.is_symmetric)
+        self.assertNotEqual(h.K1.mass, h.J1.mass)
+        self.assertNotEqual(h.K2.mass, h.J2.mass)
+        self.assertNotEqual(h.A1.mass, h.B1.mass)
+        self.assertNotEqual(h.A2.mass, h.B2.mass)
+
     def test_init_interesting_cfg(self):
         # TODO
         pass
 
-    def test_init_symmetry_off(self):
-        # TODO
-        pass
-
     def test_init_input_errors(self):
-        # TODO
-        pass
+        """Especially measurement input file errors."""
+
+        # -- Measurement input file errors.
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badkey.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message, "Variable LsLL is not "
+                    "valid name for a measurement.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badval.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message,
+                    "Variable Ls1L has inappropriate value.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_mcf.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Variable measurementconversionfactor not provided "
+                    "or is 0. Set as 1 if measurements are given in meters.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_missingkey.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message, "There should be 95 "
+                    "measurements, but 94 were found.")
+        print "KOKO"
 
     def test_update_solids(self):
         # TODO
@@ -217,7 +266,12 @@ class TestHuman(unittest.TestCase):
 
         # TODO cannot scale twice, or make sure the scale is relative to the
         # old scale.
-        pass
+
+        # From measurement file.
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_scale.txt')
+        h = hum.Human(measPath)
+        # TODO
 
     def test_read_measurements(self):
         # TODO is it expected behavior for the user to update the measurements?
@@ -239,11 +293,6 @@ class TestHuman(unittest.TestCase):
         # TODO
         pass
 
-
-
-
-
-
 # TODO translating the entire human: check resulting inertia properties.
 # TODO make sure mass scaling works appropriately.
 
@@ -253,3 +302,16 @@ class TestHuman(unittest.TestCase):
     # missing a measurement
     # value is zero
     # repeating a measurement/key
+
+    # TODO really make sure we're calculating inertia correctly.
+    # TODO make sure we're doing rotations correctly.3
+    # TODO make sure the rotations rotate as expected.2
+    # TODO file i/o 1
+    # TODO zero-config inertia comparison with ISEG code. 2
+    # TODO make sure relative vs absolute inertia etc is correct.
+
+    # TODO test combineinerita by manual calculations.
+
+    # TODO try out a program flow: make sure we do all necessary updates after
+    # construction, say when we change a joint angle, etc. CANNOT just change
+    # measurements on the fly.
