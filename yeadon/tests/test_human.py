@@ -393,8 +393,24 @@ class TestHuman(unittest.TestCase):
                     "measurements, but 94 were found.")
 
     def test_write_measurements(self):
-        # TODO this will have to change if we change the file format.
-        pass
+        """Writes a valid YAML file that can be read back in."""
+
+        path = os.path.join(os.path.split(__file__)[0],
+                'meas_output.txt')
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'meas_output_des.txt')
+
+        h = hum.Human(self.male1meas)
+        h.write_measurements(path)
+
+        # Output is correct.
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        # Works as input.
+        h2 = hum.Human(path)
+        self.assertEqual(h2.meas, h.meas)
+
+        os.remove(path)
 
     def test_write_meas_for_ISEG(self):
         # TODO

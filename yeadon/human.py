@@ -1146,16 +1146,16 @@ class Human(object):
         fid.close()
         # loop until all 95 parameters are read in
         for key, val in mydict.items():
-            # If inappropriate value.
-            if val == None or val <= 0:
-                raise ValueError("Variable {0} has inappropriate value.".format(
-                    key))
             if key == 'measurementconversionfactor':
                 self.measurementconversionfactor = val
             elif key == 'totalmass':
                 # scale densities
                 self.meas_mass = val
             else:
+                # If inappropriate value.
+                if val == None or val <= 0:
+                    raise ValueError("Variable {0} has inappropriate "
+                            "value.".format( key))
                 # If key is unexpected.
                 if key not in self.measnames:
                     raise ValueError("Variable {0} is not valid name for a "
