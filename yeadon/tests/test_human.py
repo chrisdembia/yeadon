@@ -176,45 +176,7 @@ class TestHuman(unittest.TestCase):
 
     def test_init_input_errors(self):
         """Especially measurement input file errors."""
-
-        # -- Measurement input file errors.
-        measPath = os.path.join(os.path.split(__file__)[0],
-                'male1_badkey.txt')
-        self.assertRaises(ValueError, hum.Human, measPath)
-        try:
-            h = hum.Human(measPath)
-        except ValueError as e:
-            self.assertEqual(e.message, "Variable LsLL is not "
-                    "valid name for a measurement.")
-
-        measPath = os.path.join(os.path.split(__file__)[0],
-                'male1_badval.txt')
-        self.assertRaises(ValueError, hum.Human, measPath)
-        try:
-            h = hum.Human(measPath)
-        except ValueError as e:
-            self.assertEqual(e.message,
-                    "Variable Ls1L has inappropriate value.")
-
-        measPath = os.path.join(os.path.split(__file__)[0],
-                'male1_mcf.txt')
-        self.assertRaises(Exception, hum.Human, measPath)
-        try:
-            h = hum.Human(measPath)
-        except Exception as e:
-            self.assertEqual(e.message,
-                    "Variable measurementconversionfactor not provided "
-                    "or is 0. Set as 1 if measurements are given in meters.")
-
-        measPath = os.path.join(os.path.split(__file__)[0],
-                'male1_missingkey.txt')
-        self.assertRaises(Exception, hum.Human, measPath)
-        try:
-            h = hum.Human(measPath)
-        except Exception as e:
-            self.assertEqual(e.message, "There should be 95 "
-                    "measurements, but 94 were found.")
-        print "KOKO"
+        pass
 
     def test_update_solids(self):
         # TODO
@@ -275,7 +237,43 @@ class TestHuman(unittest.TestCase):
 
     def test_read_measurements(self):
         # TODO is it expected behavior for the user to update the measurements?
-        pass
+        # -- Measurement input file errors.
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badkey.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message, "Variable LsLL is not "
+                    "valid name for a measurement.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badval.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message,
+                    "Variable Ls1L has inappropriate value.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_mcf.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Variable measurementconversionfactor not provided "
+                    "or is 0. Set as 1 if measurements are given in meters.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_missingkey.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message, "There should be 95 "
+                    "measurements, but 94 were found.")
 
     def test_write_measurements(self):
         # TODO this will have to change if we change the file format.
@@ -286,8 +284,42 @@ class TestHuman(unittest.TestCase):
         pass
 
     def test_read_CFG(self):
-        # TODO
-        pass
+        """Particularly checks input errors."""
+
+        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
+                'misc', 'samplemeasurements', 'male1.txt')
+
+        # Unrecognized variable.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_badkey.txt')
+        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        try:
+            hum.Human(measPath, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message,
+                    "'invalid' is not a correct variable name.")
+
+        # Too few inputs.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_missingkey.txt')
+        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        try:
+            hum.Human(measPath, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message, "Number of CFG variables, 20, is "
+                    "incorrect.")
+
+        # No value for a key.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_badval.txt')
+        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        try:
+            hum.Human(measPath, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message,
+                    "Variable PTsagittalFlexion has no value.")
+
+        # Out-of-bounds config value.
 
     def test_write_CFG(self):
         # TODO

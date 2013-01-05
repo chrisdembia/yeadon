@@ -127,14 +127,17 @@ class Human(object):
             dictionary with keys that are the names of the variables in
             the text file. In this latter case, units must be in meters and
             a measured mass canoot be provided.
-        CFG : dict
-            The configuration of the human (radians). This option is optional.
-            If not provided, the human is in a default configuration in which
-            all joint angles are set to zero.
-        symmetric : bool
-            Optional argument, set to True by default. Decides whether or not
-            to average the measurements of the left and right limbs of the
-            human. This has nothing to with the configuration being symmetric.
+        CFG : str or dict, optional
+            The configuration of the human (radians).
+            If its type is str, it is the path to a CFG input file in YAML
+            syntax (see template CFGtemplate.txt). If its type is dict, it must
+            have an entry for each of the 21 names in Human.CFGnames or in the
+            template. If not provided, the human is in a default configuration
+            in which all joint angles are set to zero.
+        symmetric : bool, optional
+            True by default. Decides whether or not to average the measurements
+            of the left and right limbs of the human. This has nothing to with
+            the configuration being symmetric.
 
         '''
         self.is_symmetric = symmetric
@@ -161,7 +164,7 @@ class Human(object):
         elif type(CFG) == dict:
             self.CFG = CFG
         elif type(CFG) == str:
-            self.read_CFG(CFG)
+            self._read_CFG(CFG)
 
         self.coord_sys_pos = np.array([[0],[0],[0]])
         self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
@@ -190,7 +193,7 @@ class Human(object):
         frame) must also be redefined.
 
         '''
-        self.validate_CFG()
+        self._validate_CFG()
         self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
@@ -202,7 +205,7 @@ class Human(object):
         # Must update segment properties before updating the human properties.
         self.calc_properties()
 
-    def validate_CFG(self):
+    def _validate_CFG(self):
         '''Validates the joint angle degrees of freedom against the CFG bounds
         specified in the definition of the human object. Prints an error
         message if there is an issue.
@@ -210,10 +213,11 @@ class Human(object):
         Returns
         -------
         boolval : bool
-            0 if all configuration variables are okay, -1 if there is an issue
+            True if all configuration variables are okay, False if there is an
+            issue
 
         '''
-        boolval = 0
+        boolval = True
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
                 self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
@@ -222,7 +226,7 @@ class Human(object):
                       "pi-rad is out of range. Must be between",\
                       Human.CFGbounds[i][0]/np.pi,"and",\
                       Human.CFGbounds[i][1]/np.pi,"pi-rad"
-                boolval = -1
+                boolval = False
         return boolval
 
     def _average_limbs(self):
@@ -244,31 +248,25 @@ class Human(object):
             self.meas[Human.measnames[leftidxs[i]]] = avg
             self.meas[Human.measnames[rightidx[i]]] = avg
 
-    def set_CFG(self, idx, value):
-        '''Allows the user to set a single configuration variable in CFG without
-           using the command line interface. CFG is a dictionary that holds all
-           21 configuration variables. Then, this function validates and
-           updates the human model with the proper configuration variables.
+    def set_CFG(self, varname, value):
+        '''Allows the user to set a single configuration variable in CFG. CFG
+        is a dictionary that holds all 21 configuration variables. Then, this
+        function validates and updates the human model with the new
+        configuration variable.
 
            Parameters
            ----------
-           idx : int or str
-               Index into configuration variable dictionary CFG. If int, must
-               be between 0 and 21. If str, must be a valid name of a
-               configuration variable.
+           varname : str
+               Must be a valid name of a configuration variable.
            value : float
                New value for the configuration variable identified by idx.
                This value will be validated for joint angle limits.
 
         '''
-        if type(idx)==int:
-            self.CFG[self.CFGnames[idx]] = value
-        elif type(idx)==str:
-            self.CFG[idx] = value
-        else:
-            print "set_CFG(idx,value): first argument must be an integer" \
-                  " between 0 and 21, or a valid string index for the" \
-                  " CFG dictionary."
+        if varname not in self.CFGnames:
+            raise Exception("'{0}' is not a valid name of a configuration "
+                    "variable.".format(varname))
+        self.CFG[varname] = value
         self.update_segments()
 
     def set_CFG_dict(self, CFG):
@@ -1218,11 +1216,12 @@ class Human(object):
         fid.close()
         return 0
 
-    def read_CFG(self, CFGfname):
+    def _read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
         There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
-        from the yeadon.Human.write_CFG method.
+        from the :py:meth:`yeadon.Human.write_CFG()` method. Text file is
+        formatted using YAML syntax.
 
         Parameters
         ----------
@@ -1235,18 +1234,21 @@ class Human(object):
             mydict = yaml.load(fid.read())
             for key, val in mydict.items():
                 if key not in self.CFGnames:
-                    mes = ('{}'.format(tempstr[0]) +
-                            ' is not a correct variable name.')
+                    mes = "'{}' is not a correct variable name.".format(key)
                     raise StandardError(mes)
+                if val == None:
+                    raise StandardError(
+                            "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
             fid.close()
 
-        if len(self.CFG) == len(self.CFGnames):
-            raise StandardError("You have not supplied all of the joint angles"
-                    "in the CFG file.")
+        if len(self.CFG) != len(self.CFGnames):
+            raise StandardError("Number of CFG variables, {0}, is "
+                    "incorrect.".format(len(self.CFG)))
 
     def write_CFG(self, CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
+        Text file is formatted using YAML syntax.
 
         Parameters
         ----------
