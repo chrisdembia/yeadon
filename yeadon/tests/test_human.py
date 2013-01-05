@@ -436,8 +436,44 @@ class TestHuman(unittest.TestCase):
         # Out-of-bounds config value.
 
     def test_write_CFG(self):
-        # TODO
-        pass
+        """Writes a valid YAML file that can be read back in."""
+
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'B1B2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        path = os.path.join(os.path.split(__file__)[0],
+                'CFG_output.txt')
+        h = hum.Human(self.male1meas, CFG)
+        h.write_CFG(path)
+
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'CFG_output_des.txt')
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        # Can use the cfg output as input.
+        h = hum.Human(self.male1meas, path)
+        self.assertEqual(h.CFG, CFG)
+
+        os.remove(path)
 
 # TODO translating the entire human: check resulting inertia properties.
 # TODO make sure mass scaling works appropriately.
