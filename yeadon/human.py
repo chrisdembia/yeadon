@@ -1172,7 +1172,7 @@ class Human(object):
         for key, val in self.meas.items():
             self.meas[key] = val * self.measurementconversionfactor
 
-    def write_measurements(self,fname):
+    def write_measurements(self, fname):
         '''Writes the keys and values of the self.meas dict to a text file.
         Units of measurements is meters.
 
@@ -1192,37 +1192,67 @@ class Human(object):
         yaml.dump(mydict, fid, default_flow_style=False)
         fid.close()
 
-    def write_meas_for_ISEG(self,fname):
+    def write_meas_for_ISEG(self, fname):
         '''Writes the values of the self.meas dict to a .txt file that is
         formidable as input to Yeadon's ISEG fortran code that performs
-        similar calculations to this package.
+        similar calculations to this package. ISEG is published in Yeadon's
+        dissertation.
 
         Parameters
         ----------
         fname : str
-            Filename or path to ISEG .txt input file.
+            Filename or path for ISEG .txt input file.
         '''
         fid = open(fname,'w')
-        m = self.meas
+        n = self.meas
+        m = copy.copy(self.meas)
+
+        # Convert units.
         SI = 1./1000.
-        fid.write(str(m['Ls1L']/SI)+','+str(m['Ls2L']/SI)+','+str(m['Ls3L']/SI)+','+str(m['Ls4L']/SI)+','+str(m['Ls5L']/SI)+','+str(m['Ls6L']/SI)+','+str(m['Ls7L']/SI)+','+str(m['Ls8L']/SI)+'\n')
-        fid.write(str(m['Ls0p']/SI)+','+str(m['Ls1p']/SI)+','+str(m['Ls2p']/SI)+','+str(m['Ls3p']/SI)+','+str(m['Ls5p']/SI)+','+str(m['Ls6p']/SI)+','+str(m['Ls7p']/SI)+'\n')
-        fid.write(str(m['Ls0w']/SI)+','+str(m['Ls1w']/SI)+','+str(m['Ls2w']/SI)+','+str(m['Ls3w']/SI)+','+str(m['Ls4w']/SI)+','+str(m['Ls4d']/SI)+'\n')
+        for key, val in m.items(): m[key] = val/SI
+
+        # pelvis, torso, chest-head
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Ls1L'],
+            m['Ls2L'], m['Ls3L'], m['Ls4L'], m['Ls5L'], m['Ls6L'], m['Ls7L'],
+            m['Ls8L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Ls0p'], m['Ls1p'],
+            m['Ls2p'], m['Ls3p'], m['Ls5p'], m['Ls6p'], m['Ls7p']))
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Ls0w'], m['Ls1w'],
+            m['Ls2w'], m['Ls3w'], m['Ls4w'], m['Ls4d']))
+
         # arms
-        fid.write(str(m['La2L']/SI)+','+str(m['La3L']/SI)+','+str(m['La4L']/SI)+','+str(m['La5L']/SI)+','+str(m['La6L']/SI)+','+str(m['La7L']/SI)+'\n')
-        fid.write(str(m['La0p']/SI)+','+str(m['La1p']/SI)+','+str(m['La2p']/SI)+','+str(m['La3p']/SI)+','+str(m['La4p']/SI)+','+str(m['La5p']/SI)+','+str(m['La6p']/SI)+','+str(m['La7p']/SI)+'\n')
-        fid.write(str(m['La4w']/SI)+','+str(m['La5w']/SI)+','+str(m['La6w']/SI)+','+str(m['La7w']/SI)+'\n')
-        fid.write(str(m['Lb2L']/SI)+','+str(m['Lb3L']/SI)+','+str(m['Lb4L']/SI)+','+str(m['Lb5L']/SI)+','+str(m['Lb6L']/SI)+','+str(m['Lb7L']/SI)+'\n')
-        fid.write(str(m['Lb0p']/SI)+','+str(m['Lb1p']/SI)+','+str(m['Lb2p']/SI)+','+str(m['Lb3p']/SI)+','+str(m['Lb4p']/SI)+','+str(m['Lb5p']/SI)+','+str(m['Lb6p']/SI)+','+str(m['Lb7p']/SI)+'\n')
-        fid.write(str(m['Lb4w']/SI)+','+str(m['Lb5w']/SI)+','+str(m['Lb6w']/SI)+','+str(m['Lb7w']/SI)+'\n')
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['La2L'], m['La3L'],
+            m['La4L'], m['La5L'], m['La6L'], m['La7L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['La0p'],
+            m['La1p'], m['La2p'], m['La3p'], m['La4p'], m['La5p'], m['La6p'],
+            m['La7p']))
+        fid.write("{0},{1},{2},{3}\n".format(m['La4w'], m['La5w'], m['La6w'],
+            m['La7w']))
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Lb2L'], m['Lb3L'],
+            m['Lb4L'], m['Lb5L'], m['Lb6L'], m['Lb7L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Lb0p'],
+            m['Lb1p'], m['Lb2p'], m['Lb3p'], m['Lb4p'], m['Lb5p'], m['Lb6p'],
+            m['Lb7p']))
+        fid.write("{0},{1},{2},{3}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
+            m['Lb7w']))
+
         # legs
-        fid.write(str(m['Lj1L']/SI)+','+str(m['Lj3L']/SI)+','+str(m['Lj4L']/SI)+','+str(m['Lj5L']/SI)+','+str(m['Lj6L']/SI)+','+str(m['Lj8L']/SI)+','+str(m['Lj9L']/SI)+'\n')
-        fid.write(str(m['Lj1p']/SI)+','+str(m['Lj2p']/SI)+','+str(m['Lj3p']/SI)+','+str(m['Lj4p']/SI)+','+str(m['Lj5p']/SI)+','+str(m['Lj6p']/SI)+','+str(m['Lj7p']/SI)+','+str(m['Lj8p']/SI)+','+str(m['Lj9p']/SI)+'\n')
-        fid.write(str(m['Lj6d']/SI)+','+str(m['Lj8w']/SI)+','+str(m['Lj9w']/SI)+'\n')
-        fid.write(str(m['Lk1L']/SI)+','+str(m['Lk3L']/SI)+','+str(m['Lk4L']/SI)+','+str(m['Lk5L']/SI)+','+str(m['Lk6L']/SI)+','+str(m['Lk8L']/SI)+','+str(m['Lk9L']/SI)+'\n')
-        fid.write(str(m['Lk1p']/SI)+','+str(m['Lk2p']/SI)+','+str(m['Lk3p']/SI)+','+str(m['Lk4p']/SI)+','+str(m['Lk5p']/SI)+','+str(m['Lk6p']/SI)+','+str(m['Lk7p']/SI)+','+str(m['Lk8p']/SI)+','+str(m['Lk9p']/SI)+'\n')
-        fid.write(str(m['Lk6d']/SI)+','+str(m['Lk8w']/SI)+','+str(m['Lk9w']/SI)+'\n')
-        fid.write(str(500)+','+str(200)+'\n')
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lj1L'], m['Lj3L'],
+            m['Lj4L'], m['Lj5L'], m['Lj6L'], m['Lj8L'], m['Lj9L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lj1p'],
+            m['Lj2p'], m['Lj3p'], m['Lj4p'], m['Lj5p'], m['Lj6p'], m['Lj7p'],
+            m['Lj8p'], m['Lj9p']))
+        fid.write("{0},{1},{2}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lk1L'], m['Lk3L'],
+            m['Lk4L'], m['Lk5L'], m['Lk6L'], m['Lk8L'], m['Lk9L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lk1p'],
+            m['Lk2p'], m['Lk3p'], m['Lk4p'], m['Lk5p'], m['Lk6p'], m['Lk7p'],
+            m['Lk8p'], m['Lk9p']))
+        fid.write("{0},{1},{2}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
+
+        # This line contains ISEG's "XHEIGHT" and "XMASS" variables, both
+        # unused in his code.
+        fid.write("{0},{1}\n".format(500, 200))
         fid.close()
         return 0
 

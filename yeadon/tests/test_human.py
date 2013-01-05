@@ -413,8 +413,19 @@ class TestHuman(unittest.TestCase):
         os.remove(path)
 
     def test_write_meas_for_ISEG(self):
-        # TODO
-        pass
+        """Ensures ISEG input is written correctly."""
+
+        path = os.path.join(os.path.split(__file__)[0],
+                'meas_iseg.txt')
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'meas_iseg_des.txt')
+
+        h = hum.Human(self.male1meas)
+        h.write_meas_for_ISEG(path)
+
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        os.remove(path)
 
     def test_read_CFG(self):
         """Particularly checks input errors."""
@@ -448,8 +459,6 @@ class TestHuman(unittest.TestCase):
         except StandardError as e:
             self.assertEqual(e.message,
                     "Variable PTsagittalFlexion has no value.")
-
-        # Out-of-bounds config value.
 
     def test_write_CFG(self):
         """Writes a valid YAML file that can be read back in."""
