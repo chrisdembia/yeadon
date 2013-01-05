@@ -16,12 +16,13 @@ import yeadon.densities as dens
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
 
+    male1meas = os.path.join(os.path.split(__file__)[0], '..', '..',
+            'misc', 'samplemeasurements', 'male1.txt')
+
     def test_init_default_cfg(self):
         """Uses misc/samplemeasurements/male1.txt."""
 
-        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
-                'misc', 'samplemeasurements', 'male1.txt')
-        h = hum.Human(measPath)
+        h = hum.Human(self.male1meas)
         meas = h.meas
 
         assert h.is_symmetric == True
@@ -160,9 +161,7 @@ class TestHuman(unittest.TestCase):
     def test_init_symmetry_off(self):
         """Uses misc/samplemeasurements/male1.txt."""
 
-        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
-                'misc', 'samplemeasurements', 'male1.txt')
-        h = hum.Human(measPath, symmetric=False)
+        h = hum.Human(self.male1meas, symmetric=False)
 
         self.assertFalse(h.is_symmetric)
         self.assertNotEqual(h.K1.mass, h.J1.mass)
@@ -171,8 +170,92 @@ class TestHuman(unittest.TestCase):
         self.assertNotEqual(h.A2.mass, h.B2.mass)
 
     def test_init_interesting_cfg(self):
-        # TODO
-        pass
+        """Providing a dict for CFG, input errors, and out of bounds errors."""
+
+        # Normal behavior.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'B1B2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        h = hum.Human(self.male1meas, CFG)
+        self.assertEqual(h.CFG, CFG)
+
+        # Missing a value.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        self.assertRaises(Exception, hum.Human, self.male1meas, CFG)
+        try:
+            hum.Human(self.male1meas, CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Number of CFG variables, 20, is incorrect.")
+
+        # Invalid key.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'wrong': 0.01,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        self.assertRaises(Exception, hum.Human, self.male1meas, CFG)
+        try:
+            hum.Human(self.male1meas, CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "'wrong' is not a correct variable name.")
 
     def test_init_input_errors(self):
         """Especially measurement input file errors."""
@@ -187,8 +270,42 @@ class TestHuman(unittest.TestCase):
         pass
 
     def test_validate_cfg(self):
-        # TODO
-        pass
+        """Ensures that out-of-range values elicit a print, but no exception."""
+
+        # Two values out of range.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': 3*np.pi,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'B1B2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': -10*np.pi,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
+                "Must be between -1.0 and 1.0 pi-rad.\n"
+                "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
+                "Must be between -0.5 and 1.0 pi-rad.\n")
+
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        hum.Human(self.male1meas, CFG)
+        sys.stdout = old_stdout
+
+        self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_set_CFG(self):
         # TODO
@@ -286,15 +403,12 @@ class TestHuman(unittest.TestCase):
     def test_read_CFG(self):
         """Particularly checks input errors."""
 
-        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
-                'misc', 'samplemeasurements', 'male1.txt')
-
         # Unrecognized variable.
         cfgPath = os.path.join(os.path.split(__file__)[0],
                 'CFG_badkey.txt')
-        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
         try:
-            hum.Human(measPath, cfgPath)
+            hum.Human(self.male1meas, cfgPath)
         except StandardError as e:
             self.assertEqual(e.message,
                     "'invalid' is not a correct variable name.")
@@ -302,9 +416,9 @@ class TestHuman(unittest.TestCase):
         # Too few inputs.
         cfgPath = os.path.join(os.path.split(__file__)[0],
                 'CFG_missingkey.txt')
-        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
         try:
-            hum.Human(measPath, cfgPath)
+            hum.Human(self.male1meas, cfgPath)
         except StandardError as e:
             self.assertEqual(e.message, "Number of CFG variables, 20, is "
                     "incorrect.")
@@ -312,9 +426,9 @@ class TestHuman(unittest.TestCase):
         # No value for a key.
         cfgPath = os.path.join(os.path.split(__file__)[0],
                 'CFG_badval.txt')
-        self.assertRaises(StandardError, hum.Human, measPath, cfgPath)
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
         try:
-            hum.Human(measPath, cfgPath)
+            hum.Human(self.male1meas, cfgPath)
         except StandardError as e:
             self.assertEqual(e.message,
                     "Variable PTsagittalFlexion has no value.")

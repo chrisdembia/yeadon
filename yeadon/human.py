@@ -140,6 +140,10 @@ class Human(object):
             the configuration being symmetric.
 
         '''
+        # Initialize position and orientation of entire body.
+        self.coord_sys_pos = np.array([[0],[0],[0]])
+        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
+
         self.is_symmetric = symmetric
         self.meas_mass = -1
         # initialize measurement dictionary
@@ -154,26 +158,24 @@ class Human(object):
         if self.is_symmetric == True:
             self._average_limbs()
 
-        # if configuration input is a dictionary, just assign. else, read in
-        # the file.
-        if CFG is None: 
-            # set all joint angles to zero
-            self.CFG = dict()
-            for key in Human.CFGnames:
-                self.CFG[key] = 0.0
-        elif type(CFG) == dict:
-            self.CFG = CFG
-        elif type(CFG) == str:
-            self._read_CFG(CFG)
-
-        self.coord_sys_pos = np.array([[0],[0],[0]])
-        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
+        # Start off a zero configuration.
+        self.CFG = dict()
+        for key in Human.CFGnames:
+            self.CFG[key] = 0.0
 
         # update_solids will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
         self.update_solids()
+
         if self.meas_mass > 0:
             self.scale_human_by_mass(self.meas_mass)
+
+        # If configuration input is a dictionary, assign via public method.
+        # Else, read in the file.
+        if type(CFG) == dict:
+            self.set_CFG_dict(CFG)
+        elif type(CFG) == str:
+            self._read_CFG(CFG)
 
     def update_solids(self):
         '''Redefines all solids and then calls yeadon.Human.update_segments.
@@ -225,7 +227,7 @@ class Human(object):
                       self.CFG[Human.CFGnames[i]]/np.pi,\
                       "pi-rad is out of range. Must be between",\
                       Human.CFGbounds[i][0]/np.pi,"and",\
-                      Human.CFGbounds[i][1]/np.pi,"pi-rad"
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad."
                 boolval = False
         return boolval
 
@@ -280,6 +282,14 @@ class Human(object):
             Stores the 21 joint angles.
 
         '''
+        # Some error checking.
+        if len(CFG) != len(self.CFGnames):
+            raise Exception("Number of CFG variables, {0}, is "
+                    "incorrect.".format(len(CFG)))
+        for key, val in CFG.items():
+            if key not in self.CFGnames:
+                raise Exception("'{0}' is not a correct variable "
+                        "name.".format(key))
         self.CFG = CFG
         self.update_segments()
 
