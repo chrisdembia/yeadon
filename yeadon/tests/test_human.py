@@ -350,17 +350,17 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(
                 h2.inertia - np.mat(inertia.parallel_axis(
                     h2.A1.inertia, h2.A1.mass,
-                    (h2.A1.center_of_mass - h2.center_of_mass).tolist(0)))
+                    (h2.A1.center_of_mass - h2.center_of_mass).tolist()[0]))
                 - np.mat(inertia.parallel_axis(
                     h2.A2.inertia, h2.A2.mass,
-                    (h2.A2.center_of_mass - h2.center_of_mass).tolist(0)),
+                    (h2.A2.center_of_mass - h2.center_of_mass).tolist()[0]),
                     ),
                 h.inertia - np.mat(inertia.parallel_axis(
                     h.A1.inertia, h.A1.mass,
-                    (h.A1.center_of_mass - h.center_of_mass).tolist(0)))
+                    (h.A1.center_of_mass - h.center_of_mass).tolist()[0]))
                 - np.mat(inertia.parallel_axis(
                     h.A2.inertia, h.A2.mass,
-                    (h.A2.center_of_mass - h.center_of_mass).tolist(0))))
+                    (h.A2.center_of_mass - h.center_of_mass).tolist()[0])))
 
 
     def test_set_CFG_dict(self):
