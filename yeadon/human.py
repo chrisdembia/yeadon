@@ -163,9 +163,9 @@ class Human(object):
         for key in Human.CFGnames:
             self.CFG[key] = 0.0
 
-        # update_solids will define all solids, validate CFG, define segments,
+        # update will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
-        self.update_solids()
+        self.update()
 
         if self.meas_mass > 0:
             self.scale_human_by_mass(self.meas_mass)
@@ -177,8 +177,8 @@ class Human(object):
         elif type(CFG) == str:
             self._read_CFG(CFG)
 
-    def update_solids(self):
-        '''Redefines all solids and then calls yeadon.Human.update_segments.
+    def update(self):
+        '''Redefines all solids and then calls yeadon.Human._update_segments.
         Called by the method yeadon.Human.scale_human_by_mass. The method is
         to be used in instances in which measurements change.
 
@@ -186,9 +186,9 @@ class Human(object):
         self._define_torso_solids()
         self._define_arm_solids()
         self._define_leg_segments()
-        self.update_segments()
+        self._update_segments()
 
-    def update_segments(self):
+    def _update_segments(self):
         '''Updates all segments. Called after joint angles are updated, in
         which case solids do not need to be recreated, but the segments need
         to be redefined, and the human's inertia parameters (in the global
@@ -261,15 +261,16 @@ class Human(object):
            varname : str
                Must be a valid name of a configuration variable.
            value : float
-               New value for the configuration variable identified by idx.
-               This value will be validated for joint angle limits.
+               New value for the configuration variable identified by varname.
+               Units are radians.  This value will be validated for joint angle
+               limits.
 
         '''
         if varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
                     "variable.".format(varname))
         self.CFG[varname] = value
-        self.update_segments()
+        self._update_segments()
 
     def set_CFG_dict(self, CFG):
         '''Allows the user to pass an entirely new CFG dictionary with which
@@ -291,7 +292,7 @@ class Human(object):
                 raise Exception("'{0}' is not a correct variable "
                         "name.".format(key))
         self.CFG = CFG
-        self.update_segments()
+        self._update_segments()
 
     def calc_properties(self):
         '''Calculates the mass, center of mass, and inertia tensor of the
@@ -345,7 +346,7 @@ class Human(object):
         newpos[1] = vec[1]
         newpos[2] = vec[2]
         self.coord_sys_pos = newpos
-        self.update_segments()
+        self._update_segments()
 
     def rotate_coord_sys(self,varin):
         '''Rotates the coordinate system, given a list of three rotations
@@ -366,7 +367,7 @@ class Human(object):
         else:
             rotmat = varin
         self.coord_sys_orient = rotmat
-        self.update_segments()
+        self._update_segments()
 
     def transform_coord_sys(self,vec,rotmat):
         '''Calls both yeadon.Human.translate_coord_sys and
@@ -421,7 +422,7 @@ class Human(object):
                       'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
         segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
         solidvals = self._s + self._a + self._b + self._j + self._k
-        ObjDict = dict(zip(solidkeys + segmentkeys,solidvals + self.segments))
+        ObjDict = dict(zip(solidkeys + segmentkeys, solidvals + self.segments))
         # error-checking
         for key in (solidkeys + segmentkeys):
             if objlist.count(key) > 1:
@@ -1119,13 +1120,12 @@ class Human(object):
             dens.Dj[i] = dens.Dj[i] * massratio
         for i in range(len(dens.Dk)):
             dens.Dk[i] = dens.Dk[i] * massratio
-        self.update_solids()
+        self.update()
         if round(measmass, 2) != round(self.mass, 2):
-            print "Error: attempted to scale mass by a " \
-                  "measured mass, but did not succeed. " \
+            raise Exception("Attempted to scale mass by a "
+                  "measured mass, but did not succeed. "
                   "Measured mass:", round(measmass,
-                          2),"self.mass:",round(self.mass, 2)
-            raise Exception()
+                          2),"self.mass:",round(self.mass, 2))
 
     def _read_measurements(self, fname):
         '''Reads a measurement input .txt file, in YAML format,  and assigns
@@ -1202,6 +1202,7 @@ class Human(object):
         ----------
         fname : str
             Filename or path for ISEG .txt input file.
+
         '''
         fid = open(fname,'w')
         n = self.meas
@@ -1254,7 +1255,6 @@ class Human(object):
         # unused in his code.
         fid.write("{0},{1}\n".format(500, 200))
         fid.close()
-        return 0
 
     def _read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.

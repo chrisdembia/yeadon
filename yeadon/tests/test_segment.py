@@ -1,11 +1,12 @@
-import unittest
-import nose
-import numpy as np
-from numpy import testing, pi
 # For redirecting stdout.
 from cStringIO import StringIO
 import sys
 import os
+
+import unittest
+import nose
+import numpy as np
+from numpy import testing, pi
 
 import yeadon.solid as sol
 import yeadon.segment as seg

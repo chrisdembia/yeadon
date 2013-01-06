@@ -24,6 +24,9 @@ def parallel_axis(Ic, m, d):
     a = d[0]
     b = d[1]
     c = d[2]
+    print a
+    print b
+    print c
     dMat = np.zeros((3, 3), dtype=Ic.dtype)
     dMat[0] = np.array([b**2 + c**2, -a * b, -a * c])
     dMat[1] = np.array([-a * b, c**2 + a**2, -b * c])

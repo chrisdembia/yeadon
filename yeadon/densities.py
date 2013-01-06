@@ -6,14 +6,13 @@ other densities.
 '''
 import numpy as np
 
-# densities come from Yeadon 1990-ii, but really from Dempster 1995
+# densities come from Yeadon 1990-ii.
 
 # raw units from the paper are kg/L
 
 LitersPerCubicMeter = 1000.0
-secondconversion = 1.0
 
-DensityOfSegments = np.zeros( 10 )
+DensityOfSegments = np.zeros(10)
 
 densityset = 'Dempster'
 
@@ -51,11 +50,10 @@ elif densityset == 'Clauser':
     DensityOfSegments[8] = 1.085 # lower leg
     DensityOfSegments[9] = 1.084 # foot
 
-
-DensityOfSegmentsConverted = DensityOfSegments * LitersPerCubicMeter * secondconversion
+DensityOfSegmentsConverted = DensityOfSegments * LitersPerCubicMeter
 
 # torso
-Ds = np.zeros( 8 )
+Ds = np.zeros(8)
 Ds[0] = DensityOfSegmentsConverted[3]
 Ds[1] = DensityOfSegmentsConverted[3]
 Ds[2] = DensityOfSegmentsConverted[2]
@@ -66,7 +64,7 @@ Ds[6] = DensityOfSegmentsConverted[0]
 Ds[7] = DensityOfSegmentsConverted[0]
 
 # left arm
-Da = np.zeros( 7 )
+Da = np.zeros(7)
 Da[0] = DensityOfSegmentsConverted[4]
 Da[1] = DensityOfSegmentsConverted[4]
 Da[2] = DensityOfSegmentsConverted[5]
@@ -77,16 +75,9 @@ Da[6] = DensityOfSegmentsConverted[6]
 
 # right arm
 Db = Da.copy()
-# Db1 = Da1 # = DensityOfSegmentsConverted[4]
-# Db2 = Da2 # = DensityOfSegmentsConverted[4]
-# Db3 = Da3 # = DensityOfSegmentsConverted[5]
-# Db4 = Da4 # = DensityOfSegmentsConverted[5]
-# Db5 = Da5 # = DensityOfSegmentsConverted[6]
-# Db6 = Da6 # = DensityOfSegmentsConverted[6]
-# Db7 = Da7 # = DensityOfSegmentsConverted[6]
 
 # left leg
-Dj = np.zeros( 9 )
+Dj = np.zeros(9)
 Dj[0] = DensityOfSegmentsConverted[7]
 Dj[1] = DensityOfSegmentsConverted[7]
 Dj[2] = DensityOfSegmentsConverted[7]
@@ -99,14 +90,3 @@ Dj[8] = DensityOfSegmentsConverted[9]
 
 # right leg
 Dk = Dj.copy()
-# Dk1 = Dj1 # = DensityOfSegmentsConverted[7]
-# Dk2 = Dj2 # = DensityOfSegmentsConverted[7]
-# Dk3 = Dj3 # = DensityOfSegmentsConverted[7]
-# Dk4 = Dj4 # = DensityOfSegmentsConverted[8]
-# Dk5 = Dj5 # = DensityOfSegmentsConverted[8]
-# Dk6 = Dj6 # = DensityOfSegmentsConverted[9]
-# Dk7 = Dj7 # = DensityOfSegmentsConverted[9]
-# Dj8 = Dj8 # = DensityOfSegmentsConverted[9]
-# Dj9 = Dj9 # = DensityOfSegmentsConverted[9]
-
-# print "Segment densities loaded."
