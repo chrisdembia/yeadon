@@ -4,6 +4,9 @@ That is to say that the base of the segment is at a joint in the human. The
 user does not interact with this module.
 
 '''
+# Use Python3 integer division rules.
+from __future__ import division
+
 import numpy as np
 
 import inertia

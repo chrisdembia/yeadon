@@ -26,6 +26,8 @@ Typical usage (not using yeadon.ui.start_ui())
 See documentation for a complete description of functionality.
 '''
 
+# Use Python3 integer division rules.
+from __future__ import division
 import copy
 
 import numpy as np
@@ -325,7 +327,7 @@ class Human(object):
         print "COM  (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
 
-    def translate_coord_sys(self,vec):
+    def translate_coord_sys(self, vec):
         '''Moves the cooridinate system from the center of the bottom of the
         human's pelvis to a location defined by the input to this method.
         Note that if this method is used along with
@@ -348,18 +350,19 @@ class Human(object):
         self.coord_sys_pos = newpos
         self._update_segments()
 
-    def rotate_coord_sys(self,varin):
-        '''Rotates the coordinate system, given a list of three rotations
-        about the x, y and z axes. For list or tuple input, the order of the
-        rotations is x, then, y, then z (i.e. Euler 1-2-3, X-Y-Z). All rotations are about the
-        original (unrotated) axes (rotations are not relative).
+    def rotate_coord_sys(self, varin):
+        '''Rotates the coordinate system. For list or tuple input, the order of
+        the rotations is x, then, y, then z.
 
         Parameters
         ----------
         varin : list or tuple (3,) or np.matrix (3,3)
-            If list or tuple, the rotations in radians about the x, y, and z
-            axes (in that order). If np.matrix, it is a 3x3 rotation matrix.
-            For more information, see the inertia.rotate_space_123 documentation.
+            If list or tuple, the rotations are in radians about the x, y, and
+            z axes (in that order).  In this case, rotations are about the
+            original (unrotated) axes (rotations are not relative). In other
+            words, they are space-fixed rotations as opposed to body-fixed
+            rotations.  If np.matrix, it is a 3x3 rotation matrix.  For more
+            information, see the inertia.rotate_space_123 documentation.
 
         '''
         if type(varin) == tuple or type(varin) == list:
@@ -383,14 +386,13 @@ class Human(object):
         self.translate_coord_sys(vec)
         self.rotate_coord_sys(rotmat)
 
-    def combine_inertia(self,objlist):
+    def combine_inertia(self, objlist):
         '''Returns the inertia properties of a combination of solids
         and/or segments of the human, using the fixed human frame (or the
         modified fixed frame as given by the user). Be careful with inputs:
         do not specify a solid that is part of a segment that you have also
-        specified. There is some errorchecking for invalid inputs. This method
-        does not assign anything to any object attributes, it simply returns
-        the desired quantities.
+        specified. This method does not assign anything to any object
+        attributes (it is 'const'), it simply returns the desired quantities.
 
         Parameters
         ----------
@@ -411,9 +413,7 @@ class Human(object):
             Inertia tensor at the resultantCOM, with axes aligned with the axes
             of the absolute fixed coordinate system.
 
-
         '''
-
         # preparing to arrange input
         solidkeys = ['s0','s1','s2','s3','s4','s5','s6','s7',
                       'a0','a1','a2','a3','a4','a5','a6',

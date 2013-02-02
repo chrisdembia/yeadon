@@ -5,6 +5,8 @@ stadiumsolid solids. The solid class has two children: the stadiumsolid and
 semiellipsoid classes.
 
 '''
+# Use Python3 integer division rules.
+from __future__ import division
 import textwrap
 import warnings
 
@@ -245,7 +247,7 @@ class StadiumSolid(Solid):
     '''Stadium solid. Derived from the solid class.
 
     '''
-    def __init__(self,label,density,stadium0,stadium1,height):
+    def __init__(self, label, density, stadium0, stadium1, height):
         '''Defines a stadium solid object. Creates its base object, and
         calculates relative/local inertia properties.
 
@@ -263,7 +265,7 @@ class StadiumSolid(Solid):
             Distance between the lower and upper stadia.
 
         '''
-        super(StadiumSolid, self).__init__(label,density,height)
+        super(StadiumSolid, self).__init__(label, density, height)
         self.stads = [stadium0,stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anteroposteriorly.
@@ -288,7 +290,7 @@ class StadiumSolid(Solid):
         t1 = self.stads[1].thickness
         a = (r1 - r0) / r0
         if (t0 == 0):
-            b = 1.0
+            b = 1
         else:
             b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
         self.mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
@@ -301,13 +303,15 @@ class StadiumSolid(Solid):
                          np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
                          4.0 * (r0**3.0) * t0 * self._F4(b,a) +
                          np.pi * (r0**4.0) * self._F4(a,a) * 0.5 )
+        # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE. The Dh^3 in the
+        # formula below is missing from the second formula for Iy^0 on page 73
+        # of Yeadon1990-ii.
         Iy = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                        np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
                        8.0 * (r0**3.0) * t0*self._F4(b,a) / 3.0 +
                       np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
-        # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE
         Iycom = Iy - self.mass * (zcom**2.0)
         Ix = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                        np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
