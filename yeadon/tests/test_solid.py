@@ -249,6 +249,7 @@ def test_stadiumsolidcheck_symmetry():
     """
     density = 1.5
     height = 4
+    height_vec = np.array([[0], [0], [height]])
 
     # Same top and bottom.
     r = 3; t = 2;
@@ -261,28 +262,41 @@ def test_stadiumsolidcheck_symmetry():
     solid_desA = StadiumSolidCheck(density, t0, r0, t1, r1, height)
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
+    testing.assert_almost_equal(solid_desA.mass_center(),
+            height_vec - solid_desB.mass_center())
+    testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
+    testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
+    testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
 
     # Same r, diff t.
     r0 = 3; t0 = 2; r1 = 3; t1 = 1;
     solid_desA = StadiumSolidCheck(density, t0, r0, t1, r1, height)
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
+    testing.assert_almost_equal(solid_desA.mass_center(),
+            height_vec - solid_desB.mass_center())
+    testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
+    testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
+    testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
 
     # Diff r, diff t, one is included in the other.
     r0 = 3; t0 = 2; r1 = 2; t1 = 1;
     solid_desA = StadiumSolidCheck(density, t0, r0, t1, r1, height)
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
+    testing.assert_almost_equal(solid_desA.mass_center(),
+            height_vec - solid_desB.mass_center())
+    testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
+    testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
+    testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
 
     # Diff r, diff t, overlap.
     r0 = 3; t0 = 1; r1 = 2; t1 = 5;
     solid_desA = StadiumSolidCheck(density, t0, r0, t1, r1, height)
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
-
-    # Now for this last case, check the rest of the properties.
     testing.assert_almost_equal(solid_desA.mass_center(),
-            solid_desB.mass_center())
+            height_vec - solid_desB.mass_center())
     testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
     testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
     testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
