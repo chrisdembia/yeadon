@@ -3,7 +3,7 @@
 # Use Python3 integer division rules.
 from __future__ import division
 
-from numpy import testing, pi, array, matrix, sin, cos, zeros
+from numpy import testing, pi, array, matrix, sin, cos, zeros, array
 from yeadon.solid import Stadium, Solid, StadiumSolid
 
 # TODO Test Stadium negative radius/thickness issue in constructor.
@@ -227,9 +227,7 @@ def test_stadiumsolid_inertial_properties():
     testing.assert_almost_equal(solid.rel_inertia[0, 0], solid_des.inertia_xx())
 
     # Switch the order of the stadia and ensure everything still works out.
-    stad1 = Stadium('Ls1: umbilicus', 'thicknessradius', thick1, rad1)
-    stad2 = Stadium('Lb1: mid-arm', 'thicknessradius', thick0, rad0)
-    solid = StadiumSolid('solid', density, stad1, stad2, height)
+    solid = StadiumSolid('solid', density, stad2, stad1, height)
 
     # Create stadiumsolid for checking.
     solid_des = StadiumSolidCheck(density, thick1, rad1, thick0, rad0, height)
@@ -242,14 +240,14 @@ def test_stadiumsolid_inertial_properties():
     testing.assert_almost_equal(solid.rel_inertia[0, 0], solid_des.inertia_xx())
 
 def test_stadiumsolidcheck_symmetry():
-    """Tests the symmetry of the stadiumsolid formulae. That means, if we
-    switch which stadium we call 0 or 1, we look at if the mass/volume, center
-    of mass, moments of inertia change.
+    """Tests the symmetry of the stadiumsolid formulae, as Yeadon presented
+    them (not as implemented). That means, if we switch which stadium we call 0
+    or 1, we look at if the mass/volume, center of mass, moments of inertia
+    change.
 
     """
     density = 1.5
     height = 4
-    height_vec = np.array([[0], [0], [height]])
 
     # Same top and bottom.
     r = 3; t = 2;
@@ -263,7 +261,7 @@ def test_stadiumsolidcheck_symmetry():
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
     testing.assert_almost_equal(solid_desA.mass_center(),
-            height_vec - solid_desB.mass_center())
+            height - solid_desB.mass_center())
     testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
     testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
     testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
@@ -274,7 +272,7 @@ def test_stadiumsolidcheck_symmetry():
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
     testing.assert_almost_equal(solid_desA.mass_center(),
-            height_vec - solid_desB.mass_center())
+            height - solid_desB.mass_center())
     testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
     testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
     testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
@@ -285,7 +283,7 @@ def test_stadiumsolidcheck_symmetry():
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
     testing.assert_almost_equal(solid_desA.mass_center(),
-            height_vec - solid_desB.mass_center())
+            height - solid_desB.mass_center())
     testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
     testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
     testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
@@ -296,14 +294,82 @@ def test_stadiumsolidcheck_symmetry():
     solid_desB = StadiumSolidCheck(density, t1, r1, t0, r0, height)
     testing.assert_almost_equal(solid_desA.mass(), solid_desB.mass())
     testing.assert_almost_equal(solid_desA.mass_center(),
-            height_vec - solid_desB.mass_center())
+            height - solid_desB.mass_center())
     testing.assert_almost_equal(solid_desA.inertia_zz(), solid_desB.inertia_zz())
     testing.assert_almost_equal(solid_desA.inertia_yy(), solid_desB.inertia_yy())
     testing.assert_almost_equal(solid_desA.inertia_xx(), solid_desB.inertia_xx())
 
+def test_degenerate_stadiumsolid_symmetry():
+    """Tests the validity, and symmetry, of the stadiumsolid formulae, as
+    implemented with the t0 == 0 correction. That means, if we switch which
+    stadium we call 0 or 1, we look at if the mass/volume, center of mass,
+    moments of inertia change.
+
+    """
+    density = 1.5
+    height = 4
+    height_vec = array([[0], [0], [height]])
+
+    # One thickness is 0.
+    r0 = 5; t0 = 0; r1 = 2; t1 = 2;
+    # For checking against.
+    stad1_des = Stadium('Ls1: umbilicus', 'thicknessradius', 0.000000001, r0)
+
+    stad1 = Stadium('Ls1: umbilicus', 'thicknessradius', t0, r0)
+    stad2 = Stadium('Lb1: mid-arm', 'thicknessradius', t1, r1)
+
+    solidA = StadiumSolid('solid', density, stad1_des, stad2, height)
+    solidA_des= StadiumSolid('solid', density, stad1, stad2, height)
+    solidB = StadiumSolid('solid', density, stad2, stad1_des, height)
+    solidB_des = StadiumSolid('solid', density, stad2, stad1, height)
+
+    testing.assert_almost_equal(solidB.mass, solidB_des.mass, decimal=4)
+    testing.assert_allclose(solidB.rel_center_of_mass,
+            solidB_des.rel_center_of_mass)
+    testing.assert_almost_equal(solidB.rel_inertia[0,0],
+            solidB_des.rel_inertia[0,0], decimal=4)
+    testing.assert_almost_equal(solidB.rel_inertia[1,1],
+            solidB_des.rel_inertia[1,1], decimal=4)
+    testing.assert_almost_equal(solidB.rel_inertia[2,2],
+            solidB_des.rel_inertia[2,2], decimal=4)
+
+    testing.assert_almost_equal(solidA.mass, solidA_des.mass)
+    testing.assert_allclose(solidA.rel_center_of_mass,
+            solidA_des.rel_center_of_mass)
+    testing.assert_almost_equal(solidA.rel_inertia[0,0],
+            solidA_des.rel_inertia[0,0], decimal=4)
+    testing.assert_almost_equal(solidA.rel_inertia[1,1],
+            solidA_des.rel_inertia[1,1], decimal=4)
+    testing.assert_almost_equal(solidA.rel_inertia[2,2],
+            solidA_des.rel_inertia[2,2], decimal=4)
+
+    testing.assert_almost_equal(solidA.mass, solidB.mass)
+    testing.assert_allclose(solidA.rel_center_of_mass,
+            height_vec - solidB.rel_center_of_mass)
+    testing.assert_almost_equal(solidA.rel_inertia[0,0], solidB.rel_inertia[0,0])
+    testing.assert_almost_equal(solidA.rel_inertia[1,1], solidB.rel_inertia[1,1])
+    testing.assert_almost_equal(solidA.rel_inertia[2,2], solidB.rel_inertia[2,2])
+
+    # Both thicknesses are zero.
+    r0 = 3; t0 = 0; r1 = 2; t1 = 0;
+    stad1 = Stadium('Ls1: umbilicus', 'thicknessradius', t0, r0)
+    stad2 = Stadium('Lb1: mid-arm', 'thicknessradius', t1, r1)
+
+    solidA = StadiumSolid('solid', density, stad1, stad2, height)
+    solidB = StadiumSolid('solid', density, stad2, stad1, height)
+
+    testing.assert_almost_equal(solidA.mass, solidB.mass)
+    testing.assert_allclose(solidA.rel_center_of_mass,
+            height_vec - solidB.rel_center_of_mass)
+    testing.assert_almost_equal(solidA.rel_inertia[0,0], solidB.rel_inertia[0,0])
+    testing.assert_almost_equal(solidA.rel_inertia[1,1], solidB.rel_inertia[1,1])
+    testing.assert_almost_equal(solidA.rel_inertia[2,2], solidB.rel_inertia[2,2])
+
+    # A third case for when both t0 and t0 are zero.
+
 def test_stadiumsolidcheck_against_truncated_cone():
-    """Tests the StadiumSolid formulae above against truncated cone formulae
-    for degenerate stadia."""
+    """Tests the StadiumSolidCheck formulae above against truncated cone
+    formulae for degenerate stadia; using a thin trapezium."""
 
     def truncated_cone_mass(density, radius0, radius1, height):
         return density / 3.0 * pi * height * (radius0**2 + radius1**2 +
@@ -320,19 +386,18 @@ def test_stadiumsolidcheck_against_truncated_cone():
     solid_des = StadiumSolidCheck(density, thick0, rad0, thick1, rad1, height)
 
     testing.assert_almost_equal(solid_des.mass(),
-            truncated_cone_mass(density, rad0, rad1, height), atol=1e-3)
+            truncated_cone_mass(density, rad0, rad1, height), decimal=4)
 
     # Now only one level is a circle, so we'll add in an extruded triangle in the
     # middle to find its volume on our own (to check). Radii must be the same
     # for this to work out in the simple case.
-    # TODO I am PRETTY sure this should work out.
     thick0 = 1
     rad1 = 3
     solid_des2 = StadiumSolidCheck(density, thick0, rad0, thick1, rad1, height)
 
-    testing.assert_almost_equal(solid_des.mass(),
+    testing.assert_almost_equal(solid_des2.mass(),
             truncated_cone_mass(density, rad0, rad1, height) + 
-            2 * thick0 * height * 0.5 * (rad1 * 2))
+            density * (2 * thick0 * height * 0.5 * (rad0 * 2)), decimal=4)
 
 def test_truncated_cone():
     """Ensures stadium solid degeneracy gives truncated cone result."""
@@ -362,7 +427,13 @@ def test_truncated_cone():
     testing.assert_almost_equal(solid.mass, truncated_cone_volume(3, 1, 4))
 
     # TODO order matters: the formula does not give same mass if r's are switched.
+    # TODO make sure to test swapping the order, since i do height-com.
 
+def test_degenerate_b0_correction():
+    """Ensure StadiumSolidCheck coincides with actual yeadon code."""
+
+    # TODO
+    # TODO try switching the stadia.
 
 
 
