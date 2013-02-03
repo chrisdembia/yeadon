@@ -29,14 +29,14 @@ class TestHuman(unittest.TestCase):
         meas = h.meas
 
         # Regression test.
-        testing.assert_almost_equal(h.mass, 57.8922230088)
-        testing.assert_allclose(h.center_of_mass,
-                np.array([[0], [0], [2.07478719e-02]]), atol=1e-15)
+        testing.assert_almost_equal(h.mass, 58.200488588422544)
         inertiaDes = np.zeros((3, 3))
         inertiaDes[0, 0] = 9.24684876
         inertiaDes[1, 1] = 9.60761496
         inertiaDes[2, 2]= 5.41517131e-01
         testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [2.07478719e-02]]), atol=1e-15)
 
         assert h.is_symmetric == True
         assert h.meas_mass == -1
@@ -469,8 +469,8 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(hum.dens.Dk[i], Dk[i] * factor)
 
         # Check a few individual segments and solids.
-        self.assertEqual(h2.K1.mass, h.K1.mass * factor)
-        self.assertEqual(h2.A2.solids[0].mass, h.A2.solids[0].mass * factor)
+        testing.assert_almost_equal(h2.K1.mass, h.K1.mass * factor)
+        testing.assert_almost_equal(h2.A2.solids[0].mass, h.A2.solids[0].mass * factor)
 
         # Check center of mass is not modified.
         testing.assert_almost_equal(h2.center_of_mass[2], h.center_of_mass[2])
@@ -644,8 +644,15 @@ class TestHuman(unittest.TestCase):
         os.remove(path)
 
     def test_translate_coord_sys(self):
-        # TODO Check out properties again.
-        pass
+        """Just translates once and makes sure only COM changes."""
+        h = hum.Human(self.male1meas)
+        h2 = hum.Human(self.male1meas)
+        h2.translate_coord_sys([1, 2, 3])
+
+        testing.assert_almost_equal(h2.mass, h.mass)
+        testing.assert_allclose(h2.center_of_mass,
+                h.center_of_mass + np.array([[1], [2], [3]]))
+        testing.assert_allclose(h2.inertia, h. inertia, atol=1e-15)
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
