@@ -273,6 +273,10 @@ class StadiumSolid(Solid):
         if (self.stads[0].alignment == 'AP' or
             self.stads[1].alignment == 'AP'):
             self.alignment = 'AP'
+        if stadium0.thickness == 0:
+            self.degenerate_by_t0 = True
+        else:
+            self.degenerate_by_t0 = False
         self.calc_rel_properties()
 
     def calc_rel_properties(self):
@@ -282,22 +286,47 @@ class StadiumSolid(Solid):
         by pi/2 about the z axis.
 
         '''
+        # There are two cases of stadium solid degeneracy to consider:
+        # t0 = 0, and t0 = t1 = 0. The degeneracy arises when b has a
+        # denominator of 0. The case that t1 = 0 is not an issue, then.
+        # The way the case of t0 = 0 is handled is by switching the two stadia.
+        # Note that thi affects how the relative center of mass is set, but
+        # does not affect the mass or moments of inertia calculations.
+        # The case in which t0 = t1 = 0, we set b to 1. That is because t = t0
+        # (1 + bz) is going to be zero anyway, since t0 = 0.
         D = self.density
         h = self.height
-        r0 = self.stads[0].radius
-        t0 = self.stads[0].thickness
-        r1 = self.stads[1].radius
-        t1 = self.stads[1].thickness
+        if self.degenerate_by_t0:
+            # Swap the stadia.
+            r0 = self.stads[1].radius
+            t0 = self.stads[1].thickness
+            r1 = self.stads[0].radius
+            t1 = self.stads[0].thickness
+        else:
+            r0 = self.stads[0].radius
+            t0 = self.stads[0].thickness
+            r1 = self.stads[1].radius
+            t1 = self.stads[1].thickness
         a = (r1 - r0) / r0
-        if (t0 == 0):
+        if t0 == 0:
+            # Truncated cone, since both thicknesses are zero.
+            # b can be anything, because t = t0(1 + bz) = (0)(1 + bz) = 0.
             b = 1
         else:
-            b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
+            b = (t1 - t0) / t0
         self.mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
                                   np.pi * r0 * self._F1(a,a))
         zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
                                np.pi * (r0**2.0) * self._F2(a,a)) / self.mass
-        self.rel_center_of_mass = np.array([[0.0],[0.0],[zcom]])
+        if self.degenerate_by_t0 and t0 != 0:
+            # We swapped the stadia, and it's not a truncated cone.
+            # Must define this intermediate because zcom above is still what
+            # must be used for the parallel axis theorem below.
+            adjusted_zcom = h - zcom
+        else:
+            adjusted_zcom = zcom
+        self.rel_center_of_mass = np.array([[0.0],[0.0],[adjusted_zcom]])
+
         # moments of inertia
         Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                          np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
