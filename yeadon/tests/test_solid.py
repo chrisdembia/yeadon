@@ -399,42 +399,6 @@ def test_stadiumsolidcheck_against_truncated_cone():
             truncated_cone_mass(density, rad0, rad1, height) + 
             density * (2 * thick0 * height * 0.5 * (rad0 * 2)), decimal=4)
 
-def test_truncated_cone():
-    """Ensures stadium solid degeneracy gives truncated cone result."""
-
-    def short_height(base_rad, top_rad, height):
-        return top_rad * height / (base_rad - top_rad)
-
-    def truncated_cone_volume(radius0, radius1, height):
-        return 1.0/3.0 * pi * height * (radius0**2 + radius1**2 +
-                radius0 * radius1)
-
-    def truncated_cone_z_inertia(base_rad, top_rad, height):
-        return 0.30 * truncated_cone_volume(base_rad, 0, height + short_height(base_rad, top_rad, height)) * base_rad**2 - 0.30 * truncated_cone_volume(top_rad, 0, short_height(base_rad, top_rad, height)) * top_rad**2
-
-    # Pure truncated cone: both stadia are circles.
-    stad1 = Stadium('Ls1: umbilicus', 'radius', 1)
-    stad2 = Stadium('Lb1: mid-arm', 'radius', 3)
-
-    solid = StadiumSolid('solid', 1, stad1, stad2, 4)
-
-    # TODO testing.assert_almost_equal(solid.rel_inertia[2, 2],
-          #  truncated_cone_z_inertia(3, 1, 4))
-
-    print solid.mass
-    print truncated_cone_volume(3, 1, 4)
-    assert False
-    testing.assert_almost_equal(solid.mass, truncated_cone_volume(3, 1, 4))
-
-    # TODO order matters: the formula does not give same mass if r's are switched.
-    # TODO make sure to test swapping the order, since i do height-com.
-
-def test_degenerate_b0_correction():
-    """Ensure StadiumSolidCheck coincides with actual yeadon code."""
-
-    # TODO
-    # TODO try switching the stadia.
-
 
 
 
