@@ -31,12 +31,12 @@ class TestHuman(unittest.TestCase):
         # Regression test.
         testing.assert_almost_equal(h.mass, 58.200488588422544)
         inertiaDes = np.zeros((3, 3))
-        inertiaDes[0, 0] = 9.24684876
-        inertiaDes[1, 1] = 9.60761496
-        inertiaDes[2, 2]= 5.41517131e-01
+        inertiaDes[0, 0] = 9.63093850
+        inertiaDes[1, 1] = 9.99497872
+        inertiaDes[2, 2]= 5.45117742e-01
         testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
         testing.assert_allclose(h.center_of_mass,
-                np.array([[0], [0], [2.07478719e-02]]), atol=1e-15)
+                np.array([[0], [0], [1.19967938e-02]]), atol=1e-15)
 
         assert h.is_symmetric == True
         assert h.meas_mass == -1
@@ -683,6 +683,3 @@ class TestHuman(unittest.TestCase):
     # TODO try out a program flow: make sure we do all necessary updates after
     # construction, say when we change a joint angle, etc. CANNOT just change
     # measurements on the fly.
-
-    # TODO check truncated cone formula.
-    # TODO when creating a human leading to degenerate solids.

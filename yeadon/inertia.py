@@ -1,3 +1,6 @@
+# Use Python3 integer division rules.
+from __future__ import division
+
 import numpy as np
 
 def parallel_axis(Ic, m, d):
