@@ -33,7 +33,7 @@ class TestHuman(unittest.TestCase):
         inertiaDes = np.zeros((3, 3))
         inertiaDes[0, 0] = 9.63093850
         inertiaDes[1, 1] = 9.99497872
-        inertiaDes[2, 2]= 5.45117742e-01
+        inertiaDes[2, 2] = 5.45117742e-01
         testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
         testing.assert_allclose(h.center_of_mass,
                 np.array([[0], [0], [1.19967938e-02]]), atol=1e-15)
@@ -168,6 +168,68 @@ class TestHuman(unittest.TestCase):
         self.assertEqual(h.K2.mass, h.J2.mass)
         self.assertEqual(h.A1.mass, h.B1.mass)
         self.assertEqual(h.A2.mass, h.B2.mass)
+
+    def test_density_set(self):
+        """Tests the Chandler and Clauser density sets."""
+
+        # Ensure the densities themselves have not regressed.
+        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+
+        # Input error.
+        self.assertRaises(Exception,
+                hum.Human, self.male1meas, density_set='badname')
+        try:
+            hum.Human(self.male1meas, density_set='badname')
+        except Exception as e:
+            self.assertEquals(e.message, "Density set 'badname' is not one "
+                    "of 'Chandler', 'Clauser', or 'Dempster'.")
+
+        h = hum.Human(self.male1meas, density_set='Chandler')
+
+        # Ensure the densities themselves have not regressed.
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+        segmental_densities = h.segmental_densities
+        for key, val in segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens, segmental_densities_des[key][seg])
+
+        # Regression test.
+        testing.assert_almost_equal(h.mass, 54.639701113740323)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.26910316
+        inertiaDes[1, 1] = 9.61346162
+        inertiaDes[2, 2] = 0.512454528
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [2.08057425e-03]]), atol=1e-15)
+
+        # Regression for the remaining density set.
+        h = hum.Human(self.male1meas, density_set='Clauser')
+
+        testing.assert_almost_equal(h.mass, 59.061501074879487)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.6382444
+        inertiaDes[1, 1] = 10.002298
+        inertiaDes[2, 2] = 0.550455953
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [0.0176605046]]), atol=1e-15)
 
     def test_init_symmetry_off(self):
         """Uses misc/samplemeasurements/male1.txt."""
@@ -436,11 +498,16 @@ class TestHuman(unittest.TestCase):
     def test_scale_human_by_mass(self):
         """User can scale human's mass, via meas input or API."""
 
-        Ds = copy.copy(dens.Ds)
-        Da = copy.copy(dens.Da)
-        Db = copy.copy(dens.Db)
-        Dj = copy.copy(dens.Dj)
-        Dk = copy.copy(dens.Dk)
+        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
 
         # For comparison, unscaled densities.
         h = hum.Human(self.male1meas)
@@ -457,16 +524,10 @@ class TestHuman(unittest.TestCase):
         factor = h2.mass / h.mass
 
         # Make sure densities are scaled correctly.
-        for i in range(len(hum.dens.Ds)):
-            self.assertEqual(hum.dens.Ds[i], Ds[i] * factor)
-        for i in range(len(hum.dens.Da)):
-            self.assertEqual(hum.dens.Da[i], Da[i] * factor)
-        for i in range(len(hum.dens.Db)):
-            self.assertEqual(hum.dens.Db[i], Db[i] * factor)
-        for i in range(len(hum.dens.Dj)):
-            self.assertEqual(hum.dens.Dj[i], Dj[i] * factor)
-        for i in range(len(hum.dens.Dk)):
-            self.assertEqual(hum.dens.Dk[i], Dk[i] * factor)
+        for key, val in h.segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens,
+                        segmental_densities_des[key][seg] * factor)
 
         # Check a few individual segments and solids.
         testing.assert_almost_equal(h2.K1.mass, h.K1.mass * factor)
@@ -484,16 +545,11 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h2.mass, 30)
 
         factor2 = h2.mass / 100
-        for i in range(len(hum.dens.Ds)):
-            testing.assert_almost_equal(hum.dens.Ds[i], Ds[i] * factor * factor2)
-        for i in range(len(hum.dens.Da)):
-            testing.assert_almost_equal(hum.dens.Da[i], Da[i] * factor * factor2)
-        for i in range(len(hum.dens.Db)):
-            testing.assert_almost_equal(hum.dens.Db[i], Db[i] * factor * factor2)
-        for i in range(len(hum.dens.Dj)):
-            testing.assert_almost_equal(hum.dens.Dj[i], Dj[i] * factor * factor2)
-        for i in range(len(hum.dens.Dk)):
-            testing.assert_almost_equal(hum.dens.Dk[i], Dk[i] * factor * factor2)
+        # Make sure densities are scaled correctly.
+        for key, val in h2.segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens,
+                        segmental_densities_des[key][seg] * factor * factor2)
 
     def test_read_measurements(self):
         # TODO is it expected behavior for the user to update the measurements?
