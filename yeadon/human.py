@@ -45,7 +45,6 @@ import inertia
 
 import solid as sol
 import segment as seg
-import densities as dens
 
 class Human(object):
     measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
@@ -108,7 +107,24 @@ class Human(object):
                  [0, np.pi],
                  [0, np.pi]]
 
-    def __init__(self, meas_in, CFG=None, symmetric=True):
+    # Densities come from Yeadon 1990-ii.
+    # Units from the paper are kg/L, units below are kg/m^3.
+    # Headings for the segmental densities below:
+    segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+            'upper-arm', 'forearm', 'hand', 'thigh', 'lower leg', 'foot']
+    #   head-neck     thorax        upper arm     hand          lower leg
+    #            shoulders   abdomenpelvis forearm       thigh         foot
+    segmental_densities = {
+        'Chandler': dict(zip(segment_names),
+        [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091]),
+        'Dempster': dict(zip(segment_names),
+        [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100]),
+        'Clauser': dict(zip(segment_names),
+        [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084]),
+        }
+
+    def __init__(self, meas_in, CFG=None, symmetric=True,
+            density_set='Dempster'):
         '''Initializes a human object. Stores inputs as instance variables,
         defines the names of the configuration variables (CFG) in a class
         tuple, defines the bounds on the configuration variables in a class 2D
@@ -140,11 +156,21 @@ class Human(object):
             True by default. Decides whether or not to average the measurements
             of the left and right limbs of the human. This has nothing to with
             the configuration being symmetric.
+        density_set : str, optional
+            Selects a set of densities to use for the body segments.
+            Either 'Chandler', 'Clauser', or 'Dempster'. 'Dempster' by default.
+            See class variable `segmental_densities` to inspect their values.
 
         '''
         # Initialize position and orientation of entire body.
         self.coord_sys_pos = np.array([[0],[0],[0]])
         self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
+
+        # Assign densities for the solids.
+        if density_set not in ['Chandler', 'Clauser', 'Dempster']:
+            raise Exception("Density set {0!r} is not one of 'Chandler', "
+                    "'Clauser', or 'Dempster'.".format(density_set)
+        self._density_set = density_set
 
         self.is_symmetric = symmetric
         self.meas_mass = -1
@@ -178,6 +204,12 @@ class Human(object):
             self.set_CFG_dict(CFG)
         elif type(CFG) == str:
             self._read_CFG(CFG)
+
+    def _assign_densities(self, density_set):
+        '''Assigns densities from `segmental_densities` to instance variables
+        holding the density of each solid.
+        '''
+
 
     def update(self):
         '''Redefines all solids and then calls yeadon.Human._update_segments.
@@ -646,44 +678,44 @@ class Human(object):
                                     'perimeter', meas['Ls7p'], '=p'))
         # define solids: this can definitely be done in a loop
         self._s.append( sol.StadiumSolid( 's0: hip joint centre',
-                                          dens.Ds[0],
-                                          self._Ls[0],
-                                          self._Ls[1],
-                                          s0h))
+                self.segmental_densities[self._density_set]['abdomen-pelvis'],
+                self._Ls[0],
+                self._Ls[1],
+                s0h))
         self._s.append( sol.StadiumSolid( 's1: umbilicus',
-                                          dens.Ds[1],
-                                          self._Ls[1],
-                                          self._Ls[2],
-                                          s1h))
+                self.segmental_densities[self._density_set]['abdomen-pelvis'],
+                self._Ls[1],
+                self._Ls[2],
+                s1h))
         self._s.append( sol.StadiumSolid( 's2: lowest front rib',
-                                          dens.Ds[2],
-                                          self._Ls[2],
-                                          self._Ls[3],
-                                          s2h))
+                self.segmental_densities[self._density_set]['thorax'],
+                self._Ls[2],
+                self._Ls[3],
+                s2h))
         self._s.append( sol.StadiumSolid( 's3: nipple',
-                                          dens.Ds[3],
-                                          self._Ls[3],
-                                          self._Ls[4],
-                                          s3h))
+                self.segmental_densities[self._density_set]['thorax'],
+                self._Ls[3],
+                self._Ls[4],
+                s3h))
         self._s.append( sol.StadiumSolid( 's4: shoulder joint centre',
-                                          dens.Ds[4],
-                                          self._Ls[4],
-                                          self._Ls[5],
-                                          s4h))
+                self.segmental_densities[self._density_set]['shoulders'],
+                self._Ls[4],
+                self._Ls[5],
+                s4h))
         self._s.append( sol.StadiumSolid( 's5: acromion',
-                                          dens.Ds[5],
-                                          self._Ls[6],
-                                          self._Ls[7],
-                                          s5h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                self._Ls[6],
+                self._Ls[7],
+                s5h))
         self._s.append( sol.StadiumSolid( 's6: beneath nose',
-                                          dens.Ds[6],
-                                          self._Ls[7],
-                                          self._Ls[8],
-                                          s6h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                self._Ls[7],
+                self._Ls[8],
+                s6h))
         self._s.append( sol.Semiellipsoid( 's7: above ear',
-                                           dens.Ds[7],
-                                           meas['Ls7p'],
-                                           s7h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                meas['Ls7p'],
+                s7h))
 
     def _define_arm_solids(self):
         '''Defines the solids (from solid.py) that create the arms of the
@@ -721,40 +753,40 @@ class Human(object):
                                     'perimwidth', meas['La7p'], meas['La7w']))
         # define left arm solids
         self._a.append( sol.StadiumSolid( 'a0: shoulder joint centre',
-                                          dens.Da[0],
-                                          self._La[0],
-                                          self._La[1],
-                                          a0h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._La[0],
+                self._La[1],
+                a0h))
         self._a.append( sol.StadiumSolid( 'a1: mid-arm',
-                                          dens.Da[1],
-                                          self._La[1],
-                                          self._La[2],
-                                          a1h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._La[1],
+                self._La[2],
+                a1h))
         self._a.append( sol.StadiumSolid( 'a2: elbow joint centre',
-                                          dens.Da[2],
-                                          self._La[2],
-                                          self._La[3],
-                                          a2h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._La[2],
+                self._La[3],
+                a2h))
         self._a.append( sol.StadiumSolid( 'a3: maximum forearm perimeter',
-                                          dens.Da[3],
-                                          self._La[3],
-                                          self._La[4],
-                                          a3h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._La[3],
+                self._La[4],
+                a3h))
         self._a.append( sol.StadiumSolid( 'a4: wrist joint centre',
-                                          dens.Da[4],
-                                          self._La[4],
-                                          self._La[5],
-                                          a4h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[4],
+                self._La[5],
+                a4h))
         self._a.append( sol.StadiumSolid( 'a5: base of thumb',
-                                          dens.Da[5],
-                                          self._La[5],
-                                          self._La[6],
-                                          a5h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[5],
+                self._La[6],
+                a5h))
         self._a.append( sol.StadiumSolid( 'a6: knuckles',
-                                          dens.Da[6],
-                                          self._La[6],
-                                          self._La[7],
-                                          a6h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[6],
+                self._La[7],
+                a6h))
         # get solid heights from length measurements
         b0h = meas['Lb2L'] * 0.5
         b1h = meas['Lb2L'] - meas['Lb2L'] * 0.5
@@ -784,40 +816,40 @@ class Human(object):
                                     'perimwidth', meas['Lb7p'], meas['Lb7w']))
         # define right arm solids
         self._b.append( sol.StadiumSolid( 'b0: shoulder joint centre',
-                                          dens.Db[0],
-                                          self._Lb[0],
-                                          self._Lb[1],
-                                          b0h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._Lb[0],
+                self._Lb[1],
+                b0h))
         self._b.append( sol.StadiumSolid( 'b1: mid-arm',
-                                          dens.Db[1],
-                                          self._Lb[1],
-                                          self._Lb[2],
-                                          b1h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._Lb[1],
+                self._Lb[2],
+                b1h))
         self._b.append( sol.StadiumSolid( 'b2: elbow joint centre',
-                                          dens.Db[2],
-                                          self._Lb[2],
-                                          self._Lb[3],
-                                          b2h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._Lb[2],
+                self._Lb[3],
+                b2h))
         self._b.append( sol.StadiumSolid( 'b3: maximum forearm perimeter',
-                                          dens.Db[3],
-                                          self._Lb[3],
-                                          self._Lb[4],
-                                          b3h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._Lb[3],
+                self._Lb[4],
+                b3h))
         self._b.append( sol.StadiumSolid( 'b4: wrist joint centre',
-                                          dens.Db[4],
-                                          self._Lb[4],
-                                          self._Lb[5],
-                                          b4h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[4],
+                self._Lb[5],
+                b4h))
         self._b.append( sol.StadiumSolid( 'b5: base of thumb',
-                                          dens.Db[5],
-                                          self._Lb[5],
-                                          self._Lb[6],
-                                          b5h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[5],
+                self._Lb[6],
+                b5h))
         self._b.append( sol.StadiumSolid( 'b6: knuckles',
-                                          dens.Db[6],
-                                          self._Lb[6],
-                                          self._Lb[7],
-                                          b6h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[6],
+                self._Lb[7],
+                b6h))
 
     def _define_leg_segments(self):
         '''Defines the solids (from solid.py) that create the legs of the
@@ -864,50 +896,50 @@ class Human(object):
                                     'perimwidth', meas['Lj9p'], meas['Lj9w']))
         # define left leg solids
         self._j.append( sol.StadiumSolid( 'j0: hip joint centre',
-                                          dens.Dj[0],
-                                          self._Lj[0],
-                                          self._Lj[1],
-                                          j0h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[0],
+                self._Lj[1],
+                j0h))
         self._j.append( sol.StadiumSolid( 'j1: crotch',
-                                          dens.Dj[1],
-                                          self._Lj[1],
-                                          self._Lj[2],
-                                          j1h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[1],
+                self._Lj[2],
+                j1h))
         self._j.append( sol.StadiumSolid( 'j2: mid-thigh',
-                                          dens.Dj[2],
-                                          self._Lj[2],
-                                          self._Lj[3],
-                                          j2h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[2],
+                self._Lj[3],
+                j2h))
         self._j.append( sol.StadiumSolid( 'j3: knee joint centre',
-                                          dens.Dj[3],
-                                          self._Lj[3],
-                                          self._Lj[4],
-                                          j3h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lj[3],
+                self._Lj[4],
+                j3h))
         self._j.append( sol.StadiumSolid( 'j4: maximum calf parimeter',
-                                          dens.Dj[4],
-                                          self._Lj[4],
-                                          self._Lj[5],
-                                          j4h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lj[4],
+                self._Lj[5],
+                j4h))
         self._j.append( sol.StadiumSolid( 'j5: ankle joint centre',
-                                          dens.Dj[5],
-                                          self._Lj[5],
-                                          self._Lj[6],
-                                          j5h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[5],
+                self._Lj[6],
+                j5h))
         self._j.append( sol.StadiumSolid( 'j6: heel',
-                                          dens.Dj[6],
-                                          self._Lj[6],
-                                          self._Lj[7],
-                                          j6h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[6],
+                self._Lj[7],
+                j6h))
         self._j.append( sol.StadiumSolid( 'j7: arch',
-                                          dens.Dj[7],
-                                          self._Lj[7],
-                                          self._Lj[8],
-                                          j7h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[7],
+                self._Lj[8],
+                j7h))
         self._j.append( sol.StadiumSolid( 'k8: ball',
-                                          dens.Dj[8],
-                                          self._Lj[8],
-                                          self._Lj[9],
-                                          j8h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[8],
+                self._Lj[9],
+                j8h))
         # get solid heights from length measurements
         k0h = meas['Lk1L']
         k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
@@ -945,50 +977,50 @@ class Human(object):
         self._Lk.append( sol.Stadium('Lk9: toe nails',
                                     'perimwidth', meas['Lk9p'], meas['Lk9w']))
         self._k.append( sol.StadiumSolid( 'k0: hip joint centre',
-                                          dens.Dk[0],
-                                          self._Lk[0],
-                                          self._Lk[1],
-                                          k0h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[0],
+                self._Lk[1],
+                k0h))
         self._k.append( sol.StadiumSolid( 'k1: crotch',
-                                          dens.Dk[1],
-                                          self._Lk[1],
-                                          self._Lk[2],
-                                          k1h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[1],
+                self._Lk[2],
+                k1h))
         self._k.append( sol.StadiumSolid( 'k2: mid-thigh',
-                                          dens.Dk[2],
-                                          self._Lk[2],
-                                          self._Lk[3],
-                                          k2h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[2],
+                self._Lk[3],
+                k2h))
         self._k.append( sol.StadiumSolid( 'k3: knee joint centre',
-                                          dens.Dk[3],
-                                          self._Lk[3],
-                                          self._Lk[4],
-                                          k3h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lk[3],
+                self._Lk[4],
+                k3h))
         self._k.append( sol.StadiumSolid( 'k4: maximum calf perimeter',
-                                          dens.Dk[4],
-                                          self._Lk[4],
-                                          self._Lk[5],
-                                          k4h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lk[4],
+                self._Lk[5],
+                k4h))
         self._k.append( sol.StadiumSolid( 'k5: ankle joint centre',
-                                          dens.Dk[5],
-                                          self._Lk[5],
-                                          self._Lk[6],
-                                          k5h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[5],
+                self._Lk[6],
+                k5h))
         self._k.append( sol.StadiumSolid( 'k6: heel',
-                                          dens.Dk[6],
-                                          self._Lk[6],
-                                          self._Lk[7],
-                                          k6h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[6],
+                self._Lk[7],
+                k6h))
         self._k.append( sol.StadiumSolid( 'k7: arch',
-                                          dens.Dk[7],
-                                          self._Lk[7],
-                                          self._Lk[8],
-                                          k7h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[7],
+                self._Lk[8],
+                k7h))
         self._k.append( sol.StadiumSolid( 'k8: ball',
-                                          dens.Dk[8],
-                                          self._Lk[8],
-                                          self._Lk[9],
-                                          k8h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[8],
+                self._Lk[9],
+                k8h))
 
     def _define_segments(self):
         '''Define segment objects using previously defined solids.
@@ -1110,6 +1142,11 @@ class Human(object):
 
         '''
         massratio = measmass / self.mass
+        # The following attempts to take care of the unlikely case where the
+        # density set is changed after construction of a Human.
+        for key, val in self.segmental_densities.items():
+            for segment, density in val.items():
+                self.segmental_densities[key][segment] = density * massratio
         for i in range(len(dens.Ds)):
             dens.Ds[i] = dens.Ds[i] * massratio
         for i in range(len(dens.Da)):
