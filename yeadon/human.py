@@ -111,16 +111,16 @@ class Human(object):
     # Units from the paper are kg/L, units below are kg/m^3.
     # Headings for the segmental densities below:
     segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
-            'upper-arm', 'forearm', 'hand', 'thigh', 'lower leg', 'foot']
+            'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
     #   head-neck     thorax        upper arm     hand          lower leg
     #            shoulders   abdomenpelvis forearm       thigh         foot
     segmental_densities = {
-        'Chandler': dict(zip(segment_names),
-        [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091]),
-        'Dempster': dict(zip(segment_names),
-        [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100]),
-        'Clauser': dict(zip(segment_names),
-        [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084]),
+        'Chandler': dict(zip(segment_names,
+        [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+        'Dempster': dict(zip(segment_names,
+        [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+        'Clauser': dict(zip(segment_names,
+        [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
         }
 
     def __init__(self, meas_in, CFG=None, symmetric=True,
@@ -169,7 +169,7 @@ class Human(object):
         # Assign densities for the solids.
         if density_set not in ['Chandler', 'Clauser', 'Dempster']:
             raise Exception("Density set {0!r} is not one of 'Chandler', "
-                    "'Clauser', or 'Dempster'.".format(density_set)
+                    "'Clauser', or 'Dempster'.".format(density_set))
         self._density_set = density_set
 
         self.is_symmetric = symmetric
@@ -1147,16 +1147,6 @@ class Human(object):
         for key, val in self.segmental_densities.items():
             for segment, density in val.items():
                 self.segmental_densities[key][segment] = density * massratio
-        for i in range(len(dens.Ds)):
-            dens.Ds[i] = dens.Ds[i] * massratio
-        for i in range(len(dens.Da)):
-            dens.Da[i] = dens.Da[i] * massratio
-        for i in range(len(dens.Db)):
-            dens.Db[i] = dens.Db[i] * massratio
-        for i in range(len(dens.Dj)):
-            dens.Dj[i] = dens.Dj[i] * massratio
-        for i in range(len(dens.Dk)):
-            dens.Dk[i] = dens.Dk[i] * massratio
         self.update()
         if round(measmass, 2) != round(self.mass, 2):
             raise Exception("Attempted to scale mass by a "
