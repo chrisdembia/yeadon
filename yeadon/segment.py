@@ -28,7 +28,10 @@ class Segment(object):
         rot_mat : numpy.matrix, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
-            human frame.
+            human frame. That is, rot_mat is (^N R ^A), where N is the fixed
+            human frame, and A is the frame fixed to this segment. If v is a
+            vector and (^A v) is its representation in A, then (^N R ^A * ^A v)
+            = (^N v) is its representation in N.
         solids : list of solid objects
             The solid objects that compose the segment
         color : tuple (3,)

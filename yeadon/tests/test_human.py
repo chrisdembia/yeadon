@@ -407,6 +407,7 @@ class TestHuman(unittest.TestCase):
         h2.set_CFG('CA1elevation', np.pi / 2)
         testing.assert_almost_equal(h2.A1.rel_inertia, h.A1.rel_inertia)
         testing.assert_almost_equal(h2.A2.rel_inertia, h.A2.rel_inertia)
+        # y and z components are swapped.
         testing.assert_almost_equal(h2.A1.inertia[0, 0], h.A1.inertia[0, 0])
         testing.assert_almost_equal(h2.A1.inertia[1, 1], h.A1.inertia[2, 2])
         testing.assert_almost_equal(h2.A1.inertia[2, 2], h.A1.inertia[1, 1])
@@ -415,39 +416,26 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h2.A2.inertia[2, 2], h.A2.inertia[1, 1])
 
         # Subtract out the arm, and see if the remaining inertia is good.
-        #testing.assert_allclose(
-        #        h2.inertia - np.mat(inertia.parallel_axis(
-        #            h2.A1.inertia, h2.A1.mass,
-        #            (h2.A1.center_of_mass - h2.center_of_mass).T.tolist()[0]))
-        #        - np.mat(inertia.parallel_axis(
-        #            h2.A2.inertia, h2.A2.mass,
-        #            (h2.A2.center_of_mass - h2.center_of_mass).T.tolist()[0]),
-        #            ),
-        #        h.inertia - np.mat(inertia.parallel_axis(
-        #            h.A1.inertia, h.A1.mass,
-        #            (h.A1.center_of_mass - h.center_of_mass).T.tolist()[0]))
-        #        - np.mat(inertia.parallel_axis(
-        #            h.A2.inertia, h.A2.mass,
-        #            (h.A2.center_of_mass - h.center_of_mass).T.tolist()[0])))
-
-        h2 = hum.Human(self.male1meas)
-        h2.set_CFG('A1A2flexion', np.pi / 2)
-        print h2.inertia
-        print h.inertia
-        print np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
-            (h2.A2.center_of_mass - h2.center_of_mass).T.tolist()[0]))
-        print np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
-            (h.A2.center_of_mass - h.center_of_mass).T.tolist()[0]))
-        print h2.inertia[2, 0] + np.mat(inertia.parallel_axis( h.A2.inertia,
-            h.A2.mass, (h.A2.center_of_mass - h.center_of_mass).T.tolist()[0]))[2, 0]
-        testing.assert_allclose( h2.inertia
-                - np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
-                    (h2.A2.center_of_mass -
-                        h2.center_of_mass).T.tolist()[0])),
-                    h.inertia
-                    - np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
-                        (h.A2.center_of_mass -
-                            h.center_of_mass).T.tolist()[0])))
+        # That is, the only part of the human's inertia tensor that changed
+        # should be that which comes from the arm A.
+        # Obtain inertia tensors about origin; the other option would be
+        # h.center_of_mass, but this changes depending on A1A2flexion.
+        a1inertia_before = np.mat(inertia.parallel_axis( h.A1.inertia, h.A1.mass,
+            h.A1.center_of_mass.T.tolist()[0]))
+        a1inertia_after = np.mat(inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
+            h2.A1.center_of_mass.T.tolist()[0]))
+        a2inertia_before = np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
+            h.A2.center_of_mass.T.tolist()[0]))
+        a2inertia_after = np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
+            h2.A2.center_of_mass.T.tolist()[0]))
+        whole_inertia_before = np.mat(inertia.parallel_axis(h.inertia, h.mass,
+            h.center_of_mass.T.tolist()[0]))
+        whole_inertia_after = np.mat(inertia.parallel_axis(h2.inertia, h2.mass,
+            h2.center_of_mass.T.tolist()[0]))
+        testing.assert_allclose(
+                whole_inertia_after - a1inertia_after - a2inertia_after,
+                whole_inertia_before - a1inertia_before - a2inertia_before,
+                atol=1e-15)
 
     def test_set_CFG_dict(self):
         """Checks input errors and that the assignment occurs."""

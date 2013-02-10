@@ -10,10 +10,11 @@ Typical usage (not using yeadon.ui.start_ui())
     # filenames (.txt files). Configuration input is optional.
     H = y.Human(<measfname>, <CFGfname>)
     # transform the absolute fixed coordiantes from yeadon's to your system's
-    H.transform_coord_sys(pos,rotmat)
+    H.transform_coord_sys(pos, rotmat)
     # obtain inertia information
     var1 = H.mass
     var2 = H.center_of_mass
+    # Human's inertia tensor about H.center_of_mass.
     var3 = H.inertia
     var4 = H.J1.mass
     var5a = H.J1.rel_center_of_mass
