@@ -708,7 +708,7 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h2.mass, h.mass)
         testing.assert_allclose(h2.center_of_mass,
                 h.center_of_mass + np.array([[1], [2], [3]]))
-        testing.assert_allclose(h2.inertia, h. inertia, atol=1e-15)
+        testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
@@ -724,14 +724,11 @@ class TestHuman(unittest.TestCase):
         pass
 
 # TODO translating the entire human: check resulting inertia properties.
-# TODO make sure mass scaling works appropriately.
 
 # TODO compare ISEG output to our output.
 
-    # TODO really make sure we're calculating inertia correctly.
+    # TODO really make sure we're calculating total inertia correctly.
     # TODO make sure we're doing rotations correctly.3
-    # TODO make sure the rotations rotate as expected.2
-    # TODO zero-config inertia comparison with ISEG code. 2
     # TODO make sure relative vs absolute inertia etc is correct.
 
     # TODO test combineinerita by manual calculations.
