@@ -745,7 +745,7 @@ class Human(object):
                                     'perimeter', meas['La3p'], '=p'))
         self._La.append( sol.Stadium('La4: wrist joint centre',
                                     'perimwidth', meas['La4p'], meas['La4w']))
-        self._La.append( sol.Stadium('La5: acromion',
+        self._La.append( sol.Stadium('La5: base of thumb',
                                     'perimwidth', meas['La5p'], meas['La5w']))
         self._La.append( sol.Stadium('La6: knuckles',
                                     'perimwidth', meas['La6p'], meas['La6w']))
@@ -808,7 +808,7 @@ class Human(object):
                                     'perimeter', meas['Lb3p'], '=p'))
         self._Lb.append( sol.Stadium('Lb4: wrist joint centre',
                                     'perimwidth', meas['Lb4p'], meas['Lb4w']))
-        self._Lb.append( sol.Stadium('Lb5: acromion',
+        self._Lb.append( sol.Stadium('Lb5: base of thumb',
                                     'perimwidth', meas['Lb5p'], meas['Lb5w']))
         self._Lb.append( sol.Stadium('Lb6: knuckles',
                                     'perimwidth', meas['Lb6p'], meas['Lb6w']))
@@ -1278,9 +1278,10 @@ class Human(object):
             m['Lk8p'], m['Lk9p']))
         fid.write("{0},{1},{2}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
 
-        # This line contains ISEG's "XHEIGHT" and "XMASS" variables, both
-        # unused in his code.
-        fid.write("{0},{1}\n".format(500, 200))
+        # This line contains ISEG's "XHEIGHT" and "XMASS" variables. XMASS is
+        # used for mass/density correction in his code.
+        fid.write("{0},{1}\n".format(500,
+            self.meas_mass if self.meas_mass > 0 else 200))
         fid.close()
 
     def _read_CFG(self, CFGfname):
