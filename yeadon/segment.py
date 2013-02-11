@@ -170,6 +170,11 @@ class Segment(object):
         for s in self.solids:
             s.draw_mayavi(mlabobj, self.color)
 
+    def update_mayavi(self):
+        """Updates all of the solids in this segment for MayaVi."""
+        for s in self.solids:
+            s.update_mayavi()
+
     def draw_visual(self):
         '''Draws in a 3D VPython window all the solids within this segment.
 

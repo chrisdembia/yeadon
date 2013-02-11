@@ -458,6 +458,11 @@ class Human(object):
                                        [dist[0,0],dist[1,0],dist[2,0]]))
         return resultantMass,resultantCOM,resultantInertia
 
+    def get_segment_by_name(self, name):
+        """Returns a segment given its name."""
+        labels = [s.label[0:len(name)] for s in self.Segments]
+        return self.Segments[labels.index(name)]
+
     def draw_mayavi(self, mlabobj=mlab):
         '''Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
@@ -478,6 +483,11 @@ class Human(object):
         #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
         #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
         #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
+
+    def update_mayavi(self):
+        """Updates all of the segments for MayaVi."""
+        for s in self.Segments:
+            s.update_mayavi()
 
     def draw_visual(self, forward=(-1,1,-1), up=(0,0,1), bg=(0,0,0)):
         '''Draws the human in 3D in a new window using VPython (python-visual).

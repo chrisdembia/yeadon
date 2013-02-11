@@ -11,29 +11,30 @@ from human import Human
 
 class GUI(HasTraits):
     ''' TODO '''
-                         
+
     myPi = 3.14
-    somersalt              = Range(-myPi, myPi, 0.0, enter_set=True, auto_set=True)
-    tilt                   = Range(-myPi, myPi, 0.0, enter_set=True, auto_set=True)
-    twist                  = Range(-myPi, myPi, 0.0, enter_set=True, auto_set=True)
-    PTsagittalFlexion      = Range(-myPi/2, myPi, 0.0, enter_set=True, auto_set=True)
-    PTfrontalFlexion       = Range(-myPi/2, myPi/2, 0.0, enter_set=True, auto_set=True)
-    TCspinalTorsion        = Range(-myPi/2, myPi/2, 0.0, enter_set=True, auto_set=True)
-    TClateralSpinalFlexion = Range(-myPi/2, myPi/2, 0.0, enter_set=True, auto_set=True)
-    CA1elevation           = Range(-myPi/2, myPi*3/2, 0.0, enter_set=True, auto_set=True)
-    CA1abduction           = Range(-myPi*3/2, myPi, 0.0, enter_set=True, auto_set=True)
-    CA1rotation            = Range(-myPi, myPi, 0.0, enter_set=True, auto_set=True)
-    CB1elevation           = Range(-myPi/2, myPi*3/2, 0.0, enter_set=True, auto_set=True)
-    CB1abduction           = Range(-myPi*3/2, myPi, 0.0, enter_set=True, auto_set=True)
-    CB1rotation            = Range(-myPi, myPi, 0.0, enter_set=True, auto_set=True)
-    A1A2flexion            = Range(0, myPi, 0.0, enter_set=True, auto_set=True)
-    B1B2flexion            = Range(0, myPi, 0.0, enter_set=True, auto_set=True)
-    PJ1flexion             = Range(-myPi/2, myPi, 0.0, enter_set=True, auto_set=True)
-    PJ1abduction           = Range(-myPi/2, myPi/2, 0.0, enter_set=True, auto_set=True)
-    PK1flexion             = Range(-myPi/2, myPi, 0.0, enter_set=True, auto_set=True)
-    PK1abduction           = Range(-myPi/2, myPi/2, 0.0, enter_set=True, auto_set=True)
-    J1J2flexion            = Range(0, myPi, 0.0, enter_set=True, auto_set=True)
-    K1K2flexion            = Range(0, myPi, 0.0, enter_set=True, auto_set=True) 
+    opts = {'enter_set': True, 'auto_set': True}
+    somersalt              = Range(-myPi, myPi, 0.0, **opts)
+    tilt                   = Range(-myPi, myPi, 0.0, **opts)
+    twist                  = Range(-myPi, myPi, 0.0, **opts)
+    PTsagittalFlexion      = Range(-myPi/2, myPi, 0.0, **opts)
+    PTfrontalFlexion       = Range(-myPi/2, myPi/2, 0.0, **opts)
+    TCspinalTorsion        = Range(-myPi/2, myPi/2, 0.0, **opts)
+    TClateralSpinalFlexion = Range(-myPi/2, myPi/2, 0.0, **opts)
+    CA1elevation           = Range(-myPi/2, myPi*3/2, 0.0, **opts)
+    CA1abduction           = Range(-myPi*3/2, myPi, 0.0, **opts)
+    CA1rotation            = Range(-myPi, myPi, 0.0, **opts)
+    CB1elevation           = Range(-myPi/2, myPi*3/2, 0.0, **opts)
+    CB1abduction           = Range(-myPi*3/2, myPi, 0.0, **opts)
+    CB1rotation            = Range(-myPi, myPi, 0.0, **opts)
+    A1A2flexion            = Range(0, myPi, 0.0, **opts)
+    B1B2flexion            = Range(0, myPi, 0.0, **opts)
+    PJ1flexion             = Range(-myPi/2, myPi, 0.0, **opts)
+    PJ1abduction           = Range(-myPi/2, myPi/2, 0.0, **opts)
+    PK1flexion             = Range(-myPi/2, myPi, 0.0, **opts)
+    PK1abduction           = Range(-myPi/2, myPi/2, 0.0, **opts)
+    J1J2flexion            = Range(0, myPi, 0.0, **opts)
+    K1K2flexion            = Range(0, myPi, 0.0, **opts)
 
     scene = Instance(MlabSceneModel, args=())
 
@@ -113,97 +114,100 @@ class GUI(HasTraits):
     @on_trait_change('PTsagittalFlexion')
     def update_PTsagittalFlexion(self):
         self.H.set_CFG('PTsagittalFlexion', self.PTsagittalFlexion)
-        self._update_mayavi()
+        self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
 
     @on_trait_change('PTfrontalFlexion')
     def update_PTfrontalFlexion(self):
         self.H.set_CFG('PTfrontalFlexion', self.PTfrontalFlexion)
-        self._update_mayavi()
+        self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
 
     @on_trait_change('TCspinalTorsion')
     def update_TCspinalTorsion(self):
         self.H.set_CFG('TCspinalTorsion', self.TCspinalTorsion)
-        self._update_mayavi()
+        self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
 
     @on_trait_change('TClateralSpinalFlexion')
     def update_TClateralSpinalFlexion(self):
         self.H.set_CFG('TClateralSpinalFlexion', self.TClateralSpinalFlexion)
-        self._update_mayavi()
+        self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
 
     @on_trait_change('CA1elevation')
     def update_CA1elevation(self):
         self.H.set_CFG('CA1elevation', self.CA1elevation)
-        self._update_mayavi()
+        self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CA1abduction')
     def update_CA1abduction(self):
         self.H.set_CFG('CA1abduction', self.CA1abduction)
-        self._update_mayavi()
+        self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CA1rotation')
     def update_CA1rotation(self):
         self.H.set_CFG('CA1rotation', self.CA1rotation)
-        self._update_mayavi()
+        self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CB1elevation')
     def update_CB1elevation(self):
         self.H.set_CFG('CB1elevation', self.CB1elevation)
-        self._update_mayavi()
+        self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('CB1abduction')
     def update_CB1abduction(self):
         self.H.set_CFG('CB1abduction', self.CB1abduction)
-        self._update_mayavi()
+        self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('CB1rotation')
     def update_CB1rotation(self):
         self.H.set_CFG('CB1rotation', self.CB1rotation)
-        self._update_mayavi()
+        self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('A1A2flexion')
     def update_A1A2flexion(self):
         self.H.set_CFG('A1A2flexion', self.A1A2flexion)
-        self._update_mayavi()
+        self._update_mayavi(['A2'])
 
     @on_trait_change('B1B2flexion')
     def update_B1B2flexion(self):
         self.H.set_CFG('B1B2flexion', self.B1B2flexion)
-        self._update_mayavi()
+        self._update_mayavi(['B2'])
 
     @on_trait_change('PJ1flexion')
     def update_PJ1flexion(self):
         self.H.set_CFG('PJ1flexion', self.PJ1flexion)
-        self._update_mayavi()
+        self._update_mayavi(['J1', 'J2'])
 
     @on_trait_change('PJ1abduction')
     def update_PJ1abduction(self):
         self.H.set_CFG('PJ1abduction', self.PJ1abduction)
-        self._update_mayavi()
+        self._update_mayavi(['J1', 'J2'])
 
     @on_trait_change('PK1flexion')
     def update_PK1flexion(self):
         self.H.set_CFG('PK1flexion', self.PK1flexion)
-        self._update_mayavi()
+        self._update_mayavi(['K1', 'K2'])
 
     @on_trait_change('PK1abduction')
     def update_PK1abduction(self):
         self.H.set_CFG('PK1abduction', self.PK1abduction)
-        self._update_mayavi()
+        self._update_mayavi(['K1', 'K2'])
 
     @on_trait_change('J1J2flexion')
     def update_J1J2flexion(self):
         self.H.set_CFG('J1J2flexion', self.J1J2flexion)
-        self._update_mayavi()
+        self._update_mayavi(['J2'])
 
     @on_trait_change('K1K2flexion')
     def update_K1K2flexion(self):
         self.H.set_CFG('K1K2flexion', self.K1K2flexion)
-        self._update_mayavi()
+        self._update_mayavi(['K2'])
 
-    def _update_mayavi(self):
-        self.scene.mlab.clf()
-        self.H.draw_mayavi(self.scene.mlab)
-
+    def _update_mayavi(self, segments=None):
+        """Updates all of the segments and solids."""
+        if segments is None:
+            self.H.update_mayavi()
+        else:
+            for affected in segments:
+                self.H.get_segment_by_name(affected).update_mayavi()
 
 if __name__ == '__main__':
     g = GUI()

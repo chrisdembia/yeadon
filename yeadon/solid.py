@@ -145,7 +145,7 @@ class Stadium(object):
                 " alignment is not valid, must be either AP or ML")
         else:
             self.alignment = alignment
-    
+
     def _set_as_circle(self, radius):
         """Sets radius, perimeter, thickness, and width if thickness is 0."""
         self.radius = radius
@@ -399,22 +399,34 @@ class StadiumSolid(Solid):
         ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
 
     def draw_mayavi(self, mlabobj, col):
-        '''Draws the stadium in 3D using MayaVi.
-        
+        '''Draws the initial stadium in 3D using MayaVi.
+
         Parameters
         ----------
-        mlabobj : 
+        mlabobj : mayavi.soemthing
             The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        self.generate_mesh()
+        self.mesh = mlabobj.mesh(self.mesh_points['x'], self.mesh_points['y'],
+                self.mesh_points['z'], color=col, opacity=Solid.alpha)
+
+    def update_mayavi(self):
+        """Updates the mesh in MayaVi."""
+        self.generate_mesh()
+        self.mesh.mlab_source.set(x=self.mesh_points['x'],
+                y=self.mesh_points['y'], z=self.mesh_points['z'])
+
+    def generate_mesh(self):
+        """Generates grid points for a MayaVi mesh."""
+        X0, Y0, Z0, X0toplot, Y0toplot, Z0toplot = self.make_pos(0)
+        X1, Y1, Z1, X1toplot, Y1toplot, Z1toplot = self.make_pos(1)
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
-        mlabobj.mesh(Xpts, Ypts, Zpts, color=col, opacity=Solid.alpha)
+        self.mesh_points = {'x': Xpts, 'y': Ypts, 'z': Zpts}
 
     def draw_visual(self, c):
         '''Draws the stadium in 3D in a VPython window. Only one line of code!
@@ -573,17 +585,28 @@ class Semiellipsoid(Solid):
 
     def draw_mayavi(self, mlabobj, col):
         '''Draws the semiellipsoid in 3D using MayaVi.
-        
+
         Parameters
         ----------
-        mlabobj : 
+        mlabobj :
             The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        x, y, z = self._make_pos()
-        mlabobj.mesh(x, y, z, color=col, opacity=Solid.alpha)
+        self.generate_mesh()
+        self.mesh = mlabobj.mesh(*self.mesh_points, color=col,
+                opacity=Solid.alpha)
+
+    def update_mayavi(self):
+        """Updates the mesh in MayaVi."""
+        self.generate_mesh()
+        self.mesh.mlab_source.set(x=self.mesh_points[0],
+                y=self.mesh_points[1], z=self.mesh_points[2])
+
+    def generate_mesh(self):
+        """Generates a mesh for MayaVi."""
+        self.mesh_points = self._make_pos()
 
     def draw_visual(self, c):
         '''Draws an ellipse in VPython. Ideally would only draw the top half of
