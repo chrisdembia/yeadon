@@ -1,13 +1,37 @@
-import numpy as np
+#!/usr/bin/env python
 
 from traits.api import HasTraits, Range, Instance, \
-        on_trait_change, Array, Tuple, Str
-from traitsui.api import View, Item, HSplit, Group
+        on_trait_change, Float, Property
+from traitsui.api import View, Item, VSplit, HSplit, Group
 
-from mayavi import mlab
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
 from human import Human
+
+sliders = ['somersalt',
+           'tilt',
+           'twist',
+           'PTsagittalFlexion',
+           'PTfrontalFlexion',
+           'TCspinalTorsion',
+           'TClateralSpinalFlexion',
+           'CA1elevation',
+           'CA1abduction',
+           'CA1rotation',
+           'CB1elevation',
+           'CB1abduction',
+           'CB1rotation',
+           'A1A2flexion',
+           'B1B2flexion',
+           'PJ1flexion',
+           'PJ1abduction',
+           'PK1flexion',
+           'PK1abduction',
+           'J1J2flexion',
+           'K1K2flexion']
+
+def format_func(value):
+    return '{:1.3}'.format(value)
 
 class GUI(HasTraits):
     ''' TODO '''
@@ -36,37 +60,78 @@ class GUI(HasTraits):
     J1J2flexion            = Range(0, myPi, 0.0, **opts)
     K1K2flexion            = Range(0, myPi, 0.0, **opts)
 
+    Ixx = Property(Float, depends_on=sliders)
+    Ixy = Property(Float, depends_on=sliders)
+    Ixz = Property(Float, depends_on=sliders)
+    Iyx = Property(Float, depends_on=sliders)
+    Iyy = Property(Float, depends_on=sliders)
+    Iyz = Property(Float, depends_on=sliders)
+    Izx = Property(Float, depends_on=sliders)
+    Izy = Property(Float, depends_on=sliders)
+    Izz = Property(Float, depends_on=sliders)
+    x = Property(Float, depends_on=sliders)
+    y = Property(Float, depends_on=sliders)
+    z = Property(Float, depends_on=sliders)
+
     scene = Instance(MlabSceneModel, args=())
 
-    view = View(HSplit(
-        Group(
-            Item('scene', editor=SceneEditor(scene_class=MayaviScene),
-                height=500, width=500, show_label=False)),
-        Group(
-            Item('somersalt'),
-            Item('tilt'),
-            Item('twist'),
-            Item('PTsagittalFlexion'),
-            Item('PTfrontalFlexion'),
-            Item('TCspinalTorsion'),
-            Item('TClateralSpinalFlexion'),
-            Item('CA1elevation'),
-            Item('CA1abduction'),
-            Item('CA1rotation'),
-            Item('CB1elevation'),
-            Item('CB1abduction'),
-            Item('CB1rotation'),
-            Item('A1A2flexion'),
-            Item('B1B2flexion'),
-            Item('PJ1flexion'),
-            Item('PJ1abduction'),
-            Item('PK1flexion'),
-            Item('PK1abduction'),
-            Item('J1J2flexion'),
-            Item('K1K2flexion'))
-        ),
-        resizable=True
-        )
+    view = View(
+            HSplit( # HSplit 1
+              Group(
+                Item('scene', editor=SceneEditor(scene_class=MayaviScene),
+                    height=500, width=500, show_label=False)
+                   ),
+              VSplit(
+                Group(
+                  Item('somersalt'),
+                  Item('tilt'),
+                  Item('twist'),
+                  Item('PTsagittalFlexion'),
+                  Item('PTfrontalFlexion'),
+                  Item('TCspinalTorsion'),
+                  Item('TClateralSpinalFlexion'),
+                  Item('CA1elevation'),
+                  Item('CA1abduction'),
+                  Item('CA1rotation'),
+                  Item('CB1elevation'),
+                  Item('CB1abduction'),
+                  Item('CB1rotation'),
+                  Item('A1A2flexion'),
+                  Item('B1B2flexion'),
+                  Item('PJ1flexion'),
+                  Item('PJ1abduction'),
+                  Item('PK1flexion'),
+                  Item('PK1abduction'),
+                  Item('J1J2flexion'),
+                  Item('K1K2flexion')
+                     ),
+                HSplit( # HSplit 2
+                  Group(
+                    Item('Ixx', style='readonly', format_func=format_func),
+                    Item('Iyx', style='readonly', format_func=format_func),
+                    Item('Izx', style='readonly', format_func=format_func),
+                       ),
+                  Group(
+                    Item('Ixy', style='readonly', format_func=format_func),
+                    Item('Iyy', style='readonly', format_func=format_func),
+                    Item('Izy', style='readonly', format_func=format_func),
+                       ),
+                  Group(
+                    Item('Ixz', style='readonly', format_func=format_func),
+                    Item('Iyz', style='readonly', format_func=format_func),
+                    Item('Izz', style='readonly', format_func=format_func)
+                       ),
+                  # center of mass
+                  Group(
+                    Item('x', style='readonly', format_func=format_func),
+                    Item('y', style='readonly', format_func=format_func),
+                    Item('z', style='readonly', format_func=format_func)
+                       )
+                      ) # end HSplit 2
+                    ) # end VSplit
+                  ), # end HSplit 1
+            resizable=True
+               ) # end View
 
     measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
     0.493, 'La5w' : 0.0975, 'Ls4w' : 0.343, 'La5L' : 0.049, 'Lb2L' : 0.2995,
@@ -95,6 +160,42 @@ class GUI(HasTraits):
         HasTraits.__init__(self)
         self.H = Human(self.measPreload)
         self.H.draw_mayavi(self.scene.mlab)
+
+    def _get_Ixx(self):
+        return self.H.Inertia[0, 0]
+
+    def _get_Ixy(self):
+        return self.H.Inertia[0, 1]
+
+    def _get_Ixz(self):
+        return self.H.Inertia[1, 2]
+
+    def _get_Iyx(self):
+        return self.H.Inertia[1, 0]
+
+    def _get_Iyy(self):
+        return self.H.Inertia[1, 1]
+
+    def _get_Iyz(self):
+        return self.H.Inertia[2, 2]
+
+    def _get_Izx(self):
+        return self.H.Inertia[2, 0]
+
+    def _get_Izy(self):
+        return self.H.Inertia[2, 1]
+
+    def _get_Izz(self):
+        return self.H.Inertia[2, 2]
+
+    def _get_x(self):
+        return self.H.COM[0, 0]
+
+    def _get_y(self):
+        return self.H.COM[1, 0]
+
+    def _get_z(self):
+        return self.H.COM[2, 0]
 
     @on_trait_change('somersalt')
     def update_somersalt(self):
