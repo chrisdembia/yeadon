@@ -200,17 +200,20 @@ class GUI(HasTraits):
     @on_trait_change('somersalt')
     def update_somersalt(self):
         self.H.set_CFG('somersalt', self.somersalt)
-        self._update_mayavi()
+        self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
+            'K1', 'K2'])
 
     @on_trait_change('tilt')
     def update_tilt(self):
         self.H.set_CFG('tilt', self.tilt)
-        self._update_mayavi()
+        self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
+            'K1', 'K2'])
 
     @on_trait_change('twist')
     def update_twist(self):
         self.H.set_CFG('twist', self.twist)
-        self._update_mayavi()
+        self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
+            'K1', 'K2'])
 
     @on_trait_change('PTsagittalFlexion')
     def update_PTsagittalFlexion(self):
@@ -302,13 +305,18 @@ class GUI(HasTraits):
         self.H.set_CFG('K1K2flexion', self.K1K2flexion)
         self._update_mayavi(['K2'])
 
-    def _update_mayavi(self, segments=None):
+    def _update_mayavi(self, segments):
         """Updates all of the segments and solids."""
-        if segments is None:
-            self.H.update_mayavi()
-        else:
-            for affected in segments:
-                self.H.get_segment_by_name(affected).update_mayavi()
+        for affected in segments:
+            seg = self.H.get_segment_by_name(affected)
+            for solid in seg.solids:
+                solid.mesh.scene.disable_render = True
+        for affected in segments:
+            self.H.get_segment_by_name(affected).update_mayavi()
+        for affected in segments:
+            seg = self.H.get_segment_by_name(affected)
+            for solid in seg.solids:
+                solid.mesh.scene.disable_render = False
 
 if __name__ == '__main__':
     g = GUI()
