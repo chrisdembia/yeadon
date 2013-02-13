@@ -330,14 +330,6 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "'wrong' is not a correct variable name.")
 
-    def test_init_input_errors(self):
-        """Especially measurement input file errors."""
-        pass
-
-    def test_update(self):
-        # TODO
-        pass
-
     def test_validate_cfg(self):
         """Ensures that out-of-range values elicit a print, but no exception."""
 
@@ -462,11 +454,6 @@ class TestHuman(unittest.TestCase):
         except Exception as e:
             self.assertEqual(e.message,
                     "'testing' is not a correct variable name.")
-
-    def test_calc_properties(self):
-        # TODO
-        # TODO should really define my own simple measurements for this one.
-        pass
 
     def test_print_properties(self):
         old_stdout = sys.stdout
@@ -700,6 +687,7 @@ class TestHuman(unittest.TestCase):
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
+        h = hum.Human(self.male1meas)
         pass
 
     def test_transform_coord_sys(self):

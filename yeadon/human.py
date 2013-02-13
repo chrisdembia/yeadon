@@ -391,11 +391,11 @@ class Human(object):
         ----------
         varin : list or tuple (3,) or np.matrix (3,3)
             If list or tuple, the rotations are in radians about the x, y, and
-            z axes (in that order).  In this case, rotations are about the
-            original (unrotated) axes (rotations are not relative). In other
-            words, they are space-fixed rotations as opposed to body-fixed
-            rotations.  If np.matrix, it is a 3x3 rotation matrix.  For more
-            information, see the inertia.rotate_space_123 documentation.
+            z axes (in that order).  In this case, rotations are space-fixed.
+            In other words, they are space-fixed rotations as opposed to
+            body-fixed rotations.  If np.matrix, it is a 3x3 rotation matrix.
+            For more information, see the inertia.rotate_space_123
+            documentation.
 
         '''
         if type(varin) == tuple or type(varin) == list:
