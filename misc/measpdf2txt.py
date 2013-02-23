@@ -13,7 +13,7 @@ Dependencies:
     python2.4+
     pdfminer python package
 
-Contact C. Dembia fitzeq@gmail.com with questions.
+Contact C. Dembia cld72@cornell.edu with questions.
 
 '''
 import sys
@@ -48,7 +48,7 @@ for i in fields:
             c = c + 1
             if c % 2 == 1:
                 tempstr = tempstr + j
-        fo.write('{0}={1}\n'.format(name,float(tempstr)))
+        fo.write('{0}: {1}\n'.format(name,float(tempstr)))
 
 fp.close()
 fo.close()

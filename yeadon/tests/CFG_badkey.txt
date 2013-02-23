@@ -13,6 +13,7 @@ CB1abduction: 0.0
 CB1rotation: 0.0
 A1A2flexion: 0.0
 B1B2flexion: 0.0
+invalid: 0.0
 PJ1flexion: 0.0
 PJ1abduction: 0.0
 PK1flexion: 0.0

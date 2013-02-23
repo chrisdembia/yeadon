@@ -5,8 +5,9 @@
 # perimeters, widths, and
 # depths.
 #
-# For details about how the measurements are to be taken, consult the
-# journal article Yeadon 1989-ii or the documentation of this python package.
+# For details about how the measurements are to be taken, consult the journal
+# article Yeadon 1989-ii or the documentation
+# <http://packages.python.org/yeadon/> of this python package.
 #
 # CONVERSION FACTOR to convert measurements INTO meters
 # (set to 1 if measurements are in meters, 0.001 if measurements are in mm,

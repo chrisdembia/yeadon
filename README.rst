@@ -33,6 +33,7 @@ widely-used packages:
 - setuptools_ or distribute_ for installation
 - NumPy_ (debian: python-numpy)
 - Matplotlib_ (debian: python-matplotlib)
+- YAML_ (debian: python-yaml)
 - mayavi_ optional, used for pretty visualization
 - Sphinx_  optional, needed to create documentation (debian: python-sphinx)
 - numpydoc_ optional, sphinx extension for NumPy style doc formatting
@@ -41,6 +42,7 @@ widely-used packages:
 .. _distribute: http://pypi.python.org/pypi/distribute
 .. _Numpy: http://numpy.scipy.org
 .. _Matplotlib: http://matplotlib.sourceforge.net
+.. _YAML: http://www.yaml.org/
 .. _MayaVi: http://mayavi.sourceforge.net
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pypi.python.org/pypi/numpydoc
@@ -48,7 +50,7 @@ widely-used packages:
 In Debian systems, you may be able to obtain some of these packages by opening
 a terminal window (CTRL-ALT-T) and typing the following lines::
 
-    $ apt-get install python-numpy python-matplotlib # required
+    $ apt-get install python-numpy python-matplotlib python-yaml # required
     $ apt-get install python-sphinx mayavi2 # optional packages
 
 For other systems (Windows or Mac), visit the websites for the packages,

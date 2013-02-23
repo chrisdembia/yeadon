@@ -1,11 +1,12 @@
-import unittest
-import nose
-import numpy as np
-from numpy import testing, pi
 # For redirecting stdout.
 from cStringIO import StringIO
 import sys
 import os
+
+import unittest
+import nose
+import numpy as np
+from numpy import testing, pi
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -222,8 +223,6 @@ class TestSegments(unittest.TestCase):
                 "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
                 " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
                 " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
-        print "hi"
-        print mystdout.getvalue()
         self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_print_solid_properties(self):

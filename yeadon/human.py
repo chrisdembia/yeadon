@@ -10,10 +10,11 @@ Typical usage (not using yeadon.ui.start_ui())
     # filenames (.txt files). Configuration input is optional.
     H = y.Human(<measfname>, <CFGfname>)
     # transform the absolute fixed coordiantes from yeadon's to your system's
-    H.transform_coord_sys(pos,rotmat)
+    H.transform_coord_sys(pos, rotmat)
     # obtain inertia information
     var1 = H.mass
     var2 = H.center_of_mass
+    # Human's inertia tensor about H.center_of_mass.
     var3 = H.inertia
     var4 = H.J1.mass
     var5a = H.J1.rel_center_of_mass
@@ -26,6 +27,10 @@ Typical usage (not using yeadon.ui.start_ui())
 See documentation for a complete description of functionality.
 '''
 
+# Use Python3 integer division rules.
+from __future__ import division
+import copy
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -35,11 +40,12 @@ except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_mayavi() member functions."
+import yaml
+
 import inertia
 
 import solid as sol
 import segment as seg
-import densities as dens
 
 class Human(object):
     measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
@@ -120,7 +126,24 @@ class Human(object):
         '''
         return self._inertia
 
-    def __init__(self, meas_in, CFG=None, symmetric=True):
+    # Densities come from Yeadon 1990-ii.
+    # Units from the paper are kg/L, units below are kg/m^3.
+    # Headings for the segmental densities below:
+    segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+            'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+    #   head-neck     thorax        upper arm     hand          lower leg
+    #            shoulders   abdomenpelvis forearm       thigh         foot
+    segmental_densities = {
+        'Chandler': dict(zip(segment_names,
+        [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+        'Dempster': dict(zip(segment_names,
+        [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+        'Clauser': dict(zip(segment_names,
+        [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+        }
+
+    def __init__(self, meas_in, CFG=None, symmetric=True,
+            density_set='Dempster'):
         '''Initializes a human object. Stores inputs as instance variables,
         defines the names of the configuration variables (CFG) in a class
         tuple, defines the bounds on the configuration variables in a class 2D
@@ -141,20 +164,37 @@ class Human(object):
             dictionary with keys that are the names of the variables in
             the text file. In this latter case, units must be in meters and
             a measured mass canoot be provided.
-        CFG : dict
-            The configuration of the human (radians). This option is optional.
-            If not provided, the human is in a default configuration in which
-            all joint angles are set to zero.
-        symmetric : bool
-            Optional argument, set to True by default. Decides whether or not
-            to average the measurements of the left and right limbs of the
-            human. This has nothing to with the configuration being symmetric.
+        CFG : str or dict, optional
+            The configuration of the human (radians).
+            If its type is str, it is the path to a CFG input file in YAML
+            syntax (see template CFGtemplate.txt). If its type is dict, it must
+            have an entry for each of the 21 names in Human.CFGnames or in the
+            template. If not provided, the human is in a default configuration
+            in which all joint angles are set to zero.
+        symmetric : bool, optional
+            True by default. Decides whether or not to average the measurements
+            of the left and right limbs of the human. This has nothing to with
+            the configuration being symmetric.
+        density_set : str, optional
+            Selects a set of densities to use for the body segments.
+            Either 'Chandler', 'Clauser', or 'Dempster'. 'Dempster' by default.
+            See class variable `segmental_densities` to inspect their values.
 
         '''
+        # Initialize position and orientation of entire body.
+        self.coord_sys_pos = np.array([[0],[0],[0]])
+        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
+
+        # Assign densities for the solids.
+        if density_set not in ['Chandler', 'Clauser', 'Dempster']:
+            raise Exception("Density set {0!r} is not one of 'Chandler', "
+                    "'Clauser', or 'Dempster'.".format(density_set))
+        self._density_set = density_set
+
         self.is_symmetric = symmetric
         self.meas_mass = -1
         # initialize measurement dictionary
-        self.meas = {}
+        self.meas = dict()
         # if measurements input is a module, just assign. else, read in file
         if type(meas_in) == dict:
             self.measurementconversionfactor = 1
@@ -165,29 +205,33 @@ class Human(object):
         if self.is_symmetric == True:
             self._average_limbs()
 
-        # if configuration input is a dictionary, just assign. else, read in
-        # the file.
-        if CFG is None: 
-            # set all joint angles to zero
-            self.CFG = {}
-            for key in Human.CFGnames:
-                self.CFG[key] = 0.0
-        elif type(CFG) == dict:
-            self.CFG = CFG
-        elif type(CFG) == str:
-            self.read_CFG(CFG)
+        # Start off a zero configuration.
+        self.CFG = dict()
+        for key in Human.CFGnames:
+            self.CFG[key] = 0.0
 
-        self.coord_sys_pos = np.array([[0],[0],[0]])
-        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
-
-        # update_solids will define all solids, validate CFG, define segments,
+        # update will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
-        self.update_solids()
+        self.update()
+
         if self.meas_mass > 0:
             self.scale_human_by_mass(self.meas_mass)
 
-    def update_solids(self):
-        '''Redefines all solids and then calls yeadon.Human.update_segments.
+        # If configuration input is a dictionary, assign via public method.
+        # Else, read in the file.
+        if type(CFG) == dict:
+            self.set_CFG_dict(CFG)
+        elif type(CFG) == str:
+            self._read_CFG(CFG)
+
+    def _assign_densities(self, density_set):
+        '''Assigns densities from `segmental_densities` to instance variables
+        holding the density of each solid.
+        '''
+
+
+    def update(self):
+        '''Redefines all solids and then calls yeadon.Human._update_segments.
         Called by the method yeadon.Human.scale_human_by_mass. The method is
         to be used in instances in which measurements change.
 
@@ -195,16 +239,16 @@ class Human(object):
         self._define_torso_solids()
         self._define_arm_solids()
         self._define_leg_segments()
-        self.update_segments()
+        self._update_segments()
 
-    def update_segments(self):
+    def _update_segments(self):
         '''Updates all segments. Called after joint angles are updated, in
         which case solids do not need to be recreated, but the segments need
         to be redefined, and the human's inertia parameters (in the global
         frame) must also be redefined.
 
         '''
-        self.validate_CFG()
+        self._validate_CFG()
         self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
@@ -216,7 +260,7 @@ class Human(object):
         # Must update segment properties before updating the human properties.
         self.calc_properties()
 
-    def validate_CFG(self):
+    def _validate_CFG(self):
         '''Validates the joint angle degrees of freedom against the CFG bounds
         specified in the definition of the human object. Prints an error
         message if there is an issue.
@@ -224,10 +268,11 @@ class Human(object):
         Returns
         -------
         boolval : bool
-            0 if all configuration variables are okay, -1 if there is an issue
+            True if all configuration variables are okay, False if there is an
+            issue
 
         '''
-        boolval = 0
+        boolval = True
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
                 self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
@@ -235,8 +280,8 @@ class Human(object):
                       self.CFG[Human.CFGnames[i]]/np.pi,\
                       "pi-rad is out of range. Must be between",\
                       Human.CFGbounds[i][0]/np.pi,"and",\
-                      Human.CFGbounds[i][1]/np.pi,"pi-rad"
-                boolval = -1
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad."
+                boolval = False
         return boolval
 
     def _average_limbs(self):
@@ -258,32 +303,27 @@ class Human(object):
             self.meas[Human.measnames[leftidxs[i]]] = avg
             self.meas[Human.measnames[rightidx[i]]] = avg
 
-    def set_CFG(self, idx, value):
-        '''Allows the user to set a single configuration variable in CFG without
-           using the command line interface. CFG is a dictionary that holds all
-           21 configuration variables. Then, this function validates and
-           updates the human model with the proper configuration variables.
+    def set_CFG(self, varname, value):
+        '''Allows the user to set a single configuration variable in CFG. CFG
+        is a dictionary that holds all 21 configuration variables. Then, this
+        function validates and updates the human model with the new
+        configuration variable.
 
            Parameters
            ----------
-           idx : int or str
-               Index into configuration variable dictionary CFG. If int, must
-               be between 0 and 21. If str, must be a valid name of a
-               configuration variable.
+           varname : str
+               Must be a valid name of a configuration variable.
            value : float
-               New value for the configuration variable identified by idx.
-               This value will be validated for joint angle limits.
+               New value for the configuration variable identified by varname.
+               Units are radians.  This value will be validated for joint angle
+               limits.
 
         '''
-        if type(idx)==int:
-            self.CFG[self.CFGnames[idx]] = value
-        elif type(idx)==str:
-            self.CFG[idx] = value
-        else:
-            print "set_CFG(idx,value): first argument must be an integer" \
-                  " between 0 and 21, or a valid string index for the" \
-                  " CFG dictionary."
-        self.update_segments()
+        if varname not in self.CFGnames:
+            raise Exception("'{0}' is not a valid name of a configuration "
+                    "variable.".format(varname))
+        self.CFG[varname] = value
+        self._update_segments()
 
     def set_CFG_dict(self, CFG):
         '''Allows the user to pass an entirely new CFG dictionary with which
@@ -296,8 +336,16 @@ class Human(object):
             Stores the 21 joint angles.
 
         '''
+        # Some error checking.
+        if len(CFG) != len(self.CFGnames):
+            raise Exception("Number of CFG variables, {0}, is "
+                    "incorrect.".format(len(CFG)))
+        for key, val in CFG.items():
+            if key not in self.CFGnames:
+                raise Exception("'{0}' is not a correct variable "
+                        "name.".format(key))
         self.CFG = CFG
-        self.update_segments()
+        self._update_segments()
 
     def calc_properties(self):
         '''Calculates the mass, center of mass, and inertia tensor of the
@@ -330,7 +378,7 @@ class Human(object):
         print "COM  (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
 
-    def translate_coord_sys(self,vec):
+    def translate_coord_sys(self, vec):
         '''Moves the cooridinate system from the center of the bottom of the
         human's pelvis to a location defined by the input to this method.
         Note that if this method is used along with
@@ -351,20 +399,21 @@ class Human(object):
         newpos[1] = vec[1]
         newpos[2] = vec[2]
         self.coord_sys_pos = newpos
-        self.update_segments()
+        self._update_segments()
 
-    def rotate_coord_sys(self,varin):
-        '''Rotates the coordinate system, given a list of three rotations
-        about the x, y and z axes. For list or tuple input, the order of the
-        rotations is x, then, y, then z (i.e. Euler 1-2-3, X-Y-Z). All rotations are about the
-        original (unrotated) axes (rotations are not relative).
+    def rotate_coord_sys(self, varin):
+        '''Rotates the coordinate system. For list or tuple input, the order of
+        the rotations is x, then, y, then z.
 
         Parameters
         ----------
         varin : list or tuple (3,) or np.matrix (3,3)
-            If list or tuple, the rotations in radians about the x, y, and z
-            axes (in that order). If np.matrix, it is a 3x3 rotation matrix.
-            For more information, see the inertia.rotate_space_123 documentation.
+            If list or tuple, the rotations are in radians about the x, y, and
+            z axes (in that order).  In this case, rotations are space-fixed.
+            In other words, they are space-fixed rotations as opposed to
+            body-fixed rotations.  If np.matrix, it is a 3x3 rotation matrix.
+            For more information, see the inertia.rotate_space_123
+            documentation.
 
         '''
         if type(varin) == tuple or type(varin) == list:
@@ -372,7 +421,7 @@ class Human(object):
         else:
             rotmat = varin
         self.coord_sys_orient = rotmat
-        self.update_segments()
+        self._update_segments()
 
     def transform_coord_sys(self,vec,rotmat):
         '''Calls both yeadon.Human.translate_coord_sys and
@@ -388,14 +437,13 @@ class Human(object):
         self.translate_coord_sys(vec)
         self.rotate_coord_sys(rotmat)
 
-    def combine_inertia(self,objlist):
+    def combine_inertia(self, objlist):
         '''Returns the inertia properties of a combination of solids
         and/or segments of the human, using the fixed human frame (or the
         modified fixed frame as given by the user). Be careful with inputs:
         do not specify a solid that is part of a segment that you have also
-        specified. There is some errorchecking for invalid inputs. This method
-        does not assign anything to any object attributes, it simply returns
-        the desired quantities.
+        specified. This method does not assign anything to any object
+        attributes (it is 'const'), it simply returns the desired quantities.
 
         Parameters
         ----------
@@ -416,9 +464,7 @@ class Human(object):
             Inertia tensor at the resultantCOM, with axes aligned with the axes
             of the absolute fixed coordinate system.
 
-
         '''
-
         # preparing to arrange input
         solidkeys = ['s0','s1','s2','s3','s4','s5','s6','s7',
                       'a0','a1','a2','a3','a4','a5','a6',
@@ -427,7 +473,7 @@ class Human(object):
                       'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
         segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
         solidvals = self._s + self._a + self._b + self._j + self._k
-        ObjDict = dict(zip(solidkeys + segmentkeys,solidvals + self.segments))
+        ObjDict = dict(zip(solidkeys + segmentkeys, solidvals + self.segments))
         # error-checking
         for key in (solidkeys + segmentkeys):
             if objlist.count(key) > 1:
@@ -661,44 +707,44 @@ class Human(object):
                                     'perimeter', meas['Ls7p'], '=p'))
         # define solids: this can definitely be done in a loop
         self._s.append( sol.StadiumSolid( 's0: hip joint centre',
-                                          dens.Ds[0],
-                                          self._Ls[0],
-                                          self._Ls[1],
-                                          s0h))
+                self.segmental_densities[self._density_set]['abdomen-pelvis'],
+                self._Ls[0],
+                self._Ls[1],
+                s0h))
         self._s.append( sol.StadiumSolid( 's1: umbilicus',
-                                          dens.Ds[1],
-                                          self._Ls[1],
-                                          self._Ls[2],
-                                          s1h))
+                self.segmental_densities[self._density_set]['abdomen-pelvis'],
+                self._Ls[1],
+                self._Ls[2],
+                s1h))
         self._s.append( sol.StadiumSolid( 's2: lowest front rib',
-                                          dens.Ds[2],
-                                          self._Ls[2],
-                                          self._Ls[3],
-                                          s2h))
+                self.segmental_densities[self._density_set]['thorax'],
+                self._Ls[2],
+                self._Ls[3],
+                s2h))
         self._s.append( sol.StadiumSolid( 's3: nipple',
-                                          dens.Ds[3],
-                                          self._Ls[3],
-                                          self._Ls[4],
-                                          s3h))
+                self.segmental_densities[self._density_set]['thorax'],
+                self._Ls[3],
+                self._Ls[4],
+                s3h))
         self._s.append( sol.StadiumSolid( 's4: shoulder joint centre',
-                                          dens.Ds[4],
-                                          self._Ls[4],
-                                          self._Ls[5],
-                                          s4h))
+                self.segmental_densities[self._density_set]['shoulders'],
+                self._Ls[4],
+                self._Ls[5],
+                s4h))
         self._s.append( sol.StadiumSolid( 's5: acromion',
-                                          dens.Ds[5],
-                                          self._Ls[6],
-                                          self._Ls[7],
-                                          s5h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                self._Ls[6],
+                self._Ls[7],
+                s5h))
         self._s.append( sol.StadiumSolid( 's6: beneath nose',
-                                          dens.Ds[6],
-                                          self._Ls[7],
-                                          self._Ls[8],
-                                          s6h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                self._Ls[7],
+                self._Ls[8],
+                s6h))
         self._s.append( sol.Semiellipsoid( 's7: above ear',
-                                           dens.Ds[7],
-                                           meas['Ls7p'],
-                                           s7h))
+                self.segmental_densities[self._density_set]['head-neck'],
+                meas['Ls7p'],
+                s7h))
 
     def _define_arm_solids(self):
         '''Defines the solids (from solid.py) that create the arms of the
@@ -728,7 +774,7 @@ class Human(object):
                                     'perimeter', meas['La3p'], '=p'))
         self._La.append( sol.Stadium('La4: wrist joint centre',
                                     'perimwidth', meas['La4p'], meas['La4w']))
-        self._La.append( sol.Stadium('La5: acromion',
+        self._La.append( sol.Stadium('La5: base of thumb',
                                     'perimwidth', meas['La5p'], meas['La5w']))
         self._La.append( sol.Stadium('La6: knuckles',
                                     'perimwidth', meas['La6p'], meas['La6w']))
@@ -736,40 +782,40 @@ class Human(object):
                                     'perimwidth', meas['La7p'], meas['La7w']))
         # define left arm solids
         self._a.append( sol.StadiumSolid( 'a0: shoulder joint centre',
-                                          dens.Da[0],
-                                          self._La[0],
-                                          self._La[1],
-                                          a0h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._La[0],
+                self._La[1],
+                a0h))
         self._a.append( sol.StadiumSolid( 'a1: mid-arm',
-                                          dens.Da[1],
-                                          self._La[1],
-                                          self._La[2],
-                                          a1h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._La[1],
+                self._La[2],
+                a1h))
         self._a.append( sol.StadiumSolid( 'a2: elbow joint centre',
-                                          dens.Da[2],
-                                          self._La[2],
-                                          self._La[3],
-                                          a2h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._La[2],
+                self._La[3],
+                a2h))
         self._a.append( sol.StadiumSolid( 'a3: maximum forearm perimeter',
-                                          dens.Da[3],
-                                          self._La[3],
-                                          self._La[4],
-                                          a3h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._La[3],
+                self._La[4],
+                a3h))
         self._a.append( sol.StadiumSolid( 'a4: wrist joint centre',
-                                          dens.Da[4],
-                                          self._La[4],
-                                          self._La[5],
-                                          a4h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[4],
+                self._La[5],
+                a4h))
         self._a.append( sol.StadiumSolid( 'a5: base of thumb',
-                                          dens.Da[5],
-                                          self._La[5],
-                                          self._La[6],
-                                          a5h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[5],
+                self._La[6],
+                a5h))
         self._a.append( sol.StadiumSolid( 'a6: knuckles',
-                                          dens.Da[6],
-                                          self._La[6],
-                                          self._La[7],
-                                          a6h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._La[6],
+                self._La[7],
+                a6h))
         # get solid heights from length measurements
         b0h = meas['Lb2L'] * 0.5
         b1h = meas['Lb2L'] - meas['Lb2L'] * 0.5
@@ -791,7 +837,7 @@ class Human(object):
                                     'perimeter', meas['Lb3p'], '=p'))
         self._Lb.append( sol.Stadium('Lb4: wrist joint centre',
                                     'perimwidth', meas['Lb4p'], meas['Lb4w']))
-        self._Lb.append( sol.Stadium('Lb5: acromion',
+        self._Lb.append( sol.Stadium('Lb5: base of thumb',
                                     'perimwidth', meas['Lb5p'], meas['Lb5w']))
         self._Lb.append( sol.Stadium('Lb6: knuckles',
                                     'perimwidth', meas['Lb6p'], meas['Lb6w']))
@@ -799,40 +845,40 @@ class Human(object):
                                     'perimwidth', meas['Lb7p'], meas['Lb7w']))
         # define right arm solids
         self._b.append( sol.StadiumSolid( 'b0: shoulder joint centre',
-                                          dens.Db[0],
-                                          self._Lb[0],
-                                          self._Lb[1],
-                                          b0h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._Lb[0],
+                self._Lb[1],
+                b0h))
         self._b.append( sol.StadiumSolid( 'b1: mid-arm',
-                                          dens.Db[1],
-                                          self._Lb[1],
-                                          self._Lb[2],
-                                          b1h))
+                self.segmental_densities[self._density_set]['upper-arm'],
+                self._Lb[1],
+                self._Lb[2],
+                b1h))
         self._b.append( sol.StadiumSolid( 'b2: elbow joint centre',
-                                          dens.Db[2],
-                                          self._Lb[2],
-                                          self._Lb[3],
-                                          b2h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._Lb[2],
+                self._Lb[3],
+                b2h))
         self._b.append( sol.StadiumSolid( 'b3: maximum forearm perimeter',
-                                          dens.Db[3],
-                                          self._Lb[3],
-                                          self._Lb[4],
-                                          b3h))
+                self.segmental_densities[self._density_set]['forearm'],
+                self._Lb[3],
+                self._Lb[4],
+                b3h))
         self._b.append( sol.StadiumSolid( 'b4: wrist joint centre',
-                                          dens.Db[4],
-                                          self._Lb[4],
-                                          self._Lb[5],
-                                          b4h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[4],
+                self._Lb[5],
+                b4h))
         self._b.append( sol.StadiumSolid( 'b5: base of thumb',
-                                          dens.Db[5],
-                                          self._Lb[5],
-                                          self._Lb[6],
-                                          b5h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[5],
+                self._Lb[6],
+                b5h))
         self._b.append( sol.StadiumSolid( 'b6: knuckles',
-                                          dens.Db[6],
-                                          self._Lb[6],
-                                          self._Lb[7],
-                                          b6h))
+                self.segmental_densities[self._density_set]['hand'],
+                self._Lb[6],
+                self._Lb[7],
+                b6h))
 
     def _define_leg_segments(self):
         '''Defines the solids (from solid.py) that create the legs of the
@@ -879,50 +925,50 @@ class Human(object):
                                     'perimwidth', meas['Lj9p'], meas['Lj9w']))
         # define left leg solids
         self._j.append( sol.StadiumSolid( 'j0: hip joint centre',
-                                          dens.Dj[0],
-                                          self._Lj[0],
-                                          self._Lj[1],
-                                          j0h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[0],
+                self._Lj[1],
+                j0h))
         self._j.append( sol.StadiumSolid( 'j1: crotch',
-                                          dens.Dj[1],
-                                          self._Lj[1],
-                                          self._Lj[2],
-                                          j1h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[1],
+                self._Lj[2],
+                j1h))
         self._j.append( sol.StadiumSolid( 'j2: mid-thigh',
-                                          dens.Dj[2],
-                                          self._Lj[2],
-                                          self._Lj[3],
-                                          j2h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lj[2],
+                self._Lj[3],
+                j2h))
         self._j.append( sol.StadiumSolid( 'j3: knee joint centre',
-                                          dens.Dj[3],
-                                          self._Lj[3],
-                                          self._Lj[4],
-                                          j3h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lj[3],
+                self._Lj[4],
+                j3h))
         self._j.append( sol.StadiumSolid( 'j4: maximum calf parimeter',
-                                          dens.Dj[4],
-                                          self._Lj[4],
-                                          self._Lj[5],
-                                          j4h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lj[4],
+                self._Lj[5],
+                j4h))
         self._j.append( sol.StadiumSolid( 'j5: ankle joint centre',
-                                          dens.Dj[5],
-                                          self._Lj[5],
-                                          self._Lj[6],
-                                          j5h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[5],
+                self._Lj[6],
+                j5h))
         self._j.append( sol.StadiumSolid( 'j6: heel',
-                                          dens.Dj[6],
-                                          self._Lj[6],
-                                          self._Lj[7],
-                                          j6h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[6],
+                self._Lj[7],
+                j6h))
         self._j.append( sol.StadiumSolid( 'j7: arch',
-                                          dens.Dj[7],
-                                          self._Lj[7],
-                                          self._Lj[8],
-                                          j7h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[7],
+                self._Lj[8],
+                j7h))
         self._j.append( sol.StadiumSolid( 'k8: ball',
-                                          dens.Dj[8],
-                                          self._Lj[8],
-                                          self._Lj[9],
-                                          j8h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lj[8],
+                self._Lj[9],
+                j8h))
         # get solid heights from length measurements
         k0h = meas['Lk1L']
         k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
@@ -960,50 +1006,50 @@ class Human(object):
         self._Lk.append( sol.Stadium('Lk9: toe nails',
                                     'perimwidth', meas['Lk9p'], meas['Lk9w']))
         self._k.append( sol.StadiumSolid( 'k0: hip joint centre',
-                                          dens.Dk[0],
-                                          self._Lk[0],
-                                          self._Lk[1],
-                                          k0h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[0],
+                self._Lk[1],
+                k0h))
         self._k.append( sol.StadiumSolid( 'k1: crotch',
-                                          dens.Dk[1],
-                                          self._Lk[1],
-                                          self._Lk[2],
-                                          k1h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[1],
+                self._Lk[2],
+                k1h))
         self._k.append( sol.StadiumSolid( 'k2: mid-thigh',
-                                          dens.Dk[2],
-                                          self._Lk[2],
-                                          self._Lk[3],
-                                          k2h))
+                self.segmental_densities[self._density_set]['thigh'],
+                self._Lk[2],
+                self._Lk[3],
+                k2h))
         self._k.append( sol.StadiumSolid( 'k3: knee joint centre',
-                                          dens.Dk[3],
-                                          self._Lk[3],
-                                          self._Lk[4],
-                                          k3h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lk[3],
+                self._Lk[4],
+                k3h))
         self._k.append( sol.StadiumSolid( 'k4: maximum calf perimeter',
-                                          dens.Dk[4],
-                                          self._Lk[4],
-                                          self._Lk[5],
-                                          k4h))
+                self.segmental_densities[self._density_set]['lower-leg'],
+                self._Lk[4],
+                self._Lk[5],
+                k4h))
         self._k.append( sol.StadiumSolid( 'k5: ankle joint centre',
-                                          dens.Dk[5],
-                                          self._Lk[5],
-                                          self._Lk[6],
-                                          k5h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[5],
+                self._Lk[6],
+                k5h))
         self._k.append( sol.StadiumSolid( 'k6: heel',
-                                          dens.Dk[6],
-                                          self._Lk[6],
-                                          self._Lk[7],
-                                          k6h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[6],
+                self._Lk[7],
+                k6h))
         self._k.append( sol.StadiumSolid( 'k7: arch',
-                                          dens.Dk[7],
-                                          self._Lk[7],
-                                          self._Lk[8],
-                                          k7h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[7],
+                self._Lk[8],
+                k7h))
         self._k.append( sol.StadiumSolid( 'k8: ball',
-                                          dens.Dk[8],
-                                          self._Lk[8],
-                                          self._Lk[9],
-                                          k8h))
+                self.segmental_densities[self._density_set]['foot'],
+                self._Lk[8],
+                self._Lk[9],
+                k8h))
 
     def _define_segments(self):
         '''Define segment objects using previously defined solids.
@@ -1113,7 +1159,7 @@ class Human(object):
                                [self._k[3],self._k[4],self._k[5],self._k[6],
                                 self._k[7],self._k[8]], (1,0,0))
 
-    def scale_human_by_mass(self,measmass):
+    def scale_human_by_mass(self, measmass):
         '''Takes a measured mass and scales all densities by that mass so that
         the mass of the human is the same as the mesaured mass. Mass must be
         in units of kilograms to be consistent with the densities used.
@@ -1125,93 +1171,66 @@ class Human(object):
 
         '''
         massratio = measmass / self.mass
-        for i in range(len(dens.Ds)):
-            dens.Ds[i] = dens.Ds[i] * massratio
-        for i in range(len(dens.Da)):
-            dens.Da[i] = dens.Da[i] * massratio
-        for i in range(len(dens.Db)):
-            dens.Db[i] = dens.Db[i] * massratio
-        for i in range(len(dens.Dj)):
-            dens.Dj[i] = dens.Dj[i] * massratio
-        for i in range(len(dens.Dk)):
-            dens.Dk[i] = dens.Dk[i] * massratio
-        self.update_solids()
+        # The following attempts to take care of the unlikely case where the
+        # density set is changed after construction of a Human.
+        for key, val in self.segmental_densities.items():
+            for segment, density in val.items():
+                self.segmental_densities[key][segment] = density * massratio
+        self.update()
         if round(measmass, 2) != round(self.mass, 2):
-            print "Error: attempted to scale mass by a " \
-                  "measured mass, but did not succeed. " \
+            raise Exception("Attempted to scale mass by a "
+                  "measured mass, but did not succeed. "
                   "Measured mass:", round(measmass,
-                          2),"self.mass:",round(self.mass, 2)
-            raise Exception()
+                          2),"self.mass:",round(self.mass, 2))
 
-    def _read_measurements(self,fname):
-        '''Reads a measurement input .txt file and assigns the measurements
-        to fields in the self.meas dict. This method is called by the
-        constructor.
+    def _read_measurements(self, fname):
+        '''Reads a measurement input .txt file, in YAML format,  and assigns
+        the measurements to fields in the self.meas dict. This method is called
+        by the constructor.
 
         Parameters
         ----------
         fname : str
             Filename or path to measurement file.
+
         '''
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
         # open measurement file
-        fid = open(fname,'r')
+        fid = open(fname, 'r')
+        mydict = yaml.load(fid.read())
+        fid.close()
         # loop until all 95 parameters are read in
-        for line in fid:
-            tempstr0 = line
-            # skip the line if it is empty
-            if (tempstr0.isspace() == False):
-                tempstr1 = tempstr0.partition('#')
-                # skip lines that start with a pound, after only spaces
-                if ((tempstr1[0].isspace() == False) and
-                    (tempstr1[0].find('=') != -1)):
-                    tempstr2 = tempstr1[0].partition('=')
-                    varname = tempstr2[0].strip()
-                    if len(tempstr2[2]) == 0:
-                       print "Error in Human._read_measurements(fname):" \
-                             " variable",varname,"does not have a value."
-                       raise Exception()
-                    else:
-                       varval = float(tempstr2[2])
-                    # identify varname-varval pairs and assign appropriately
-                    if varname == 'measurementconversionfactor':
-                        self.measurementconversionfactor = varval
-                    elif varname == 'totalmass':
-                        if varval > 0:
-                            # scale densities
-                            self.meas_mass = varval
-                    else:
-                    	if varname in self.meas:
-                            # key was already defined
-                            print "Error in Human._read_measurements(fname):" \
-                                  " variable",varname,"has been defined " \
-                                  "multiple times in input measurement file",\
-                                  fname
-                        else:
-                            if [x for x in self.measnames if x==varname] == []:
-                                print "Error in Human._read_measurements"\
-                                      "(fname): variable name",varname,"in " \
-                                      "file",fname,"is not a valid " \
-                                      "name for a measurement."
-                                raise Exception()
-                            else:
-                                # okay, go ahead and assign the measurement!
-                                self.meas[varname] = float(varval)
+        for key, val in mydict.items():
+            if key == 'measurementconversionfactor':
+                self.measurementconversionfactor = val
+            elif key == 'totalmass':
+                # scale densities
+                self.meas_mass = val
+            else:
+                # If inappropriate value.
+                if val == None or val <= 0:
+                    raise ValueError("Variable {0} has inappropriate "
+                            "value.".format( key))
+                # If key is unexpected.
+                if key not in self.measnames:
+                    raise ValueError("Variable {0} is not valid name for a "
+                        "measurement.".format(key))
+                self.meas[key] = float(val)
         if len(self.meas) != len(self.measnames):
-            print "Error in Human._read_measurements(fname): there should be", \
-                  len(self.measnames),"measurements, but",len(self.meas), \
-                  "were found."
+            raise Exception("There should be {0} measurements, but {1} were "
+                    "found.".format(len(self.measnames), len(self.meas)))
         if self.measurementconversionfactor == 0:
-            print "Error in Human._read_measurements(fname): no variable " \
-                  "measurementconversionfactor has been provided. Set as 1 " \
-                  "if measurements are given in meters."
+            raise Exception("Variable measurementconversionfactor not "
+                    "provided or is 0. Set as 1 if measurements are given "
+                    "in meters.")
         # multiply all values by conversion factor
-        for key,val in self.meas.items():
+        for key, val in self.meas.items():
             self.meas[key] = val * self.measurementconversionfactor
 
-    def write_measurements(self,fname):
+    def write_measurements(self, fname):
         '''Writes the keys and values of the self.meas dict to a text file.
+        Units of measurements is meters.
 
         Parameters
         ----------
@@ -1219,50 +1238,87 @@ class Human(object):
             Filename or path to measurement output .txt file.
 
         '''
-        fid = open(fname,'w')
-        for key,val in self.meas.items():
-            fid.write(key + "=" + val)
+        # Need to make sure we don't modify self.meas: make shallow copy.
+        mydict = copy.copy(self.meas)
+        # Add total mass.
+        mydict['totalmass'] = self.meas_mass
+        # Add measurement conversion factor.
+        mydict['measurementconversionfactor'] = 1
+        fid = open(fname, 'w')
+        yaml.dump(mydict, fid, default_flow_style=False)
         fid.close()
 
-    def write_meas_for_ISEG(self,fname):
+    def write_meas_for_ISEG(self, fname):
         '''Writes the values of the self.meas dict to a .txt file that is
         formidable as input to Yeadon's ISEG fortran code that performs
-        similar calculations to this package.
+        similar calculations to this package. ISEG is published in Yeadon's
+        dissertation.
 
         Parameters
         ----------
         fname : str
-            Filename or path to ISEG .txt input file.
+            Filename or path for ISEG .txt input file.
+
         '''
         fid = open(fname,'w')
-        m = self.meas
-        SI = 1./1000.
-        fid.write(str(m['Ls1L']/SI)+','+str(m['Ls2L']/SI)+','+str(m['Ls3L']/SI)+','+str(m['Ls4L']/SI)+','+str(m['Ls5L']/SI)+','+str(m['Ls6L']/SI)+','+str(m['Ls7L']/SI)+','+str(m['Ls8L']/SI)+'\n')
-        fid.write(str(m['Ls0p']/SI)+','+str(m['Ls1p']/SI)+','+str(m['Ls2p']/SI)+','+str(m['Ls3p']/SI)+','+str(m['Ls5p']/SI)+','+str(m['Ls6p']/SI)+','+str(m['Ls7p']/SI)+'\n')
-        fid.write(str(m['Ls0w']/SI)+','+str(m['Ls1w']/SI)+','+str(m['Ls2w']/SI)+','+str(m['Ls3w']/SI)+','+str(m['Ls4w']/SI)+','+str(m['Ls4d']/SI)+'\n')
-        # arms
-        fid.write(str(m['La2L']/SI)+','+str(m['La3L']/SI)+','+str(m['La4L']/SI)+','+str(m['La5L']/SI)+','+str(m['La6L']/SI)+','+str(m['La7L']/SI)+'\n')
-        fid.write(str(m['La0p']/SI)+','+str(m['La1p']/SI)+','+str(m['La2p']/SI)+','+str(m['La3p']/SI)+','+str(m['La4p']/SI)+','+str(m['La5p']/SI)+','+str(m['La6p']/SI)+','+str(m['La7p']/SI)+'\n')
-        fid.write(str(m['La4w']/SI)+','+str(m['La5w']/SI)+','+str(m['La6w']/SI)+','+str(m['La7w']/SI)+'\n')
-        fid.write(str(m['Lb2L']/SI)+','+str(m['Lb3L']/SI)+','+str(m['Lb4L']/SI)+','+str(m['Lb5L']/SI)+','+str(m['Lb6L']/SI)+','+str(m['Lb7L']/SI)+'\n')
-        fid.write(str(m['Lb0p']/SI)+','+str(m['Lb1p']/SI)+','+str(m['Lb2p']/SI)+','+str(m['Lb3p']/SI)+','+str(m['Lb4p']/SI)+','+str(m['Lb5p']/SI)+','+str(m['Lb6p']/SI)+','+str(m['Lb7p']/SI)+'\n')
-        fid.write(str(m['Lb4w']/SI)+','+str(m['Lb5w']/SI)+','+str(m['Lb6w']/SI)+','+str(m['Lb7w']/SI)+'\n')
-        # legs
-        fid.write(str(m['Lj1L']/SI)+','+str(m['Lj3L']/SI)+','+str(m['Lj4L']/SI)+','+str(m['Lj5L']/SI)+','+str(m['Lj6L']/SI)+','+str(m['Lj8L']/SI)+','+str(m['Lj9L']/SI)+'\n')
-        fid.write(str(m['Lj1p']/SI)+','+str(m['Lj2p']/SI)+','+str(m['Lj3p']/SI)+','+str(m['Lj4p']/SI)+','+str(m['Lj5p']/SI)+','+str(m['Lj6p']/SI)+','+str(m['Lj7p']/SI)+','+str(m['Lj8p']/SI)+','+str(m['Lj9p']/SI)+'\n')
-        fid.write(str(m['Lj6d']/SI)+','+str(m['Lj8w']/SI)+','+str(m['Lj9w']/SI)+'\n')
-        fid.write(str(m['Lk1L']/SI)+','+str(m['Lk3L']/SI)+','+str(m['Lk4L']/SI)+','+str(m['Lk5L']/SI)+','+str(m['Lk6L']/SI)+','+str(m['Lk8L']/SI)+','+str(m['Lk9L']/SI)+'\n')
-        fid.write(str(m['Lk1p']/SI)+','+str(m['Lk2p']/SI)+','+str(m['Lk3p']/SI)+','+str(m['Lk4p']/SI)+','+str(m['Lk5p']/SI)+','+str(m['Lk6p']/SI)+','+str(m['Lk7p']/SI)+','+str(m['Lk8p']/SI)+','+str(m['Lk9p']/SI)+'\n')
-        fid.write(str(m['Lk6d']/SI)+','+str(m['Lk8w']/SI)+','+str(m['Lk9w']/SI)+'\n')
-        fid.write(str(500)+','+str(200)+'\n')
-        fid.close()
-        return 0
+        n = self.meas
+        m = copy.copy(self.meas)
 
-    def read_CFG(self, CFGfname):
+        # Convert units.
+        SI = 1./1000.
+        for key, val in m.items(): m[key] = val/SI
+
+        # pelvis, torso, chest-head
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Ls1L'],
+            m['Ls2L'], m['Ls3L'], m['Ls4L'], m['Ls5L'], m['Ls6L'], m['Ls7L'],
+            m['Ls8L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Ls0p'], m['Ls1p'],
+            m['Ls2p'], m['Ls3p'], m['Ls5p'], m['Ls6p'], m['Ls7p']))
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Ls0w'], m['Ls1w'],
+            m['Ls2w'], m['Ls3w'], m['Ls4w'], m['Ls4d']))
+
+        # arms
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['La2L'], m['La3L'],
+            m['La4L'], m['La5L'], m['La6L'], m['La7L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['La0p'],
+            m['La1p'], m['La2p'], m['La3p'], m['La4p'], m['La5p'], m['La6p'],
+            m['La7p']))
+        fid.write("{0},{1},{2},{3}\n".format(m['La4w'], m['La5w'], m['La6w'],
+            m['La7w']))
+        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Lb2L'], m['Lb3L'],
+            m['Lb4L'], m['Lb5L'], m['Lb6L'], m['Lb7L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Lb0p'],
+            m['Lb1p'], m['Lb2p'], m['Lb3p'], m['Lb4p'], m['Lb5p'], m['Lb6p'],
+            m['Lb7p']))
+        fid.write("{0},{1},{2},{3}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
+            m['Lb7w']))
+
+        # legs
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lj1L'], m['Lj3L'],
+            m['Lj4L'], m['Lj5L'], m['Lj6L'], m['Lj8L'], m['Lj9L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lj1p'],
+            m['Lj2p'], m['Lj3p'], m['Lj4p'], m['Lj5p'], m['Lj6p'], m['Lj7p'],
+            m['Lj8p'], m['Lj9p']))
+        fid.write("{0},{1},{2}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lk1L'], m['Lk3L'],
+            m['Lk4L'], m['Lk5L'], m['Lk6L'], m['Lk8L'], m['Lk9L']))
+        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lk1p'],
+            m['Lk2p'], m['Lk3p'], m['Lk4p'], m['Lk5p'], m['Lk6p'], m['Lk7p'],
+            m['Lk8p'], m['Lk9p']))
+        fid.write("{0},{1},{2}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
+
+        # This line contains ISEG's "XHEIGHT" and "XMASS" variables. XMASS is
+        # used for mass/density correction in his code.
+        fid.write("{0},{1}\n".format(500,
+            self.meas_mass if self.meas_mass > 0 else 200))
+        fid.close()
+
+    def _read_CFG(self, CFGfname):
         '''Reads in a text file that contains the joint angles of the human.
         There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
-        from the yeadon.Human.write_CFG method.
+        from the :py:meth:`yeadon.Human.write_CFG()` method. Text file is
+        formatted using YAML syntax.
 
         Parameters
         ----------
@@ -1270,28 +1326,26 @@ class Human(object):
             Filename or path to configuration input .txt file.
 
         '''
-        self.CFG = {}
+        self.CFG = dict()
         with open(CFGfname, 'r') as fid:
-            for line in fid:
-                # skip lines that are comment lines
-                if not line.strip().startswith('#'):
-                    # remove any whitespace characters and comments at the end
-                    # of the line, then split the right and left side of the
-                    # equality
-                    tempstr = line.strip().split('#')[0].split('=')
-                    if tempstr[0]:
-                        if tempstr[0] not in Human.CFGnames:
-                            mes = ('{}'.format(tempstr[0]) +
-                                ' is not a correct variable name.')
-                            raise StandardError(mes)
-                        else:
-                            self.CFG[tempstr[0]] = float(tempstr[1])
+            mydict = yaml.load(fid.read())
+            for key, val in mydict.items():
+                if key not in self.CFGnames:
+                    mes = "'{}' is not a correct variable name.".format(key)
+                    raise StandardError(mes)
+                if val == None:
+                    raise StandardError(
+                            "Variable {0} has no value.".format(key))
+                self.CFG[key] = float(val)
+            fid.close()
 
-        if len(self.CFG.keys()) < len(self.CFGnames):
-            raise StandardError('You have not supplied all of the joint angles in the CFG file.')
+        if len(self.CFG) != len(self.CFGnames):
+            raise StandardError("Number of CFG variables, {0}, is "
+                    "incorrect.".format(len(self.CFG)))
 
-    def write_CFG(self,CFGfname):
+    def write_CFG(self, CFGfname):
         '''Writes the keys and values of the self.CFG dict to a .txt file.
+        Text file is formatted using YAML syntax.
 
         Parameters
         ----------
@@ -1299,9 +1353,8 @@ class Human(object):
             Filename or path to configuration output .txt file
 
         '''
-        fid = open(CFGfname,'w')
-        for key,val in self.CFG.items():
-            fid.write(key + "=" + val)
+        fid = open(CFGfname, 'w')
+        yaml.dump(self.CFG, fid, default_flow_style=False)
         fid.close()
 
 

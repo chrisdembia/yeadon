@@ -124,11 +124,6 @@ The human segment attributes
 The human solids can be access from the segments or from the human.
 -------------------------------------------------------------------
 
- - ``human.s[0] - human.s[7]`` for the torso
- - ``human.a[0] - human.a[6]`` for the left arm
- - ``human.b[0] - human.b[6]`` for the right arm
- - ``human.j[0] - human.j[8]`` for the left leg
- - ``human.k[0] - human.k[8]`` for the right leg
  - ``human.P.solids[0] - human.P.solids[1]`` for the pelvis solids
  - ``human.T.solids[0]`` for the thorax solid
  - ``human.C.solids[0] - human.C.solids[4]`` for the chest-head

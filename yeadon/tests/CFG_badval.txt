@@ -1,7 +1,7 @@
 somersalt: 0
 tilt: 0
 twist: 0
-PTsagittalFlexion: 0.0
+PTsagittalFlexion:
 PTfrontalFlexion: 0.0
 TCspinalTorsion: 0.0
 TClateralSpinalFlexion: 0.0

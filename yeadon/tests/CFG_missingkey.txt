@@ -4,7 +4,6 @@ twist: 0
 PTsagittalFlexion: 0.0
 PTfrontalFlexion: 0.0
 TCspinalTorsion: 0.0
-TClateralSpinalFlexion: 0.0
 CA1elevation: 0.0
 CA1abduction: 0.0
 CA1rotation: 0.0
