@@ -540,6 +540,7 @@ class Human(object):
         #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
         #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
         #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
+        self._draw_mayavi_inertia_ellipsoid(mlabobj)
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""
@@ -568,6 +569,48 @@ class Human(object):
         [theta, z] = np.mgrid[0:3*np.pi*(1+2/10):np.pi/10, 0:.02:.01]
         x = R1 * np.cos(theta)
         y = R1 * np.sin(theta)
+        return x, y, z
+
+    def _draw_mayavi_inertia_ellipsoid(self, mlabobj):
+        '''Draws the inertia ellipsoid centered at the human's center of mass.
+        TODO describe what it is.'''
+        # First get the eigenvectors and values.
+        self._generate_mesh_inertia_ellipsoid()
+        self._mesh = mlabobj.mesh(*self._ellipsoid_mesh_points,
+                color=(1, 1, 1), opacity=1)
+
+    def _update_mayavi_inertia_ellipsoid(self):
+        """Updates the mesh in MayaVi."""
+        self._generate_mesh()
+        self._mesh.mlab_source.set(x=self.mesh_points[0],
+                y=self.mesh_points[1], z=self.mesh_points[2])
+
+    def _generate_mesh_inertia_ellipsoid(self):
+        """Generates a mesh for MayaVi."""
+        self._ellipsoid_mesh_points = self._make_inertia_ellipsoid_pos()
+
+    def _make_inertia_ellipsoid_pos(self):
+        '''Generates coordinates to be used for 3D visualization purposes.
+
+        '''
+        eigvals, eigvecs = np.linalg.eig(self.inertia)
+        axes = 1.0/np.sqrt(eigvals)
+        N = 50
+        u = np.linspace(0, 2.0 * np.pi, N)
+        v = np.linspace(0, np.pi, N)
+        x = axes[0] * np.outer(np.cos(u), np.sin(v))
+        y = axes[1] * np.outer(np.sin(u), np.sin(v))
+        z = axes[2] * np.outer(np.ones(np.size(u)), np.cos(v))
+        for i in np.arange(N):
+            for j in np.arange(N):
+                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
+                POS = eigvecs * POS
+                x[i,j] = POS[0,0]
+                y[i,j] = POS[1,0]
+                z[i,j] = POS[2,0]
+        x = self.center_of_mass[0,0] + x
+        y = self.center_of_mass[1,0] + y
+        z = self.center_of_mass[2,0] + z
         return x, y, z
 
     def draw(self):

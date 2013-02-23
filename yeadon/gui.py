@@ -3,7 +3,7 @@
 from numpy import pi as nppi
 
 from traits.api import HasTraits, Range, Instance, \
-        on_trait_change, Float, Property
+        on_trait_change, Float, Property, File
 from traitsui.api import View, Item, VSplit, HSplit, Group
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
@@ -42,7 +42,7 @@ def _d2r(angle):
 class YeadonGUI(HasTraits):
     ''' TODO '''
 
-    #measfile = File('measurement file', exists=True)
+    measurement_file_name = File()
 
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
@@ -83,6 +83,8 @@ class YeadonGUI(HasTraits):
     z = Property(Float, depends_on=sliders)
 
     scene = Instance(MlabSceneModel, args=())
+
+    meas_group = Group(Item('measurement_file_name'))
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=500, width=500,
@@ -135,11 +137,14 @@ class YeadonGUI(HasTraits):
                          )
                         ) # end HSplit 2
     view = View(
-            HSplit(vis_group,
-                VSplit(
-                    config_group,
-                    inertia_prop
-                    )
+            VSplit(
+                meas_group, 
+                HSplit(vis_group,
+                    VSplit(
+                        config_group,
+                        inertia_prop
+                        )
+                    ),
                 ),
             resizable=True
             ) # end View
@@ -167,9 +172,13 @@ class YeadonGUI(HasTraits):
     0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
     'Lk7p' : 0.252 }
 
-    def __init__(self):
+    def __init__(self, meas_in=None):
         HasTraits.__init__(self)
-        self.H = Human(self.measPreload)
+        if meas_in:
+            measurement_file_name = meas_in
+        else:
+            measurement_file_name = 'Path to measurement input text file.'
+        self.H = Human(meas_in if meas_in else self.measPreload)
         self.H.draw_mayavi(self.scene.mlab)
 
     def _get_Ixx(self):
@@ -207,6 +216,11 @@ class YeadonGUI(HasTraits):
 
     def _get_z(self):
         return self.H.center_of_mass[2, 0]
+
+    @on_trait_change('measurement_file_name')
+    def _update_measurement_file_name(self):
+        self.H = Human(self.measurement_file_name)
+        self.H.draw_mayavi(self.scene.mlab)
 
     @on_trait_change('somersalt')
     def _update_somersalt(self):
@@ -330,6 +344,18 @@ class YeadonGUI(HasTraits):
             for solid in seg.solids:
                 solid.mesh.scene.disable_render = False
 
-if __name__ == '__main__':
-    gui = YeadonGUI()
+def start_gui(*args, **kwargs):
+    '''Start the GUI. The GUI automatically creates a Human, and lets the user
+    modify its configuration and observe the resulting change in the human's
+    inertia properties.
+
+    Parameters
+    ----------
+    meas_in : str, optional
+        The filename of a measurements file to use for the human.
+    '''
+    gui = YeadonGUI(*args, **kwargs)
     gui.configure_traits()
+
+if __name__ == '__main__':
+    start_gui()

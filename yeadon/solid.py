@@ -590,18 +590,18 @@ class Semiellipsoid(Solid):
 
         '''
         self._generate_mesh()
-        self.mesh = mlabobj.mesh(*self.mesh_points, color=col,
+        self._mesh = mlabobj.mesh(*self._mesh_points, color=col,
                 opacity=Solid.alpha)
 
     def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
         self._generate_mesh()
-        self.mesh.mlab_source.set(x=self.mesh_points[0],
+        self._mesh.mlab_source.set(x=self.mesh_points[0],
                 y=self.mesh_points[1], z=self.mesh_points[2])
 
     def _generate_mesh(self):
         """Generates a mesh for MayaVi."""
-        self.mesh_points = self._make_pos()
+        self._mesh_points = self._make_pos()
 
     def _make_pos(self):
         '''Generates coordinates to be used for 3D visualization purposes.
