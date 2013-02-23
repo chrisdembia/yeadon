@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from numpy import pi as nppi
+
 from traits.api import HasTraits, Range, Instance, \
         on_trait_change, Float, Property
 from traitsui.api import View, Item, VSplit, HSplit, Group
@@ -11,10 +13,10 @@ from human import Human
 sliders = ['somersalt',
            'tilt',
            'twist',
-           'PTsagittalFlexion',
-           'PTfrontalFlexion',
-           'TCspinalTorsion',
-           'TClateralSpinalFlexion',
+           'PtSagittalFlexion',
+           'PtFrontalFlexion',
+           'TcSpinalTorsion',
+           'TcLateralSpinalFlexion',
            'CA1elevation',
            'CA1abduction',
            'CA1rotation',
@@ -33,33 +35,40 @@ sliders = ['somersalt',
 def format_func(value):
     return '{:1.3}'.format(value)
 
-class GUI(HasTraits):
+def _d2r(angle):
+    '''Converts an angle from units of degrees to units of radians.'''
+    return angle * nppi / 180.0
+
+class YeadonGUI(HasTraits):
     ''' TODO '''
 
-    myPi = 3.14
-    opts = {'enter_set': True, 'auto_set': True}
-    somersalt              = Range(-myPi, myPi, 0.0, **opts)
-    tilt                   = Range(-myPi, myPi, 0.0, **opts)
-    twist                  = Range(-myPi, myPi, 0.0, **opts)
-    PTsagittalFlexion      = Range(-myPi/2, myPi, 0.0, **opts)
-    PTfrontalFlexion       = Range(-myPi/2, myPi/2, 0.0, **opts)
-    TCspinalTorsion        = Range(-myPi/2, myPi/2, 0.0, **opts)
-    TClateralSpinalFlexion = Range(-myPi/2, myPi/2, 0.0, **opts)
-    CA1elevation           = Range(-myPi/2, myPi*3/2, 0.0, **opts)
-    CA1abduction           = Range(-myPi*3/2, myPi, 0.0, **opts)
-    CA1rotation            = Range(-myPi, myPi, 0.0, **opts)
-    CB1elevation           = Range(-myPi/2, myPi*3/2, 0.0, **opts)
-    CB1abduction           = Range(-myPi*3/2, myPi, 0.0, **opts)
-    CB1rotation            = Range(-myPi, myPi, 0.0, **opts)
-    A1A2flexion            = Range(0, myPi, 0.0, **opts)
-    B1B2flexion            = Range(0, myPi, 0.0, **opts)
-    PJ1flexion             = Range(-myPi/2, myPi, 0.0, **opts)
-    PJ1abduction           = Range(-myPi/2, myPi/2, 0.0, **opts)
-    PK1flexion             = Range(-myPi/2, myPi, 0.0, **opts)
-    PK1abduction           = Range(-myPi/2, myPi/2, 0.0, **opts)
-    J1J2flexion            = Range(0, myPi, 0.0, **opts)
-    K1K2flexion            = Range(0, myPi, 0.0, **opts)
+    #measfile = File('measurement file', exists=True)
 
+    # Configuration variables.
+    opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
+    somersalt              = Range(-180.0, 180.0, 0.0, **opts)
+    tilt                   = Range(-180.0, 180.0, 0.0, **opts)
+    twist                  = Range(-180.0, 180.0, 0.0, **opts)
+    PtSagittalFlexion      = Range(- 90.0, 180.0, 0.0, **opts)
+    PtFrontalFlexion       = Range(- 90.0,  90.0, 0.0, **opts)
+    TcSpinalTorsion        = Range(- 90.0,  90.0, 0.0, **opts)
+    TcLateralSpinalFlexion = Range(- 90.0,  90.0, 0.0, **opts)
+    CA1elevation           = Range(- 90.0, 270.0, 0.0, **opts)
+    CA1abduction           = Range(-270.0,  90.0, 0.0, **opts)
+    CA1rotation            = Range(-180.0, 180.0, 0.0, **opts)
+    CB1elevation           = Range(-180.0, 270.0, 0.0, **opts)
+    CB1abduction           = Range(-270.0, 180.0, 0.0, **opts)
+    CB1rotation            = Range(-180.0, 180.0, 0.0, **opts)
+    A1A2flexion            = Range(   0.0, 180.0, 0.0, **opts)
+    B1B2flexion            = Range(   0.0, 180.0, 0.0, **opts)
+    PJ1flexion             = Range(- 90.0, 180.0, 0.0, **opts)
+    PJ1abduction           = Range(- 90.0,  90.0, 0.0, **opts)
+    PK1flexion             = Range(- 90.0, 180.0, 0.0, **opts)
+    PK1abduction           = Range(- 90.0,  90.0, 0.0, **opts)
+    J1J2flexion            = Range(   0.0, 180.0, 0.0, **opts)
+    K1K2flexion            = Range(   0.0, 180.0, 0.0, **opts)
+
+    # Display of Human object properties.
     Ixx = Property(Float, depends_on=sliders)
     Ixy = Property(Float, depends_on=sliders)
     Ixz = Property(Float, depends_on=sliders)
@@ -75,63 +84,65 @@ class GUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    view = View(
-            HSplit( # HSplit 1
-              Group(
-                Item('scene', editor=SceneEditor(scene_class=MayaviScene),
-                    height=500, width=500, show_label=False)
-                   ),
-              VSplit(
-                Group(
-                  Item('somersalt'),
-                  Item('tilt'),
-                  Item('twist'),
-                  Item('PTsagittalFlexion'),
-                  Item('PTfrontalFlexion'),
-                  Item('TCspinalTorsion'),
-                  Item('TClateralSpinalFlexion'),
-                  Item('CA1elevation'),
-                  Item('CA1abduction'),
-                  Item('CA1rotation'),
-                  Item('CB1elevation'),
-                  Item('CB1abduction'),
-                  Item('CB1rotation'),
-                  Item('A1A2flexion'),
-                  Item('B1B2flexion'),
-                  Item('PJ1flexion'),
-                  Item('PJ1abduction'),
-                  Item('PK1flexion'),
-                  Item('PK1abduction'),
-                  Item('J1J2flexion'),
-                  Item('K1K2flexion')
-                     ),
-                HSplit( # HSplit 2
-                  Group(
-                    Item('Ixx', style='readonly', format_func=format_func),
-                    Item('Iyx', style='readonly', format_func=format_func),
-                    Item('Izx', style='readonly', format_func=format_func),
-                       ),
-                  Group(
-                    Item('Ixy', style='readonly', format_func=format_func),
-                    Item('Iyy', style='readonly', format_func=format_func),
-                    Item('Izy', style='readonly', format_func=format_func),
-                       ),
-                  Group(
-                    Item('Ixz', style='readonly', format_func=format_func),
-                    Item('Iyz', style='readonly', format_func=format_func),
-                    Item('Izz', style='readonly', format_func=format_func)
-                       ),
-                  # center of mass
-                  Group(
-                    Item('x', style='readonly', format_func=format_func),
-                    Item('y', style='readonly', format_func=format_func),
-                    Item('z', style='readonly', format_func=format_func)
+    vis_group = Group(Item('scene',
+        editor=SceneEditor(scene_class=MayaviScene), height=500, width=500,
+        show_label=False))
+    config_group = Group(
+                    Item('somersalt'),
+                    Item('tilt'),
+                    Item('twist'),
+                    Item('PtSagittalFlexion'),
+                    Item('PtFrontalFlexion'),
+                    Item('TcSpinalTorsion'),
+                    Item('TcLateralSpinalFlexion'),
+                    Item('CA1elevation'),
+                    Item('CA1abduction'),
+                    Item('CA1rotation'),
+                    Item('CB1elevation'),
+                    Item('CB1abduction'),
+                    Item('CB1rotation'),
+                    Item('A1A2flexion'),
+                    Item('B1B2flexion'),
+                    Item('PJ1flexion'),
+                    Item('PJ1abduction'),
+                    Item('PK1flexion'),
+                    Item('PK1abduction'),
+                    Item('J1J2flexion'),
+                    Item('K1K2flexion')
                        )
-                      ) # end HSplit 2
-                    ) # end VSplit
-                  ), # end HSplit 1
+
+    inertia_prop = HSplit( # HSplit 2
+                    Group(
+                      Item('Ixx', style='readonly', format_func=format_func),
+                      Item('Iyx', style='readonly', format_func=format_func),
+                      Item('Izx', style='readonly', format_func=format_func),
+                         ),
+                    Group(
+                      Item('Ixy', style='readonly', format_func=format_func),
+                      Item('Iyy', style='readonly', format_func=format_func),
+                      Item('Izy', style='readonly', format_func=format_func),
+                         ),
+                    Group(
+                      Item('Ixz', style='readonly', format_func=format_func),
+                      Item('Iyz', style='readonly', format_func=format_func),
+                      Item('Izz', style='readonly', format_func=format_func)
+                         ),
+                    # center of mass
+                    Group(
+                      Item('x', style='readonly', format_func=format_func),
+                      Item('y', style='readonly', format_func=format_func),
+                      Item('z', style='readonly', format_func=format_func)
+                         )
+                        ) # end HSplit 2
+    view = View(
+            HSplit(vis_group,
+                VSplit(
+                    config_group,
+                    inertia_prop
+                    )
+                ),
             resizable=True
-               ) # end View
+            ) # end View
 
     measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
     0.493, 'La5w' : 0.0975, 'Ls4w' : 0.343, 'La5L' : 0.049, 'Lb2L' : 0.2995,
@@ -199,110 +210,111 @@ class GUI(HasTraits):
 
     @on_trait_change('somersalt')
     def _update_somersalt(self):
-        self.H.set_CFG('somersalt', self.somersalt)
+        self.H.set_CFG('somersalt', _d2r(self.somersalt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
 
     @on_trait_change('tilt')
     def _update_tilt(self):
-        self.H.set_CFG('tilt', self.tilt)
+        self.H.set_CFG('tilt', _d2r(self.tilt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
 
     @on_trait_change('twist')
     def _update_twist(self):
-        self.H.set_CFG('twist', self.twist)
+        self.H.set_CFG('twist', _d2r(self.twist))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
 
-    @on_trait_change('PTsagittalFlexion')
+    @on_trait_change('PtSagittalFlexion')
     def _update_PTsagittalFlexion(self):
-        self.H.set_CFG('PTsagittalFlexion', self.PTsagittalFlexion)
+        self.H.set_CFG('PTsagittalFlexion', _d2r(self.PtSagittalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
 
-    @on_trait_change('PTfrontalFlexion')
-    def _update_PTfrontalFlexion(self):
-        self.H.set_CFG('PTfrontalFlexion', self.PTfrontalFlexion)
+    @on_trait_change('PtFrontalFlexion')
+    def _update_PTFrontalFlexion(self):
+        self.H.set_CFG('PTfrontalFlexion', _d2r(self.PtFrontalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
 
-    @on_trait_change('TCspinalTorsion')
-    def _update_TCspinalTorsion(self):
-        self.H.set_CFG('TCspinalTorsion', self.TCspinalTorsion)
+    @on_trait_change('TcSpinalTorsion')
+    def _update_TCSpinalTorsion(self):
+        self.H.set_CFG('TCspinalTorsion', _d2r(self.TcSpinalTorsion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
 
-    @on_trait_change('TClateralSpinalFlexion')
-    def _update_TClateralSpinalFlexion(self):
-        self.H.set_CFG('TClateralSpinalFlexion', self.TClateralSpinalFlexion)
+    @on_trait_change('TcLateralSpinalFlexion')
+    def _update_TCLateralSpinalFlexion(self):
+        self.H.set_CFG('TClateralSpinalFlexion',
+                _d2r(self.TcLateralSpinalFlexion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
 
     @on_trait_change('CA1elevation')
     def _update_CA1elevation(self):
-        self.H.set_CFG('CA1elevation', self.CA1elevation)
+        self.H.set_CFG('CA1elevation', _d2r(self.CA1elevation))
         self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CA1abduction')
     def _update_CA1abduction(self):
-        self.H.set_CFG('CA1abduction', self.CA1abduction)
+        self.H.set_CFG('CA1abduction', _d2r(self.CA1abduction))
         self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CA1rotation')
     def _update_CA1rotation(self):
-        self.H.set_CFG('CA1rotation', self.CA1rotation)
+        self.H.set_CFG('CA1rotation', _d2r(self.CA1rotation))
         self._update_mayavi(['A1', 'A2'])
 
     @on_trait_change('CB1elevation')
     def _update_CB1elevation(self):
-        self.H.set_CFG('CB1elevation', self.CB1elevation)
+        self.H.set_CFG('CB1elevation', _d2r(self.CB1elevation))
         self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('CB1abduction')
     def _update_CB1abduction(self):
-        self.H.set_CFG('CB1abduction', self.CB1abduction)
+        self.H.set_CFG('CB1abduction', _d2r(self.CB1abduction))
         self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('CB1rotation')
     def _update_CB1rotation(self):
-        self.H.set_CFG('CB1rotation', self.CB1rotation)
+        self.H.set_CFG('CB1rotation', _d2r(self.CB1rotation))
         self._update_mayavi(['B1', 'B2'])
 
     @on_trait_change('A1A2flexion')
     def _update_A1A2flexion(self):
-        self.H.set_CFG('A1A2flexion', self.A1A2flexion)
+        self.H.set_CFG('A1A2flexion', _d2r(self.A1A2flexion))
         self._update_mayavi(['A2'])
 
     @on_trait_change('B1B2flexion')
     def _update_B1B2flexion(self):
-        self.H.set_CFG('B1B2flexion', self.B1B2flexion)
+        self.H.set_CFG('B1B2flexion', _d2r(self.B1B2flexion))
         self._update_mayavi(['B2'])
 
     @on_trait_change('PJ1flexion')
     def _update_PJ1flexion(self):
-        self.H.set_CFG('PJ1flexion', self.PJ1flexion)
+        self.H.set_CFG('PJ1flexion', _d2r(self.PJ1flexion))
         self._update_mayavi(['J1', 'J2'])
 
     @on_trait_change('PJ1abduction')
     def _update_PJ1abduction(self):
-        self.H.set_CFG('PJ1abduction', self.PJ1abduction)
+        self.H.set_CFG('PJ1abduction', _d2r(self.PJ1abduction))
         self._update_mayavi(['J1', 'J2'])
 
     @on_trait_change('PK1flexion')
     def _update_PK1flexion(self):
-        self.H.set_CFG('PK1flexion', self.PK1flexion)
+        self.H.set_CFG('PK1flexion', _d2r(self.PK1flexion))
         self._update_mayavi(['K1', 'K2'])
 
     @on_trait_change('PK1abduction')
     def _update_PK1abduction(self):
-        self.H.set_CFG('PK1abduction', self.PK1abduction)
+        self.H.set_CFG('PK1abduction', _d2r(self.PK1abduction))
         self._update_mayavi(['K1', 'K2'])
 
     @on_trait_change('J1J2flexion')
     def _update_J1J2flexion(self):
-        self.H.set_CFG('J1J2flexion', self.J1J2flexion)
+        self.H.set_CFG('J1J2flexion', _d2r(self.J1J2flexion))
         self._update_mayavi(['J2'])
 
     @on_trait_change('K1K2flexion')
     def _update_K1K2flexion(self):
-        self.H.set_CFG('K1K2flexion', self.K1K2flexion)
+        self.H.set_CFG('K1K2flexion', _d2r(self.K1K2flexion))
         self._update_mayavi(['K2'])
 
     def _update_mayavi(self, segments):
@@ -319,5 +331,5 @@ class GUI(HasTraits):
                 solid.mesh.scene.disable_render = False
 
 if __name__ == '__main__':
-    g = GUI()
-    g.configure_traits()
+    gui = YeadonGUI()
+    gui.configure_traits()
