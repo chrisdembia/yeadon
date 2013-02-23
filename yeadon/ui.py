@@ -90,7 +90,6 @@ def start_ui():
               "  s: format input measurements for ISEG Fortran code\n\n",\
               "  t: transform absolute/base/fixed coordinate system\n\n",\
               "  d: draw 3D human using matplotlib\n",\
-              "  v: draw 3D human using VPython\n",\
               "  m: draw 3D human using MayaVi\n\n",\
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
@@ -149,7 +148,7 @@ def start_ui():
             thetx = raw_input("Angle (rad) about your x-axis: ")
             thety = raw_input("Angle (rad) about your y-axis: ")
             thetz = raw_input("Angle (rad) about your z-axis: ")
-            H.rotate_coord_sys(inertia.rotate3(thetx,thety,thetz))
+            H.rotate_coord_sys(inertia.rotate_space_123(thetx,thety,thetz))
             print "Now we'll specify the position of yeadon with respect to " \
                   "your coordinate system. You will provide the three " \
                   "components, x y and z, in YOUR coordinates."
@@ -164,10 +163,6 @@ def start_ui():
             print "To continue using the YEADON UI after drawing,",\
                    "close the plot window."
             H.draw()
-
-        # DRAW HUMAN WITH VPYTHON
-        elif userIn == 'v':
-            H.draw_visual()
 
         # DRAW HUMAN WITH MAYAVI
         elif userIn == 'm':

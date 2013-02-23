@@ -19,7 +19,7 @@ Location of joint centres
    (t,0,0) and (-t,0,0) in the coordinate frame of the ``s0`` solid,
    respectively.
  - The joint centres of the arms are at the Ls4 level, centered
-   anterior-posterior (front-back), and at the edges of the semicircular
+   anteroposteriorly (front-back), and at the edges of the semicircular
    portion of the Ls4 stadium.
  - The two joint centres in the torso are centered along the torso.
 

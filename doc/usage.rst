@@ -81,8 +81,6 @@ Features
       does not look too great because matplotlib does not manage depth of the
       objects.
     - ``H.draw_mayavi()``: MayaVi. This works a little faster than matplotlib.
-    - ``H.draw_visual()``: python-visual. This works pretty well. Requires the
-      VPython (python-visual) package.
 
 **Combine inertia**
     Provides the mass, center of mass, and inertia tensor for a combination of

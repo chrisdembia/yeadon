@@ -9,6 +9,38 @@ import numpy as np
 import inertia
 
 class Segment(object):
+
+    @property
+    def mass(self):
+        '''Mass of the segment, in units of kg.'''
+        return self._mass
+
+    @property
+    def center_of_mass(self):
+        '''Center of mass of the segment, a np.ndarray, in units of m, in the
+        global frame, from the bottom center of the pelvis.'''
+        return self._center_of_mass
+
+    @property
+    def inertia(self):
+        '''Inertia matrix/dyadic of the segment, a np.matrix, in units of
+        kg-m^2, about the center of mass of the human, in the global frame.
+        '''
+        return self._inertia
+
+    @property
+    def rel_center_of_mass(self):
+        '''Center of mass of the segment, a np.ndarray, in units of m, in the
+        frame of the segment, from the origin of the segment.'''
+        return self._rel_center_of_mass
+
+    @property
+    def rel_inertia(self):
+        '''Inertia matrix/dyadic of the segment, a np.matrix, in units of
+        kg-m^2, about the center of mass of the segment, in the frame of the
+        segment.  '''
+        return self._rel_inertia
+
     def __init__(self, label, pos, rot_mat, solids, color):
         '''Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
@@ -43,13 +75,13 @@ class Segment(object):
         self.color = color
         # must set the position of constituent solids before being able to
         # calculate relative/local properties.
-        self.set_orientations()
+        self._set_orientations()
         self.endpos = self.solids[-1].endpos
         self.length = np.linalg.norm(self.endpos - self.pos)
         self.calc_rel_properties()
 
 
-    def set_orientations(self):
+    def _set_orientations(self):
         '''Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent
         solid's set_orientation method. The position of the i-th solid,
@@ -74,38 +106,38 @@ class Segment(object):
 
         '''
         # mass
-        self.Mass = 0.0
+        self._mass = 0.0
         for s in self.solids:
-            self.Mass += s.Mass
+            self._mass += s.mass
         # relative position of each solid w.r.t. segment orientation and
         # segment's origin
-        self.solidpos = []
-        self.solidpos.append(np.zeros((3, 1)))
+        solidpos = []
+        solidpos.append(np.zeros((3, 1)))
         for i in np.arange(self.nSolids):
             if i != 0:
-                self.solidpos.append( self.solidpos[i-1] +
+                solidpos.append( solidpos[i-1] +
                                       self.solids[i-1].height *
                                       np.array([[0, 0, 1]]).T)
         # center of mass of each solid w.r.t. segment orientation and
         # segment's origin
-        self.solidCOM = []
-        self.solidCOM.append(self.solids[0].relCOM)
+        solidCOM = []
+        solidCOM.append(self.solids[0].rel_center_of_mass)
         for i in np.arange(self.nSolids):
             if i != 0:
-                self.solidCOM.append( self.solidpos[i] +
-                                      self.solids[i].relCOM)
+                solidCOM.append( solidpos[i] +
+                                      self.solids[i].rel_center_of_mass)
         # relative center of mass
         relmoment = np.zeros((3, 1))
         for i in np.arange(self.nSolids):
-            relmoment += self.solids[i].Mass * self.solidCOM[i]
-        self.relCOM = relmoment / self.Mass
+            relmoment += self.solids[i].mass * solidCOM[i]
+        self._rel_center_of_mass = relmoment / self.mass
         # relative Inertia
-        self.relInertia = np.mat(np.zeros((3, 3)))
+        self._rel_inertia = np.mat(np.zeros((3, 3)))
         for i in np.arange(self.nSolids):
-            dist = self.solidCOM[i] - self.relCOM
-            self.relInertia += np.mat(inertia.parallel_axis(
-                                      self.solids[i].relInertia,
-                                      self.solids[i].Mass,
+            dist = solidCOM[i] - self.rel_center_of_mass
+            self._rel_inertia += np.mat(inertia.parallel_axis(
+                                      self.solids[i].rel_inertia,
+                                      self.solids[i].mass,
                                       [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
     def calc_properties(self):
@@ -116,9 +148,9 @@ class Segment(object):
 
         '''
         # center of mass
-        self.COM = self.pos + self.rot_mat * self.relCOM
+        self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
-        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
+        self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
         '''Prints mass, center of mass (in segment's and fixed human frames),
@@ -127,16 +159,16 @@ class Segment(object):
 
         '''
         # self.COM, etc. needs to be defined first.
-        if not hasattr(self, 'COM') or not hasattr(self, 'Inertia'):
+        if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
             self.calc_properties()
         print self.label, "properties:\n"
-        print "Mass (kg):", self.Mass, "\n"
-        print "COM in local segment frame (m):\n", self.relCOM, "\n"
-        print "COM in fixed human frame (m):\n", self.COM, "\n"
+        print "Mass (kg):", self.mass, "\n"
+        print "COM in local segment frame (m):\n", self.rel_center_of_mass, "\n"
+        print "COM in fixed human frame (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor in segment frame about local segment",\
-               "COM (kg-m^2):\n", self.relInertia, "\n"
+               "COM (kg-m^2):\n", self.rel_inertia, "\n"
         print "Inertia tensor in fixed human frame about local segment",\
-               "COM (kg-m^2):\n", self.Inertia, "\n"
+               "COM (kg-m^2):\n", self.inertia, "\n"
 
     def print_solid_properties(self):
         '''Calls the print_properties() member method of each of this
@@ -157,9 +189,10 @@ class Segment(object):
         u = np.linspace( 0, 2*np.pi, 30)
         v = np.linspace( 0, np.pi, 30)
         R = 0.03
-        x = R * np.outer(np.cos(u), np.sin(v)) + self.COM[0, 0]
-        y = R * np.outer(np.sin(u), np.sin(v)) + self.COM[1, 0]
-        z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.COM[2, 0]
+        x = R * np.outer(np.cos(u), np.sin(v)) + self.center_of_mass[0, 0]
+        y = R * np.outer(np.sin(u), np.sin(v)) + self.center_of_mass[1, 0]
+        z = R * np.outer(np.ones(np.size(u)), 
+                np.cos(v)) + self.center_of_mass[2, 0]
         ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
                         color='r')
 
@@ -170,14 +203,7 @@ class Segment(object):
         for s in self.solids:
             s.draw_mayavi(mlabobj, self.color)
 
-    def update_mayavi(self):
+    def _update_mayavi(self):
         """Updates all of the solids in this segment for MayaVi."""
         for s in self.solids:
-            s.update_mayavi()
-
-    def draw_visual(self):
-        '''Draws in a 3D VPython window all the solids within this segment.
-
-        '''
-        for s in self.solids:
-            s.draw_visual(self.color)
+            s._update_mayavi()

@@ -24,8 +24,8 @@ class TestHuman(unittest.TestCase):
         h = hum.Human(measPath)
         meas = h.meas
 
-        assert h.isSymmetric == True
-        assert h.measMass == -1
+        assert h.is_symmetric == True
+        assert h.meas_mass == -1
         # reading measurements.
         assert len(h.meas) == 95
         # TODO
@@ -65,89 +65,95 @@ class TestHuman(unittest.TestCase):
 
         # Check that all solids exist.
         # TODO
-        self.assertEquals(len(h.Ls), 9)
-        self.assertEquals(h.Ls[0].label, 'Ls0: hip joint centre')
-        self.assertEquals(h.Ls[0].perimeter, meas['Ls0p'])
-        self.assertEquals(h.Ls[0].width, meas['Ls0w'])
+        self.assertEquals(len(h._Ls), 9)
+        self.assertEquals(h._Ls[0].label, 'Ls0: hip joint centre')
+        self.assertEquals(h._Ls[0].perimeter, meas['Ls0p'])
+        self.assertEquals(h._Ls[0].width, meas['Ls0w'])
 
-        self.assertEquals(h.Ls[1].label, 'Ls1: umbilicus')
-        self.assertEquals(h.Ls[1].perimeter, meas['Ls1p'])
-        self.assertEquals(h.Ls[1].width, meas['Ls1w'])
+        self.assertEquals(h._Ls[1].label, 'Ls1: umbilicus')
+        self.assertEquals(h._Ls[1].perimeter, meas['Ls1p'])
+        self.assertEquals(h._Ls[1].width, meas['Ls1w'])
 
-        self.assertEquals(h.Ls[2].label, 'Ls2: lowest front rib')
-        self.assertEquals(h.Ls[2].perimeter, meas['Ls2p'])
-        self.assertEquals(h.Ls[2].width, meas['Ls2w'])
+        self.assertEquals(h._Ls[2].label, 'Ls2: lowest front rib')
+        self.assertEquals(h._Ls[2].perimeter, meas['Ls2p'])
+        self.assertEquals(h._Ls[2].width, meas['Ls2w'])
 
-        self.assertEquals(h.Ls[3].label, 'Ls3: nipple')
-        self.assertEquals(h.Ls[3].perimeter, meas['Ls3p'])
-        self.assertEquals(h.Ls[3].width, meas['Ls3w'])
+        self.assertEquals(h._Ls[3].label, 'Ls3: nipple')
+        self.assertEquals(h._Ls[3].perimeter, meas['Ls3p'])
+        self.assertEquals(h._Ls[3].width, meas['Ls3w'])
 
-        self.assertEquals(h.Ls[4].label, 'Ls4: shoulder joint centre')
-        self.assertEquals(h.Ls[4].radius, meas['Ls4d'] / 2)
-        self.assertEquals(h.Ls[4].width, meas['Ls4w'])
+        self.assertEquals(h._Ls[4].label, 'Ls4: shoulder joint centre')
+        self.assertEquals(h._Ls[4].radius, meas['Ls4d'] / 2)
+        self.assertEquals(h._Ls[4].width, meas['Ls4w'])
 
-        # TODO Hard-coded parameters for the acromion from yeadon.
-        self.assertEquals(h.Ls[5].label, 'Ls5: acromion')
-        self.assertEquals(h.Ls[5].thickness, meas['Ls5p'])
-        self.assertEquals(h.Ls[5].radius, meas['Ls5w'])
+        # TODO Hard-coded parameters for the acromion from Yeadon's ISEG.
+        self.assertEquals(h._Ls[5].label, 'Ls5: acromion')
+        self.assertEquals(
+                h._Ls[5].thickness, h._Ls[4].width / 2 - h._Ls[5].radius)
+        self.assertEquals(h._Ls[5].radius, 0.57 * h._Ls[4].radius)
 
-        self.assertEquals(h.Ls[6].label, 'Ls5: acromion/bottom of neck')
-        self.assertEquals(h.Ls[6].perimeter, meas['Ls5p'])
-        self.assertEquals(h.Ls[6].thickness, 0)
+        self.assertEquals(h._Ls[6].label, 'Ls5: acromion/bottom of neck')
+        self.assertEquals(h._Ls[6].perimeter, meas['Ls5p'])
+        self.assertEquals(h._Ls[6].thickness, 0)
 
-        self.assertEquals(h.Ls[7].label, 'Ls6: beneath nose')
-        self.assertEquals(h.Ls[7].perimeter, meas['Ls6p'])
-        self.assertEquals(h.Ls[7].thickness, 0)
+        self.assertEquals(h._Ls[7].label, 'Ls6: beneath nose')
+        self.assertEquals(h._Ls[7].perimeter, meas['Ls6p'])
+        self.assertEquals(h._Ls[7].thickness, 0)
 
-        self.assertEquals(h.Ls[8].label, 'Ls7: above ear')
-        self.assertEquals(h.Ls[8].perimeter, meas['Ls7p'])
-        self.assertEquals(h.Ls[8].thickness, 0)
+        self.assertEquals(h._Ls[8].label, 'Ls7: above ear')
+        self.assertEquals(h._Ls[8].perimeter, meas['Ls7p'])
+        self.assertEquals(h._Ls[8].thickness, 0)
 
-        self.assertEquals(len(h.s), 8)
-        self.assertEquals(h.s[0].label, 's0: hip joint centre')
-        self.assertEquals(h.s[0].density, dens.Ds[0])
-        self.assertEquals(h.s[1].label, 's1: umbilicus')
-        self.assertEquals(h.s[1].density, dens.Ds[1])
-        self.assertEquals(h.s[2].label, 's2: lowest front rib')
-        self.assertEquals(h.s[2].density, dens.Ds[2])
-        self.assertEquals(h.s[3].label, 's3: nipple')
-        self.assertEquals(h.s[3].density, dens.Ds[3])
-        self.assertEquals(h.s[4].label, 's4: shoulder joint centre')
-        self.assertEquals(h.s[4].density, dens.Ds[4])
-        self.assertEquals(h.s[5].label, 's5: acromion')
-        self.assertEquals(h.s[5].density, dens.Ds[5])
-        self.assertEquals(h.s[6].label, 's6: beneath nose')
-        self.assertEquals(h.s[6].density, dens.Ds[6])
-        self.assertEquals(h.s[7].label, 's7: above ear')
-        self.assertEquals(h.s[7].density, dens.Ds[7])
+        self.assertEquals(len(h._s), 8)
+        self.assertEquals(h._s[0].label, 's0: hip joint centre')
+        self.assertEquals(h._s[0].density, dens.Ds[0])
+        self.assertEquals(h._s[1].label, 's1: umbilicus')
+        self.assertEquals(h._s[1].density, dens.Ds[1])
+        self.assertEquals(h._s[2].label, 's2: lowest front rib')
+        self.assertEquals(h._s[2].density, dens.Ds[2])
+        self.assertEquals(h._s[3].label, 's3: nipple')
+        self.assertEquals(h._s[3].density, dens.Ds[3])
+        self.assertEquals(h._s[4].label, 's4: shoulder joint centre')
+        self.assertEquals(h._s[4].density, dens.Ds[4])
+        self.assertEquals(h._s[5].label, 's5: acromion')
+        self.assertEquals(h._s[5].density, dens.Ds[5])
+        self.assertEquals(h._s[6].label, 's6: beneath nose')
+        self.assertEquals(h._s[6].density, dens.Ds[6])
+        self.assertEquals(h._s[7].label, 's7: above ear')
+        self.assertEquals(h._s[7].density, dens.Ds[7])
 
         # Check that all segments exist.
         # TODO
 
-        self.assertEquals(len(h.Segments), 11)
-        self.assertEquals(h.Segments[0], h.P)
-        self.assertEquals(h.Segments[1], h.T)
-        self.assertEquals(h.Segments[2], h.C)
-        self.assertEquals(h.Segments[3], h.A1)
-        self.assertEquals(h.Segments[4], h.A2)
-        self.assertEquals(h.Segments[5], h.B1)
-        self.assertEquals(h.Segments[6], h.B2)
-        self.assertEquals(h.Segments[7], h.J1)
-        self.assertEquals(h.Segments[8], h.J2)
-        self.assertEquals(h.Segments[9], h.K1)
-        self.assertEquals(h.Segments[10], h.K2)
+        self.assertEquals(len(h.segments), 11)
+        self.assertEquals(h.segments[0], h.P)
+        self.assertEquals(h.segments[1], h.T)
+        self.assertEquals(h.segments[2], h.C)
+        self.assertEquals(h.segments[3], h.A1)
+        self.assertEquals(h.segments[4], h.A2)
+        self.assertEquals(h.segments[5], h.B1)
+        self.assertEquals(h.segments[6], h.B2)
+        self.assertEquals(h.segments[7], h.J1)
+        self.assertEquals(h.segments[8], h.J2)
+        self.assertEquals(h.segments[9], h.K1)
+        self.assertEquals(h.segments[10], h.K2)
 
         # Ensure mass is unchanged from what it should be.
-        testing.assert_almost_equal(h.Mass, 
-                h.P.Mass + h.T.Mass + h.C.Mass + h.A1.Mass + h.A2.Mass +
-                h.B1.Mass + h.B2.Mass + h.J1.Mass + h.J2.Mass +
-                h.K1.Mass + h.K2.Mass)
+        testing.assert_almost_equal(h.mass, 
+                h.P.mass + h.T.mass + h.C.mass + h.A1.mass + h.A2.mass +
+                h.B1.mass + h.B2.mass + h.J1.mass + h.J2.mass +
+                h.K1.mass + h.K2.mass)
 
         # Initialize measurements using the dict from the previous one.
         h2 = hum.Human(h.meas)
 
-        # Inspect symmetry.
-        # TODO
+        # - Inspect symmetry.
+        # Symmetric by default.
+        self.assertTrue(h.is_symmetric)
+        self.assertEqual(h.K1.mass, h.J1.mass)
+        self.assertEqual(h.K2.mass, h.J2.mass)
+        self.assertEqual(h.A1.mass, h.B1.mass)
+        self.assertEqual(h.A2.mass, h.B2.mass)
 
     def test_init_interesting_cfg(self):
         # TODO

@@ -9,13 +9,6 @@ import textwrap
 import warnings
 
 import numpy as np
-try:
-    import visual as vis
-except ImportError:
-    # TODO: Make this a warning
-    print "Yeadon failed to import python-visual. It is possible that you do" \
-          " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_visual() member functions."
 
 import inertia
 
@@ -90,7 +83,7 @@ class Stadium(object):
             Either width, or radius, as determined by inID
         alignment = 'ML' : str
             Identifies the long direction of the stadium. 'ML' stands for
-            medio-lateral. Aleternatively, 'AP' (anterior-posterior) can be
+            medio-lateral. Aleternatively, 'AP' (anteroposterior) can be
             supplied. The only 'AP' stadiums should be at the heels.
 
         '''
@@ -153,29 +146,6 @@ class Stadium(object):
         self.thickness = 0.0
         self.width = self.perimeter / np.pi
 
-    def plot(self, ax, c):
-        '''Plots the 2D stadium on 3D axes using matplotlib and its Axes3D
-        class.
-
-        Parameters
-        ----------
-        ax : Axes3D object
-            Axis object from the matplotlib library.
-        c : str
-            Color, as a word. e.g. 'red'
-
-        '''
-        theta = [np.linspace(0.0, np.pi / 2.0, 5)]
-        x = self.thickness + self.radius * np.cos(theta);
-        y = self.radius * np.sin(theta);
-        xrev = x[:, ::-1]
-        yrev = y[:, ::-1]
-        X2 = np.concatenate( (x, -xrev, -x, xrev ), axis = 1)
-        Y2 = np.concatenate( (y, yrev, -y, -yrev ), axis = 1)
-        X3 = np.concatenate( (X2, np.nan * X2), axis = 0)
-        Y3 = np.concatenate( (Y2, np.nan * Y2), axis = 0)
-        ax.plot_surface(X3, Y3, np.zeros((2, 20)), color=c, alpha=0.5)
-
 class Solid(object):
     '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
@@ -183,6 +153,37 @@ class Solid(object):
     '''
     # Transparency for plotting.
     alpha = .5
+
+    @property
+    def mass(self):
+        '''Mass of the solid, in units of kg.'''
+        return self._mass
+
+    @property
+    def center_of_mass(self):
+        '''Center of mass of the solid, a np.ndarray, in units of m, in the
+        global frame, from the bottom center of the pelvis.'''
+        return self._center_of_mass
+
+    @property
+    def inertia(self):
+        '''Inertia matrix/dyadic of the solid, a np.matrix, in units of
+        kg-m^2, about the center of mass of the human, in the global frame.
+        '''
+        return self._inertia
+
+    @property
+    def rel_center_of_mass(self):
+        '''Center of mass of the solid, a np.ndarray, in units of m, in the
+        frame of the solid, from the origin of the solid.'''
+        return self._rel_center_of_mass
+
+    @property
+    def rel_inertia(self):
+        '''Inertia matrix/dyadic of the solid, a np.matrix, in units of
+        kg-m^2, about the center of mass of the solid, in the frame of the
+        solid.  '''
+        return self._rel_inertia
 
     def __init__(self, label, density, height):
         '''Defines a solid. This is a base class. Sets the alpha value to
@@ -203,9 +204,9 @@ class Solid(object):
         #TODO: Check that these two are floats
         self.density = density
         self.height = height
-        self.relInertia = np.zeros((3, 3)) # this gets set in subclasses
-        self.Mass = 0.0
-        self.relCOM = np.array([[0.0], [0.0], [0.0]])
+        self._rel_inertia = np.zeros((3, 3)) # this gets set in subclasses
+        self._mass = 0.0
+        self._rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
 
     def set_orientation(self, pos, rot_mat):
         '''Sets the position, rotation matrix of the solid, and calculates
@@ -234,7 +235,7 @@ class Solid(object):
         '''
         try:
             try:
-                self.COM = self.pos + self.rot_mat * self.relCOM
+                self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
             except AttributeError as err:
                 err.message = err.message + \
                     '. You must set the orientation before attempting ' + \
@@ -243,7 +244,7 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self.Inertia = inertia.rotate3_inertia(self.rot_mat, self.relInertia)
+        self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
         '''Prints the mass, center of mass (local and absolute), and inertia
@@ -251,17 +252,18 @@ class Solid(object):
 
         '''
         print self.label, "properties:\n"
-        print "Mass (kg):", self.Mass,"\n"
-        print "COM in local solid's frame (m):\n", self.relCOM,"\n"
-        print "COM in fixed human frame (m):\n", self.COM,"\n"
+        print "Mass (kg):", self.mass,"\n"
+        print "COM in local solid's frame (m):\n", self.rel_center_of_mass,"\n"
+        print "COM in fixed human frame (m):\n", self.center_of_mass,"\n"
         print "Inertia tensor in solid's frame about local solid's",\
-               "COM (kg-m^2):\n", self.relInertia,"\n"
+               "COM (kg-m^2):\n", self.rel_inertia,"\n"
         print "Inertia tensor in fixed human frame about local solid's",\
-               "COM (kg-m^2):\n", self.Inertia,"\n"
+               "COM (kg-m^2):\n", self.inertia,"\n"
 
     def draw(self, ax, c):
         #TODO: Make into warning
-        print "Cannot draw from base class solid, use a subclass like StadiumSolid or SemiEllipsoidSolid)."
+        raise NotImplementedError("Cannot draw from base class Solid, use a "
+                "subclass like StadiumSolid or SemiEllipsoidSolid).")
 
 class StadiumSolid(Solid):
     '''Stadium solid. Derived from the solid class.
@@ -288,7 +290,7 @@ class StadiumSolid(Solid):
         super(StadiumSolid, self).__init__(label,density,height)
         self.stads = [stadium0,stadium1]
         self.alignment = 'ML'
-        # if either stadium is oriented anterior-posterior,
+        # if either stadium is oriented anteroposteriorly.
         # inertia must be rotated, and the plots must be modified
         if (self.stads[0].alignment == 'AP' or
             self.stads[1].alignment == 'AP'):
@@ -298,7 +300,7 @@ class StadiumSolid(Solid):
     def calc_rel_properties(self):
         '''Calculates mass, relative center of mass, and relative/local
         inertia, according to formulae in Appendix B of Yeadon 1990-ii. If the
-        stadium solid is arranged anterior-posteriorly, the inertia is rotated
+        stadium solid is arranged anteroposteriorly, the inertia is rotated
         by pi/2 about the z axis.
 
         '''
@@ -313,42 +315,42 @@ class StadiumSolid(Solid):
             b = 1.0
         else:
             b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
-        self.Mass = D * h * r0 * (4.0 * t0 * self.F1(a,b) +
-                                  np.pi * r0 * self.F1(a,a))
-        zcom = D * (h**2.0) * (4.0 * r0 * t0 * self.F2(a,b) +
-                               np.pi * (r0**2.0) * self.F2(a,a)) / self.Mass
-        self.relCOM = np.array([[0.0],[0.0],[zcom]])
+        self._mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
+                                  np.pi * r0 * self._F1(a,a))
+        zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
+                               np.pi * (r0**2.0) * self._F2(a,a)) / self.mass
+        self._rel_center_of_mass = np.array([[0.0],[0.0],[zcom]])
         # moments of inertia
-        Izcom = D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                         np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) +
-                         4.0 * (r0**3.0) * t0 * self.F4(b,a) +
-                         np.pi * (r0**4.0) * self.F4(a,a) * 0.5 )
-        Iy = (D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                       np.pi * (r0**2.0) * (t0**2.0) * self.F5(a,b) +
-                       8.0 * (r0**3.0) * t0*self.F4(b,a) / 3.0 +
-                      np.pi * (r0**4.0) * self.F4(a,a) * 0.25) +
-              D * (h**3.0) * (4.0 * r0 * t0 * self.F3(a,b) +
-                              np.pi * (r0**2.0) * self.F3(a,a)))
+        Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                         np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
+                         4.0 * (r0**3.0) * t0 * self._F4(b,a) +
+                         np.pi * (r0**4.0) * self._F4(a,a) * 0.5 )
+        Iy = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                       np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
+                       8.0 * (r0**3.0) * t0*self._F4(b,a) / 3.0 +
+                      np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
+              D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
+                              np.pi * (r0**2.0) * self._F3(a,a)))
         # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE
-        Iycom = Iy - self.Mass * (zcom**2.0)
-        Ix = (D * h * (4.0 * r0 * (t0**3.0) * self.F4(a,b) / 3.0 +
-                       np.pi * (r0**4.0) * self.F4(a,a) * 0.25) +
-              D * (h**3.0) * (4.0 * r0 * t0 * self.F3(a,b) +
-                              np.pi * (r0**2.0) * self.F3(a,a)))
-        Ixcom = Ix - self.Mass*(zcom**2.0)
-        self.relInertia = np.mat([[Ixcom,0.0,0.0],
+        Iycom = Iy - self.mass * (zcom**2.0)
+        Ix = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
+                       np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
+              D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
+                              np.pi * (r0**2.0) * self._F3(a,a)))
+        Ixcom = Ix - self.mass*(zcom**2.0)
+        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
-            # rearrange to anterior-posterior orientation
-            self.relInertia = inertia.rotate3_inertia(
-                              inertia.rotate3([0,0,np.pi/2]),self.relInertia)
+            # rearrange to anterorposterior orientation
+            self._rel_inertia = inertia.rotate3_inertia(
+                    inertia.rotate_space_123([0,0,np.pi/2]), self.rel_inertia)
 
     def draw(self, ax, c):
         '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
         a non-one value for alpha. Also places the solid's label near the
         center of mass of the solid. Adjusts the plot for solids oriented
-        anterior-posteriorly. Plots coordinate axes of the solid at the base of
+        anteroposteriorly. Plots coordinate axes of the solid at the base of
         the solid.
 
         Parameters
@@ -359,13 +361,14 @@ class StadiumSolid(Solid):
             Color (e.g. 'red') to use for drawing the solid
 
         '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self.make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self.make_pos(1)
+        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self._make_pos(0)
+        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self._make_pos(1)
         for idx in np.arange(X0.size-1):
             Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
             Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
             Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, edgecolor='');
+            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, 
+                    edgecolor='');
             if 0:
                 if idx == 8:
                     print "IDX IS 8\n",Xpts,'\n',Ypts,'\n',Zpts
@@ -396,7 +399,8 @@ class StadiumSolid(Solid):
                      color=(0,0,1,0), linewidth = 2)
         # place solid's text label on the plot
         (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
+        ax.text(self.center_of_mass[0], self.center_of_mass[1],
+                self.center_of_mass[2], labelstring)
 
     def draw_mayavi(self, mlabobj, col):
         '''Draws the initial stadium in 3D using MayaVi.
@@ -409,69 +413,26 @@ class StadiumSolid(Solid):
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        self.generate_mesh()
+        self._generate_mesh()
         self.mesh = mlabobj.mesh(self.mesh_points['x'], self.mesh_points['y'],
                 self.mesh_points['z'], color=col, opacity=Solid.alpha)
 
-    def update_mayavi(self):
+    def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
-        self.generate_mesh()
+        self._generate_mesh()
         self.mesh.mlab_source.set(x=self.mesh_points['x'],
                 y=self.mesh_points['y'], z=self.mesh_points['z'])
 
-    def generate_mesh(self):
+    def _generate_mesh(self):
         """Generates grid points for a MayaVi mesh."""
-        X0, Y0, Z0, X0toplot, Y0toplot, Z0toplot = self.make_pos(0)
-        X1, Y1, Z1, X1toplot, Y1toplot, Z1toplot = self.make_pos(1)
+        X0, Y0, Z0, X0toplot, Y0toplot, Z0toplot = self._make_pos(0)
+        X1, Y1, Z1, X1toplot, Y1toplot, Z1toplot = self._make_pos(1)
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
         self.mesh_points = {'x': Xpts, 'y': Ypts, 'z': Zpts}
 
-    def draw_visual(self, c):
-        '''Draws the stadium in 3D in a VPython window. Only one line of code!
-
-        Parameters
-        ----------
-        c : tuple (3,)
-            Color as an rgb tuple, with values between 0 and 1.
-
-        '''
-        vis.convex(pos = self.make_pos_visual(), color=c)
-
-    def make_pos_visual(self):
-        '''Creates a list of x,y,z points to use for drawing a convex shape in
-        VPython (the method yeadon.Solid.draw_visual)
-
-        '''
-        N = 10
-        pos = []
-        for i in [0,1]:
-            theta = [np.linspace(0.0,np.pi/2,N)]
-            x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
-            y = self.stads[i].radius * np.sin(theta);
-            if self.alignment == 'AP':
-                temp = x
-                x = y
-                y = temp
-                del temp
-            xrev = x[:, ::-1]
-            yrev = y[:, ::-1]
-            X = np.concatenate( (x, -xrev, -x, xrev), axis=1)
-            Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
-            Z = i*self.height*np.ones((1,N*4))
-            POSES = np.concatenate( (X, Y, Z), axis=0)
-            POSES = self.rot_mat * POSES
-            X,Y,Z = np.vsplit(POSES,3)
-            X = X + self.pos[0]
-            Y = Y + self.pos[1]
-            Z = Z + self.pos[2]
-            POSES = np.concatenate( (X, Y, Z), axis=0)
-            for j in np.arange(N*4):
-                pos.append( (POSES[0,j], POSES[1,j], POSES[2,j]) )
-        return pos
-
-    def make_pos(self,i):
+    def _make_pos(self,i):
         '''Generates coordinates to be used for 3D visualization purposes.
 
         '''
@@ -499,20 +460,20 @@ class StadiumSolid(Solid):
         Ztoplot = np.array(np.concatenate((Z, np.nan*Z)))
         return X,Y,Z,Xtoplot,Ytoplot,Ztoplot
 
-    def F1(self,a,b):
+    def _F1(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
-    def F2(self,a,b):
+    def _F2(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
-    def F3(self,a,b):
+    def _F3(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
-    def F4(self,a,b):
+    def _F4(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
-    def F5(self,a,b):
+    def _F5(self,a,b):
         '''Integration term. See Yeadon 1990-ii Appendix 2.'''
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
@@ -552,13 +513,13 @@ class Semiellipsoid(Solid):
         D = self.density
         r = self.radius
         h = self.height
-        self.Mass = D * 2.0/3.0 * np.pi * (r**2) * h
-        self.relCOM = np.array([[0.0],[0.0],[3.0/8.0 * h]])
+        self._mass = D * 2.0/3.0 * np.pi * (r**2) * h
+        self._rel_center_of_mass = np.array([[0.0],[0.0],[3.0/8.0 * h]])
         Izcom = D * 4.0/15.0 * np.pi * (r**4.0) * h
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
             3.0/32.0 * (r**2.0) * (h**3.0))
         Ixcom = Iycom
-        self.relInertia = np.mat([[Ixcom,0.0,0.0],
+        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
 
@@ -581,7 +542,8 @@ class Semiellipsoid(Solid):
         ax.plot_surface( x, y, z, rstride=4, cstride=4,
                          color=c, alpha=Solid.alpha , edgecolor='')
         (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.COM[0],self.COM[1],self.COM[2],labelstring)
+        ax.text(self.center_of_mass[0], self.center_of_mass[1],
+                self.center_of_mass[2], labelstring)
 
     def draw_mayavi(self, mlabobj, col):
         '''Draws the semiellipsoid in 3D using MayaVi.
@@ -594,33 +556,20 @@ class Semiellipsoid(Solid):
             Color as an rgb tuple, with values between 0 and 1.
 
         '''
-        self.generate_mesh()
+        self._generate_mesh()
         self.mesh = mlabobj.mesh(*self.mesh_points, color=col,
                 opacity=Solid.alpha)
 
-    def update_mayavi(self):
+    def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
-        self.generate_mesh()
+        self._generate_mesh()
         self.mesh.mlab_source.set(x=self.mesh_points[0],
                 y=self.mesh_points[1], z=self.mesh_points[2])
 
-    def generate_mesh(self):
+    def _generate_mesh(self):
         """Generates a mesh for MayaVi."""
         self.mesh_points = self._make_pos()
 
-    def draw_visual(self, c):
-        '''Draws an ellipse in VPython. Ideally would only draw the top half of
-        the ellipse, but draws the entire ellipse. This disadvantage makes it
-        seem as if the head is more "round" than it actually is.
-
-        '''
-        ax = self.rot_mat * np.array([[0],[0],[1]])
-        vis.ellipsoid(pos = (self.pos[0,0],self.pos[1,0],self.pos[2,0]),
-                         axis = (ax[0,0],ax[1,0],ax[2,0]),
-                         length=self.height,
-                         height=self.radius*2,
-                         width=self.radius*2,
-                         color=c)
     def _make_pos(self):
         '''Generates coordinates to be used for 3D visualization purposes.
 
