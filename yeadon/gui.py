@@ -147,6 +147,7 @@ class YeadonGUI(HasTraits):
                     ),
                 ),
             resizable=True
+            title='Yeadon human inertia model'
             ) # end View
 
     measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
@@ -336,13 +337,13 @@ class YeadonGUI(HasTraits):
         for affected in segments:
             seg = self.H.get_segment_by_name(affected)
             for solid in seg.solids:
-                solid.mesh.scene.disable_render = True
+                solid._mesh.scene.disable_render = True
         for affected in segments:
             self.H.get_segment_by_name(affected)._update_mayavi()
         for affected in segments:
             seg = self.H.get_segment_by_name(affected)
             for solid in seg.solids:
-                solid.mesh.scene.disable_render = False
+                solid._mesh.scene.disable_render = False
 
 def start_gui(*args, **kwargs):
     '''Start the GUI. The GUI automatically creates a Human, and lets the user

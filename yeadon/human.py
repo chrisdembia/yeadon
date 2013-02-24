@@ -577,7 +577,7 @@ class Human(object):
         # First get the eigenvectors and values.
         self._generate_mesh_inertia_ellipsoid()
         self._mesh = mlabobj.mesh(*self._ellipsoid_mesh_points,
-                color=(1, 1, 1), opacity=1)
+                color=(1, 1, 1), opacity=0.2)
 
     def _update_mayavi_inertia_ellipsoid(self):
         """Updates the mesh in MayaVi."""

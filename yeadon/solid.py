@@ -447,14 +447,14 @@ class StadiumSolid(Solid):
 
         '''
         self._generate_mesh()
-        self.mesh = mlabobj.mesh(self.mesh_points['x'], self.mesh_points['y'],
-                self.mesh_points['z'], color=col, opacity=Solid.alpha)
+        self._mesh = mlabobj.mesh(self._mesh_points['x'], self._mesh_points['y'],
+                self._mesh_points['z'], color=col, opacity=Solid.alpha)
 
     def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
         self._generate_mesh()
-        self.mesh.mlab_source.set(x=self.mesh_points['x'],
-                y=self.mesh_points['y'], z=self.mesh_points['z'])
+        self._mesh.mlab_source.set(x=self._mesh_points['x'],
+                y=self._mesh_points['y'], z=self._mesh_points['z'])
 
     def _generate_mesh(self):
         """Generates grid points for a MayaVi mesh."""
@@ -463,7 +463,7 @@ class StadiumSolid(Solid):
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
-        self.mesh_points = {'x': Xpts, 'y': Ypts, 'z': Zpts}
+        self._mesh_points = {'x': Xpts, 'y': Ypts, 'z': Zpts}
 
     def _make_pos(self,i):
         '''Generates coordinates to be used for 3D visualization purposes.
@@ -596,8 +596,8 @@ class Semiellipsoid(Solid):
     def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
         self._generate_mesh()
-        self._mesh.mlab_source.set(x=self.mesh_points[0],
-                y=self.mesh_points[1], z=self.mesh_points[2])
+        self._mesh.mlab_source.set(x=self._mesh_points[0],
+                y=self._mesh_points[1], z=self._mesh_points[2])
 
     def _generate_mesh(self):
         """Generates a mesh for MayaVi."""
