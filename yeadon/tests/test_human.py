@@ -712,3 +712,7 @@ class TestHuman(unittest.TestCase):
     # TODO try out a program flow: make sure we do all necessary updates after
     # construction, say when we change a joint angle, etc. CANNOT just change
     # measurements on the fly.
+    # TODO make sure we're averaging the correct limbs
+    # TODO it's possible that by averaging the measurements, we're coming up
+    # with more false stadia than we would otherwise, but if we don't average
+    # the measurements, how do we draw?

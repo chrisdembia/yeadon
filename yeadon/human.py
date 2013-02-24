@@ -1,4 +1,4 @@
-'''The human module defines the human class, which is composed of segments.
+"""The human module defines the human class, which is composed of segments.
 The human class has methods to define the constituent segments from inputs,
 calculates their properties, and manages file input/output.
 
@@ -25,7 +25,7 @@ Typical usage (not using yeadon.ui.start_ui())
     var9 = H.J1.solids[1].inertia``
 
 See documentation for a complete description of functionality.
-'''
+"""
 
 # Use Python3 integer division rules.
 from __future__ import division
@@ -110,20 +110,20 @@ class Human(object):
 
     @property
     def mass(self):
-        '''Mass of the human, in units of kg.'''
+        """Mass of the human, in units of kg."""
         return self._mass
 
     @property
     def center_of_mass(self):
-        '''Center of mass of the human, a np.ndarray, in units of m, in the
-        global frame centered at the bottom center of the pelvis.'''
+        """Center of mass of the human, a np.ndarray, in units of m, in the
+        global frame centered at the bottom center of the pelvis."""
         return self._center_of_mass
 
     @property
     def inertia(self):
-        '''Inertia matrix/dyadic of the human, a np.matrix, in units of
+        """Inertia matrix/dyadic of the human, a np.matrix, in units of
         kg-m^2, about the center of mass of the human, in the global frame.
-        '''
+        """
         return self._inertia
 
     # Densities come from Yeadon 1990-ii.
@@ -144,7 +144,7 @@ class Human(object):
 
     def __init__(self, meas_in, CFG=None, symmetric=True,
             density_set='Dempster'):
-        '''Initializes a human object. Stores inputs as instance variables,
+        """Initializes a human object. Stores inputs as instance variables,
         defines the names of the configuration variables (CFG) in a class
         tuple, defines the bounds on the configuration variables in a class 2D
         list, validates the input CFG against the CFG bounds, defines all the
@@ -180,7 +180,7 @@ class Human(object):
             Either 'Chandler', 'Clauser', or 'Dempster'. 'Dempster' by default.
             See class variable `segmental_densities` to inspect their values.
 
-        '''
+        """
         # Initialize position and orientation of entire body.
         self.coord_sys_pos = np.array([[0],[0],[0]])
         self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
@@ -225,29 +225,29 @@ class Human(object):
             self._read_CFG(CFG)
 
     def _assign_densities(self, density_set):
-        '''Assigns densities from `segmental_densities` to instance variables
+        """Assigns densities from `segmental_densities` to instance variables
         holding the density of each solid.
-        '''
+        """
 
 
     def update(self):
-        '''Redefines all solids and then calls yeadon.Human._update_segments.
+        """Redefines all solids and then calls yeadon.Human._update_segments.
         Called by the method yeadon.Human.scale_human_by_mass. The method is
         to be used in instances in which measurements change.
 
-        '''
+        """
         self._define_torso_solids()
         self._define_arm_solids()
         self._define_leg_segments()
         self._update_segments()
 
     def _update_segments(self):
-        '''Updates all segments. Called after joint angles are updated, in
+        """Updates all segments. Called after joint angles are updated, in
         which case solids do not need to be recreated, but the segments need
         to be redefined, and the human's inertia parameters (in the global
         frame) must also be redefined.
 
-        '''
+        """
         self._validate_CFG()
         self._define_segments()
         # must redefine this Segments list,
@@ -261,7 +261,7 @@ class Human(object):
         self.calc_properties()
 
     def _validate_CFG(self):
-        '''Validates the joint angle degrees of freedom against the CFG bounds
+        """Validates the joint angle degrees of freedom against the CFG bounds
         specified in the definition of the human object. Prints an error
         message if there is an issue.
 
@@ -271,7 +271,7 @@ class Human(object):
             True if all configuration variables are okay, False if there is an
             issue
 
-        '''
+        """
         boolval = True
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
@@ -285,16 +285,18 @@ class Human(object):
         return boolval
 
     def _average_limbs(self):
-        '''Called only if symmetric=True (which is the default). The left and
+        """Called only if symmetric=True (which is the default). The left and
         right arms and legs are averaged (the measurements are averaged before
         the code creates yeadon.Solid or yeadon.Segment objects. To be
         perfectly clear, all left and right arms' and legs' lengths,
         perimeters, widths and depths are averaged between corresponding
         left and right measurements.
 
-        '''
+        """
         # make a list of indices to the correct measurements (torso is not
         # averaged)
+        # [21, 38] U [57, 75] are the left limbs.
+        # [39, 57] U [76, 95] are the right limbs.
         leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
         rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
         for i in np.arange(len(leftidxs)):
@@ -304,7 +306,7 @@ class Human(object):
             self.meas[Human.measnames[rightidx[i]]] = avg
 
     def set_CFG(self, varname, value):
-        '''Allows the user to set a single configuration variable in CFG. CFG
+        """Allows the user to set a single configuration variable in CFG. CFG
         is a dictionary that holds all 21 configuration variables. Then, this
         function validates and updates the human model with the new
         configuration variable.
@@ -318,7 +320,7 @@ class Human(object):
                Units are radians.  This value will be validated for joint angle
                limits.
 
-        '''
+        """
         if varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
                     "variable.".format(varname))
@@ -326,7 +328,7 @@ class Human(object):
         self._update_segments()
 
     def set_CFG_dict(self, CFG):
-        '''Allows the user to pass an entirely new CFG dictionary with which
+        """Allows the user to pass an entirely new CFG dictionary with which
         to update the human object. Ensure that the dictionary is of the
         right format (ideally obtain it from a Human object with Human.CFG
         and modify it). After configuration is update, the segments are
@@ -335,7 +337,7 @@ class Human(object):
         CFG : dict
             Stores the 21 joint angles.
 
-        '''
+        """
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -348,10 +350,10 @@ class Human(object):
         self._update_segments()
 
     def calc_properties(self):
-        '''Calculates the mass, center of mass, and inertia tensor of the
+        """Calculates the mass, center of mass, and inertia tensor of the
         human. The quantities are calculated from the segment quantities.
 
-        '''
+        """
         # mass
         self._mass = 0.0;
         for s in self.segments:
@@ -371,15 +373,15 @@ class Human(object):
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
     def print_properties(self):
-        '''Prints human mass, center of mass, and inertia.
+        """Prints human mass, center of mass, and inertia.
 
-        '''
+        """
         print "Mass (kg):", self.mass, "\n"
         print "COM  (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
 
     def translate_coord_sys(self, vec):
-        '''Moves the cooridinate system from the center of the bottom of the
+        """Moves the cooridinate system from the center of the bottom of the
         human's pelvis to a location defined by the input to this method.
         Note that if this method is used along with
         yeadon.Human.rotate_coord_sys, the vector components for the inputs
@@ -393,7 +395,7 @@ class Human(object):
             position of the center of the bottom of the human's torso, with
             respect to the new coordinate system.
 
-        '''
+        """
         newpos = np.zeros( (3,1) )
         newpos[0] = vec[0]
         newpos[1] = vec[1]
@@ -402,7 +404,7 @@ class Human(object):
         self._update_segments()
 
     def rotate_coord_sys(self, varin):
-        '''Rotates the coordinate system. For list or tuple input, the order of
+        """Rotates the coordinate system. For list or tuple input, the order of
         the rotations is x, then, y, then z.
 
         Parameters
@@ -415,7 +417,7 @@ class Human(object):
             For more information, see the inertia.rotate_space_123
             documentation.
 
-        '''
+        """
         if type(varin) == tuple or type(varin) == list:
             rotmat = inertia.rotate_space_123(varin)
         else:
@@ -424,7 +426,7 @@ class Human(object):
         self._update_segments()
 
     def transform_coord_sys(self,vec,rotmat):
-        '''Calls both yeadon.Human.translate_coord_sys and
+        """Calls both yeadon.Human.translate_coord_sys and
         yeadon.Human.rotate_coord_sys.
 
         Parameters
@@ -433,12 +435,12 @@ class Human(object):
             See yeadon.Human.translate_coord_sys
         rotmat
 
-        '''
+        """
         self.translate_coord_sys(vec)
         self.rotate_coord_sys(rotmat)
 
     def combine_inertia(self, objlist):
-        '''Returns the inertia properties of a combination of solids
+        """Returns the inertia properties of a combination of solids
         and/or segments of the human, using the fixed human frame (or the
         modified fixed frame as given by the user). Be careful with inputs:
         do not specify a solid that is part of a segment that you have also
@@ -464,7 +466,7 @@ class Human(object):
             Inertia tensor at the resultantCOM, with axes aligned with the axes
             of the absolute fixed coordinate system.
 
-        '''
+        """
         # preparing to arrange input
         solidkeys = ['s0','s1','s2','s3','s4','s5','s6','s7',
                       'a0','a1','a2','a3','a4','a5','a6',
@@ -521,10 +523,10 @@ class Human(object):
         return self.segments[labels.index(name)]
 
     def draw_mayavi(self, mlabobj=mlab):
-        '''Draws the human in 3D in a new window using MayaVi.
+        """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
-        '''
+        """
         for s in self.segments:
             s.draw_mayavi(mlabobj)
         L = 0.4
@@ -540,11 +542,10 @@ class Human(object):
         #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
         #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
         #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
-        self._draw_mayavi_inertia_ellipsoid(mlabobj)
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""
-        for s in self.Segments:
+        for s in self.segments:
             s._update_mayavi()
 
     def _make_mayavi_cone_pos(self):
@@ -572,27 +573,26 @@ class Human(object):
         return x, y, z
 
     def _draw_mayavi_inertia_ellipsoid(self, mlabobj):
-        '''Draws the inertia ellipsoid centered at the human's center of mass.
-        TODO describe what it is.'''
+        """Draws the inertia ellipsoid centered at the human's center of mass.
+        TODO describe what it is."""
         # First get the eigenvectors and values.
         self._generate_mesh_inertia_ellipsoid()
-        self._mesh = mlabobj.mesh(*self._ellipsoid_mesh_points,
+        self._ellipsoid_mesh = mlabobj.mesh(*self._ellipsoid_mesh_points,
                 color=(1, 1, 1), opacity=0.2)
 
     def _update_mayavi_inertia_ellipsoid(self):
         """Updates the mesh in MayaVi."""
-        self._generate_mesh()
-        self._mesh.mlab_source.set(x=self.mesh_points[0],
-                y=self.mesh_points[1], z=self.mesh_points[2])
+        self._generate_mesh_inertia_ellipsoid()
+        self._ellipsoid_mesh.mlab_source.set(x=self._ellipsoid_mesh_points[0],
+                y=self._ellipsoid_mesh_points[1],
+                z=self._ellipsoid_mesh_points[2])
 
     def _generate_mesh_inertia_ellipsoid(self):
         """Generates a mesh for MayaVi."""
         self._ellipsoid_mesh_points = self._make_inertia_ellipsoid_pos()
 
     def _make_inertia_ellipsoid_pos(self):
-        '''Generates coordinates to be used for 3D visualization purposes.
-
-        '''
+        """Generates coordinates to be used for 3D visualization purposes."""
         eigvals, eigvecs = np.linalg.eig(self.inertia)
         axes = 1.0/np.sqrt(eigvals)
         N = 50
@@ -614,11 +614,11 @@ class Human(object):
         return x, y, z
 
     def draw(self):
-        '''Draws a 3D human by calling the draw methods of all of the segments.
+        """Draws a 3D human by calling the draw methods of all of the segments.
         Drawing is done by the matplotlib library. Currently produces many
         matplotlib warnings, which can be ignored.
 
-        '''
+        """
         fig = plt.figure()
         ax = Axes3D(fig)
         self.P.draw(ax)
@@ -677,7 +677,7 @@ class Human(object):
         plt.show()
 
     def _draw_octant(self, ax, u, v, c):
-        '''Draws an octant of sphere in a matplotlib window (Axes3D library).
+        """Draws an octant of sphere in a matplotlib window (Axes3D library).
         Assists with drawing the center of mass sphere.
 
         Parameters
@@ -689,7 +689,7 @@ class Human(object):
         c : string
             Color
 
-        '''
+        """
         R = 0.05
         x = R * np.outer(np.cos(u), np.sin(v)) + self.center_of_mass[0,0]
         y = R * np.outer(np.sin(u), np.sin(v)) + self.center_of_mass[1,0]
@@ -698,11 +698,11 @@ class Human(object):
                          edgecolor='', color=c)
 
     def _define_torso_solids(self):
-        '''Defines the solids (from solid.py) that create the torso of
+        """Defines the solids (from solid.py) that create the torso of
         the human. This requires the definition of 2D stadium levels using
         the input measurement parameters.
 
-        '''
+        """
 
         meas = self.meas
         # get solid heights from length measurements
@@ -790,11 +790,11 @@ class Human(object):
                 s7h))
 
     def _define_arm_solids(self):
-        '''Defines the solids (from solid.py) that create the arms of the
+        """Defines the solids (from solid.py) that create the arms of the
         human. This requires the definition of 2D stadium levels using the
         input measurement parameters .
 
-        '''
+        """
         meas = self.meas
         # get solid heights from length measurements
         a0h = meas['La2L'] * 0.5
@@ -924,11 +924,11 @@ class Human(object):
                 b6h))
 
     def _define_leg_segments(self):
-        '''Defines the solids (from solid.py) that create the legs of the
+        """Defines the solids (from solid.py) that create the legs of the
         human. This requires the definition of 2D stadium levels using
         the input measurement parameters .
 
-        '''
+        """
         meas = self.meas
         # get solid heights from length measurements
         j0h = meas['Lj1L']
@@ -1095,13 +1095,13 @@ class Human(object):
                 k8h))
 
     def _define_segments(self):
-        '''Define segment objects using previously defined solids.
+        """Define segment objects using previously defined solids.
         This is where the definition of segment position and rotation really
         happens. There are 9 segments. Each segment has a base, located
         at a joint, and an orientation given by the input joint angle
         parameters.
 
-        '''
+        """
         # define all segments
         # pelvis
         Ppos = self.coord_sys_pos
@@ -1203,7 +1203,7 @@ class Human(object):
                                 self._k[7],self._k[8]], (1,0,0))
 
     def scale_human_by_mass(self, measmass):
-        '''Takes a measured mass and scales all densities by that mass so that
+        """Takes a measured mass and scales all densities by that mass so that
         the mass of the human is the same as the mesaured mass. Mass must be
         in units of kilograms to be consistent with the densities used.
 
@@ -1212,7 +1212,7 @@ class Human(object):
         measmass : float
             Measured mass of the human in kilograms.
 
-        '''
+        """
         massratio = measmass / self.mass
         # The following attempts to take care of the unlikely case where the
         # density set is changed after construction of a Human.
@@ -1227,7 +1227,7 @@ class Human(object):
                           2),"self.mass:",round(self.mass, 2))
 
     def _read_measurements(self, fname):
-        '''Reads a measurement input .txt file, in YAML format,  and assigns
+        """Reads a measurement input .txt file, in YAML format,  and assigns
         the measurements to fields in the self.meas dict. This method is called
         by the constructor.
 
@@ -1236,7 +1236,7 @@ class Human(object):
         fname : str
             Filename or path to measurement file.
 
-        '''
+        """
         # initialize measurement conversion factor
         self.measurementconversionfactor = 0
         # open measurement file
@@ -1272,7 +1272,7 @@ class Human(object):
             self.meas[key] = val * self.measurementconversionfactor
 
     def write_measurements(self, fname):
-        '''Writes the keys and values of the self.meas dict to a text file.
+        """Writes the keys and values of the self.meas dict to a text file.
         Units of measurements is meters.
 
         Parameters
@@ -1280,7 +1280,7 @@ class Human(object):
         fname : str
             Filename or path to measurement output .txt file.
 
-        '''
+        """
         # Need to make sure we don't modify self.meas: make shallow copy.
         mydict = copy.copy(self.meas)
         # Add total mass.
@@ -1292,7 +1292,7 @@ class Human(object):
         fid.close()
 
     def write_meas_for_ISEG(self, fname):
-        '''Writes the values of the self.meas dict to a .txt file that is
+        """Writes the values of the self.meas dict to a .txt file that is
         formidable as input to Yeadon's ISEG fortran code that performs
         similar calculations to this package. ISEG is published in Yeadon's
         dissertation.
@@ -1302,7 +1302,7 @@ class Human(object):
         fname : str
             Filename or path for ISEG .txt input file.
 
-        '''
+        """
         fid = open(fname,'w')
         n = self.meas
         m = copy.copy(self.meas)
@@ -1357,7 +1357,7 @@ class Human(object):
         fid.close()
 
     def _read_CFG(self, CFGfname):
-        '''Reads in a text file that contains the joint angles of the human.
+        """Reads in a text file that contains the joint angles of the human.
         There is little error-checking for this. Make sure that the input
         is consistent with template input .txt files, or with the output
         from the :py:meth:`yeadon.Human.write_CFG()` method. Text file is
@@ -1368,7 +1368,7 @@ class Human(object):
         CFGfname : str
             Filename or path to configuration input .txt file.
 
-        '''
+        """
         self.CFG = dict()
         with open(CFGfname, 'r') as fid:
             mydict = yaml.load(fid.read())
@@ -1387,7 +1387,7 @@ class Human(object):
                     "incorrect.".format(len(self.CFG)))
 
     def write_CFG(self, CFGfname):
-        '''Writes the keys and values of the self.CFG dict to a .txt file.
+        """Writes the keys and values of the self.CFG dict to a .txt file.
         Text file is formatted using YAML syntax.
 
         Parameters
@@ -1395,7 +1395,7 @@ class Human(object):
         CFGfname : str
             Filename or path to configuration output .txt file
 
-        '''
+        """
         fid = open(CFGfname, 'w')
         yaml.dump(self.CFG, fid, default_flow_style=False)
         fid.close()

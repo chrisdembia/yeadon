@@ -3,7 +3,7 @@
 from numpy import pi as nppi
 
 from traits.api import HasTraits, Range, Instance, \
-        on_trait_change, Float, Property, File
+        on_trait_change, Float, Property, File, Bool, Button
 from traitsui.api import View, Item, VSplit, HSplit, Group
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
@@ -42,7 +42,11 @@ def _d2r(angle):
 class YeadonGUI(HasTraits):
     ''' TODO '''
 
+    # Input.
     measurement_file_name = File()
+
+    # Drawing options.
+    show_principal_inertia_ellipse = Bool(True)
 
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
@@ -68,6 +72,8 @@ class YeadonGUI(HasTraits):
     J1J2flexion            = Range(   0.0, 180.0, 0.0, **opts)
     K1K2flexion            = Range(   0.0, 180.0, 0.0, **opts)
 
+    reset_configuration = Button()
+
     # Display of Human object properties.
     Ixx = Property(Float, depends_on=sliders)
     Ixy = Property(Float, depends_on=sliders)
@@ -84,12 +90,19 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    meas_group = Group(Item('measurement_file_name'))
+    input_group = Group(Item('measurement_file_name'),
+            label='Input',
+            show_border=True)
+    drawing_group = Group(Item('show_principal_inertia_ellipse'),
+            label='Drawing settings',
+            show_border=True)
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=500, width=500,
         show_label=False))
-    config_group = Group(
+    config_group = VSplit(
+            HSplit(
+                Group(
                     Item('somersalt'),
                     Item('tilt'),
                     Item('twist'),
@@ -97,6 +110,10 @@ class YeadonGUI(HasTraits):
                     Item('PtFrontalFlexion'),
                     Item('TcSpinalTorsion'),
                     Item('TcLateralSpinalFlexion'),
+                    label='Whole-body, pelvis, torso',
+                    show_border=True,
+                    ),
+                Group(
                     Item('CA1elevation'),
                     Item('CA1abduction'),
                     Item('CA1rotation'),
@@ -105,13 +122,24 @@ class YeadonGUI(HasTraits):
                     Item('CB1rotation'),
                     Item('A1A2flexion'),
                     Item('B1B2flexion'),
+                    label='Upper limbs',
+                    show_border=True,
+                    ),
+                Group(
                     Item('PJ1flexion'),
                     Item('PJ1abduction'),
                     Item('PK1flexion'),
                     Item('PK1abduction'),
                     Item('J1J2flexion'),
-                    Item('K1K2flexion')
-                       )
+                    Item('K1K2flexion'),
+                    label='Lower limbs',
+                    show_border=True,
+                    ),
+                ),
+            Item('reset_configuration'),
+            label='Configuration variables',
+            show_border=True,
+            )
 
     inertia_prop = HSplit( # HSplit 2
                     Group(
@@ -134,11 +162,14 @@ class YeadonGUI(HasTraits):
                       Item('x', style='readonly', format_func=format_func),
                       Item('y', style='readonly', format_func=format_func),
                       Item('z', style='readonly', format_func=format_func)
-                         )
-                        ) # end HSplit 2
+                         ),
+                    label='Inertia properties',
+                    show_border=True,
+                    ) # end HSplit 2
     view = View(
             VSplit(
-                meas_group, 
+                input_group, 
+                drawing_group,
                 HSplit(vis_group,
                     VSplit(
                         config_group,
@@ -146,7 +177,7 @@ class YeadonGUI(HasTraits):
                         )
                     ),
                 ),
-            resizable=True
+            resizable=True,
             title='Yeadon human inertia model'
             ) # end View
 
@@ -180,7 +211,12 @@ class YeadonGUI(HasTraits):
         else:
             measurement_file_name = 'Path to measurement input text file.'
         self.H = Human(meas_in if meas_in else self.measPreload)
+        self._init_draw_human()
+
+    def _init_draw_human(self):
         self.H.draw_mayavi(self.scene.mlab)
+        if self.show_principal_inertia_ellipse:
+            self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
 
     def _get_Ixx(self):
         return self.H.inertia[0, 0]
@@ -220,117 +256,177 @@ class YeadonGUI(HasTraits):
 
     @on_trait_change('measurement_file_name')
     def _update_measurement_file_name(self):
-        self.H = Human(self.measurement_file_name)
-        self.H.draw_mayavi(self.scene.mlab)
+        # Must convert to str (from unicode), because Human parses it
+        # differently depending on its type, and there's no consideration for
+        # it being unicode.
+        self.H = Human(str(self.measurement_file_name))
+        self.scene.mlab.clf()
+        self._init_draw_human()
 
+    @on_trait_change('show_principal_inertia_ellipse')
+    def _update_show_principal_inertia_ellipse(self):
+        if self.show_principal_inertia_ellipse:
+            self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
+        else:
+            self.H._ellipsoid_mesh.remove()
+
+    def _maybe_update_inertia_ellipse(self):
+        if self.show_principal_inertia_ellipse:
+            self.H._update_mayavi_inertia_ellipsoid()
+
+    @on_trait_change('reset_configuration')
+    def _update_reset_configuration(self):
+        somersalt              = 0.0 
+        tilt                   = 0.0 
+        twist                  = 0.0 
+        PtSagittalFlexion      = 0.0 
+        PtFrontalFlexion       = 0.0 
+        TcSpinalTorsion        = 0.0 
+        TcLateralSpinalFlexion = 0.0 
+        CA1elevation           = 0.0 
+        CA1abduction           = 0.0 
+        CA1rotation            = 0.0 
+        CB1elevation           = 0.0 
+        CB1abduction           = 0.0 
+        CB1rotation            = 0.0 
+        A1A2flexion            = 0.0 
+        B1B2flexion            = 0.0 
+        PJ1flexion             = 0.0 
+        PJ1abduction           = 0.0 
+        PK1flexion             = 0.0 
+        PK1abduction           = 0.0 
+        J1J2flexion            = 0.0 
+        K1K2flexion            = 0.0 
+        
     @on_trait_change('somersalt')
     def _update_somersalt(self):
         self.H.set_CFG('somersalt', _d2r(self.somersalt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('tilt')
     def _update_tilt(self):
         self.H.set_CFG('tilt', _d2r(self.tilt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('twist')
     def _update_twist(self):
         self.H.set_CFG('twist', _d2r(self.twist))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PtSagittalFlexion')
     def _update_PTsagittalFlexion(self):
         self.H.set_CFG('PTsagittalFlexion', _d2r(self.PtSagittalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PtFrontalFlexion')
     def _update_PTFrontalFlexion(self):
         self.H.set_CFG('PTfrontalFlexion', _d2r(self.PtFrontalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('TcSpinalTorsion')
     def _update_TCSpinalTorsion(self):
         self.H.set_CFG('TCspinalTorsion', _d2r(self.TcSpinalTorsion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('TcLateralSpinalFlexion')
     def _update_TCLateralSpinalFlexion(self):
         self.H.set_CFG('TClateralSpinalFlexion',
                 _d2r(self.TcLateralSpinalFlexion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1elevation')
     def _update_CA1elevation(self):
         self.H.set_CFG('CA1elevation', _d2r(self.CA1elevation))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1abduction')
     def _update_CA1abduction(self):
         self.H.set_CFG('CA1abduction', _d2r(self.CA1abduction))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1rotation')
     def _update_CA1rotation(self):
         self.H.set_CFG('CA1rotation', _d2r(self.CA1rotation))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1elevation')
     def _update_CB1elevation(self):
         self.H.set_CFG('CB1elevation', _d2r(self.CB1elevation))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1abduction')
     def _update_CB1abduction(self):
         self.H.set_CFG('CB1abduction', _d2r(self.CB1abduction))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1rotation')
     def _update_CB1rotation(self):
         self.H.set_CFG('CB1rotation', _d2r(self.CB1rotation))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('A1A2flexion')
     def _update_A1A2flexion(self):
         self.H.set_CFG('A1A2flexion', _d2r(self.A1A2flexion))
         self._update_mayavi(['A2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('B1B2flexion')
     def _update_B1B2flexion(self):
         self.H.set_CFG('B1B2flexion', _d2r(self.B1B2flexion))
         self._update_mayavi(['B2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PJ1flexion')
     def _update_PJ1flexion(self):
         self.H.set_CFG('PJ1flexion', _d2r(self.PJ1flexion))
         self._update_mayavi(['J1', 'J2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PJ1abduction')
     def _update_PJ1abduction(self):
         self.H.set_CFG('PJ1abduction', _d2r(self.PJ1abduction))
         self._update_mayavi(['J1', 'J2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PK1flexion')
     def _update_PK1flexion(self):
         self.H.set_CFG('PK1flexion', _d2r(self.PK1flexion))
         self._update_mayavi(['K1', 'K2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PK1abduction')
     def _update_PK1abduction(self):
         self.H.set_CFG('PK1abduction', _d2r(self.PK1abduction))
         self._update_mayavi(['K1', 'K2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('J1J2flexion')
     def _update_J1J2flexion(self):
         self.H.set_CFG('J1J2flexion', _d2r(self.J1J2flexion))
         self._update_mayavi(['J2'])
+        self._maybe_update_inertia_ellipse()
 
     @on_trait_change('K1K2flexion')
     def _update_K1K2flexion(self):
         self.H.set_CFG('K1K2flexion', _d2r(self.K1K2flexion))
         self._update_mayavi(['K2'])
+        self._maybe_update_inertia_ellipse()
 
     def _update_mayavi(self, segments):
         """Updates all of the segments and solids."""
