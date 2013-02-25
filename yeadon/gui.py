@@ -2,7 +2,7 @@
 
 from numpy import pi as nppi
 
-from traits.api import HasTraits, Range, Instance, \
+from traits.api import HasTraits, TraitValue, Range, Instance, \
         on_trait_change, Float, Property, File, Bool, Button
 from traitsui.api import View, Item, VSplit, HSplit, Group
 
@@ -205,7 +205,7 @@ class YeadonGUI(HasTraits):
     'Lk7p' : 0.252 }
 
     def __init__(self, meas_in=None):
-        HasTraits.__init__(self)
+        HasTraits.__init__(self, trait_value=True)
         if meas_in:
             measurement_file_name = meas_in
         else:
@@ -276,27 +276,30 @@ class YeadonGUI(HasTraits):
 
     @on_trait_change('reset_configuration')
     def _update_reset_configuration(self):
-        somersalt              = 0.0 
-        tilt                   = 0.0 
-        twist                  = 0.0 
-        PtSagittalFlexion      = 0.0 
-        PtFrontalFlexion       = 0.0 
-        TcSpinalTorsion        = 0.0 
-        TcLateralSpinalFlexion = 0.0 
-        CA1elevation           = 0.0 
-        CA1abduction           = 0.0 
-        CA1rotation            = 0.0 
-        CB1elevation           = 0.0 
-        CB1abduction           = 0.0 
-        CB1rotation            = 0.0 
-        A1A2flexion            = 0.0 
-        B1B2flexion            = 0.0 
-        PJ1flexion             = 0.0 
-        PJ1abduction           = 0.0 
-        PK1flexion             = 0.0 
-        PK1abduction           = 0.0 
-        J1J2flexion            = 0.0 
-        K1K2flexion            = 0.0 
+        #print self.trait('somersalt').default
+        #print type(self.trait('somersalt'))
+        #print help(self.trait('somersalt').editor.set)
+        somersalt                   = TraitValue()
+        #tilt                   = TraitValue()
+        #twist                  = TraitValue()
+        #PtSagittalFlexion      = TraitValue()
+        #PtFrontalFlexion       = TraitValue()
+        #TcSpinalTorsion        = TraitValue()
+        #TcLateralSpinalFlexion = TraitValue()
+        #CA1elevation           = TraitValue()
+        #CA1abduction           = TraitValue()
+        #CA1rotation            = TraitValue()
+        #CB1elevation           = TraitValue()
+        #CB1abduction           = TraitValue()
+        #CB1rotation            = TraitValue()
+        #A1A2flexion            = TraitValue()
+        #B1B2flexion            = TraitValue()
+        #PJ1flexion             = TraitValue()
+        #PJ1abduction           = TraitValue()
+        #PK1flexion             = TraitValue()
+        #PK1abduction           = TraitValue()
+        #J1J2flexion            = TraitValue()
+        #K1K2flexion            = TraitValue()
         
     @on_trait_change('somersalt')
     def _update_somersalt(self):
