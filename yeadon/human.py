@@ -425,7 +425,7 @@ class Human(object):
         self.coord_sys_orient = rotmat
         self._update_segments()
 
-    def transform_coord_sys(self,vec,rotmat):
+    def transform_coord_sys(self, vec, rotmat):
         """Calls both yeadon.Human.translate_coord_sys and
         yeadon.Human.rotate_coord_sys.
 
@@ -438,6 +438,20 @@ class Human(object):
         """
         self.translate_coord_sys(vec)
         self.rotate_coord_sys(rotmat)
+
+    def inertia_transformed(self, pos=None, rotmat=None):
+        """Returns an inertia tensor about `pos` and in the frame given by
+        `rotmat` relative to the global frame. If N is the global frame, B is
+        the name given by rotmat = ^{B}R^{N}, and pos = r^{P/N0}, this method
+        returns ^{B}I^{H/P}.
+
+        pos : list or tuple (3,)
+            Position in the global coordinate system to the point about which
+            the user desires the inertia tensor.
+        rotmat : np.matrix (3,3)
+
+        """
+        pass
 
     def combine_inertia(self, objlist):
         """Returns the inertia properties of a combination of solids
