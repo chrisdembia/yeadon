@@ -2,8 +2,8 @@ Overview
 ========
 
 This package calculates the masses, center of mass positions, and inertia
-tensors that correspond to the human inertia model developed by Yeadon
-in (Yeadon, 1990). The package allows for the input of both measurements and
+tensors that correspond to the human inertia model developed by Yeadon in
+(Yeadon, 1990). The package allows for the input of both measurements and
 configuration variables (joint angles), and provides 3D visualization using the
 MayaVi package. See the online documentation at
 `<http://pythonhosted.org/yeadon>`_.
@@ -59,27 +59,28 @@ The dependencies can also be obtained easily from your operating system's
 package manager. For example, in Debian systems, you should be able to obtain
 all of these packages by opening a terminal window (CTRL-ALT-T) and typing::
 
-    $ # use sudo if system install is desired
-    $ apt-get install python-distribute python-numpy python-yaml # required
-    $ apt-get install python-nose python-sphinx mayavi2 # optional packages
-    $ easy_install numpydoc
+   $ # use sudo if system install is desired
+   $ apt-get install python-distribute python-numpy python-yaml # required
+   $ apt-get install python-nose python-sphinx mayavi2 # optional packages
+   $ easy_install numpydoc # only on PyPi
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
 
-The easiest way to download and install the package is by using a tool like
-`pip` to get the package from PyPi::
+The easiest way to download and install the yeadon package is by using a tool
+like `pip` to get the package from PyPi::
 
-    $ pip install yeadon # sudo if system install
+   $ easy_install pip
+   $ pip install yeadon # sudo if system install
 
 An alternative for downloading and installing on a Unix system that does not
 rely on a tool like `pip` is as follows::
 
-    $ # change X.X.X to the desired version
-    $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
-    $ tar -zxfv yeadon-X.X.X.tar.gz
-    $ cd yeadon-X.X.X.tar.gz
-    $ python setup.py install # sudo if system install
+   $ # change X.X.X to the desired version
+   $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
+   $ tar -zxfv yeadon-X.X.X.tar.gz
+   $ cd yeadon-X.X.X.tar.gz
+   $ python setup.py install # sudo if system install
 
 Both of these options assume that your default Python interpreter is version
 2.7.
@@ -92,10 +93,10 @@ Building the documentation
 ==========================
 
 You can build the yeadon HTML documentation if you have Sphinx by typing the
-following from the `yeadon` directory::
+following from the root directory of the yeadon source files::
 
-    $ cd doc/
-    $ make html
+   $ cd doc/
+   $ make html
 
 You can open the documentation in your favorite web browser::
 
@@ -103,8 +104,8 @@ You can open the documentation in your favorite web browser::
 
 If you have a LaTeX distribution installed you can build the LaTeX docs with::
 
-    $ cd doc/
-    $ make latexpdf
+   $ cd doc/
+   $ make latexpdf
 
 and view the document with your preferred PDF viewer::
 
@@ -120,38 +121,39 @@ Once the package is installed you can start the program with::
 
    $ yeadon
 
-If you have MayaVi installed, the GUI will launch. If you don't, the text
-based UI will launch. You can specify whether you want to load the GUI or the UI
-with these flags::
+If you have MayaVi installed, the GUI will launch. If you don't, the text based
+UI will launch. You can explicitly specify whether you want to load the GUI or
+the UI with these flags::
 
    $ yeadon --gui
    $ yeadon --ui
 
 You can also interact with yeadon in a Python interpreter session or Python
-script/module via the API by importing the package with::
+script/module via the API by importing the package. For example::
 
-    >>> import yeadon
+   $ python
+   >>> import yeadon
 
 Now you can create a human object with::
 
-    >>> human = yeadon.Human(<measfilename>, <CFGfilename>)
+   >>> human = yeadon.Human(<measfilename>, <CFGfilename>)
 
 where `<measfilename>` and `<CFGfilename>` are replaced by strings that contain
 a relative or absolute path to the appropriate input `.txt` files. For more
 basics on how to use a human object, you can go into a python command prompt and
 type::
 
-    >>> help(yeadon.Human)
+   >>> help(yeadon.Human)
 
 or see the documentation.
 
 You can also start the UI or the GUI by executing::
 
-    >>> yeadon.start_ui()
+   >>> yeadon.start_ui()
 
 or::
 
-    >>> yeadon.start_gui()
+   >>> yeadon.start_gui()
 
 within a Python interpreter. See the HTML or PDF documentation for more
 information.
