@@ -33,10 +33,11 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 1-2-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982
+    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # presented)
     C = mat([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
              [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
-                   [s2, -s1 * c2, c1 * c2]])
+             [s2, -s1 * c2, c1 * c2]])
 
     if display:
         print "body-three 1-2-3"
@@ -60,7 +61,8 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 3-1-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982
+    # Likins, Levinson, 1982 page 424 (this is the inverse of what is
+    # presented)
     C = mat([[-s1 * c2 * s3 + c3 * c1, c1 * c2 * s3 + c3 *s1, s2 *s3],
              [-s1 * c2 * c3 - s3 * c1, c1 * c2 * c3 - s3 * s1, s2 * c3],
              [s1 * s2, -c1 * s2, c2]])
@@ -86,7 +88,9 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body-three 1-3-2 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982
+    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # presented)
+
     C = mat([[c2 * c3, c1 * s2 * c3 + s3 * s1, s1 * s2 * c3 - s3 * c1],
              [-s2, c1 * c2, s1 * c2],
              [c2 * s3, c1 * s2 * s3 - c3 * s1, s1 * s2 * s3 + c3 * c1]])
@@ -113,7 +117,9 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 2-1-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982
+    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # presented)
+
     C = mat([[s1 * s2 * s3 + c3 * c1, c2 * s3, c1 * s2 * s3 - c3 * s1],
              [s1 * s2 * c3 - s3 * c1, c2 * c3, c1 * s2 * c3 + s3 * s1],
              [s1 * c2, -s2, c1 * c2]])
