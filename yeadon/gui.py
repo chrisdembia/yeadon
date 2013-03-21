@@ -50,6 +50,7 @@ class YeadonGUI(HasTraits):
 
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
+    # TODO: set these limits with the CFG bounds stored in the human class
     somersalt              = Range(-180.0, 180.0, 0.0, **opts)
     tilt                   = Range(-180.0, 180.0, 0.0, **opts)
     twist                  = Range(-180.0, 180.0, 0.0, **opts)

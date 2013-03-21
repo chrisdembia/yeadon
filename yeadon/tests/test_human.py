@@ -148,7 +148,7 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h.segments[10], h.K2)
 
         # Ensure mass is unchanged from what it should be.
-        testing.assert_almost_equal(h.mass, 
+        testing.assert_almost_equal(h.mass,
                 h.P.mass + h.T.mass + h.C.mass + h.A1.mass + h.A2.mass +
                 h.B1.mass + h.B2.mass + h.J1.mass + h.J2.mass +
                 h.K1.mass + h.K2.mass)
@@ -671,16 +671,16 @@ class TestHuman(unittest.TestCase):
 
         os.remove(path)
 
-    def test_translate_coord_sys(self):
-        """Just translates once and makes sure only COM changes."""
-        h = hum.Human(self.male1meas)
-        h2 = hum.Human(self.male1meas)
-        h2.translate_coord_sys([1, 2, 3])
-
-        testing.assert_almost_equal(h2.mass, h.mass)
-        testing.assert_allclose(h2.center_of_mass,
-                h.center_of_mass + np.array([[1], [2], [3]]))
-        testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
+    #def test_translate_coord_sys(self):
+        #"""Just translates once and makes sure only COM changes."""
+        #h = hum.Human(self.male1meas)
+        #h2 = hum.Human(self.male1meas)
+        #h2.translate_coord_sys([1, 2, 3])
+#
+        #testing.assert_almost_equal(h2.mass, h.mass)
+        #testing.assert_allclose(h2.center_of_mass,
+                #h.center_of_mass + np.array([[1], [2], [3]]))
+        #testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
@@ -789,6 +789,101 @@ class TestHuman(unittest.TestCase):
         rotmat = inertia.rotate_space_123((0, 0, angle))
         inertia_post = h.inertia_transformed(rotmat=rotmat)
 
+    def test_lower_torso_rotations(self):
+        """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
+        lower torso, this is somersalt-tilt-twist relative to the inertial
+        reference frame."""
+
+        h = hum.Human(self.male1meas)
+
+        # specify some arbitrary angles
+        somersalt = pi / 5.0
+        tilt = pi / 10.0
+        twist = pi / 14.0
+
+        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('tilt', tilt)
+        h.set_CFG('twist', twist)
+
+        # Now manually calculate the rotation matrix for Euler 1-2-3 using the
+        # inerita.euler_rotation function. Yeadon starts with the I frame
+        # (inertial) and rotates the F frame (attached to P) through the body
+        # fixed 123 angles. The euler_rotation function defines R as:
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation.
+
+        # R = rot_mat.T
+
+        testing.assert_almost_equal(h.P.rot_mat, R.T)
+
+        # Yeadon presents this rotation matrix on page 3 of his first paper,
+        # but it has two errors. The entry Sfi[1, 0] should be `+ sin(phi)`
+        # instead of `+ sin(theta)` and the entry Sfi[1, 1] should be
+        # `cos(phi)cos(psi) -` instead of `cos(theta)cos(psi) -`. The following
+        # is the matrix with the error corrected. His definition of the
+        # rotation matrix is:
+
+        # v_i = Sfi * v_f
+
+        # which is the inverse of the definition in the euler_rotation
+        # function (i.e. the same as Chris's definition)
+
+        phi = somersalt
+        theta = tilt
+        psi = twist
+
+        cph = np.cos(phi)
+        sph = np.sin(phi)
+        cth = np.cos(theta)
+        sth = np.sin(theta)
+        cps = np.cos(psi)
+        sps = np.sin(psi)
+
+        Sfi = np.mat(
+            [[cth * cps, -cth * sps, sth],
+             [cph * sps + sph * sth * cps,
+              cph * cps - sph * sth * sps,
+              -sph * cth],
+             [sph * sps - cph * sth * cps,
+              sph * cps + cph * sth * sps,
+              cph * cth]])
+
+        testing.assert_almost_equal(h.P.rot_mat, Sfi)
+
+    def test_shoulder_rotation(self):
+        """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
+        left arm, A, this is elevation-abduction-rotation relative to the C
+        body (shoulders/head)."""
+
+        h = hum.Human(self.male1meas)
+
+        elevation = pi / 5.0
+        abduction = pi - pi / 10.0
+        rotation = pi / 14.0
+
+        h.set_CFG('CA1elevation', elevation)
+        h.set_CFG('CA1abduction', abduction)
+        h.set_CFG('CA1rotation', rotation)
+
+        # now we should manually calculate the rotation matrix for Euler 1-2-3
+        # Yeadon starts with the C frame and rotates the F frame
+        # (attached to P) through the body fixed 123 angles.
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation
+
+        testing.assert_almost_equal(h.A1.rot_mat, R.T)
 
 
 # TODO compare ISEG output to our output.
@@ -801,4 +896,3 @@ class TestHuman(unittest.TestCase):
 # with more false stadia than we would otherwise, but if we don't average
 # the measurements, how do we draw?
 # TODO translating the entire human: check resulting inertia properties.
-
