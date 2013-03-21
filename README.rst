@@ -4,11 +4,9 @@ Overview
 This package calculates the masses, center of mass positions, and inertia
 tensors that correspond to the human inertia model developed by Yeadon
 in (Yeadon, 1990). The package allows for the input of both measurements and
-configuration variables (joint angles), and provides 3D graphical output
-using the VPython package.
-
-The package was developed on a Linux Ubuntu personal computer, and so this
-README has that bent to it.
+configuration variables (joint angles), and provides 3D visualization using the
+MayaVi package. See the online documentation at
+`http://pythonhosted.org/yeadon/`_.
 
 References
 ==========
@@ -19,9 +17,10 @@ Model of the Human Body. Journal of Biomechanics, 23:67-74.
 Directories
 ===========
 
-- ``yeadon/`` contains the python source files for the yeadon package
+- ``yeadon/`` contains the python source files for the yeadon package.
 - ``doc/`` contains source documents for building sphinx documentation.
-- ``/misc/samplemeasurements`` contains two template input .txt files
+- ``misc/`` contains figures and template input files.
+- ``misc/samplemeasurements/`` contains sample measurement input files.
 
 Installing
 ==========
@@ -43,7 +42,7 @@ The following packages are optional:
 - MayaVi_ used for pretty visualization and GUI interaction
 - nose_ used for unit tests
 - Sphinx_  needed to create documentation
-- numpydoc_ sphinx extension for NumPy style doc formatting
+- numpydoc_ sphinx extension for NumPy-style documentation formatting
 
 .. _MayaVi: http://mayavi.sourceforge.net
 .. _nose: https://nose.readthedocs.org
@@ -66,9 +65,14 @@ all of these packages by opening a terminal window (CTRL-ALT-T) and typing::
     $ easy_install numpydoc
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
-packages, given above for installation instructions.
+packages for installation instructions.
 
-Now download the yeadon package, decompress it, and install with::
+The easiest way to download and install the package is by using a tool like `pip` to get the package from PyPi::
+
+    $ pip install yeadon # sudo if system install
+
+An alternative for downloading and installing on a Unix system that does not
+rely on a tool like `pip` is as follows::
 
     $ # change X.X.X to the desired version
     $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
@@ -76,23 +80,18 @@ Now download the yeadon package, decompress it, and install with::
     $ cd yeadon-X.X.X.tar.gz
     $ python setup.py install # sudo if system install
 
-or simply use a tool like `pip` to download and install from PyPi::
-
-    $ apt-get install python-pip
-    $ pip install yeadon # sudo if system install
-
-This assumes that your default Python interpreter is version 2.7.
+Both of these options assume that your default Python interpreter is version
+2.7.
 
 Building the documentation
 ==========================
 
-You can build (create) the yeadon HTML documentation if you have Sphinx (see
-above) by typing::
+You can build the yeadon HTML documentation if you have Sphinx by typing the following from the `yeadon` directory::
 
     $ cd doc/
     $ make html
 
-and then open it in your favorite web browser::
+You can open the documentation in your favorite web browser::
 
    $ firefox _build/html/index.html
 
@@ -101,7 +100,7 @@ If you have a LaTeX distribution installed you can build the LaTeX docs with::
     $ cd doc/
     $ make latexpdf
 
-and view the document with your preferred pdf viewer::
+and view the document with your preferred PDF viewer::
 
    $ evince _build/latex/yeadon.pdf
 
@@ -115,7 +114,7 @@ Once the package is installed you can start the program with::
 
    $ yeadon
 
-If you have MayaVi installed, the GUI will launch and if you don't the text
+If you have MayaVi installed, the GUI will launch. If you don't, the text
 based UI will launch. You can specify whether you want to load the GUI or the UI
 with these flags::
 
@@ -148,7 +147,8 @@ or::
 
     >>> yeadon.start_gui()
 
-See the HTML or PDF documentation for more information.
+within a Python interpreter. See the HTML or PDF documentation for more
+information.
 
 Contact
 =======
@@ -156,5 +156,5 @@ Contact
 Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
 comments.
 
-All development is handled at http://github.com/fitze/yeadon, including issue
+All development is handled at `http://github.com/fitze/yeadon`_, including issue
 tracking.
