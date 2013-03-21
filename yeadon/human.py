@@ -32,16 +32,15 @@ from __future__ import division
 import copy
 
 import numpy as np
+import yaml
 try:
     from mayavi import mlab
 except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
           "cannot use the draw_mayavi() member functions."
-import yaml
 
 import inertia
-
 import solid as sol
 import segment as seg
 
@@ -528,26 +527,31 @@ class Human(object):
         labels = [s.label[0:len(name)] for s in self.segments]
         return self.segments[labels.index(name)]
 
-    def draw_mayavi(self, mlabobj=mlab):
+    def draw_mayavi(self, mlabobj=None):
         """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
         """
-        for s in self.segments:
-            s.draw_mayavi(mlabobj)
-        L = 0.4
-        x_cone, y_cone, z_cone = self._make_mayavi_cone_pos()
-        mlabobj.mesh(x_cone, y_cone, z_cone + L, color=(0, 0, 1))
-        mlabobj.mesh(x_cone, z_cone + L, y_cone, color=(0, 1, 0))
-        mlabobj.mesh(z_cone + L, x_cone, y_cone, color=(1, 0, 0))
-        x_cyl, y_cyl, z_cyl = self._make_mayavi_cyl_pos()
-        mlabobj.mesh(x_cyl, y_cyl, z_cyl, color=(0, 0, 1))
-        mlabobj.mesh(x_cyl, z_cyl, y_cyl, color=(0, 1, 0))
-        mlabobj.mesh(z_cyl, x_cyl, y_cyl, color=(1, 0, 0))
-        #x_plate,  y_plate, z_plate = self._make_mayavi_plate_pos()
-        #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
-        #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
-        #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
+        try:
+            mlabobj = mlab
+        except NameError:
+            raise('MayaVi is not installed, this method is not available.')
+        else:
+            for s in self.segments:
+                s.draw_mayavi(mlabobj)
+            L = 0.4
+            x_cone, y_cone, z_cone = self._make_mayavi_cone_pos()
+            mlabobj.mesh(x_cone, y_cone, z_cone + L, color=(0, 0, 1))
+            mlabobj.mesh(x_cone, z_cone + L, y_cone, color=(0, 1, 0))
+            mlabobj.mesh(z_cone + L, x_cone, y_cone, color=(1, 0, 0))
+            x_cyl, y_cyl, z_cyl = self._make_mayavi_cyl_pos()
+            mlabobj.mesh(x_cyl, y_cyl, z_cyl, color=(0, 0, 1))
+            mlabobj.mesh(x_cyl, z_cyl, y_cyl, color=(0, 1, 0))
+            mlabobj.mesh(z_cyl, x_cyl, y_cyl, color=(1, 0, 0))
+            #x_plate,  y_plate, z_plate = self._make_mayavi_plate_pos()
+            #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
+            #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
+            #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""
