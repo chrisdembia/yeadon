@@ -49,8 +49,9 @@ The following packages are optional:
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pythonhosted.org/numpydoc
 
-In Debian systems, you may be able to obtain some of these packages by opening
-a terminal window (CTRL-ALT-T) and typing the following lines for the required and optional packages, respectively::
+On Debian systems, you may be able to obtain some of these packages by opening
+a terminal window and typing the following lines for the required
+and optional packages, respectively::
 
     $ apt-get install python-setuptools python-distribute python-numpy python-yaml
     $ apt-get install python-nose python-sphinx mayavi2
