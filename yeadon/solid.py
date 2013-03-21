@@ -449,19 +449,28 @@ class StadiumSolid(Solid):
         Z = Z + self.pos[2]
         return X, Y, Z
 
+    @staticmethod
     def _F1(self,a,b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
+
+    @staticmethod
     def _F2(self,a,b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
+
+    @staticmethod
     def _F3(self,a,b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
+
+    @staticmethod
     def _F4(self,a,b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
+
+    @staticmethod
     def _F5(self,a,b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
