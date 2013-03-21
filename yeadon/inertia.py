@@ -97,22 +97,22 @@ def rotate_space_123(angles):
 
 def euler_123(angles):
     """
-    Returns the direction cosine matrix as a function of the Euler 123 angles
-    (body fixed rotation).
+    Returns the direction cosine matrix of rotated frame B with respect to
+    frame A as a function of the Euler 123 angles (body fixed rotation).
 
     Parameters
     ----------
-    angles : numpy.array or list or tuple, shape(3,)
+    angles : array_like, shape(3,)
         Three angles (in units of radians) that specify the orientation of a
-        new reference frame with respect to a fixed reference frame. The first
-        angle, phi, is a rotation about the fixed frame's x-axis. The second
-        angle, theta, is a rotation about the new y-axis (which is realized
-        after the phi rotation). The third angle, psi, is a rotation about the
-        new z-axis (which is realized after the theta rotation). Thus, all
-        three angles are "relative" rotations with respect to the new frame.
-        Note: if the rotations are viewed as occuring in the opposite direction
-        (z, then y, then x), all three rotations are with respect to the
-        initial fixed frame rather than "relative".
+        new reference frame, B, with respect to a fixed reference frame, A. The
+        first angle, phi, is a rotation about the fixed frame's x-axis. The
+        second angle, theta, is a rotation about the new y-axis (which is
+        realized after the phi rotation). The third angle, psi, is a rotation
+        about the new z-axis (which is realized after the theta rotation).
+        Thus, all three angles are "relative" rotations with respect to each
+        new frame.  Note: if the rotations are viewed as occuring in the
+        opposite direction (z, then y, then x), all three rotations are with
+        respect to the initial fixed frame rather than "relative".
 
     Returns
     -------
@@ -128,14 +128,23 @@ def euler_123(angles):
 
     where
 
-    s1, s2, s3 = sine of the first, second and third angles, respectively
-    c1, c2, c3 = cosine of the first, second and third angles, respectively
+    s1, s2, s3 = sine of the first, second, and third angles, respectively
+    c1, c2, c3 = cosine of the first, second, and third angles, respectively
 
     So the unit vector b1 in the B frame can be expressed in the A frame (unit
     vectors a1, a2, a3) with:
 
     b1 = c2 * c3 * a1 + (s1 * s2 * c3 + s3 * c1) * a2 +
          (-c1 * c2 * c3 + s3 * s1) * a3
+
+    The rotation matrix is defined such that a R times a vector v_b in the
+    rotated reference frame equals the same vector, v_a, expressed in the
+    unrotated reference frame.
+
+        R * v_b = v_a
+
+    Where v_a is the vector expressed in the original fixed reference frame and
+    v_b is the same vector expressed in the rotated reference frame.
 
     """
 
@@ -186,6 +195,18 @@ def rotate3_inertia(rot_mat, relInertia):
     -------
     Inertia : numpy.matrix, shape(3,3)
         Inertia tensor with respect to a fixed coordinate system ("unrotated").
+
+    Notes
+    -----
+
+    This function expects that the rotation matrix is defined such that R times
+    a vector v_b in the rotated reference frame equals the same vector, v_a,
+    expressed in the unrotated reference frame.
+
+        R * v_b = v_a
+
+    Where v_a is the vector expressed in the original fixed reference frame and
+    v_b is the same vector expressed in the rotated reference frame.
 
     """
     return rot_mat * relInertia * rot_mat.T
@@ -358,9 +379,10 @@ def euler_rotation(angles, order):
     Examples
     --------
     >>> import numpy as np
-    >>> from dtk.inertia import euler_rotation
-    >>> angles = [np.pi, np.pi / 2., -np.pi / 4.]
-    >>> rotMat = euler_rotation(angles, (3, 1, 3))
+    >>> from yeadon.inertia import euler_rotation
+    >>> angles = (np.pi, np.pi / 2., -np.pi / 4.)
+    >>> order = (3, 1, 3)
+    >>> rotMat = euler_rotation(angles, order)
     >>> rotMat
     matrix([[ -7.07106781e-01,   1.29893408e-16,  -7.07106781e-01],
             [ -7.07106781e-01,   4.32978028e-17,   7.07106781e-01],
