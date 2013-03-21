@@ -135,8 +135,11 @@ class Stadium(object):
                 self._set_as_circle(in1 / (2.0 * np.pi))
                 print "Fix: stadium set as circle with perimeter as given."
             elif inID == 'depthwidth':
-                self._set_as_circle(2 * in2)
+                self._set_as_circle(0.5 * in2)
                 print "Fix: stadium set as circle with diameter of given width."
+            else:
+                raise ValueError("Negative radius/thickness cannot be "
+                        "corrected.")
         if alignment != 'AP' and alignment != 'ML':
             raise ValueError("Error: stadium " + self.label +
                 " alignment is not valid, must be either AP or ML")

@@ -211,10 +211,10 @@ class TestStadium(unittest.TestCase):
             stad = Stadium('Lb1: mid-arm', 'depthwidth', depth, width)
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)
-            testing.assert_almost_equal(stad.perimeter, 1.9)
-            testing.assert_almost_equal(stad.radius, 1.9 / (2.0 * pi))
+            testing.assert_almost_equal(stad.perimeter, pi * width )
+            testing.assert_almost_equal(stad.radius, 0.5 * width)
             testing.assert_almost_equal(stad.thickness, 0.0)
-            testing.assert_almost_equal(stad.width, 1.9 / pi)
+            testing.assert_almost_equal(stad.width, width)
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -222,19 +222,33 @@ class TestStadium(unittest.TestCase):
             stad = Stadium('Lb1: mid-arm', 'depthwidth', depth, width)
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)
-            testing.assert_almost_equal(stad.perimeter, 3.15)
-            testing.assert_almost_equal(stad.radius, 3.15 / (2.0 * pi))
+            testing.assert_almost_equal(stad.perimeter, pi * width )
+            testing.assert_almost_equal(stad.radius, 0.5 * width)
             testing.assert_almost_equal(stad.thickness, 0.0)
-            testing.assert_almost_equal(stad.width, 3.15 / pi)
+            testing.assert_almost_equal(stad.width, width)
 
-        Stadium('Lb1: mid-arm', 'thicknessradius', -.1, -.5)
-        Stadium('Lb1: mid-arm', 'thicknessradius', 1.0, -.3)
-        Stadium('Lb1: mid-arm', 'thicknessradius', 1.0, -.3)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', -.1, -.5)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', 1.0, -.3)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', -.1, 2)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
 
         # Radius cannot be zero.
         self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
-            'thicknessradius', -.1, 0)
-        Stadium('Lb1: mid-arm', 'thicknessradius', -.1, 2)
+                'thicknessradius', -.1, 0)
         self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
                 'thicknessradius', 0, 0)
 
