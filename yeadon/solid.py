@@ -556,28 +556,6 @@ class Semiellipsoid(Solid):
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
 
-    def draw(self,ax,c):
-        '''Draws semiellipsoid using matplotlib's mplot3d library. Plotted with
-        a non-one value for alpha. Also places the solid's label near the
-        center of mass of the solid. Plots coordinate axes of the solid at the
-        base of the solid. Code is modified from matplotlib documentation for
-        mplot3d.
-
-        Parameters
-        ----------
-        ax : plt.Axes3D
-            Matplotlib axes to draw upon.
-         c : str
-            Color (e.g. 'red').
-
-        '''
-        x, y, z = self._make_pos()
-        ax.plot_surface( x, y, z, rstride=4, cstride=4,
-                         color=c, alpha=Solid.alpha , edgecolor='')
-        (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.center_of_mass[0], self.center_of_mass[1],
-                self.center_of_mass[2], labelstring)
-
     def draw_mayavi(self, mlabobj, col):
         '''Draws the semiellipsoid in 3D using MayaVi.
 
