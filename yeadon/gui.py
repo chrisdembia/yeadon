@@ -276,30 +276,8 @@ class YeadonGUI(HasTraits):
 
     @on_trait_change('reset_configuration')
     def _update_reset_configuration(self):
-        #print self.trait('somersalt').default
-        #print type(self.trait('somersalt'))
-        #print help(self.trait('somersalt').editor.set)
-        somersalt                   = TraitValue()
-        #tilt                   = TraitValue()
-        #twist                  = TraitValue()
-        #PtSagittalFlexion      = TraitValue()
-        #PtFrontalFlexion       = TraitValue()
-        #TcSpinalTorsion        = TraitValue()
-        #TcLateralSpinalFlexion = TraitValue()
-        #CA1elevation           = TraitValue()
-        #CA1abduction           = TraitValue()
-        #CA1rotation            = TraitValue()
-        #CB1elevation           = TraitValue()
-        #CB1abduction           = TraitValue()
-        #CB1rotation            = TraitValue()
-        #A1A2flexion            = TraitValue()
-        #B1B2flexion            = TraitValue()
-        #PJ1flexion             = TraitValue()
-        #PJ1abduction           = TraitValue()
-        #PK1flexion             = TraitValue()
-        #PK1abduction           = TraitValue()
-        #J1J2flexion            = TraitValue()
-        #K1K2flexion            = TraitValue()
+        for cfg in sliders:
+            setattr(self, cfg, self.trait(cfg).default_value()[1])
         
     @on_trait_change('somersalt')
     def _update_somersalt(self):
