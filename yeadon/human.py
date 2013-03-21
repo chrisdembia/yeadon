@@ -46,21 +46,21 @@ import solid as sol
 import segment as seg
 
 class Human(object):
-    measnames = ('Ls1L','Ls2L','Ls3L','Ls4L','Ls5L','Ls6L','Ls7L',
-                 'Ls8L','Ls0p','Ls1p','Ls2p','Ls3p','Ls5p','Ls6p',
-                 'Ls7p','Ls0w','Ls1w','Ls2w','Ls3w','Ls4w','Ls4d',
-                 'La2L','La3L','La4L','La5L','La6L','La7L','La0p',
-                 'La1p','La2p','La3p','La4p','La5p','La6p','La7p',
-                 'La4w','La5w','La6w','La7w',
-                 'Lb2L','Lb3L','Lb4L','Lb5L','Lb6L','Lb7L','Lb0p',
-                 'Lb1p','Lb2p','Lb3p','Lb4p','Lb5p','Lb6p','Lb7p',
-                 'Lb4w','Lb5w','Lb6w','Lb7w',
-                 'Lj1L','Lj3L','Lj4L','Lj5L','Lj6L','Lj8L','Lj9L',
-                 'Lj1p','Lj2p','Lj3p','Lj4p','Lj5p','Lj6p','Lj7p',
-                 'Lj8p','Lj9p','Lj8w','Lj9w','Lj6d',
-                 'Lk1L','Lk3L','Lk4L','Lk5L','Lk6L','Lk8L','Lk9L',
-                 'Lk1p','Lk2p','Lk3p','Lk4p','Lk5p','Lk6p','Lk7p',
-                 'Lk8p','Lk9p','Lk8w','Lk9w','Lk6d')
+    measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
+                 'Ls8L', 'Ls0p', 'Ls1p', 'Ls2p', 'Ls3p', 'Ls5p', 'Ls6p',
+                 'Ls7p', 'Ls0w', 'Ls1w', 'Ls2w', 'Ls3w', 'Ls4w', 'Ls4d', 
+                 'La2L', 'La3L', 'La4L', 'La5L', 'La6L', 'La7L', 'La0p', 
+                 'La1p', 'La2p', 'La3p', 'La4p', 'La5p', 'La6p', 'La7p', 
+                 'La4w', 'La5w', 'La6w', 'La7w', 
+                 'Lb2L', 'Lb3L', 'Lb4L', 'Lb5L', 'Lb6L', 'Lb7L', 'Lb0p', 
+                 'Lb1p', 'Lb2p', 'Lb3p', 'Lb4p', 'Lb5p', 'Lb6p', 'Lb7p', 
+                 'Lb4w', 'Lb5w', 'Lb6w', 'Lb7w', 
+                 'Lj1L', 'Lj3L', 'Lj4L', 'Lj5L', 'Lj6L', 'Lj8L', 'Lj9L', 
+                 'Lj1p', 'Lj2p', 'Lj3p', 'Lj4p', 'Lj5p', 'Lj6p', 'Lj7p', 
+                 'Lj8p', 'Lj9p', 'Lj8w', 'Lj9w', 'Lj6d', 
+                 'Lk1L', 'Lk3L', 'Lk4L', 'Lk5L', 'Lk6L', 'Lk8L', 'Lk9L', 
+                 'Lk1p', 'Lk2p', 'Lk3p', 'Lk4p', 'Lk5p', 'Lk6p', 'Lk7p', 
+                 'Lk8p', 'Lk9p', 'Lk8w', 'Lk9w', 'Lk6d')
 
     CFGnames = ('somersalt',
                 'tilt',
