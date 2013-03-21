@@ -168,7 +168,7 @@ class YeadonGUI(HasTraits):
                     ) # end HSplit 2
     view = View(
             VSplit(
-                input_group, 
+                input_group,
                 drawing_group,
                 HSplit(vis_group,
                     VSplit(

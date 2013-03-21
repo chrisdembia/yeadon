@@ -19,10 +19,9 @@ Model of the Human Body. Journal of Biomechanics, 23:67-74.
 Directories
 ===========
 
-- ``yeadon/`` is the root directory of this package
-- ``/`` contains two template input .txt files
-- ``doc/`` contains source documents for building sphinx documentation.
 - ``yeadon/`` contains the python source files for the yeadon package
+- ``doc/`` contains source documents for building sphinx documentation.
+- ``/misc/samplemeasurements`` contains two template input .txt files
 
 Installing
 ==========
@@ -30,87 +29,114 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-- setuptools_ or distribute_ for installation
-- NumPy_ (debian: python-numpy)
-- YAML_ (debian: python-yaml)
-- mayavi_ optional, used for pretty visualization
-- Sphinx_  optional, needed to create documentation (debian: python-sphinx)
-- numpydoc_ optional, sphinx extension for NumPy style doc formatting
+- setuptools_ or distribute_ for installation, distribute is preferred
+- NumPy_ basic array manipulations and computations
+- PyYAML_ used for the input files
 
-.. _setuptools: http://pypi.python.org/pypi/setuptools
-.. _distribute: http://pypi.python.org/pypi/distribute
-.. _Numpy: http://numpy.scipy.org
-.. _YAML: http://www.yaml.org/
+.. _setuptools: http://pythonhosted.org/setuptools
+.. _distribute: http://pytonhosted.org/distribute
+.. _NumPy: http://numpy.scipy.org
+.. _PyYAML: http://pyyaml.org
+
+The following packages are optional:
+
+- MayaVi_ used for pretty visualization and GUI interaction
+- nose_ used for unit tests
+- Sphinx_  needed to create documentation
+- numpydoc_ sphinx extension for NumPy style doc formatting
+
 .. _MayaVi: http://mayavi.sourceforge.net
+.. _nose: https://nose.readthedocs.org
 .. _Sphinx: http://sphinx.pocoo.org
-.. _numpydoc: http://pypi.python.org/pypi/numpydoc
+.. _numpydoc: http://pythonhosted.org/numpydoc
 
 In Debian systems, you may be able to obtain some of these packages by opening
 a terminal window (CTRL-ALT-T) and typing the following lines::
 
-    $ apt-get install python-numpy python-yaml # required
-    $ apt-get install python-sphinx mayavi2 # optional packages
+    $ apt-get install python-setuptools python-distribute python-numpy python-yaml # required
+    $ apt-get install python-nose python-sphinx mayavi2 # optional packages
 
-For other systems (Windows or Mac), visit the websites for the packages,
-given above for installation instructions.
+For other operating systems (e.g. Windows or Mac), visit the websites for the
+packages, given above for installation instructions.
 
-Once you download the yeadon package and decompress it, you can install with
-the commands along the lines of::
+Once you download the yeadon package and decompress it, you can install with::
 
-    $ python setup.py install
+    $ # change X.X.X to the desired version
+    $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
+    $ tar -zxfv yeadon-X.X.X.tar.gz
+    $ cd yeadon
+    $ python setup.py install # sudo if system install
 
 or simply use a tool like `pip` to download and install from PyPi::
 
-    $ pip install yeadon
+    $ pip install yeadon # sudo if system install
 
-Again, this assumes that you have installed Python 2.7. You can build (create)
-the yeadon documentation if you have the python sphinx package (see above) by
-typing, in the same yeadon/ directory::
+This assumes that your default Python interpreter is version 2.7.
+
+Building the documentation
+==========================
+
+You can build (create) the yeadon HTML documentation if you have Sphinx (see
+above) by typing::
 
     $ cd doc/
     $ make html
 
-to make HTML documentation in the yeadon/doc/_build/html folder, or::
+and then open it in your favorite web browser::
+
+   $ firefox _build/html/index.html
+
+If you have a LaTeX distribution installed you can build the LaTeX docs with::
 
     $ cd doc/
-    $ make latex  #(or: make latexpdf)
+    $ make latexpdf
 
-to generate LaTeX source files in the yeadon/doc/_build/latex. Note that to
-generate documentation, one also needs the `numpydoc` package. Alternatively,
-one can just access the documentation through the `PyPi` site.
+and view the document with your preferred pdf viewer::
+
+   $ evince _build/latex/yeadon.pdf
+
+Note that to generate documentation, one also needs the `numpydoc` package.
+Alternatively, one can just access the documentation through the `PyPi` site.
 
 Usage
 =====
 
-In a python script or in the python command prompt (IDLE), import the library
-with a line like
+Once the package is installed you can start the program with::
 
-::
+   $ yeadon
 
-    >>> import yeadon as y
+If you have MayaVi installed, the GUI will launch and if you don't the text
+based UI will launch. You can specify whether you want to load the GUI or the UI
+with these flags::
 
-You can begin the command line interface by executing
+   $ yeadon --gui
+   $ yeadon --ui
 
-::
+You can also interact with yeadon in a Python interpreter session or Python
+script/module via the API by importing the package with::
 
-    >>> y.start_ui()
+    >>> import yeadon
 
-Then you can follow the instructions provided in the command line interface.
-The other way to interact with the package is by creating a human object
-with a line (perhaps in your own code) like
+Now you can create a human object with::
 
-::
-
-    >>> H = y.human(<measfilename>, <CFGfilename>)
+    >>> human = yeadon.Human(<measfilename>, <CFGfilename>)
 
 where `<measfilename>` and `<CFGfilename>` are replaced by strings that contain
 a relative or absolute path to the appropriate input `.txt` files. For more
-basics on how to use a human object, you can go into a python command prompt and type
+basics on how to use a human object, you can go into a python command prompt and
+type::
 
-::
+    >>> help(yeadon.Human)
 
-    >>> import yeadon as y
-    >>> help(y.human)
+or see the documentation.
+
+You can also start the UI or the GUI by executing::
+
+    >>> yeadon.start_ui()
+
+or::
+
+    >>> yeadon.start_gui()
 
 See the HTML or PDF documentation for more information.
 
@@ -120,5 +146,5 @@ Contact
 Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
 comments.
 
-All development is handled at http://github.com/fitze/yeadon/, including issue
+All development is handled at http://github.com/fitze/yeadon, including issue
 tracking.
