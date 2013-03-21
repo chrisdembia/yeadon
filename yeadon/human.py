@@ -222,12 +222,6 @@ class Human(object):
         elif type(CFG) == str:
             self._read_CFG(CFG)
 
-    def _assign_densities(self, density_set):
-        """Assigns densities from `segmental_densities` to instance variables
-        holding the density of each solid.
-        """
-
-
     def update(self):
         """Redefines all solids and then calls yeadon.Human._update_segments.
         Called by the method yeadon.Human.scale_human_by_mass. The method is
