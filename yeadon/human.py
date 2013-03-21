@@ -48,18 +48,18 @@ import segment as seg
 class Human(object):
     measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
                  'Ls8L', 'Ls0p', 'Ls1p', 'Ls2p', 'Ls3p', 'Ls5p', 'Ls6p',
-                 'Ls7p', 'Ls0w', 'Ls1w', 'Ls2w', 'Ls3w', 'Ls4w', 'Ls4d', 
-                 'La2L', 'La3L', 'La4L', 'La5L', 'La6L', 'La7L', 'La0p', 
-                 'La1p', 'La2p', 'La3p', 'La4p', 'La5p', 'La6p', 'La7p', 
-                 'La4w', 'La5w', 'La6w', 'La7w', 
-                 'Lb2L', 'Lb3L', 'Lb4L', 'Lb5L', 'Lb6L', 'Lb7L', 'Lb0p', 
-                 'Lb1p', 'Lb2p', 'Lb3p', 'Lb4p', 'Lb5p', 'Lb6p', 'Lb7p', 
-                 'Lb4w', 'Lb5w', 'Lb6w', 'Lb7w', 
-                 'Lj1L', 'Lj3L', 'Lj4L', 'Lj5L', 'Lj6L', 'Lj8L', 'Lj9L', 
-                 'Lj1p', 'Lj2p', 'Lj3p', 'Lj4p', 'Lj5p', 'Lj6p', 'Lj7p', 
-                 'Lj8p', 'Lj9p', 'Lj8w', 'Lj9w', 'Lj6d', 
-                 'Lk1L', 'Lk3L', 'Lk4L', 'Lk5L', 'Lk6L', 'Lk8L', 'Lk9L', 
-                 'Lk1p', 'Lk2p', 'Lk3p', 'Lk4p', 'Lk5p', 'Lk6p', 'Lk7p', 
+                 'Ls7p', 'Ls0w', 'Ls1w', 'Ls2w', 'Ls3w', 'Ls4w', 'Ls4d',
+                 'La2L', 'La3L', 'La4L', 'La5L', 'La6L', 'La7L', 'La0p',
+                 'La1p', 'La2p', 'La3p', 'La4p', 'La5p', 'La6p', 'La7p',
+                 'La4w', 'La5w', 'La6w', 'La7w',
+                 'Lb2L', 'Lb3L', 'Lb4L', 'Lb5L', 'Lb6L', 'Lb7L', 'Lb0p',
+                 'Lb1p', 'Lb2p', 'Lb3p', 'Lb4p', 'Lb5p', 'Lb6p', 'Lb7p',
+                 'Lb4w', 'Lb5w', 'Lb6w', 'Lb7w',
+                 'Lj1L', 'Lj3L', 'Lj4L', 'Lj5L', 'Lj6L', 'Lj8L', 'Lj9L',
+                 'Lj1p', 'Lj2p', 'Lj3p', 'Lj4p', 'Lj5p', 'Lj6p', 'Lj7p',
+                 'Lj8p', 'Lj9p', 'Lj8w', 'Lj9w', 'Lj6d',
+                 'Lk1L', 'Lk3L', 'Lk4L', 'Lk5L', 'Lk6L', 'Lk8L', 'Lk9L',
+                 'Lk1p', 'Lk2p', 'Lk3p', 'Lk4p', 'Lk5p', 'Lk6p', 'Lk7p',
                  'Lk8p', 'Lk9p', 'Lk8w', 'Lk9w', 'Lk6d')
 
     CFGnames = ('somersalt',
@@ -113,8 +113,9 @@ class Human(object):
 
     @property
     def center_of_mass(self):
-        """Center of mass of the human, a np.ndarray, in units of m, in the
-        global frame centered at the bottom center of the pelvis."""
+        """Center of mass of the human, a np.ndarray, in units of m, expressed
+        the global frame, from the bottom center of the pelvis (center of the
+        Ls0 stadium)."""
         return self._center_of_mass
 
     @property
@@ -372,7 +373,7 @@ class Human(object):
         print "COM  (m):\n", self.center_of_mass, "\n"
         print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
 
-    def translate_coord_sys(self, vec):
+    def _translate_coord_sys(self, vec):
         """Moves the cooridinate system from the center of the bottom of the
         human's pelvis to a location defined by the input to this method.
         Note that if this method is used along with
@@ -380,6 +381,8 @@ class Human(object):
         to this function are in the new coordinate frame defined by the input
         to yeadon.Human.rotate_coord_sys (rather than in the original frame
         of the yeadon module).
+
+        CAUTION: THIS METHOD IS UNTESTED.
 
         Parameters
         ----------
@@ -395,9 +398,11 @@ class Human(object):
         self.coord_sys_pos = newpos
         self._update_segments()
 
-    def rotate_coord_sys(self, varin):
+    def _rotate_coord_sys(self, varin):
         """Rotates the coordinate system. For list or tuple input, the order of
         the rotations is x, then, y, then z.
+
+        CAUTION: THIS METHOD IS UNTESTED.
 
         Parameters
         ----------
@@ -417,9 +422,11 @@ class Human(object):
         self.coord_sys_orient = rotmat
         self._update_segments()
 
-    def transform_coord_sys(self, vec, rotmat):
+    def _transform_coord_sys(self, vec, rotmat):
         """Calls both yeadon.Human.translate_coord_sys and
         yeadon.Human.rotate_coord_sys.
+
+        CAUTION: THIS METHOD IS UNTESTED.
 
         Parameters
         ----------
@@ -433,17 +440,46 @@ class Human(object):
 
     def inertia_transformed(self, pos=None, rotmat=None):
         """Returns an inertia tensor about `pos` and in the frame given by
-        `rotmat` relative to the global frame. If N is the global frame, B is
-        the name given by rotmat = ^{B}R^{N}, and pos = r^{P/N0}, this method
-        returns ^{B}I^{H/P}.
+        `rotmat` relative to the global frame. The position is to be provided
+        from the origin of the global frame, which is at the center of the Ls0
+        stadium (bottom of pelvis), and its components are expressed in the
+        basis of the global frame.
 
-        pos : list or tuple (3,)
-            Position in the global coordinate system to the point about which
-            the user desires the inertia tensor.
-        rotmat : np.matrix (3,3)
+        Parameters
+        ----------
+        pos : list or tuple (3,), optional
+            Position in the global frame to the point about which
+            the user desires the inertia tensor. If not provided, the tensor is
+            provided about the center of mass of the human.
+        rotmat : np.matrix (3,3), optional
+            If not provided, the tensor is expressed in the global frame.
+            Consider N to be the global frame and B to be the frame in which
+            the user desires the inertia tensor. Then `rotmat` is the rotation
+            matrix that converts a vector expressed in the basis B to a vector
+            expressed in the basis N. That is, the columns of `rotmat` are the
+            unit vectors b_x, b_y, and b_z, and the rows are n_x, n_y, and n_z.
+            See the notes for more information.
+
+        Notes
+        -----
+        If N is the global frame, B is the frame
+        in which the user desires the inertia tensor, then `rotmat` =
+        ^{N}R^{B}. This method returns ^{B}I^{H/P}, where P is the point
+        specified by `pos`, and H is the human system.
 
         """
-        pass
+        # Shifting the inertia must happen first, because the position the user
+        # provides is in the global frame.
+        if pos is not None:
+            transformed = np.mat(inertia.parallel_axis(self.inertia, self.mass,
+                [pos[0] - self.center_of_mass[0, 0],
+                    pos[1] - self.center_of_mass[1, 0],
+                    pos[2] - self.center_of_mass[2, 0]]))
+        else:
+            transformed = self.inertia.copy()
+        if rotmat is not None:
+            transformed = inertia.rotate3_inertia(rotmat, transformed)
+        return transformed
 
     def combine_inertia(self, objlist):
         """Returns the inertia properties of a combination of solids
@@ -470,7 +506,7 @@ class Human(object):
             Uses the absolute fixed coordinate system.
         resultantInertia : np.matrix (3,3)
             Inertia tensor at the resultantCOM, with axes aligned with the axes
-            of the absolute fixed coordinate system.
+            of the global frame with respect to the center of the Ls0 stadium.
 
         """
         # preparing to arrange input

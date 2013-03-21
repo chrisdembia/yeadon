@@ -169,7 +169,8 @@ def rotate3_inertia(rot_mat, relInertia):
     systems. This function only transforms an inertia tensor for rotations with
     respect to a fixed point. To translate an inertia tensor, one must use the
     parallel axis analogue for tensors. An inertia tensor contains both moments
-    of inertia and products of inertia for a mass in a cartesian (xyz) frame.
+    of inertia and products of inertia for a rigid body in a Cartesian (xyz)
+    frame.
 
     Parameters
     ----------

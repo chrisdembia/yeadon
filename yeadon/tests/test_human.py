@@ -13,9 +13,6 @@ import yeadon.inertia as inertia
 import yeadon.human as hum
 import yeadon.densities as dens
 
-# TODO Jason: maybe the better test is to just check against the output of
-# ISEG.
-
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
 
@@ -699,20 +696,109 @@ class TestHuman(unittest.TestCase):
         # TODO test input errors.
         pass
 
-# TODO translating the entire human: check resulting inertia properties.
+    def test_inertia_transformed(self):
+        """Tests the functionality of getting an inertia tensor about a
+        different point and in a different frame.
+        
+        """
+        h = hum.Human(self.male1meas)
+        h.set_CFG('somersalt', np.pi * 0.25)
+        inertia_pre = h.inertia
+        m = h.mass
+
+        # A simple change in position.
+        d = 15
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    h.center_of_mass[2, 0]])
+        offset = m * d**2
+        # Moments of inertia.
+        testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[1, 1] + offset)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[2, 2] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 1])
+        testing.assert_almost_equal(inertia_post[0, 2], inertia_pre[0, 2])
+        testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # A more complicated change in position.
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    2*d + h.center_of_mass[2, 0]])
+        offset2 = m * 4 * d**2
+        # Moments of inertia.
+        testing.assert_almost_equal(
+                inertia_post[0, 0], inertia_pre[0, 0] + offset2)
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[1, 1] + offset + offset2)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[2, 2] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 1])
+        testing.assert_almost_equal(
+                inertia_post[0, 2], inertia_pre[0, 2] - m * 2 * d**2)
+        testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # A combined change in position and basis.
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    h.center_of_mass[2, 0]],
+                rotmat= inertia.rotate_space_123((0.5 * np.pi,0,0)))
+        # Moments of inertia.
+        testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[2, 2] + offset)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[1, 1] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 2])
+        testing.assert_almost_equal(inertia_post[0, 2], -inertia_pre[0, 1])
+        testing.assert_almost_equal(inertia_post[1, 2], -inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # Make sure the direction of the rotation matrix is correct.
+        # TODO
+        # Inertia tensor of two point masses in the x-y plane, one at (2, 1),
+        # and one at (-2, -1), each with mass 1. Rotating a positive atan(1/2)
+        # should give a zero xy product of inertia if the rotation matrix is
+        # what we think it is.
+        in_ptmass = np.mat(np.zeros((3, 3)))
+        in_ptmass[0, 0] = 2
+        in_ptmass[1, 1] = 8
+        in_ptmass[2, 2] = 10
+        in_ptmass[1, 0] = 4
+        in_ptmass[0, 1] = 4
+        angle = np.arctan(1 / 2.0)
+        h._inertia = in_ptmass
+        rotmat = inertia.rotate_space_123((0, 0, angle))
+        inertia_post = h.inertia_transformed(rotmat=rotmat)
+
+
 
 # TODO compare ISEG output to our output.
+# TODO test combineinerita by manual calculations.
+# TODO try out a program flow: make sure we do all necessary updates after
+# construction, say when we change a joint angle, etc. CANNOT just change
+# measurements on the fly.
+# TODO make sure we're averaging the correct limbs
+# TODO it's possible that by averaging the measurements, we're coming up
+# with more false stadia than we would otherwise, but if we don't average
+# the measurements, how do we draw?
+# TODO translating the entire human: check resulting inertia properties.
 
-    # TODO really make sure we're calculating total inertia correctly.
-    # TODO make sure we're doing rotations correctly.3
-    # TODO make sure relative vs absolute inertia etc is correct.
-
-    # TODO test combineinerita by manual calculations.
-
-    # TODO try out a program flow: make sure we do all necessary updates after
-    # construction, say when we change a joint angle, etc. CANNOT just change
-    # measurements on the fly.
-    # TODO make sure we're averaging the correct limbs
-    # TODO it's possible that by averaging the measurements, we're coming up
-    # with more false stadia than we would otherwise, but if we don't average
-    # the measurements, how do we draw?
