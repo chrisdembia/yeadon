@@ -123,7 +123,9 @@ class Stadium(object):
             raise ValueError("Error: stadium " + self.label +
                 " not defined properly, " + inID + " is not valid. You must " +
                 "use inID= perimwidth, depthwidth, perimeter, or radius.")
-        if self.radius <= 0 or self.thickness < 0:
+        if self.radius == 0:
+            raise ValueError("Radius of stadium '%' is zero." % self.radius)
+        if self.radius < 0 or self.thickness < 0:
             warnings.warn(textwrap.dedent("""Error: stadium '{}' is defined
                 incorrectly, r must be positive and t must be nonnegative. r =
                 {} and t = {} . This means that 2 < perimeter/width < pi.
@@ -450,28 +452,28 @@ class StadiumSolid(Solid):
         return X, Y, Z
 
     @staticmethod
-    def _F1(self,a,b):
+    def _F1(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
 
     @staticmethod
-    def _F2(self,a,b):
+    def _F2(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
 
     @staticmethod
-    def _F3(self,a,b):
+    def _F3(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
 
     @staticmethod
-    def _F4(self,a,b):
+    def _F4(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
 
     @staticmethod
-    def _F5(self,a,b):
+    def _F5(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
