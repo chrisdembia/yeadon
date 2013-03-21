@@ -6,7 +6,7 @@ tensors that correspond to the human inertia model developed by Yeadon
 in (Yeadon, 1990). The package allows for the input of both measurements and
 configuration variables (joint angles), and provides 3D visualization using the
 MayaVi package. See the online documentation at
-`http://pythonhosted.org/yeadon/`_.
+`<http://pythonhosted.org/yeadon>`_.
 
 References
 ==========
@@ -67,7 +67,8 @@ all of these packages by opening a terminal window (CTRL-ALT-T) and typing::
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
 
-The easiest way to download and install the package is by using a tool like `pip` to get the package from PyPi::
+The easiest way to download and install the package is by using a tool like
+`pip` to get the package from PyPi::
 
     $ pip install yeadon # sudo if system install
 
@@ -90,7 +91,8 @@ Run the tests with::
 Building the documentation
 ==========================
 
-You can build the yeadon HTML documentation if you have Sphinx by typing the following from the `yeadon` directory::
+You can build the yeadon HTML documentation if you have Sphinx by typing the
+following from the `yeadon` directory::
 
     $ cd doc/
     $ make html
@@ -160,5 +162,5 @@ Contact
 Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
 comments.
 
-All development is handled at `http://github.com/fitze/yeadon`_, including issue
+All development is handled at `<http://github.com/fitze/yeadon>`_, including issue
 tracking.
