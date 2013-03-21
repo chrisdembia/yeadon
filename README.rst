@@ -50,25 +50,35 @@ The following packages are optional:
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pythonhosted.org/numpydoc
 
-In Debian systems, you may be able to obtain some of these packages by opening
-a terminal window (CTRL-ALT-T) and typing the following lines::
+Most `scientific python distributions
+<http://numfocus.org/projects-2/software-distributions/>`_ provide all of these
+dependencies and it is often easiest to install one of them to get started. Once
+you have a distribution, you simply have to install the yeadon package. This is
+the best solution for Windows users.
 
-    $ apt-get install python-setuptools python-distribute python-numpy python-yaml # required
+The dependencies can also be obtained easily from your operating system's
+package manager. For example, in Debian systems, you should be able to obtain
+all of these packages by opening a terminal window (CTRL-ALT-T) and typing::
+
+    $ # use sudo if system install is desired
+    $ apt-get install python-distribute python-numpy python-yaml # required
     $ apt-get install python-nose python-sphinx mayavi2 # optional packages
+    $ easy_install numpydoc
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages, given above for installation instructions.
 
-Once you download the yeadon package and decompress it, you can install with::
+Now download the yeadon package, decompress it, and install with::
 
     $ # change X.X.X to the desired version
     $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
     $ tar -zxfv yeadon-X.X.X.tar.gz
-    $ cd yeadon
+    $ cd yeadon-X.X.X.tar.gz
     $ python setup.py install # sudo if system install
 
 or simply use a tool like `pip` to download and install from PyPi::
 
+    $ apt-get install python-pip
     $ pip install yeadon # sudo if system install
 
 This assumes that your default Python interpreter is version 2.7.
