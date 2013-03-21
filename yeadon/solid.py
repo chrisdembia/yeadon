@@ -120,17 +120,17 @@ class Stadium(object):
             self.perimeter = 4.0 * self.thickness + 2.0 * np.pi * self.radius
             self.width = 2.0 * self.thickness + 2.0 * self.radius
         else:
-            raise ValueError("Error: stadium " + self.label +
+            raise ValueError("Stadium " + self.label +
                 " not defined properly, " + inID + " is not valid. You must " +
                 "use inID= perimwidth, depthwidth, perimeter, or radius.")
         if self.radius == 0:
             raise ValueError("Radius of stadium '%' is zero." % self.radius)
         if self.radius < 0 or self.thickness < 0:
-            warnings.warn(textwrap.dedent("""Error: stadium '{}' is defined
-                incorrectly, r must be positive and t must be nonnegative. r =
-                {} and t = {} . This means that 2 < perimeter/width < pi.
-                Currently, this ratio is {}.""").format(self.label, self.radius,
-                self.thickness, self.perimeter / self.width))
+            warnings.warn("Stadium '{}' is defined "
+                "incorrectly, r must be positive and t must be nonnegative. "
+                "r = {} and t = {} . This means that 2 < perimeter/width < pi. "
+                "Currently, this ratio is {}.\n".format(self.label,
+                    self.radius, self.thickness, self.perimeter / self.width))
             if inID == 'perimwidth':
                 self._set_as_circle(in1 / (2.0 * np.pi))
                 print "Fix: stadium set as circle with perimeter as given."
