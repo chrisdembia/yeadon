@@ -83,6 +83,10 @@ rely on a tool like `pip` is as follows::
 Both of these options assume that your default Python interpreter is version
 2.7.
 
+Run the tests with::
+
+   $ python setup.py nosetests
+
 Building the documentation
 ==========================
 
