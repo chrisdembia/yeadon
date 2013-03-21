@@ -1,3 +1,3 @@
-from yeadon.ui import *
-from yeadon.gui import *
-from yeadon.human import *
+from yeadon.ui import start_ui
+from yeadon.gui import start_gui
+from yeadon.human import Human

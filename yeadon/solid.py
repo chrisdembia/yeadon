@@ -123,7 +123,9 @@ class Stadium(object):
             raise ValueError("Error: stadium " + self.label +
                 " not defined properly, " + inID + " is not valid. You must " +
                 "use inID= perimwidth, depthwidth, perimeter, or radius.")
-        if self.radius <= 0 or self.thickness < 0:
+        if self.radius == 0:
+            raise ValueError("Radius of stadium '%' is zero." % self.radius)
+        if self.radius < 0 or self.thickness < 0:
             warnings.warn(textwrap.dedent("""Error: stadium '{}' is defined
                 incorrectly, r must be positive and t must be nonnegative. r =
                 {} and t = {} . This means that 2 < perimeter/width < pi.
@@ -133,8 +135,11 @@ class Stadium(object):
                 self._set_as_circle(in1 / (2.0 * np.pi))
                 print "Fix: stadium set as circle with perimeter as given."
             elif inID == 'depthwidth':
-                self._set_as_circle(2 * in2)
+                self._set_as_circle(0.5 * in2)
                 print "Fix: stadium set as circle with diameter of given width."
+            else:
+                raise ValueError("Negative radius/thickness cannot be "
+                        "corrected.")
         if alignment != 'AP' and alignment != 'ML':
             raise ValueError("Error: stadium " + self.label +
                 " alignment is not valid, must be either AP or ML")
@@ -449,20 +454,29 @@ class StadiumSolid(Solid):
         Z = Z + self.pos[2]
         return X, Y, Z
 
-    def _F1(self,a,b):
+    @staticmethod
+    def _F1(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
-    def _F2(self,a,b):
+
+    @staticmethod
+    def _F2(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
-    def _F3(self,a,b):
+
+    @staticmethod
+    def _F3(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
-    def _F4(self,a,b):
+
+    @staticmethod
+    def _F4(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
-    def _F5(self,a,b):
+
+    @staticmethod
+    def _F5(a, b):
         """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)

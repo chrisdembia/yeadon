@@ -3,12 +3,18 @@
 # Use Python3 integer division rules.
 from __future__ import division
 
+import sys
+import os
+import unittest
+import warnings
+
 from numpy import testing, pi, array, matrix, sin, cos, zeros, array
+
 from yeadon.solid import Stadium, Solid, StadiumSolid
 
 # TODO Test Stadium negative radius/thickness issue in constructor.
 
-class StadiumSolidCheck:
+class StadiumSolidCheck(unittest.TestCase):
     """To check the formulae in yeadon.solid against those in the Yeadon1990-ii
     paper.
 
@@ -88,86 +94,166 @@ class StadiumSolidCheck:
                 2.0*a*b*(a + b)/4.0 + a**2 * b**2 / 5.0)
 
 
-def test_stadium():
+# define some useful functions for 2D stadia
+def radius_from_perimeter_width(perimeter, width):
+    """Returns the radius of the stadium given the perimeter and width."""
+    return (perimeter - 2.0 * width) / (2 * pi - 4)
 
-    # define some useful functions for 2D stadia
-    def radius_from_perimeter_width(perimeter, width):
-        """Returns the radius of the stadium given the perimeter and width."""
-        return (perimeter - 2.0 * width) / (2 * pi - 4)
+def thickness_from_perimeter_width(perimeter, width):
+    """Returns the thickness of the stadium given the perimeter and
+    width."""
+    return 0.5 * width - radius_from_perimeter_width(perimeter, width)
 
-    def thickness_from_perimeter_width(perimeter, width):
-        """Returns the thickness of the stadium given the perimeter and
-        width."""
-        return 0.5 * width - radius_from_perimeter_width(perimeter, width)
+def radius_from_depth(depth):
+    return depth / 2.0
 
-    def radius_from_depth(depth):
-        return depth / 2.0
+def thickness_from_depth_width(depth, width):
+    return (width - depth) / 2.0
 
-    def thickness_from_depth_width(depth, width):
-        return (width - depth) / 2.0
+def perimeter_from_depth_width(depth, width):
+    return 2 * (width - depth) + pi * depth
 
-    def perimeter_from_depth_width(depth, width):
-        return 2 * (width - depth) + pi * depth
+class TestStadium(unittest.TestCase):
 
-    # perimeter and width
-    perimeter = 2.5
-    width = 1.0
-    pw = Stadium('La6: knuckles', 'perimwidth', perimeter, width)
-    assert pw.label == 'La6: knuckles'
-    assert pw.alignment == 'ML'
-    testing.assert_almost_equal(pw.perimeter, perimeter)
-    testing.assert_almost_equal(pw.width, width)
-    testing.assert_almost_equal(pw.radius,
-            radius_from_perimeter_width(perimeter, width))
-    testing.assert_almost_equal(pw.thickness,
-            thickness_from_perimeter_width(perimeter, width))
+    def test_init(self):
+        # perimeter and width
+        perimeter = 2.5
+        width = 1.0
+        pw = Stadium('La6: knuckles', 'perimwidth', perimeter, width)
+        assert pw.label == 'La6: knuckles'
+        assert pw.alignment == 'ML'
+        testing.assert_almost_equal(pw.perimeter, perimeter)
+        testing.assert_almost_equal(pw.width, width)
+        testing.assert_almost_equal(pw.radius,
+                radius_from_perimeter_width(perimeter, width))
+        testing.assert_almost_equal(pw.thickness,
+                thickness_from_perimeter_width(perimeter, width))
 
-    # depth and width
-    depth = 1.0
-    width = 5.0
-    dw = Stadium('La6: knuckles', 'depthwidth', depth, width, 'AP')
-    assert dw.label == 'La6: knuckles'
-    assert dw.alignment == 'AP'
-    testing.assert_almost_equal(dw.width, width)
-    testing.assert_almost_equal(dw.radius, radius_from_depth(depth))
-    testing.assert_almost_equal(dw.thickness, thickness_from_depth_width(depth,
-        width))
-    testing.assert_almost_equal(dw.perimeter, perimeter_from_depth_width(depth,
-        width))
+        # depth and width
+        depth = 1.0
+        width = 5.0
+        dw = Stadium('La6: knuckles', 'depthwidth', depth, width, 'AP')
+        assert dw.label == 'La6: knuckles'
+        assert dw.alignment == 'AP'
+        testing.assert_almost_equal(dw.width, width)
+        testing.assert_almost_equal(dw.radius, radius_from_depth(depth))
+        testing.assert_almost_equal(dw.thickness,
+                thickness_from_depth_width(depth, width))
+        testing.assert_almost_equal(dw.perimeter,
+                perimeter_from_depth_width(depth, width))
 
-    # perim
-    perimeter = 5.0
-    p = Stadium('Lk2: mid-thigh', 'perimeter', perimeter)
-    assert p.label == 'Lk2: mid-thigh'
-    assert p.alignment == 'ML'
-    testing.assert_almost_equal(p.perimeter, perimeter)
-    testing.assert_almost_equal(p.width, perimeter / pi)
-    testing.assert_almost_equal(p.thickness, 0.0)
-    testing.assert_almost_equal(p.radius, perimeter / 2.0 / pi)
+        # perim
+        perimeter = 5.0
+        p = Stadium('Lk2: mid-thigh', 'perimeter', perimeter)
+        assert p.label == 'Lk2: mid-thigh'
+        assert p.alignment == 'ML'
+        testing.assert_almost_equal(p.perimeter, perimeter)
+        testing.assert_almost_equal(p.width, perimeter / pi)
+        testing.assert_almost_equal(p.thickness, 0.0)
+        testing.assert_almost_equal(p.radius, perimeter / 2.0 / pi)
 
-    # radius
-    radius = 1.0
-    r = Stadium('Lk2: mid-thigh', 'radius', radius)
-    assert r.label == 'Lk2: mid-thigh'
-    assert r.alignment == 'ML'
-    testing.assert_almost_equal(r.radius, radius)
-    testing.assert_almost_equal(r.perimeter, 2.0 * pi * radius)
-    testing.assert_almost_equal(r.thickness, 0.0)
-    testing.assert_almost_equal(r.width, 2 * radius)
+        # radius
+        radius = 1.0
+        r = Stadium('Lk2: mid-thigh', 'radius', radius)
+        assert r.label == 'Lk2: mid-thigh'
+        assert r.alignment == 'ML'
+        testing.assert_almost_equal(r.radius, radius)
+        testing.assert_almost_equal(r.perimeter, 2.0 * pi * radius)
+        testing.assert_almost_equal(r.thickness, 0.0)
+        testing.assert_almost_equal(r.width, 2 * radius)
 
-    # thickness and radius
-    thickness = 10.0
-    radius = 1.0
-    tr = Stadium('Lk2: mid-thigh', 'thicknessradius', thickness, radius)
-    assert tr.label == 'Lk2: mid-thigh'
-    assert tr.alignment == 'ML'
-    testing.assert_almost_equal(tr.radius, radius)
-    testing.assert_almost_equal(tr.thickness, thickness)
-    testing.assert_almost_equal(tr.perimeter, 2.0 * pi * radius + 4.0 *
-            thickness)
-    testing.assert_almost_equal(tr.width, 2 * radius + 2.0 * thickness)
+        # thickness and radius
+        thickness = 10.0
+        radius = 1.0
+        tr = Stadium('Lk2: mid-thigh', 'thicknessradius', thickness, radius)
+        assert tr.label == 'Lk2: mid-thigh'
+        assert tr.alignment == 'ML'
+        testing.assert_almost_equal(tr.radius, radius)
+        testing.assert_almost_equal(tr.thickness, thickness)
+        testing.assert_almost_equal(tr.perimeter, 2.0 * pi * radius + 4.0 *
+                thickness)
+        testing.assert_almost_equal(tr.width, 2 * radius + 2.0 * thickness)
 
-    #TODO: Add testing for Stadium.plot
+    def test_invalid_stadium(self):
+        """Tests that if a stadium is defined in such a way that it is invalid
+        (negative radius or negative thickness), the correct action is taken.
+        
+        """
+        # TODO Redirecting stdout is not working.
+        actual_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            stad = Stadium('Lb1: mid-arm', 'perimwidth', 1.9, 1.0)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            assert "incorrectly" in str(w[-1].message)
+            testing.assert_almost_equal(stad.perimeter, 1.9)
+            testing.assert_almost_equal(stad.radius, 1.9 / (2.0 * pi))
+            testing.assert_almost_equal(stad.thickness, 0.0)
+            testing.assert_almost_equal(stad.width, 1.9 / pi)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            stad = Stadium('Lb1: mid-arm', 'perimwidth', 3.15, 1.0)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            testing.assert_almost_equal(stad.perimeter, 3.15)
+            testing.assert_almost_equal(stad.radius, 3.15 / (2.0 * pi))
+            testing.assert_almost_equal(stad.thickness, 0.0)
+            testing.assert_almost_equal(stad.width, 3.15 / pi)
+
+        width = 1.0
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            depth = (1.9 - 2.0 * width) / (pi - 2.0)
+            stad = Stadium('Lb1: mid-arm', 'depthwidth', depth, width)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            testing.assert_almost_equal(stad.perimeter, pi * width )
+            testing.assert_almost_equal(stad.radius, 0.5 * width)
+            testing.assert_almost_equal(stad.thickness, 0.0)
+            testing.assert_almost_equal(stad.width, width)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            depth = (3.15 - 2.0 * width) / (pi - 2.0)
+            stad = Stadium('Lb1: mid-arm', 'depthwidth', depth, width)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+            testing.assert_almost_equal(stad.perimeter, pi * width )
+            testing.assert_almost_equal(stad.radius, 0.5 * width)
+            testing.assert_almost_equal(stad.thickness, 0.0)
+            testing.assert_almost_equal(stad.width, width)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', -.1, -.5)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', 1.0, -.3)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                    'thicknessradius', -.1, 2)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, UserWarning)
+
+        # Radius cannot be zero.
+        self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                'thicknessradius', -.1, 0)
+        self.assertRaises(ValueError, Stadium, 'Lb1: mid-arm',
+                'thicknessradius', 0, 0)
+
+        sys.stdout = actual_stdout
+
 
 def test_solid():
     label = 'Test'
@@ -398,9 +484,6 @@ def test_stadiumsolidcheck_against_truncated_cone():
     testing.assert_almost_equal(solid_des2.mass(),
             truncated_cone_mass(density, rad0, rad1, height) + 
             density * (2 * thick0 * height * 0.5 * (rad0 * 2)), decimal=4)
-
-
-
 
 
 
