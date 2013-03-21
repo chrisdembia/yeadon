@@ -185,23 +185,6 @@ class Segment(object):
         for s in self.solids:
             s.print_properties()
 
-    def draw(self, ax):
-        '''Draws all the solids within a segment using matplotlib.
-
-        '''
-        for idx in np.arange(self.nSolids):
-            print "Drawing solid", self.solids[idx].label, "."
-            self.solids[idx].draw(ax, self.color)
-        u = np.linspace( 0, 2*np.pi, 30)
-        v = np.linspace( 0, np.pi, 30)
-        R = 0.03
-        x = R * np.outer(np.cos(u), np.sin(v)) + self.center_of_mass[0, 0]
-        y = R * np.outer(np.sin(u), np.sin(v)) + self.center_of_mass[1, 0]
-        z = R * np.outer(np.ones(np.size(u)), 
-                np.cos(v)) + self.center_of_mass[2, 0]
-        ax.plot_surface(x, y, z,  rstride=4, cstride=4, edgecolor='',
-                        color='r')
-
     def draw_mayavi(self, mlabobj):
         '''Draws in a MayaVi window all the solids within this segment.
 

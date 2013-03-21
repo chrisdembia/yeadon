@@ -32,8 +32,6 @@ from __future__ import division
 import copy
 
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 try:
     from mayavi import mlab
 except ImportError:
@@ -627,89 +625,62 @@ class Human(object):
         z = self.center_of_mass[2,0] + z
         return x, y, z
 
-    def draw(self):
-        """Draws a 3D human by calling the draw methods of all of the segments.
-        Drawing is done by the matplotlib library. Currently produces many
-        matplotlib warnings, which can be ignored.
-
-        """
-        fig = plt.figure()
-        ax = Axes3D(fig)
-        self.P.draw(ax)
-        for s in self.segments:
-            s.draw(ax)
-        # fixed coordinate frame axes
-        ax.plot( np.array([0,.3]),
-                 np.array([0,0]),
-                 np.array([0,0]), 'r', linewidth=3)
-        ax.plot( np.array([0,0]),
-                 np.array([0,.3]),
-                 np.array([0,0]), 'g', linewidth=3)
-        ax.plot( np.array([0,0]),
-                 np.array([0,0]),
-                 np.array([0,.3]), 'b', linewidth=3)
-        ax.text(.3,0,0,'x')
-        ax.text(0,.3,0,'y')
-        ax.text(0,0,.3,'z')
-        # plot center of mass ball
-        N = 30
-        u = np.linspace(0, 0.5 * np.pi, 30)
-        v = np.linspace(0, np.pi/2, 30)
-        self._draw_octant(ax,u,v,'b')
-        u = np.linspace(np.pi, 3/2 * np.pi, 30)
-        v = np.linspace(0, np.pi / 2, 30)
-        self._draw_octant(ax,u,v,'b')
-        u = np.linspace(np.pi / 2, np.pi, 30)
-        v = np.linspace(np.pi / 2, np.pi, 30)
-        self._draw_octant(ax,u,v,'b')
-        u = np.linspace( 3/2 * np.pi, 2 * np.pi, 30)
-        v = np.linspace(np.pi / 2, np.pi, 30)
-        self._draw_octant(ax,u,v,'b')
-        u = np.linspace(0.5 * np.pi, np.pi, 30)
-        v = np.linspace(0, np.pi / 2, 30)
-        self._draw_octant(ax,u,v,'w')
-        u = np.linspace(3/2 * np.pi, 2 * np.pi, 30)
-        v = np.linspace(0, np.pi / 2, 30)
-        self._draw_octant(ax,u,v,'w')
-        u = np.linspace(0, np.pi / 2, 30)
-        v = np.linspace(np.pi / 2, np.pi, 30)
-        self._draw_octant(ax,u,v,'w')
-        u = np.linspace( np.pi, 3/2 * np.pi, 30)
-        v = np.linspace(np.pi / 2, np.pi, 30)
-        self._draw_octant(ax,u,v,'w')
-        # "axis equal"
-        limval = 1
-        ax.set_xlim3d(-limval + self.coord_sys_pos[0,0],
-            limval + self.coord_sys_pos[0,0])
-        ax.set_ylim3d(-limval + self.coord_sys_pos[1,0],
-            limval + self.coord_sys_pos[1,0])
-        ax.set_zlim3d(-limval + self.coord_sys_pos[2,0],
-            limval + self.coord_sys_pos[2,0])
-        # save the plot to an SVG file
-        plt.savefig('humanplot', dpi=300)
-        # show the plot window, this is a loop actually
-        plt.show()
-
-    def _draw_octant(self, ax, u, v, c):
-        """Draws an octant of sphere in a matplotlib window (Axes3D library).
-        Assists with drawing the center of mass sphere.
+    def _make_sphere_octant(self, octant_no):
+        """Returns coordinates that define an octant of a sphere. This method
+        is not currently used, but could be used in rendering. The idea is to
+        use it for drawing a center of mass ball.
 
         Parameters
         ----------
-        ax : Axes3D object
-            Axes on which to plot, defined by Human.plot(self).
-        u : numpy.array
-        v : numpy.array
-        c : string
-            Color
+        octact_no : int
+            Integer in the range [1, 8] to identify the octant for which points
+            are desired. The octants are defined as follows:
+            
+            1.  x > 0, y > 0, z > 0
+            2.  x < 0, y > 0, z > 0
+            3.  x < 0, y < 0, z > 0
+            4.  x > 0, y < 0, z > 0
+            5.  x > 0, y > 0, z < 0
+            6.  x < 0, y > 0, z < 0
+            7.  x < 0, y < 0, z < 0
+            8.  x > 0, y < 0, z < 0
+
+        Returns
+        -------
+        x : np.array
+            x-coordinates for the octant.
+        y : np.array
+            y-coordinates for the octant.
+        z : np.array
+            z-coordinates for the octant.
 
         """
+        if not octant_no in [1, 2, 3, 4, 5, 6, 7, 8]:
+            raise ValueError("Octant number %i is invalid." % octant_no)
+
+        N = 30
+
+        # Phi, azimuthal.
+        if octant_no in [1, 5]:
+            u = np.linspace(0, 0.5 * np.pi, N)
+        elif octant_no in [2, 6]:
+            u = np.linspace(0.5 * np.pi, np.pi, N)
+        elif octant_no in [3, 7]:
+            u = np.linspace(np.pi, 1.5 * np.pi , N)
+        elif octant_no in [4, 8]:
+            u = np.linspace(1.5 * np.pi, 2.0 * np.pi,  N)
+
+        # Theta, colatitude.
+        if octant_no in [1, 2, 3, 4]:
+            v = np.linspace(0, 0.5 * np.pi, N)
+        else:
+            v = np.linspace(0.5 * np.pi, np.pi, N)
+
         R = 0.05
-        x = R * np.outer(np.cos(u), np.sin(v)) + self.center_of_mass[0,0]
-        y = R * np.outer(np.sin(u), np.sin(v)) + self.center_of_mass[1,0]
-        z = R * np.outer(np.ones(np.size(u)), np.cos(v)) + self.center_of_mass[2,0]
-        ax.plot_surface( x, y, z,  rstride=4, cstride=4,
-                         edgecolor='', color=c)
+        x = R * np.outer(np.cos(u), np.sin(v))
+        y = R * np.outer(np.sin(u), np.sin(v))
+        z = R * np.outer(np.ones(np.size(u)), np.cos(v))
+        return x, y, z
 
     def _define_torso_solids(self):
         """Defines the solids (from solid.py) that create the torso of
