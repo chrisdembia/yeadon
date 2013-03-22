@@ -205,24 +205,26 @@ class TestSegments(unittest.TestCase):
         sys.stdout = old_stdout
         desStr = ("seg1 properties:\n\n" +
                 "Mass (kg): 4299.15404857 \n\n" +
-                "COM in local segment frame (m):\n" +
+                "COM in segment's frame from segment's origin (m):\n" +
                 "[[  0.       ]\n" +
                 " [  0.       ]\n" +
                 " [ 11.3248746]] \n\n" +
-                "COM in fixed human frame (m):\n" +
+                "COM in global frame from bottom center of pelvis (Ls0) (m):\n" +
                 "[[ 12.3248746]\n" +
                 " [  2.       ]\n" +
                 " [  3.       ]] \n\n" +
-                "Inertia tensor in segment frame about local segment " +
+                "Inertia tensor in segment's frame about segment's " +
                 "COM (kg-m^2):\n" + 
                 "[[  50287.48961483       0.               0.        ]\n" +
                 " [      0.          113733.59619149       0.        ]\n" +
                 " [      0.               0.          112963.70547987]] \n\n" +
-                "Inertia tensor in fixed human frame about local segment " +
+                "Inertia tensor in global frame about segment's " +
                 "COM (kg-m^2):\n" +
                 "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
                 " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
                 " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
+        print mystdout.getvalue()
+
         self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_print_solid_properties(self):

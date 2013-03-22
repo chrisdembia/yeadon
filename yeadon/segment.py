@@ -56,7 +56,7 @@ class Segment(object):
             The ID and name of the segment.
         pos : numpy.array, shape(3,1)
             The vector position of the segment's base,
-            with respect to the fixed human frame.
+            with respect to the global frame.
         rot_mat : numpy.matrix, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
@@ -91,7 +91,7 @@ class Segment(object):
         '''Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent
         solid's set_orientation method. The position of the i-th solid,
-        expressed in the fixed human reference frame, is given by the sum
+        expressed in the global frame, is given by the sum
         of the segment's base position and the directed height of all the
         solids of the segment up to the i-th solid.
 
@@ -147,10 +147,9 @@ class Segment(object):
                                       [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
     def calc_properties(self):
-        '''Calculates the segment's center of mass with respect to the
-        fixed human frame origin (in the fixed human reference frame) and the
-        segment's inertia in the fixed human frame but about the segment's
-        center of mass.
+        '''Calculates the segment's center of mass with respect to the bottm
+        center of the pelvis (Ls0) and the segment's inertia in the global
+        frame but about the segment's center of mass.
 
         '''
         # center of mass
@@ -159,9 +158,8 @@ class Segment(object):
         self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
-        '''Prints mass, center of mass (in segment's and fixed human frames),
-        and inertia (in segment's and fixed human frames). Calls
-        ``calc_properties`` if COM or Inertia is not defiend for the segment.
+        '''Prints mass, center of mass (in segment and global frames),
+        and inertia (in solid and global frames).
 
         '''
         # self.COM, etc. needs to be defined first.
@@ -169,11 +167,13 @@ class Segment(object):
             self.calc_properties()
         print self.label, "properties:\n"
         print "Mass (kg):", self.mass, "\n"
-        print "COM in local segment frame (m):\n", self.rel_center_of_mass, "\n"
-        print "COM in fixed human frame (m):\n", self.center_of_mass, "\n"
-        print "Inertia tensor in segment frame about local segment",\
+        print "COM in segment's frame from segment's origin (m):\n",\
+                self.rel_center_of_mass, "\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass, "\n"
+        print "Inertia tensor in segment's frame about segment's",\
                "COM (kg-m^2):\n", self.rel_inertia, "\n"
-        print "Inertia tensor in fixed human frame about local segment",\
+        print "Inertia tensor in global frame about segment's",\
                "COM (kg-m^2):\n", self.inertia, "\n"
 
     def print_solid_properties(self):

@@ -369,8 +369,10 @@ class Human(object):
 
         """
         print "Mass (kg):", self.mass, "\n"
-        print "COM  (m):\n", self.center_of_mass, "\n"
-        print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass, "\n"
+        print "Inertia tensor in global frame about human's COM (kg-m^2):\n",\
+                self.inertia, "\n"
 
     def _translate_coord_sys(self, vec):
         """Moves the cooridinate system from the center of the bottom of the

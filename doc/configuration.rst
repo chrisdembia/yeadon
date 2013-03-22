@@ -1,3 +1,5 @@
+.. _configuration:
+
 Configuration
 =============
 The configuration of the human is set by 21 joint angles. The image below

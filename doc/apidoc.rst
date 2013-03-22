@@ -1,5 +1,5 @@
-Modules
-=======
+API Documentation
+===========================
 
 :mod:`yeadon` Package
 ---------------------

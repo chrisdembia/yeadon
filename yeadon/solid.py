@@ -254,18 +254,27 @@ class Solid(object):
         self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
-        """Prints the mass, center of mass (local and absolute), and inertia
-        tensor (local and absolute) of the solid.
+        """Prints mass, center of mass (in solid and global frames),
+        and inertia (in solid and global frames).
+
+        The solid's origin is at the bottom center of the proximal stadium (or
+        stadium closest to the pelvis, Ls0).
 
         """
+        # self.COM, etc. needs to be defined first.
+        if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
+            self.calc_properties()
+
         print self.label, "properties:\n"
-        print "Mass (kg):", self.mass,"\n"
-        print "COM in local solid's frame (m):\n", self.rel_center_of_mass,"\n"
-        print "COM in fixed human frame (m):\n", self.center_of_mass,"\n"
-        print "Inertia tensor in solid's frame about local solid's",\
-               "COM (kg-m^2):\n", self.rel_inertia,"\n"
-        print "Inertia tensor in fixed human frame about local solid's",\
-               "COM (kg-m^2):\n", self.inertia,"\n"
+        print "Mass (kg):", self.mass, "\n"
+        print "COM in solid's frame from solid's origin (m):\n",\
+                self.rel_center_of_mass,"\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass,"\n"
+        print "Inertia tensor in solid's frame about solid's",\
+                "COM (kg-m^2):\n", self.rel_inertia,"\n"
+        print "Inertia tensor in global frame about solid's",\
+                "COM (kg-m^2):\n", self.inertia,"\n"
 
     def draw_mayavi(self, mlabobj, col):
         raise NotImplementedError()
