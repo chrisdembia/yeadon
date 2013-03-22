@@ -40,7 +40,7 @@ def _d2r(angle):
     return angle * nppi / 180.0
 
 class YeadonGUI(HasTraits):
-    ''' TODO '''
+    """A GUI for the yeadon module, implemented using the traits package."""
 
     # Input.
     measurement_file_name = File()
@@ -214,7 +214,7 @@ class YeadonGUI(HasTraits):
         self._init_draw_human()
 
     def _init_draw_human(self):
-        self.H.draw_mayavi(self.scene.mlab)
+        self.H.draw(self.scene.mlab)
         if self.show_principal_inertia_ellipse:
             self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
 

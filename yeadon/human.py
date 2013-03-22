@@ -38,7 +38,7 @@ try:
 except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_mayavi() member functions."
+          "cannot use the draw() member function."
 
 import inertia
 import solid as sol
@@ -565,7 +565,7 @@ class Human(object):
         labels = [s.label[0:len(name)] for s in self.segments]
         return self.segments[labels.index(name)]
 
-    def draw_mayavi(self, mlabobj=None):
+    def draw(self, mlabobj=None):
         """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
