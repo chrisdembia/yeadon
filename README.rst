@@ -28,9 +28,9 @@ Installing
 This package was developed in Python 2.7. It depends on the following
 widely-used packages:
 
-- setuptools_ or distribute_ for installation, distribute is preferred
-- NumPy_ basic array manipulations and computations
-- PyYAML_ used for the input files
+- setuptools_ or distribute_ is for installation, distribute is preferred.
+- NumPy_ does basic array manipulations and computations.
+- PyYAML_ is used for the input files.
 
 .. _setuptools: http://pythonhosted.org/setuptools
 .. _distribute: http://pytonhosted.org/distribute
@@ -39,10 +39,10 @@ widely-used packages:
 
 The following packages are optional:
 
-- MayaVi_ used for pretty visualization and GUI interaction
-- nose_ used for unit tests
-- Sphinx_  needed to create documentation
-- numpydoc_ sphinx extension for NumPy-style documentation formatting
+- MayaVi_ is used for pretty visualization and GUI interaction.
+- nose_ is used for unit tests.
+- Sphinx_ is needed to create the documentation.
+- numpydoc_ is a sphinx extension for NumPy-style documentation formatting.
 
 .. _MayaVi: http://mayavi.sourceforge.net
 .. _nose: https://nose.readthedocs.org
@@ -52,8 +52,8 @@ The following packages are optional:
 Most `scientific python distributions
 <http://numfocus.org/projects-2/software-distributions/>`_ provide all of these
 dependencies and it is often easiest to install one of them to get started. Once
-you have a distribution, you simply have to install the yeadon package. This is
-the best solution for Windows users.
+you have a distribution, you simply have to install the yeadon package. This
+also probably the best solution for Windows users.
 
 The dependencies can also be obtained easily from your operating system's
 package manager. For example, in Debian systems, you should be able to obtain
@@ -68,9 +68,12 @@ For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
 
 The easiest way to download and install the yeadon package is by using a tool
-like `pip` to get the package from PyPi::
+like `easy_install` or `pip` to get the package from PyPi::
 
-   $ easy_install pip
+   $ easy_install yeadon # sudo if system install
+
+or::
+
    $ pip install yeadon # sudo if system install
 
 An alternative for downloading and installing on a Unix system that does not
@@ -157,6 +160,129 @@ or::
 
 within a Python interpreter. See the HTML or PDF documentation for more
 information.
+
+Virtual Environment Install Instructions
+========================================
+
+If you want a sandboxed install you can create one in a virtualenv, but you
+either have to create symlinks to the Python bindings built from your system
+install, such as the Debain `python-vtk`, or build VTK from source while making
+sure the virtualenv Python executable is used to install the Python bindings.
+The later of the two is described here.
+
+First install the virtualenv tools::
+
+   $ apt-get install pip
+   $ pip install -U pip # upgrade pip
+   $ pip install virtualenv virtualenvwrapper
+
+Add these lines to your ~/.bashrc::
+
+   # virtualenvwrapper
+   export WORKON_HOME=$HOME/envs
+   source /usr/local/bin/virtualenvwrapper.sh
+
+Install the packages needed to install VTK::
+
+   $ apt-get install cmake cmake-curses-gui tk-dev tcl-dev g++ gcc
+
+Create a virtualenv::
+
+   $ mkvirtualenv --distribute yeadon
+
+Install VTK to the virtualenv directory::
+
+   (yeadon)$ cd ~/envs/yeadon
+   (yeadon)$ wget http://www.vtk.org/files/release/5.10/vtk-5.10.1.tar.gz
+   (yeadon)$ tar -zxvf vtk-5.10.1.tar.gz
+   (yeadon)$ mkdir vtk-build
+   (yeadon)$ cd vtk-build
+   (yeadon)$ ccmake ../VTK5.10.1/
+
+This will load the curses cmake ui. Press `c` for the initial configuration,
+then edit these flags using the up and down arrows and the `enter` key::
+
+   BUILD_DOCUMENTATION=ON
+   BUILD_EXAMPLES=ON
+   BUILD_SHARED_LIBS=ON
+   CMAKE_INSTALL_PREFIX=/home/moorepants/envs/yeadon
+   VTK_WRAP_PYTHON=ON
+   VTK_WRAP_TCL=ON
+
+The `PYTHON_EXECUTABLE` and `PYTHON_LIBRARY` flags should already be set to the
+virutalenv Python executable if the environment was activated when you call
+ccmake. Press `c` again to configure and then `g` to generate the make file. Now
+compile the source with::
+
+   (yeadon)$ make -j 2 # j does it in parallel on 2 engines
+
+This takes a long time...
+
+::
+
+   (yeadon)$ make install
+
+VTK should now be installed in `~/envs/yeadon` and you can import vtk in a
+Python interpreter.
+
+::
+
+   $ python -c "import vtk"
+   Traceback (most recent call last):
+     File "<string>", line 1, in <module>
+     File "/home/moorepants/envs/yeadon/local/lib/python2.7/site-packages/VTK-5.10.1-py2.7.egg/vtk/__init__.py", line 41, in <module>
+       from vtkCommonPython import *
+   ImportError: libvtkCommonPythonD.so.5.10: cannot open shared object file: No such file or directory
+
+This import error may raise, the following can be added to your `~/.bashrc` to
+fix it::
+
+   $ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/moorepants/envs/yeadon/lib/vtk-5.10"
+
+We need some GUI backend, either wxPython or PyQt::
+
+   (yeadon)$ cd ~/envs/yeadon
+   (yeadon)$ wget http://downloads.sourceforge.net/wxpython/wxPython-src-2.9.4.0.tar.bz2
+   (yeadon)$ tar -jxvf wxPython-src-2.9.4.0.tar.bz2
+   (yeadon)$ wget http://downloads.sourceforge.net/project/wxpython/wxPython/2.9.4.0/wxPython-src-2.9.4.1.patch
+   (yeadon)$ cd wxPython-src-2.9.4.0
+   (yeadon)$ patch -p0 < ../wxPython-src-2.9.4.1.patch
+   (yeadon)$ cd wxPython
+   (yeadon)$ apt-get install libgstreamer1.0-dev libgstreamer-plugins-base0.10-dev libgconf2-dev
+   (yeadon)$ ./build-wxpython.py \
+   > --prefix=/home/moorepants/envs/yeadon/local \
+   > --wxpy_installdir=/home/moorepants/envs/yeadon/local \
+   > --build_dir=/home/moorepants/envs/yeadon/wx-build \
+   > --install
+   (yeadon)$ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/moorepants/envs/yeadon/lib"
+
+wxPython 2.9 is not yet compatible with VTK. I get this error::
+
+   File "/home/moorepants/envs/yeadon/local/lib/python2.7/site-packages/wx-2.9.4-gtk2/wx/glcanvas.py", line 106, in __init__
+       _glcanvas.GLCanvas_swiginit(self,_glcanvas.new_GLCanvas(*args, **kwargs))
+   TypeError: Argument given by name ('attribList') and position (3)
+
+See this note: https://groups.google.com/forum/?fromgroups=#!topic/wxpython-users/MxJPxlOS05A
+
+So I best turn to something like this for symlinking from your system install:
+
+http://stackoverflow.com/questions/10457647/how-do-i-install-wxpython-in-virtualenv
+
+Once it is done you can install the Python based libraries fairly easily
+(although NumPy has to compile too).::
+
+   (yeadon)$ cd /path/to/yeadon
+
+Install and compile NumPy own its own (is doesn't install properly with the
+`install_requires` argument in setup.py for some reason). Then install the
+yeadon package::
+
+   (yeadon)$ pip install numpy # this requires compilers to be installed properly
+   (yeadon)$ python setup.py install
+
+Now get the optional dependencies::
+
+   (yeadon)$ pip install mayavi sphinx nose numpydoc
 
 Contact
 =======
