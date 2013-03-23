@@ -97,22 +97,22 @@ def rotate_space_123(angles):
 
 def euler_123(angles):
     """
-    Returns the direction cosine matrix as a function of the Euler 123 angles
-    (body fixed rotation).
+    Returns the direction cosine matrix of rotated frame B with respect to
+    frame A as a function of the Euler 123 angles (body fixed rotation).
 
     Parameters
     ----------
-    angles : numpy.array or list or tuple, shape(3,)
+    angles : array_like, shape(3,)
         Three angles (in units of radians) that specify the orientation of a
-        new reference frame with respect to a fixed reference frame. The first
-        angle, phi, is a rotation about the fixed frame's x-axis. The second
-        angle, theta, is a rotation about the new y-axis (which is realized
-        after the phi rotation). The third angle, psi, is a rotation about the
-        new z-axis (which is realized after the theta rotation). Thus, all
-        three angles are "relative" rotations with respect to the new frame.
-        Note: if the rotations are viewed as occuring in the opposite direction
-        (z, then y, then x), all three rotations are with respect to the
-        initial fixed frame rather than "relative".
+        new reference frame, B, with respect to a fixed reference frame, A. The
+        first angle, phi, is a rotation about the fixed frame's x-axis. The
+        second angle, theta, is a rotation about the new y-axis (which is
+        realized after the phi rotation). The third angle, psi, is a rotation
+        about the new z-axis (which is realized after the theta rotation).
+        Thus, all three angles are "relative" rotations with respect to each
+        new frame.  Note: if the rotations are viewed as occuring in the
+        opposite direction (z, then y, then x), all three rotations are with
+        respect to the initial fixed frame rather than "relative".
 
     Returns
     -------
@@ -128,14 +128,23 @@ def euler_123(angles):
 
     where
 
-    s1, s2, s3 = sine of the first, second and third angles, respectively
-    c1, c2, c3 = cosine of the first, second and third angles, respectively
+    s1, s2, s3 = sine of the first, second, and third angles, respectively
+    c1, c2, c3 = cosine of the first, second, and third angles, respectively
 
     So the unit vector b1 in the B frame can be expressed in the A frame (unit
     vectors a1, a2, a3) with:
 
     b1 = c2 * c3 * a1 + (s1 * s2 * c3 + s3 * c1) * a2 +
          (-c1 * c2 * c3 + s3 * s1) * a3
+
+    The rotation matrix is defined such that a R times a vector v_b in the
+    rotated reference frame equals the same vector, v_a, expressed in the
+    unrotated reference frame.
+
+        R * v_b = v_a
+
+    Where v_a is the vector expressed in the original fixed reference frame and
+    v_b is the same vector expressed in the rotated reference frame.
 
     """
 
@@ -187,6 +196,18 @@ def rotate3_inertia(rot_mat, relInertia):
     Inertia : numpy.matrix, shape(3,3)
         Inertia tensor with respect to a fixed coordinate system ("unrotated").
 
+    Notes
+    -----
+
+    This function expects that the rotation matrix is defined such that R times
+    a vector v_b in the rotated reference frame equals the same vector, v_a,
+    expressed in the unrotated reference frame.
+
+        R * v_b = v_a
+
+    Where v_a is the vector expressed in the original fixed reference frame and
+    v_b is the same vector expressed in the rotated reference frame.
+
     """
     return rot_mat * relInertia * rot_mat.T
 
@@ -237,3 +258,158 @@ def principal_axes(I):
     Ip = Ip[indices]
     C = C.T[indices]
     return Ip, C
+
+def x_rot(angle):
+    """Returns the rotation matrix for a reference frame rotated through an
+    angle about the x axis.
+
+    Parameters
+    ----------
+    angle : float
+        The angle in radians.
+
+    Returns
+    -------
+    Rx : np.matrix, shape(3,3)
+        The rotation matrix.
+
+    Notes
+    -----
+    v' = Rx * v where v is the vector expressed the reference in the original
+    reference frame and v' is the vector expressed in the new rotated reference
+    frame.
+
+    """
+    sa = np.sin(angle)
+    ca = np.cos(angle)
+    Rx = np.matrix([[1., 0. , 0.],
+                    [0., ca, sa],
+                    [0., -sa, ca]])
+    return Rx
+
+def y_rot(angle):
+    """Returns the rotation matrix for a reference frame rotated through an
+    angle about the y axis.
+
+    Parameters
+    ----------
+    angle : float
+        The angle in radians.
+
+    Returns
+    -------
+    Rx : np.matrix, shape(3,3)
+        The rotation matrix.
+
+    Notes
+    -----
+    v' = Rx * v where v is the vector expressed the reference in the original
+    reference frame and v' is the vector expressed in the new rotated reference
+    frame.
+
+    """
+    sa = np.sin(angle)
+    ca = np.cos(angle)
+    Ry = np.matrix([[ca, 0. , -sa],
+                    [0., 1., 0.],
+                    [sa, 0., ca]])
+    return Ry
+
+def z_rot(angle):
+    """Returns the rotation matrix for a reference frame rotated through an
+    angle about the z axis.
+
+    Parameters
+    ----------
+    angle : float
+        The angle in radians.
+
+    Returns
+    -------
+    Rx : np.matrix, shape(3,3)
+        The rotation matrix.
+
+    Notes
+    -----
+    v' = Rx * v where v is the vector expressed the reference in the original
+    reference frame and v' is the vector expressed in the new rotated reference
+    frame.
+
+    """
+    sa = np.sin(angle)
+    ca = np.cos(angle)
+    Rz = np.matrix([[ca, sa , 0.],
+                    [-sa, ca, 0.],
+                    [0., 0., 1.]])
+    return Rz
+
+def euler_rotation(angles, order):
+    """
+    Returns a rotation matrix for a reference frame, B,  in another reference
+    frame, A, where the B frame is rotated relative to the A frame via body
+    fixed rotations (Euler angles).
+
+    Parameters
+    ----------
+    angles : array_like
+        An array of three angles in radians that are in order of rotation.
+    order : tuple of integers
+        A three tuple containing a combination of ``1``, ``2``, and ``3`` where
+        ``1`` is about the x axis of the first reference frame, ``2`` is about
+        the y axis of the this new frame and ``3`` is about the z axis. Note
+        that (1, 1, 1) is a valid entry and will give you correct results, but
+        combinations like this are not necessarily useful for describing a
+        general configuration.
+
+    Returns
+    -------
+    R : numpy.matrix, shape(3,3)
+        A rotation matrix.
+
+    Notes
+    -----
+    The rotation matrix is defined such that a R times a vector v equals the
+    vector expressed in the rotated reference frame.
+
+        v' = R * v
+
+    Where v is the vector expressed in the original reference frame and v' is
+    the same vector expressed in the rotated reference frame.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from yeadon.inertia import euler_rotation
+    >>> angles = (np.pi, np.pi / 2., -np.pi / 4.)
+    >>> order = (3, 1, 3)
+    >>> rotMat = euler_rotation(angles, order)
+    >>> rotMat
+    matrix([[ -7.07106781e-01,   1.29893408e-16,  -7.07106781e-01],
+            [ -7.07106781e-01,   4.32978028e-17,   7.07106781e-01],
+            [  1.22464680e-16,   1.00000000e+00,   6.12323400e-17]])
+    >>> v = np.matrix([[1.], [0.], [0.]])
+    >>> vp = rotMat * v
+    >>> vp
+    matrix([[ -7.07106781e-01],
+            [ -7.07106781e-01],
+            [  1.22464680e-16]])
+
+    """
+
+    # check the length of both inputs
+    if len(angles) != 3 or len(order) != 3:
+        raise StandardError('The length of angles and order should be 3')
+
+    # make sure the order contains proper values
+    for v in order:
+        if v not in [1, 2, 3]:
+            raise ValueError('The values in order have to be 1, 2 or 3')
+
+    rot = [x_rot, y_rot, z_rot]
+
+    mat = []
+
+    for i, ang in enumerate(angles):
+        mat.append(rot[order[i] - 1](ang))
+
+    return mat[2] * mat[1] * mat[0]
