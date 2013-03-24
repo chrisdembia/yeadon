@@ -7,7 +7,6 @@ semiellipsoid classes.
 """
 # Use Python3 integer division rules.
 from __future__ import division
-import textwrap
 import warnings
 
 import numpy as np
@@ -168,29 +167,44 @@ class Solid(object):
 
     @property
     def center_of_mass(self):
-        """Center of mass of the solid, a np.ndarray, in units of m, in the
-        global frame, from the bottom center of the pelvis."""
+        """Center of mass of the solid, a np.ndarray, in units of m, expressed
+        in the global frame, from the bottom center of the pelvis (Ls0)."""
         return self._center_of_mass
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the solid, a np.matrix, in units of
-        kg-m^2, about the center of mass of the human, in the global frame.
+        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
+        about the center of mass of the human, expressed in the global frame.
         """
         return self._inertia
 
     @property
     def rel_center_of_mass(self):
-        """Center of mass of the solid, a np.ndarray, in units of m, in the
-        frame of the solid, from the origin of the solid."""
+        """Center of mass of the solid, a np.ndarray, in units of m, expressed
+        in the frame of the solid, from the origin of the solid."""
         return self._rel_center_of_mass
 
     @property
     def rel_inertia(self):
-        """Inertia matrix/dyadic of the solid, a np.matrix, in units of
-        kg-m^2, about the center of mass of the solid, in the frame of the
+        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
+        about the center of mass of the solid, expressed in the frame of the
         solid.  """
         return self._rel_inertia
+
+    @property
+    def pos(self):
+        """Position of the origin of the solid, which is the center of the
+        surface closest to the pelvis, a np.ndarray, in units of m, expressed
+        in the global frame, from the bottom center of the pelvis (Ls0)."""
+        return self._pos
+
+    @property
+    def end_pos(self):
+        """Position of the point on the solid farthest from the origin along
+        the longitudinal axis of the segment, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)."""
+        return self._end_pos
 
     def __init__(self, label, density, height):
         """Defines a solid. This is a base class. Sets the alpha value to
@@ -229,9 +243,9 @@ class Solid(object):
             Orientation of solid, with respect to the fixed coordinate system.
 
         """
-        self.pos = pos
-        self.rot_mat = rot_mat
-        self.endpos = self.pos + (self.height * self.rot_mat *
+        self._pos = pos
+        self._rot_mat = rot_mat
+        self._end_pos = self.pos + (self.height * self._rot_mat *
                                   np.array([[0], [0], [1]]))
         self.calc_properties()
 
@@ -242,7 +256,8 @@ class Solid(object):
         """
         try:
             try:
-                self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
+                self._center_of_mass = (self.pos + self._rot_mat *
+                        self.rel_center_of_mass)
             except AttributeError as err:
                 err.message = err.message + \
                     '. You must set the orientation before attempting ' + \
@@ -251,7 +266,7 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate3_inertia(self._rot_mat, self.rel_inertia)
 
     def print_properties(self):
         """Prints mass, center of mass (in solid and global frames),
@@ -456,7 +471,7 @@ class StadiumSolid(Solid):
         """Generates coordinates to be used for 3D visualization purposes.
 
         """
-        rotated_points = self.rot_mat * self._orig_mesh_points[i]
+        rotated_points = self._rot_mat * self._orig_mesh_points[i]
         X, Y, Z = np.vsplit(rotated_points, 3)
         X = X + self.pos[0]
         Y = Y + self.pos[1]
@@ -587,7 +602,7 @@ class Semiellipsoid(Solid):
                     [self._mesh_x[i,j]],
                     [self._mesh_y[i,j]],
                     [self._mesh_z[i,j]]])
-                POS = self.rot_mat * POS
+                POS = self._rot_mat * POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]

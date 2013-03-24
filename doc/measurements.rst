@@ -9,7 +9,7 @@ some guidance for taking those measurements and getting them into the code.
 There are 95 measurements to take that aid with the definition of 39 stadia, 39
 stadium solids, and one semi-ellipsoid.
 
-*Stadia* can be defined by either
+A *stadium* can be defined by either
  * a radius :math:`r` and thickness :math:`t`,
  * a perimeter :math:`p` and width :math:`w` along the stadium's longitudinal
    axis
@@ -19,7 +19,7 @@ stadium solids, and one semi-ellipsoid.
 .. image:: stadium.png
    :scale: 15 %
 
-A circle can be defined by a stadium solid whose thickness is zero, :math:`t = 0`.
+A circle can be defined by a stadium whose thickness is zero, :math:`t = 0`.
 
 *Stadium solids* are defined by two stadia, as well as the height :math:`h` of
 the solid between the two stadia.

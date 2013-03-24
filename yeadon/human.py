@@ -120,8 +120,8 @@ class Human(object):
     @property
     def inertia(self):
         """Inertia matrix/dyadic of the human, a np.matrix, in units of
-        kg-m^2, about the center of mass of the human, in the global frame.
-        """
+        kg-m^2, about the center of mass of the human, expressed in the global
+        frame.  """
         return self._inertia
 
     # Densities come from Yeadon 1990-ii.
@@ -1133,15 +1133,15 @@ class Human(object):
         self.P = seg.Segment( 'P: Pelvis', Ppos, PRotMat,
                               [self._s[0],self._s[1]] , (1,0,0))
         # thorax
-        Tpos = self._s[1].endpos
-        TRotMat = self._s[1].rot_mat * inertia.rotate_space_123(
+        Tpos = self._s[1].end_pos
+        TRotMat = self._s[1]._rot_mat * inertia.rotate_space_123(
                                     [self.CFG['PTsagittalFlexion'],
                                      self.CFG['PTfrontalFlexion'],0])
         self.T = seg.Segment( 'T: Thorax', Tpos, TRotMat,
                               [self._s[2]], (1,.5,0))
         # chest-head
-        Cpos = self._s[2].endpos
-        CRotMat = self._s[2].rot_mat * inertia.rotate_space_123(
+        Cpos = self._s[2].end_pos
+        CRotMat = self._s[2]._rot_mat * inertia.rotate_space_123(
                                     [0,
                                      self.CFG['TClateralSpinalFlexion'],
                                      self.CFG['TCspinalTorsion']])
@@ -1151,8 +1151,8 @@ class Human(object):
         # left upper arm
         dpos = np.array([[self._s[3].stads[1].width/2],[0.0],
                          [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3].rot_mat * dpos
-        A1RotMat = self._s[3].rot_mat * (inertia.rotate_space_123(
+        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
+        A1RotMat = self._s[3]._rot_mat * (inertia.rotate_space_123(
                                        [0,-np.pi,0]) *
                                           inertia.euler_123(
                                           [self.CFG['CA1elevation'],
@@ -1161,8 +1161,8 @@ class Human(object):
         self.A1 = seg.Segment( 'A1: Left upper arm', A1pos, A1RotMat,
                                [self._a[0],self._a[1]] , (0,1,0))
         # left forearm-hand
-        A2pos = self._a[1].endpos
-        A2RotMat = self._a[1].rot_mat * inertia.rotate_space_123(
+        A2pos = self._a[1].end_pos
+        A2RotMat = self._a[1]._rot_mat * inertia.rotate_space_123(
                                      [self.CFG['A1A2flexion'],0,0])
         self.A2 = seg.Segment( 'A2: Left forearm-hand', A2pos, A2RotMat,
                                [self._a[2],self._a[3],self._a[4],self._a[5],
@@ -1170,8 +1170,8 @@ class Human(object):
         # right upper arm
         dpos = np.array([[-self._s[3].stads[1].width/2],[0.0],
                          [self._s[3].height]])
-        B1pos = self._s[3].pos + self._s[3].rot_mat * dpos
-        B1RotMat = self._s[3].rot_mat * (inertia.rotate_space_123(
+        B1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
+        B1RotMat = self._s[3]._rot_mat * (inertia.rotate_space_123(
                                        [0,-np.pi,0]) *
                                            inertia.euler_123(
                                            [self.CFG['CB1elevation'],
@@ -1180,8 +1180,8 @@ class Human(object):
         self.B1 = seg.Segment( 'B1: Right upper arm', B1pos, B1RotMat,
                                [self._b[0],self._b[1]], (0,1,0))
         # right forearm-hand
-        B2pos = self._b[1].endpos
-        B2RotMat = self._b[1].rot_mat * inertia.rotate_space_123(
+        B2pos = self._b[1].end_pos
+        B2RotMat = self._b[1]._rot_mat * inertia.rotate_space_123(
                                      [self.CFG['B1B2flexion'],0,0])
         self.B2 = seg.Segment( 'B2: Right forearm-hand', B2pos, B2RotMat,
                                [self._b[2],self._b[3],self._b[4],self._b[5],
@@ -1189,8 +1189,8 @@ class Human(object):
         # left thigh
         dpos = np.array([[.5*self._s[0].stads[0].thickness+
                           .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        J1pos = self._s[0].pos + self._s[0].rot_mat * dpos
-        J1RotMat = self._s[0].rot_mat * (inertia.rotate_space_123(
+        J1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
+        J1RotMat = self._s[0]._rot_mat * (inertia.rotate_space_123(
                                        np.array([0,np.pi,0])) *
                                           inertia.rotate_space_123(
                                           [self.CFG['PJ1flexion'],
@@ -1198,8 +1198,8 @@ class Human(object):
         self.J1 = seg.Segment( 'J1: Left thigh', J1pos, J1RotMat,
                                [self._j[0],self._j[1],self._j[2]], (0,1,0))
         # left shank-foot
-        J2pos = self._j[2].endpos
-        J2RotMat = self._j[2].rot_mat * inertia.rotate_space_123(
+        J2pos = self._j[2].end_pos
+        J2RotMat = self._j[2]._rot_mat * inertia.rotate_space_123(
                                      [-self.CFG['J1J2flexion'],0,0])
         self.J2 = seg.Segment( 'J2: Left shank-foot', J2pos, J2RotMat,
                                [self._j[3],self._j[4],self._j[5],self._j[6],
@@ -1207,8 +1207,8 @@ class Human(object):
         # right thigh
         dpos = np.array([[-.5*self._s[0].stads[0].thickness-
                            .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self._s[0].pos + self._s[0].rot_mat * dpos
-        K1RotMat = self._s[0].rot_mat * (inertia.rotate_space_123(
+        K1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
+        K1RotMat = self._s[0]._rot_mat * (inertia.rotate_space_123(
                                        np.array([0,np.pi,0])) *
                                        inertia.rotate_space_123(
                                           [self.CFG['PK1flexion'],
@@ -1216,8 +1216,8 @@ class Human(object):
         self.K1 = seg.Segment( 'K1: Right thigh', K1pos, K1RotMat,
                                [self._k[0],self._k[1],self._k[2]], (0,1,0))
         # right shank-foot
-        K2pos = self._k[2].endpos
-        K2RotMat = self._k[2].rot_mat * inertia.rotate_space_123(
+        K2pos = self._k[2].end_pos
+        K2RotMat = self._k[2]._rot_mat * inertia.rotate_space_123(
                                       [-self.CFG['K1K2flexion'],0,0])
         self.K2 = seg.Segment( 'K2: Right shank-foot', K2pos, K2RotMat,
                                [self._k[3],self._k[4],self._k[5],self._k[6],
@@ -1325,7 +1325,6 @@ class Human(object):
 
         """
         fid = open(fname,'w')
-        n = self.meas
         m = copy.copy(self.meas)
 
         # Convert units.

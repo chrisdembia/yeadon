@@ -280,8 +280,8 @@ def test_solid():
 
     sol.set_orientation(position, C)
     testing.assert_allclose(sol.pos, position)
-    testing.assert_allclose(sol.rot_mat, C)
-    testing.assert_allclose(sol.endpos, position + (height * C * array([[0],
+    testing.assert_allclose(sol._rot_mat, C)
+    testing.assert_allclose(sol.end_pos, position + (height * C * array([[0],
         [0], [1]])))
     testing.assert_allclose(sol.inertia, zeros((3, 3)))
 

@@ -133,55 +133,142 @@ Summary of functionality
     Below, we delve into more detail about what these quantities are.
 
 **Return inertia properties**
-    It may be desirable to directly access the inertia properties from the
-    attributes as below:
+    It may be desirable to directly access the kinematics information and
+    inertia properties from the attributes as below. Below, we show the
+    docstrings for these properties, as can be accessed in an `IPython
+    <ipython.org>`_ console. Also, one can obtain iinformation about the data
+    type of the properties using ``help(<property>)`` (e.g.,
+    ``help(chad.mass)``). We refer to the locations "the bottom center of the
+    pelvis (Ls0)", and "origin of the segment/solid"; and the "global" and
+    "segment" frames. These locations and frames are descrbed in
+    :ref:`configuration`.
 
-    - ``H.Mass``
-    - ``H.COM``
-    - ``H.Inertia``
-    - ``H.J1.Mass``
-    - ``H.J1.relCOM`` (in the local coordinates of the J1 segment)
-    - ``H.J1.pos`` (in fixed human coordinates; position of the "root" of a
-      segment)
-    - ``H.J1.COM``
-    - ``H.J1.endpos`` (in fixed human coordinates; position of "tip" of a
-      segment)
-    - ``H.J1.relInertia`` (in the local coordinates of the J1 segment)
-    - ``H.J1.Inertia``
-    - ``H.j[0].Mass``
-    - ``H.j[0].relCOM``
-    - ``H.j[0].pos``
-    - ``H.j[0].COM``
-    - ``H.j[0].endpos``
-    - ``H.j[0].relInertia``
-    - ``H.j[0].Inertia``
+    There are three inertia properties for the human overall::
 
-    See below for a full list of all segment objects and solid objects.
+        >>> chad.mass?
+        ...Docstring:  Mass of the human, in units of kg....
+
+        >>> chad.center_of_mass?
+        ...Docstring: Center of mass of the human, a np.ndarray, in units of m,
+        expressed the global frame, from the bottom center of the pelvis
+        (center of the Ls0 stadium)....
+
+        >>> chad.inertia?
+        ...Docstring: Inertia matrix/dyadic of the human, a np.matrix, in units
+        of kg-m^2, about the center of mass of the human, expressed in the
+        global frame....
+
+    For each segment, there are five properties that are related to inertia,
+    and three related strictly to kinematics::
+
+        >>> chad.J1.mass?
+        ...Docstring:  Mass of the segment, in units of kg....
+
+        >>> chad.J1.rel_center_of_mass?
+        ...Docstring: Center of mass of the segment, a np.ndarray, in units of
+        m, expressed in the frame of the segment, from the origin of the
+        segment....
+
+        >>> chad.J1.center_of_mass?
+        ...Docstring: Center of mass of the segment, a np.ndarray, in units of
+        m, expressed in the global frame, from the bottom center of the
+        pelvis....
+
+        >>> chad.J1.rel_inertia?
+        ...Docstring: Inertia matrix/dyadic of the segment, a np.matrix, in
+        units of kg-m^2, about the center of mass of the segment, expressed in
+        the frame of the segment....
+
+        >>> chad.J1.inertia?
+        ...Docstring: Inertia matrix/dyadic of the segment, a np.matrix, in
+        units of kg-m^2, about the center of mass of the human, expressed in
+        the global frame....
+
+        >>> chad.J1.pos?
+        ...Docstring: Position of the origin of the segment, a np.ndarray, in
+        units of m, expressed in the global frame, from the bottom center of
+        the pelvis (Ls0)....
+
+        >>> chad.J1.end_pos?
+        ...Docstring: Position of the center of the last (farthest from pelvis)
+        stadium in this segment, a np.ndarray, in units of m, expressed in the
+        global frame, from the bottom center of the pelvis (Ls0)....
+
+        >>> chad.J1.rot_mat?
+        ...Docstring: Rotation matrix specifying the orientation of this
+        segment relative to the orientation of the global frame, a np.matrix,
+        unitless.  Multiplying a vector expressed in this segment's frame with
+        this rotation matrix on the left gives that same vector, but expressed
+        in the global frame....
+
+    The attributes for the solids are similar to those for the segments, except
+    that they do not have a ``rot_mat`` attribute (their ``rot_mat`` is that of
+    the segment containing them)::
+
+        >>> chad.J1.solids[0].mass?
+        ...Docstring: Mass of the solid, in units of kg....
+
+        >>> chad.J1.solids[0].center_of_mass?
+        ...Docstring: Center of mass of the solid, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)....
+
+        >>> chad.J1.solids[0].inertia?
+        ...Docstring: Inertia matrix/dyadic of the solid, a np.matrix, in units
+        of kg-m^2, about the center of mass of the human, expressed in the
+        global frame....
+
+        >>> chad.J1.solids[0].rel_center_of_mass?
+        ...Docstring: Center of mass of the solid, a np.ndarray, in units of m,
+        expressed in the frame of the solid, from the origin of the solid....
+
+        >>> chad.J1.solids[0].rel_inertia?
+        ...Docstring: Inertia matrix/dyadic of the solid, a np.matrix, in units
+        of kg-m^2, about the center of mass of the solid, expressed in the
+        frame of the solid....
+
+        >>> chad.J1.solids[0].pos?
+        ...Docstring: Position of the origin of the solid, which is the center
+        of the surface closest to the pelvis, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)....
+
+        >>> chad.J1.solids[0].end_pos?
+        ...Docstring: Position of the point on the solid farthest from the
+        origin along the longitudinal axis of the segment, a np.ndarray, in
+        units of m, expressed in the global frame, from the bottom center of
+        the pelvis (Ls0)....
 
 **Draw**
 
-    - ``H.draw_mayavi()``: MayaVi.
+    One can create a window with a 3D rendering of the human model. The
+    rendering portrays the human with the given measurements and specified
+    configuration::
+
+        >>> chad.draw()
 
 **Combine inertia**
-    Provides the mass, center of mass, and inertia tensor for a combination of
-    solids and/or segments. This can be done from the method
-    ``yeadon.human.combine_inertia``. See the help for the method to to use it.
+    One can obtain gross inertia properties for a combination of solids and/or
+    segments. This is done via the ``chad.combine_inertia()`` method. See
+    :ref:`apidoc` for more information.
 
 **Scale by mass**
-    Set the mass of the human to be a measured mass by scaling the densities
-    that the code uses. This is done by providing a positive value for
-    ``totalmass`` in the measurement text input file.
+    Set the mass of the human to a measured mass by scaling the densities that
+    the code uses. This can be done via the measurement input file by providing
+    a positive value for ``totalmass`` (see measurement file template) or by a
+    call to the ``chad.scale_human_by_mass()`` method.
 
 **Symmetry**
-    The measurements for the left and right limbs are averaged to create
-    symmetrical limbs. This may be desirable depending on a user's use of the
-    package. By default, this average is set to occur, It can be turned off for
-    a human by using a third input to the human constructor of ``False``.
+    One can average the measurements for the left and right limbs to create
+    symmetrical limbs. This may be desirable depending on the user's use of the
+    package. This symmetry is imposed by default. It can be turned off by
+    setting the keyword argument ``symmetric`` of the ``Human`` constructor to
+    ``False``.
 
 **File Input/Output**
-    The measurements can be written to a txt file using
-    ``yeadon.human.write_measurements``. The configuration can be written using
-    ``yeadon.human.write_CFG``. The measurements can be converted and written
+    The measurements can be written to a text file using
+    ``chad.write_measurements()``. The configuration can be written using
+    ``chad.write_CFG()``. The measurements can be converted and written
     to a text file that is ready for Yeadon's ISEG fortran code that performs
     many of the same calculations as this packge by using
-    ``yeadon.human.write_meas_for_ISEG``.
+    ``chad.write_meas_for_ISEG()``.

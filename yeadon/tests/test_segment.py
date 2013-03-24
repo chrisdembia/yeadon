@@ -4,7 +4,6 @@ import sys
 import os
 
 import unittest
-import nose
 import numpy as np
 from numpy import testing, pi
 
@@ -53,26 +52,26 @@ class TestSegments(unittest.TestCase):
         # -- Check the other constructor actions.
         # Setting orientations of all constituent solids.
         assert (seg1.solids[0].pos == pos).all()
-        assert (seg1.solids[0].rot_mat == rot).all()
+        assert (seg1.solids[0]._rot_mat == rot).all()
         pos2 = np.array([[6], [2], [3]])
-        assert (seg1.solids[0].endpos == pos2).all()
+        assert (seg1.solids[0].end_pos == pos2).all()
 
         # 2nd solid in the segment.
         assert (seg1.solids[1].pos == pos2).all()
-        assert (seg1.solids[1].rot_mat == rot).all()
+        assert (seg1.solids[1]._rot_mat == rot).all()
         # See definition of solids in setUp().
         pos3 = pos2 + np.array([[6],[0],[0]])
-        assert (seg1.solids[1].endpos == pos3).all()
+        assert (seg1.solids[1].end_pos == pos3).all()
 
         # 3rd solid in the segment.
         assert (seg1.solids[2].pos == pos3).all()
-        assert (seg1.solids[2].rot_mat == rot).all()
+        assert (seg1.solids[2]._rot_mat == rot).all()
         # See definition of solids in setUp().
         pos4 = pos3 + np.array([[7],[0],[0]])
-        assert (seg1.solids[2].endpos == pos4).all()
+        assert (seg1.solids[2].end_pos == pos4).all()
 
         # Other segment-wide attributes we define.
-        assert (seg1.endpos == pos4).all()
+        assert (seg1.end_pos == pos4).all()
         assert (seg1.length == (5 + 6 + 7)).all()
 
         # -- The constructor then calls calc_rel_properties().
