@@ -6,15 +6,20 @@ Measurements
 This document describes the measurements that need to be taken, and provides
 some guidance for taking those measurements and getting them into the code.
 
-There are 95 measurements to take that aid with the definition of 39 stadia, 39
-stadium solids, and one semi-ellipsoid.
+The human is composed of 11 rigid-body segments. Each segment is defined as a
+loft across a number of stadium shapes, which are defined below. In one case, a
+segment contains a semi-ellipsoid. The model is customized to an individual via
+95 anthropomorphic measurements to define the stadia and the distances between
+them.
 
-A *stadium* can be defined by either
- * a radius :math:`r` and thickness :math:`t`,
- * a perimeter :math:`p` and width :math:`w` along the stadium's longitudinal
+A *stadium* shape, show in the figure below, can be defined via any of the 4
+following sets of 2 parameters:
+
+ - a radius :math:`r` and thickness :math:`t`,
+ - a perimeter :math:`p` and width :math:`w` along the stadium's longitudinal
    axis
- * a perimeter :math:`p` and a depth :math:`d = 2r`.
- * a depth :math:`d` and a width :math:`w`.
+ - a perimeter :math:`p` and a depth :math:`d = 2r`.
+ - a depth :math:`d` and a width :math:`w`.
 
 .. image:: stadium.png
    :scale: 15 %
@@ -22,43 +27,42 @@ A *stadium* can be defined by either
 A circle can be defined by a stadium whose thickness is zero, :math:`t = 0`.
 
 *Stadium solids* are defined by two stadia, as well as the height :math:`h` of
-the solid between the two stadia.
+the solid between the two stadia (i.e., a loft between the two stadium cross
+sections).
 
-To define the stadium solids that compose the human model, one can take the
+To define the stadium solids that make up the human model, one can take the
 measurements outlined here. The measurements consist of *lengths* :math:`L` (not
 heights), perimeters :math:`p`, heights :math:`h`, and depths :math:`d`.
 
-By measuring the parameters that define the stadia ('levels') and the distance
-between these stadia, we can create 39 stadium solids, which are lofted
-stadia. Each stadium is shared by two stadium solids, except for the stadia at
-the end of the hands and feet. In general, the stadia are defined by measuring
-perimeter and width, since these are easier to physically measure. There are a
-few exceptions though, and these are described further down the page.
+By measuring the parameters that define the stadia, or *levels*, and the
+distance between these stadia, we define 39 stadium solids. Each stadium is
+shared by two stadium solids, except for the stadia at the end of the hands and
+feet. In general, the stadia are defined by measuring perimeter and width,
+since these are easier to physically measure.  There are a few exceptions
+though, and these are described further down the page.
 
-Scaling densities by measured mass
-----------------------------------
-It is possible to "correct" the mass of the model by inputting an actual
-measured mass of the human. This will cause all the densities (and thus all the
-masses) to be scaled by the actual total mass. This is done by setting a value
-for ``totalmass`` in the measurement input text file (read the next section).
-The variable can be omitted from the text file though, or alternatively can
-have a non-positive value.
+Scaling densities via a measured mass
+-------------------------------------
+The mass of the model is estimated from the measurements described above, along
+with densities for the various segments taken from the literature. In the case
+that the experimentalist also measures the mass of the individual being
+modeled, it is possible to scale the densities so that the total mass of the
+human is that which the experimentalist has measured. See :ref:`usage` for a
+brief explanation on how to do this.
 
-Getting measurements into the code
-----------------------------------
-There are three options for getting measurements into the code.
+Getting measurements into the model
+-----------------------------------
+There are three options for getting measurements into the model.
 
- - Use the ``meastemplate.txt`` file in the yeadon/ directory, or
+ - Use the `meastemplate.txt` input text file in the yeadon/ directory, or
    :download:`here <../misc/meastemplate.txt>`. The file uses the `YAML`_
-   syntax.
- - Use the ``measform.PDF`` form in the yeadon/ directory, or :download:`here
-   <../misc/measform.pdf>`. If you install the python package pdfminer, you can run
-   the python script measpdf2txt.py in yeadon/, or :download:`here
-   <../misc/measpdf2txt.py>`.
- - Provide a python dictionary (type dict) containing all the appropriate
-   fields. You can obtain a dictionary from the variable H.meas. The keys for
-   the dictionary are the names of the variables as they are in the
-   meastemplate.txt file, but as strings.
+   syntax. This syntax allows the user to treat the input file as a Python
+   script in which one simply defines a number of variables. See comments
+   within the file for further details.
+ - Provide a python dictionary containing all the appropriate
+   fields. You can obtain a sample dictionary from the variable
+   ``yeadon.Human.meas``. The keys for the dictionary are the names of the
+   variables in the `meastemplate.txt` file, but as strings.
 
 You can provide either the path (as a string) to the .txt file that results
 from the first two options, or you can just provide the dict directly when
