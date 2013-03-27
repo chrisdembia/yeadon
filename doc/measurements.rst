@@ -6,6 +6,9 @@ Measurements
 This document describes the measurements that need to be taken, and provides
 some guidance for taking those measurements and getting them into the code.
 
+The stadium shape and the stadium solid
+---------------------------------------
+
 The human is composed of 11 rigid-body segments. Each segment is defined as a
 loft across a number of stadium shapes, which are defined below. In one case, a
 segment contains a semi-ellipsoid. The model is customized to an individual via
@@ -30,9 +33,15 @@ A circle can be defined by a stadium whose thickness is zero, :math:`t = 0`.
 the solid between the two stadia (i.e., a loft between the two stadium cross
 sections).
 
+Specification of all measurements
+---------------------------------
+
+The figure below specifies all 95 measurements
+
 To define the stadium solids that make up the human model, one can take the
-measurements outlined here. The measurements consist of *lengths* :math:`L` (not
-heights), perimeters :math:`p`, heights :math:`h`, and depths :math:`d`.
+measurements outlined here. The measurements consist of *lengths* :math:`L`
+(not heights), perimeters :math:`p`, heights :math:`h`, widths :math:`w`, and
+depths :math:`d`.
 
 By measuring the parameters that define the stadia, or *levels*, and the
 distance between these stadia, we define 39 stadium solids. Each stadium is
@@ -41,39 +50,39 @@ feet. In general, the stadia are defined by measuring perimeter and width,
 since these are easier to physically measure.  There are a few exceptions
 though, and these are described further down the page.
 
+.. image:: cld72_yeadon_meas_0716.png
+
 Scaling densities via a measured mass
 -------------------------------------
 The mass of the model is estimated from the measurements described above, along
 with densities for the various segments taken from the literature. In the case
-that the experimentalist also measures the mass of the individual being
-modeled, it is possible to scale the densities so that the total mass of the
-human is that which the experimentalist has measured. See :ref:`usage` for a
-brief explanation on how to do this.
+that you also measure the mass of the individual being modeled, it is possible
+to scale the densities so that the total mass of the human is that which you
+have measured. See :ref:`usage` for a brief explanation on how to do this.
 
 Getting measurements into the model
 -----------------------------------
-There are three options for getting measurements into the model.
+There are two options for getting measurements into the model:
 
  - Use the `meastemplate.txt` input text file in the yeadon/ directory, or
-   :download:`here <../misc/meastemplate.txt>`. The file uses the `YAML`_
-   syntax. This syntax allows the user to treat the input file as a Python
-   script in which one simply defines a number of variables. See comments
-   within the file for further details.
+   :download:`here <../misc/meastemplate.txt>` to define all measurements. The
+   file uses the `YAML`_ syntax. This syntax allows you  to treat the input
+   file as a Python script in which you simply define a number of variables.
+   See comments within the file for further details.
  - Provide a python dictionary containing all the appropriate
-   fields. You can obtain a sample dictionary from the variable
-   ``yeadon.Human.meas``. The keys for the dictionary are the names of the
-   variables in the `meastemplate.txt` file, but as strings.
+   fields to the :py:class:`yeadon.human.Human` constructor. You can obtain a
+   sample dictionary from the variable :py:attr:`yeadon.human.Human.meas`. The
+   keys for the dictionary are the names of the variables in the
+   `meastemplate.txt` file, as strings.
 
-You can provide either the path (as a string) to the .txt file that results
-from the first two options, or you can just provide the dict directly when
-creating a human object.
-
-In the first two cases, you can provide a value for the variable
-``measurementconversionfactor``. This is a number that converts the units of
-your measurements into meters. For example, if you took measurements in
-millimeters, this variable would have the value 0.001. If you are inputting
-using a dictionary, the units must be correct (and density scaling must be done
-by calling :py:meth:`yeadon.human.scale_human_by_mass()`.
+Internally, the package uses units of meters for the measurements. However, it
+may be that you have worked with different units. In the case that you are using `meastemplate.txt`, you can define the measurements using the units you
+desire, and the package will perform the unit conversion for you. This is done
+by providing a value for the variable ``measurementconversionfactor`` in
+`meastemplate.txt`. This is a number that converts the units of your
+measurements into meters. For example, if you took measurements in millimeters,
+you should give this variable the value 0.001. If you are inputting using a
+dictionary, the measurements must be in units of meters.
 
 It was mentioned above that lengths, not heights, are measured. That is to say
 that the inputs in the meastemplate.txt file are cumulative length
@@ -105,11 +114,9 @@ the Notes of the image below this section.
    measurement. This means that the acromion perimeter should be measured about
    the neck.
 
-.. image:: cld72_yeadon_meas_0716.png
-
 Sample measurement files
 ------------------------
-Here are measurement data files for three real-life people.
+Here are measurement data files for three people we measured:
  - :download:`male1 <../misc/samplemeasurements/male1.txt>`
  - :download:`male2 <../misc/samplemeasurements/male2.txt>`
  - :download:`male3 <../misc/samplemeasurements/male3.txt>`

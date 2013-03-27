@@ -260,7 +260,7 @@ Summary of functionality
 
 **Symmetry**
     One can average the measurements for the left and right limbs to create
-    symmetrical limbs. This may be desirable depending on the user's use of the
+    symmetrical limbs. This may be desirable depending on your use of the
     package. This symmetry is imposed by default. It can be turned off by
     setting the keyword argument ``symmetric`` of the ``Human`` constructor to
     ``False``.
