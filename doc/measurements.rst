@@ -52,6 +52,12 @@ though, and these are described further down the page.
 
 .. image:: cld72_yeadon_meas_0716.png
 
+It is lengths, not heights, that you measure off the subjects. That is to say
+that the length inputs are cumulative length measurements, not the heights of
+each individual stadium solid. For example, The "length" of the Ls5 acromion
+level is measured from Ls0, the hip joint centre, not from Ls4. The figure
+above lists the level from which the length to other levels are measured.
+
 Scaling densities via a measured mass
 -------------------------------------
 The mass of the model is estimated from the measurements described above, along
@@ -84,35 +90,31 @@ measurements into meters. For example, if you took measurements in millimeters,
 you should give this variable the value 0.001. If you are inputting using a
 dictionary, the measurements must be in units of meters.
 
-It was mentioned above that lengths, not heights, are measured. That is to say
-that the inputs in the meastemplate.txt file are cumulative length
-measurements, not the heights of each individual stadium solid. For example,
-The "length" of the Ls5 acromion level is measured from Ls0 the hip joint
-centre, not from Ls4. The proper lengths to measure are described in the image
-at the bottom of this page.
-
 Exceptions
 ----------
 The exceptions to the general measurement practice (lengths, perimeters, and
-widths) are explained here. There is also an explanation of all exceptions in
-the Notes of the image below this section.
+widths) are explained here.
 
- - Length exceptions: Lengths to arm level 1 and leg levels 2 and 7 are not
-   measured. The length from La0 to La1 (or Lb0 to Lb2) is set as half the
-   length from La0 to La2 (or Lb0 to Lb2). The lengths to leg levels 2 and 7
-   are calculated as averages of the two lengths around leg levels 2 and 7.
- - Levels that are circles (degenerate stadiums): Arm levels 0-3 (the first
+ - **Length exceptions**: Lengths to arm level 1 and leg levels 2 and 7 are not
+   measured. The length from La0 to La1 (or Lb0 to Lb2) is set programmatically
+   as half the length from La0 to La2 (or Lb0 to Lb2). The lengths to leg
+   levels 2 and 7 are calculated as averages of the two lengths around leg
+   levels 2 and 7.  Thus, perimeters, etc. at these levels should be measured
+   halfway between the surrounding levels (i.e., perimeter of the La1 stadium
+   is measured at the point in in the arm halfway between La0 and La2).
+ - **Levels that are circles** (zero-thickness stadia): Arm levels 0-3 (the first
    four arm levels) and leg levels 0-5 and 7 (the first six and the arch). For
    these, only a perimeter measurement is required (no width or depth is
    measured).
- - Depth measurements: The difference between a depth and a width is that a
-   depth is measured anterior to posterior (front to back), while widths are
-   measured medio-laterally (side to side). Depths are measured at the Ls5
-   acromion, and the Lj6, Lk6 heel.
- - The base of the neck, which is also located at level Ls5, acromion, is
-   modeled as circular. Its radius is obtained from the acromion perimeter
-   measurement. This means that the acromion perimeter should be measured about
-   the neck.
+ - **Depth measurements**: As far as measurements are concerned, the only
+   difference between a depth and a width is that a depth is measured anterior
+   to posterior (front to back), while widths are measured medio-laterally
+   (side to side). Depths are measured at the Ls5 acromion, and the Lj6, Lk6
+   heel.
+ - **The neck**: The base of the neck, which is also located at level Ls5,
+   acromion, is modeled as circular. Its radius is set programmatically from
+   the acromion perimeter measurement. This means that the acromion perimeter
+   should be measured about the base of the neck.
 
 Sample measurement files
 ------------------------
