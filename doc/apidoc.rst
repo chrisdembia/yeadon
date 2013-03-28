@@ -1,7 +1,10 @@
 .. _apidoc:
 
 API Documentation
-===========================
+=================
+
+The user only interacts with the :py:mod:`yeadon.human` module. The interface to the other
+modules are only useful to developers.
 
 :mod:`yeadon` Package
 ---------------------
@@ -17,5 +20,3 @@ API Documentation
    human.rst
    segment.rst
    solid.rst
-   ui.rst
-   densities.rst

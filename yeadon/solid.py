@@ -1,8 +1,8 @@
 """Solid objects are used by the segment module. A solid has a position, and
 orientation (defined by a rotation matrix). This module also contains the
 class definition for stadium objects, which are used to construct
-stadiumsolid solids. The solid class has two children: the stadiumsolid and
-semiellipsoid classes.
+StadiumSolid solids. The Solid class has two subclasses: the StadiumSolid and
+Semiellipsoid classes.
 
 """
 # Use Python3 integer division rules.

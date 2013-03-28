@@ -1,30 +1,7 @@
-"""The human module defines the human class, which is composed of segments.
-The human class has methods to define the constituent segments from inputs,
+"""The human module defines the Human class, which is composed of Segment's.
+The Human class has methods to define the constituent segments from inputs,
 calculates their properties, and manages file input/output.
 
-Typical usage (not using yeadon.ui.start_ui())
-
-::
-
-    # create human object, providing paths to measurement and configuration
-    # filenames (.txt files). Configuration input is optional.
-    H = y.Human(<measfname>, <CFGfname>)
-    # transform the absolute fixed coordiantes from yeadon's to your system's
-    H.transform_coord_sys(pos, rotmat)
-    # obtain inertia information
-    var1 = H.mass
-    var2 = H.center_of_mass
-    # Human's inertia tensor about H.center_of_mass.
-    var3 = H.inertia
-    var4 = H.J1.mass
-    var5a = H.J1.rel_center_of_mass
-    var5b = H.J1.center_of_mass
-    var6 = H.J1.inertia
-    var7 = H.J1.solids[0].mass
-    var8 = H.J1.solids[0].center_of_mass
-    var9 = H.J1.solids[1].inertia``
-
-See documentation for a complete description of functionality.
 """
 
 # Use Python3 integer division rules.
@@ -303,14 +280,14 @@ class Human(object):
         function validates and updates the human model with the new
         configuration variable.
 
-           Parameters
-           ----------
-           varname : str
-               Must be a valid name of a configuration variable.
-           value : float
-               New value for the configuration variable identified by varname.
-               Units are radians.  This value will be validated for joint angle
-               limits.
+        Parameters
+        ----------
+        varname : str
+            Must be a valid name of a configuration variable.
+        value : float
+            New value for the configuration variable identified by varname.
+            Units are radians.  This value will be validated for joint angle
+            limits.
 
         """
         if varname not in self.CFGnames:
@@ -326,6 +303,8 @@ class Human(object):
         and modify it). After configuration is update, the segments are
         updated.
 
+        Parameters
+        ----------
         CFG : dict
             Stores the 21 joint angles.
 

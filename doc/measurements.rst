@@ -70,7 +70,7 @@ Getting measurements into the model
 -----------------------------------
 There are two options for getting measurements into the model:
 
- - Use the `meastemplate.txt` input text file in the yeadon/ directory, or
+ - Use the `meastemplate.txt` input text file in the misc/ directory, or
    :download:`here <../misc/meastemplate.txt>` to define all measurements. The
    file uses the `YAML`_ syntax. This syntax allows you  to treat the input
    file as a Python script in which you simply define a number of variables.
