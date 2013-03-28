@@ -161,7 +161,7 @@ information.
 Contact
 =======
 
-Feel free to contact Chris Dembia (fitzeq@gmail.com) with any questions or
+Feel free to contact Chris Dembia (chris530d, gmail) with any questions or
 comments.
 
 All development is handled at `<http://github.com/fitze/yeadon>`_, including issue
