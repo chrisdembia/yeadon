@@ -13,10 +13,10 @@ from human import Human
 sliders = ['somersalt',
            'tilt',
            'twist',
-           'PtSagittalFlexion',
-           'PtFrontalFlexion',
-           'TcSpinalTorsion',
-           'TcLateralSpinalFlexion',
+           'PTSagittalFlexion',
+           'PTFrontalFlexion',
+           'TCSpinalTorsion',
+           'TCLateralSpinalFlexion',
            'CA1elevation',
            'CA1abduction',
            'CA1rotation',
@@ -54,10 +54,10 @@ class YeadonGUI(HasTraits):
     somersalt              = Range(-180.0, 180.0, 0.0, **opts)
     tilt                   = Range(-180.0, 180.0, 0.0, **opts)
     twist                  = Range(-180.0, 180.0, 0.0, **opts)
-    PtSagittalFlexion      = Range(- 90.0, 180.0, 0.0, **opts)
-    PtFrontalFlexion       = Range(- 90.0,  90.0, 0.0, **opts)
-    TcSpinalTorsion        = Range(- 90.0,  90.0, 0.0, **opts)
-    TcLateralSpinalFlexion = Range(- 90.0,  90.0, 0.0, **opts)
+    PTSagittalFlexion      = Range(- 90.0, 180.0, 0.0, **opts)
+    PTFrontalFlexion       = Range(- 90.0,  90.0, 0.0, **opts)
+    TCSpinalTorsion        = Range(- 90.0,  90.0, 0.0, **opts)
+    TCLateralSpinalFlexion = Range(- 90.0,  90.0, 0.0, **opts)
     CA1elevation           = Range(- 90.0, 270.0, 0.0, **opts)
     CA1abduction           = Range(-270.0,  90.0, 0.0, **opts)
     CA1rotation            = Range(-180.0, 180.0, 0.0, **opts)
@@ -107,34 +107,35 @@ class YeadonGUI(HasTraits):
                     Item('somersalt'),
                     Item('tilt'),
                     Item('twist'),
-                    Item('PtSagittalFlexion'),
-                    Item('PtFrontalFlexion'),
-                    Item('TcSpinalTorsion'),
-                    Item('TcLateralSpinalFlexion'),
+                    Item('PTSagittalFlexion', label='PT sagittal flexion'),
+                    Item('PTFrontalFlexion', label='PT frontal flexion'),
+                    Item('TCSpinalTorsion', label='TC spinal torsion'),
+                    Item('TCLateralSpinalFlexion',
+                        label='TC lateral spinal flexion'),
                     label='Whole-body, pelvis, torso',
                     show_border=True,
                     dock='tab',
                     ),
                 Group(
-                    Item('CA1elevation'),
-                    Item('CA1abduction'),
-                    Item('CA1rotation'),
-                    Item('CB1elevation'),
-                    Item('CB1abduction'),
-                    Item('CB1rotation'),
-                    Item('A1A2flexion'),
-                    Item('B1B2flexion'),
+                    Item('CA1elevation', label='CA1 elevation'),
+                    Item('CA1abduction', label='CA1 abduction'),
+                    Item('CA1rotation', label='CA1 rotation'),
+                    Item('CB1elevation', label='CB1 elevation'),
+                    Item('CB1abduction', label='CB1 abduction'),
+                    Item('CB1rotation', label='CB1 rotation'),
+                    Item('A1A2flexion', label='A1A2 flexion'),
+                    Item('B1B2flexion', label='B1B2 flexion'),
                     label='Upper limbs',
                     show_border=True,
                     dock='tab',
                     ),
                 Group(
-                    Item('PJ1flexion'),
-                    Item('PJ1abduction'),
-                    Item('PK1flexion'),
-                    Item('PK1abduction'),
-                    Item('J1J2flexion'),
-                    Item('K1K2flexion'),
+                    Item('PJ1flexion', label='PJ1 flexion'),
+                    Item('PJ1abduction', label='PJ1 abduction'),
+                    Item('PK1flexion', label='PK1 flexion'),
+                    Item('PK1abduction', label='PK1 abduction'),
+                    Item('J1J2flexion', label='J1J2 flexion'),
+                    Item('K1K2flexion', label='K1K2 flexion'),
                     label='Lower limbs',
                     show_border=True,
                     dock='tab',
@@ -305,25 +306,25 @@ class YeadonGUI(HasTraits):
             'K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
-    @on_trait_change('PtSagittalFlexion')
+    @on_trait_change('PTSagittalFlexion')
     def _update_PTsagittalFlexion(self):
         self.H.set_CFG('PTsagittalFlexion', _d2r(self.PtSagittalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
-    @on_trait_change('PtFrontalFlexion')
+    @on_trait_change('PTFrontalFlexion')
     def _update_PTFrontalFlexion(self):
         self.H.set_CFG('PTfrontalFlexion', _d2r(self.PtFrontalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
-    @on_trait_change('TcSpinalTorsion')
+    @on_trait_change('TCSpinalTorsion')
     def _update_TCSpinalTorsion(self):
         self.H.set_CFG('TCspinalTorsion', _d2r(self.TcSpinalTorsion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
-    @on_trait_change('TcLateralSpinalFlexion')
+    @on_trait_change('TCLateralSpinalFlexion')
     def _update_TCLateralSpinalFlexion(self):
         self.H.set_CFG('TClateralSpinalFlexion',
                 _d2r(self.TcLateralSpinalFlexion))
