@@ -102,7 +102,7 @@ class YeadonGUI(HasTraits):
         editor=SceneEditor(scene_class=MayaviScene), height=500, width=500,
         show_label=False))
     config_group = VSplit(
-            HSplit(
+            Group(
                 Group(
                     Item('somersalt'),
                     Item('tilt'),
@@ -113,6 +113,7 @@ class YeadonGUI(HasTraits):
                     Item('TcLateralSpinalFlexion'),
                     label='Whole-body, pelvis, torso',
                     show_border=True,
+                    dock='tab',
                     ),
                 Group(
                     Item('CA1elevation'),
@@ -125,6 +126,7 @@ class YeadonGUI(HasTraits):
                     Item('B1B2flexion'),
                     label='Upper limbs',
                     show_border=True,
+                    dock='tab',
                     ),
                 Group(
                     Item('PJ1flexion'),
@@ -135,7 +137,9 @@ class YeadonGUI(HasTraits):
                     Item('K1K2flexion'),
                     label='Lower limbs',
                     show_border=True,
+                    dock='tab',
                     ),
+                layout='tabbed'
                 ),
             Item('reset_configuration'),
             label='Configuration variables',
