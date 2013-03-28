@@ -671,24 +671,27 @@ class TestHuman(unittest.TestCase):
 
         os.remove(path)
 
-    #def test_translate_coord_sys(self):
-        #"""Just translates once and makes sure only COM changes."""
-        #h = hum.Human(self.male1meas)
-        #h2 = hum.Human(self.male1meas)
-        #h2.translate_coord_sys([1, 2, 3])
-#
-        #testing.assert_almost_equal(h2.mass, h.mass)
-        #testing.assert_allclose(h2.center_of_mass,
-                #h.center_of_mass + np.array([[1], [2], [3]]))
-        #testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
+    def test_translate_coord_sys(self):
+        """Just translates once and makes sure only COM changes."""
+        # TODO this method has been hidden for v1.0 release.
+        h = hum.Human(self.male1meas)
+        h2 = hum.Human(self.male1meas)
+        h2._translate_coord_sys([1, 2, 3])
+
+        testing.assert_almost_equal(h2.mass, h.mass)
+        testing.assert_allclose(h2.center_of_mass,
+                h.center_of_mass + np.array([[1], [2], [3]]))
+        testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
         h = hum.Human(self.male1meas)
+        # TODO this method has been hidden for v1.0 release.
         pass
 
     def test_transform_coord_sys(self):
         # TODO this can be simple.
+        # TODO this method has been hidden for v1.0 release.
         pass
 
     def test_combine_inertia(self):
@@ -883,7 +886,7 @@ class TestHuman(unittest.TestCase):
         # Chris's original code computes the inverse of the rotation matrix
         # that I compute with euler_rotation
 
-        testing.assert_almost_equal(h.A1.rot_mat, R.T)
+        testing.assert_allclose(h.A1.rot_mat, R.T)
 
 
 # TODO compare ISEG output to our output.

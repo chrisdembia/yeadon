@@ -1,9 +1,9 @@
-'''Segment objects are used by the human module. A segment has a position, and
+"""Segment objects are used by the human module. A segment has a position, and
 an orientation. All constituent solids of a segment have the same orientation.
 That is to say that the base of the segment is at a joint in the human. The
 user does not interact with this module.
 
-'''
+"""
 # Use Python3 integer division rules.
 from __future__ import division
 
@@ -15,37 +15,62 @@ class Segment(object):
 
     @property
     def mass(self):
-        '''Mass of the segment, in units of kg.'''
+        """Mass of the segment, in units of kg."""
         return self._mass
 
     @property
     def center_of_mass(self):
-        '''Center of mass of the segment, a np.ndarray, in units of m, in the
-        global frame, from the bottom center of the pelvis.'''
+        """Center of mass of the segment, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)."""
         return self._center_of_mass
 
     @property
     def inertia(self):
-        '''Inertia matrix/dyadic of the segment, a np.matrix, in units of
-        kg-m^2, about the center of mass of the human, in the global frame.
-        '''
+        """Inertia matrix/dyadic of the segment, a np.matrix, in units of
+        kg-m^2, about the center of mass of the human, expressed in the global
+        frame."""
         return self._inertia
 
     @property
     def rel_center_of_mass(self):
-        '''Center of mass of the segment, a np.ndarray, in units of m, in the
-        frame of the segment, from the origin of the segment.'''
+        """Center of mass of the segment, a np.ndarray, in units of m,
+        expressed in the frame of the segment, from the origin of the
+        segment."""
         return self._rel_center_of_mass
 
     @property
     def rel_inertia(self):
-        '''Inertia matrix/dyadic of the segment, a np.matrix, in units of
-        kg-m^2, about the center of mass of the segment, in the frame of the
-        segment.  '''
+        """Inertia matrix/dyadic of the segment, a np.matrix, in units of
+        kg-m^2, about the center of mass of the segment, expressed in the frame
+        of the segment."""
         return self._rel_inertia
 
+    @property
+    def pos(self):
+        """Position of the origin of the segment, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)."""
+        return self._pos
+
+    @property
+    def end_pos(self):
+        """Position of the center of the last (farthest from pelvis) stadium in
+        this segment, a np.ndarray, in units of m, expressed in the global
+        frame, from the bottom center of the pelvis (Ls0)."""
+        return self._end_pos
+
+    @property
+    def rot_mat(self):
+        """Rotation matrix specifying the orientation of this segment relative
+        to the orientation of the global frame, a np.matrix, unitless.
+        Multiplying a vector expressed in this segment's frame with this
+        rotation matrix on the left gives that same vector, but expressed in
+        the global frame."""
+        return self._rot_mat
+
     def __init__(self, label, pos, rot_mat, solids, color):
-        '''Initializes a segment object. Stores inputs as instance variables,
+        """Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
         calculates the "relative" inertia parameters (mass, center of mass
         and inertia) of the segment.
@@ -56,7 +81,7 @@ class Segment(object):
             The ID and name of the segment.
         pos : numpy.array, shape(3,1)
             The vector position of the segment's base,
-            with respect to the fixed human frame.
+            with respect to the global frame.
         rot_mat : numpy.matrix, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
@@ -70,47 +95,47 @@ class Segment(object):
             Color with which to plot this segment in the plotting functions.
             RGB tuple with float values between 0 and 1.
 
-        '''
+        """
         self.label = label
         if pos.shape != (3, 1):
             raise ValueError("Position must be 3-D.")
-        self.pos = pos
-        self.rot_mat = rot_mat
+        self._pos = pos
+        self._rot_mat = rot_mat
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
         # must set the position of constituent solids before being able to
         # calculate relative/local properties.
         self._set_orientations()
-        self.endpos = self.solids[-1].endpos
-        self.length = np.linalg.norm(self.endpos - self.pos)
+        self._end_pos = self.solids[-1].end_pos
+        self.length = np.linalg.norm(self._end_pos - self.pos)
         self.calc_rel_properties()
 
 
     def _set_orientations(self):
-        '''Sets the position (self.pos) and rotation matrix (self.rot_mat)
+        """Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent
         solid's set_orientation method. The position of the i-th solid,
-        expressed in the fixed human reference frame, is given by the sum
+        expressed in the global frame, is given by the sum
         of the segment's base position and the directed height of all the
         solids of the segment up to the i-th solid.
 
-        '''
+        """
         # pos and rot_mat for first solid
         self.solids[0].set_orientation(self.pos, self.rot_mat)
         # pos and rot_mat for remaining solids
         for i in np.arange(self.nSolids):
             if i != 0:
-                pos = self.solids[i-1].endpos
+                pos = self.solids[i-1].end_pos
                 self.solids[i].set_orientation(pos, self.rot_mat)
 
     def calc_rel_properties(self):
-        '''Calculates the mass, relative/local center of mass, and
+        """Calculates the mass, relative/local center of mass, and
         relative/local inertia tensor (about the segment's center of mass).
         Also computes the center of mass of each constituent solid with
         respect to the segment's base in the segment's reference frame.
 
-        '''
+        """
         # mass
         self._mass = 0.0
         for s in self.solids:
@@ -147,48 +172,46 @@ class Segment(object):
                                       [dist[0, 0], dist[1, 0], dist[2, 0]]))
 
     def calc_properties(self):
-        '''Calculates the segment's center of mass with respect to the
-        fixed human frame origin (in the fixed human reference frame) and the
-        segment's inertia in the fixed human frame but about the segment's
-        center of mass.
+        """Calculates the segment's center of mass with respect to the bottm
+        center of the pelvis (Ls0) and the segment's inertia in the global
+        frame but about the segment's center of mass.
 
-        '''
+        """
         # center of mass
         self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
         self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
     def print_properties(self):
-        '''Prints mass, center of mass (in segment's and fixed human frames),
-        and inertia (in segment's and fixed human frames). Calls
-        ``calc_properties`` if COM or Inertia is not defiend for the segment.
+        """Prints mass, center of mass (in segment and global frames),
+        and inertia (in solid and global frames).
 
-        '''
+        """
         # self.COM, etc. needs to be defined first.
         if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
             self.calc_properties()
         print self.label, "properties:\n"
         print "Mass (kg):", self.mass, "\n"
-        print "COM in local segment frame (m):\n", self.rel_center_of_mass, "\n"
-        print "COM in fixed human frame (m):\n", self.center_of_mass, "\n"
-        print "Inertia tensor in segment frame about local segment",\
+        print "COM in segment's frame from segment's origin (m):\n",\
+                self.rel_center_of_mass, "\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass, "\n"
+        print "Inertia tensor in segment's frame about segment's",\
                "COM (kg-m^2):\n", self.rel_inertia, "\n"
-        print "Inertia tensor in fixed human frame about local segment",\
+        print "Inertia tensor in global frame about segment's",\
                "COM (kg-m^2):\n", self.inertia, "\n"
 
     def print_solid_properties(self):
-        '''Calls the print_properties() member method of each of this
+        """Calls the print_properties() member method of each of this
         segment's solids. See the solid class's definition of
         print_properties(self) for more detail.
 
-        '''
+        """
         for s in self.solids:
             s.print_properties()
 
     def draw_mayavi(self, mlabobj):
-        '''Draws in a MayaVi window all the solids within this segment.
-
-        '''
+        """Draws in a MayaVi window all the solids within this segment.  """
         for s in self.solids:
             s.draw_mayavi(mlabobj, self.color)
 

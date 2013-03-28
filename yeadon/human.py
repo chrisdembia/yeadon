@@ -1,30 +1,7 @@
-"""The human module defines the human class, which is composed of segments.
-The human class has methods to define the constituent segments from inputs,
+"""The human module defines the Human class, which is composed of Segment's.
+The Human class has methods to define the constituent segments from inputs,
 calculates their properties, and manages file input/output.
 
-Typical usage (not using yeadon.ui.start_ui())
-
-::
-
-    # create human object, providing paths to measurement and configuration
-    # filenames (.txt files). Configuration input is optional.
-    H = y.Human(<measfname>, <CFGfname>)
-    # transform the absolute fixed coordiantes from yeadon's to your system's
-    H.transform_coord_sys(pos, rotmat)
-    # obtain inertia information
-    var1 = H.mass
-    var2 = H.center_of_mass
-    # Human's inertia tensor about H.center_of_mass.
-    var3 = H.inertia
-    var4 = H.J1.mass
-    var5a = H.J1.rel_center_of_mass
-    var5b = H.J1.center_of_mass
-    var6 = H.J1.inertia
-    var7 = H.J1.solids[0].mass
-    var8 = H.J1.solids[0].center_of_mass
-    var9 = H.J1.solids[1].inertia``
-
-See documentation for a complete description of functionality.
 """
 
 # Use Python3 integer division rules.
@@ -38,7 +15,7 @@ try:
 except ImportError:
     print "Yeadon failed to import mayavi. It is possible that you do" \
           " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_mayavi() member functions."
+          "cannot use the draw() member function."
 
 import inertia
 import solid as sol
@@ -120,8 +97,8 @@ class Human(object):
     @property
     def inertia(self):
         """Inertia matrix/dyadic of the human, a np.matrix, in units of
-        kg-m^2, about the center of mass of the human, in the global frame.
-        """
+        kg-m^2, about the center of mass of the human, expressed in the global
+        frame.  """
         return self._inertia
 
     # Densities come from Yeadon 1990-ii.
@@ -303,14 +280,14 @@ class Human(object):
         function validates and updates the human model with the new
         configuration variable.
 
-           Parameters
-           ----------
-           varname : str
-               Must be a valid name of a configuration variable.
-           value : float
-               New value for the configuration variable identified by varname.
-               Units are radians.  This value will be validated for joint angle
-               limits.
+        Parameters
+        ----------
+        varname : str
+            Must be a valid name of a configuration variable.
+        value : float
+            New value for the configuration variable identified by varname.
+            Units are radians.  This value will be validated for joint angle
+            limits.
 
         """
         if varname not in self.CFGnames:
@@ -326,6 +303,8 @@ class Human(object):
         and modify it). After configuration is update, the segments are
         updated.
 
+        Parameters
+        ----------
         CFG : dict
             Stores the 21 joint angles.
 
@@ -369,8 +348,10 @@ class Human(object):
 
         """
         print "Mass (kg):", self.mass, "\n"
-        print "COM  (m):\n", self.center_of_mass, "\n"
-        print "Inertia tensor about COM (kg-m^2):\n", self.inertia, "\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass, "\n"
+        print "Inertia tensor in global frame about human's COM (kg-m^2):\n",\
+                self.inertia, "\n"
 
     def _translate_coord_sys(self, vec):
         """Moves the cooridinate system from the center of the bottom of the
@@ -563,7 +544,7 @@ class Human(object):
         labels = [s.label[0:len(name)] for s in self.segments]
         return self.segments[labels.index(name)]
 
-    def draw_mayavi(self, mlabobj=None):
+    def draw(self, mlabobj=None):
         """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
@@ -1135,8 +1116,8 @@ class Human(object):
                               (1.0, 0.0, 0.0))
 
         # thorax
-        Tpos = self._s[1].endpos
-        TRotMat = (self._s[1].rot_mat *
+        Tpos = self._s[1].end_pos
+        TRotMat = (self._s[1]._rot_mat *
             inertia.rotate_space_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTfrontalFlexion'],
                                       0.0]))
@@ -1147,8 +1128,8 @@ class Human(object):
                              (1.0, 0.5, 0.0))
 
         # chest-head
-        Cpos = self._s[2].endpos
-        CRotMat = (self._s[2].rot_mat *
+        Cpos = self._s[2].end_pos
+        CRotMat = (self._s[2]._rot_mat *
             inertia.rotate_space_123([0.0,
                                       self.CFG['TClateralSpinalFlexion'],
                                       self.CFG['TCspinalTorsion']]))
@@ -1163,10 +1144,10 @@ class Human(object):
         dpos = np.array([[self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3].rot_mat * dpos
+        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
         # WARNING: The arms are pre-rotated in abduction to be in the down
         # position and the abduction and rotation angles are negated.
-        A1RotMat = (self._s[3].rot_mat *
+        A1RotMat = (self._s[3]._rot_mat *
             (inertia.rotate_space_123([0,-np.pi,0]) *
              inertia.euler_123([self.CFG['CA1elevation'],
                                -self.CFG['CA1abduction'],
@@ -1175,8 +1156,8 @@ class Human(object):
                                [self._a[0],self._a[1]] , (0,1,0))
 
         # left forearm-hand
-        A2pos = self._a[1].endpos
-        A2RotMat = (self._a[1].rot_mat *
+        A2pos = self._a[1].end_pos
+        A2RotMat = (self._a[1]._rot_mat *
             inertia.rotate_space_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
         self.A2 = seg.Segment('A2: Left forearm-hand',
                               A2pos,
@@ -1189,10 +1170,10 @@ class Human(object):
         dpos = np.array([[-self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        B1pos = self._s[3].pos + self._s[3].rot_mat * dpos
+        B1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
         # WARNING: The arms are pre-rotated in abduction to be in the down
         # position.
-        B1RotMat = (self._s[3].rot_mat *
+        B1RotMat = (self._s[3]._rot_mat *
             (inertia.rotate_space_123([0.0, -np.pi, 0.0]) *
                 inertia.euler_123([self.CFG['CB1elevation'],
                                    self.CFG['CB1abduction'],
@@ -1204,8 +1185,8 @@ class Human(object):
                                (0.0, 1.0, 0.0))
 
         # right forearm-hand
-        B2pos = self._b[1].endpos
-        B2RotMat = (self._b[1].rot_mat *
+        B2pos = self._b[1].end_pos
+        B2RotMat = (self._b[1]._rot_mat *
             inertia.rotate_space_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
         self.B2 = seg.Segment('B2: Right forearm-hand',
                               B2pos,
@@ -1217,10 +1198,10 @@ class Human(object):
         # left thigh
         dpos = np.array([[0.5 * self._s[0]. stads[0].thickness +
                           0.5 * self._s[0].stads[0].radius], [0.0], [0.0]])
-        J1pos = self._s[0].pos + self._s[0].rot_mat * dpos
+        J1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
         # WARNING: The left leg is pre-rotated in abduction to be in the down
         # position and the abduction is negated.
-        J1RotMat = (self._s[0].rot_mat *
+        J1RotMat = (self._s[0]._rot_mat *
             (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
              inertia.rotate_space_123([self.CFG['PJ1flexion'],
                                        -self.CFG['PJ1abduction'],
@@ -1232,9 +1213,9 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # left shank-foot
-        J2pos = self._j[2].endpos
+        J2pos = self._j[2].end_pos
         # WARNING: The left knee flexion is negated.
-        J2RotMat = (self._j[2].rot_mat *
+        J2RotMat = (self._j[2]._rot_mat *
             inertia.rotate_space_123([-self.CFG['J1J2flexion'], 0.0, 0.0]))
         self.J2 = seg.Segment('J2: Left shank-foot',
                               J2pos,
@@ -1246,10 +1227,10 @@ class Human(object):
         # right thigh
         dpos = np.array([[-.5*self._s[0].stads[0].thickness-
                            .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self._s[0].pos + self._s[0].rot_mat * dpos
+        K1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
         # WARNING: The left leg is pre-rotated in abduction to be in the down
         # position.
-        K1RotMat = (self._s[0].rot_mat *
+        K1RotMat = (self._s[0]._rot_mat *
             (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
              inertia.rotate_space_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
@@ -1261,9 +1242,9 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # right shank-foot
-        K2pos = self._k[2].endpos
+        K2pos = self._k[2].end_pos
         # WARNING: The right knee flexion is negated.
-        K2RotMat = (self._k[2].rot_mat *
+        K2RotMat = (self._k[2]._rot_mat *
             inertia.rotate_space_123([-self.CFG['K1K2flexion'], 0.0, 0.0]))
         self.K2 = seg.Segment('K2: Right shank-foot',
                                K2pos,
@@ -1374,7 +1355,6 @@ class Human(object):
 
         """
         fid = open(fname,'w')
-        n = self.meas
         m = copy.copy(self.meas)
 
         # Convert units.
