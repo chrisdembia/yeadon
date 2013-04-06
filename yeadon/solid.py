@@ -318,7 +318,7 @@ class StadiumSolid(Solid):
 
         """
         super(StadiumSolid, self).__init__(label, density, height)
-        self.stads = [stadium0,stadium1]
+        self.stads = [stadium0, stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anteroposteriorly.
         # inertia must be rotated, and the plots must be modified

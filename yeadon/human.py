@@ -1148,26 +1148,38 @@ class Human(object):
                              (1.0, 1.0, 0.0))
 
         # left upper arm
-        dpos = np.array([[self._s[3].stads[1].width / 2.0],
-                         [0.0],
-                         [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
-        A1RotMat = (self._s[3]._rot_mat *
+        Ls3_Ls4_stadium = self._s[3] # nipple to shoulder
+        shoulder_width = Ls3_Ls4_stadium.stads[1].width
+        local_left_shoulder_point = \
+                np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_stadium.height]])
+        A1RotMat = (Ls3_Ls4_stadium._rot_mat *
              inertia.euler_123([self.CFG['CA1elevation'],
                                 self.CFG['CA1abduction'],
                                 self.CFG['CA1rotation']]))
-        self.A1 = seg.Segment( 'A1: Left upper arm', A1pos, A1RotMat,
-                               [self._a[0],self._a[1]] , (0,1,0))
+        a0_vector = np.array([[0.0],
+                              [0.0],
+                              [self._a[0].height]])
+        a1_vector = np.array([[0.0],
+                              [0.0],
+                              [self._a[1].height]])
+        A1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * (
+            local_left_shoulder_point - A1RotMat * (a1_vector +
+            a0_vector))
+        self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
+                              [self._a[1], self._a[0]], (0, 1, 0))
 
         # left forearm-hand
-        A2pos = self._a[1].end_pos
         A2RotMat = (self._a[1]._rot_mat *
             inertia.rotate_space_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
+        lower_arm_length = 0.0
+        for n in reversed(range(2, 7)):
+            lower_arm_length += self._a[n].height
+        A2pos = self._a[1].pos - A2RotMat * \
+                np.array([[0.0], [0.0], [lower_arm_length]])
         self.A2 = seg.Segment('A2: Left forearm-hand',
                               A2pos,
                               A2RotMat,
-                              [self._a[2], self._a[3], self._a[4], self._a[5],
-                                self._a[6]],
+                              [self._a[x] for x in reversed(range(2, 7))],
                               (1.0, 0.0, 0.0))
 
         # right upper arm
