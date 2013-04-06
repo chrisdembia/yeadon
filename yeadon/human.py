@@ -60,6 +60,8 @@ class Human(object):
                 'J1J2flexion',
                 'K1K2flexion')
 
+    # TODO: Change the bounds for the affected joint angles.
+
     CFGbounds = [[-np.pi, np.pi],
                  [-np.pi, np.pi],
                  [-np.pi, np.pi],
@@ -181,6 +183,8 @@ class Human(object):
             self._average_limbs()
 
         # Start off a zero configuration.
+        # TODO: set default values for the CFG such that the human is in the
+        # nominal configuration.
         self.CFG = dict()
         for key in Human.CFGnames:
             self.CFG[key] = 0.0
@@ -241,6 +245,9 @@ class Human(object):
             issue
 
         """
+        # TODO: Should this actually be errors? There probably isn't any reason
+        # to bound these, but there could be reason to avoid the singularities
+        # in the direction cosine matrices for each joint rotation.
         boolval = True
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
@@ -650,7 +657,7 @@ class Human(object):
         octact_no : int
             Integer in the range [1, 8] to identify the octant for which points
             are desired. The octants are defined as follows:
-            
+
             1.  x > 0, y > 0, z > 0
             2.  x < 0, y > 0, z > 0
             3.  x < 0, y < 0, z > 0
@@ -1144,14 +1151,11 @@ class Human(object):
         dpos = np.array([[self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
-        # WARNING: The arms are pre-rotated in abduction to be in the down
-        # position and the abduction and rotation angles are negated.
-        A1RotMat = (self._s[3]._rot_mat *
-            (inertia.rotate_space_123([0,-np.pi,0]) *
+        A1pos = self._s[3].pos + self._s[3].rot_mat * dpos
+        A1RotMat = (self._s[3].rot_mat *
              inertia.euler_123([self.CFG['CA1elevation'],
-                               -self.CFG['CA1abduction'],
-                               -self.CFG['CA1rotation']])))
+                                self.CFG['CA1abduction'],
+                                self.CFG['CA1rotation']]))
         self.A1 = seg.Segment( 'A1: Left upper arm', A1pos, A1RotMat,
                                [self._a[0],self._a[1]] , (0,1,0))
 
@@ -1170,14 +1174,11 @@ class Human(object):
         dpos = np.array([[-self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        B1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
-        # WARNING: The arms are pre-rotated in abduction to be in the down
-        # position.
-        B1RotMat = (self._s[3]._rot_mat *
-            (inertia.rotate_space_123([0.0, -np.pi, 0.0]) *
+        B1pos = self._s[3].pos + self._s[3].rot_mat * dpos
+        B1RotMat = (self._s[3].rot_mat *
                 inertia.euler_123([self.CFG['CB1elevation'],
                                    self.CFG['CB1abduction'],
-                                   self.CFG['CB1rotation']])))
+                                   self.CFG['CB1rotation']]))
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
                                B1RotMat,
@@ -1198,14 +1199,11 @@ class Human(object):
         # left thigh
         dpos = np.array([[0.5 * self._s[0]. stads[0].thickness +
                           0.5 * self._s[0].stads[0].radius], [0.0], [0.0]])
-        J1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
-        # WARNING: The left leg is pre-rotated in abduction to be in the down
-        # position and the abduction is negated.
-        J1RotMat = (self._s[0]._rot_mat *
-            (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
+        J1pos = self._s[0].pos + self._s[0].rot_mat * dpos
+        J1RotMat = (self._s[0].rot_mat *
              inertia.rotate_space_123([self.CFG['PJ1flexion'],
-                                       -self.CFG['PJ1abduction'],
-                                       0.0])))
+                                       self.CFG['PJ1abduction'],
+                                       0.0]))
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
                               J1RotMat,
@@ -1213,10 +1211,9 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # left shank-foot
-        J2pos = self._j[2].end_pos
-        # WARNING: The left knee flexion is negated.
-        J2RotMat = (self._j[2]._rot_mat *
-            inertia.rotate_space_123([-self.CFG['J1J2flexion'], 0.0, 0.0]))
+        J2pos = self._j[2].endpos
+        J2RotMat = (self._j[2].rot_mat *
+            inertia.rotate_space_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         self.J2 = seg.Segment('J2: Left shank-foot',
                               J2pos,
                               J2RotMat,
@@ -1227,14 +1224,11 @@ class Human(object):
         # right thigh
         dpos = np.array([[-.5*self._s[0].stads[0].thickness-
                            .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
-        # WARNING: The left leg is pre-rotated in abduction to be in the down
-        # position.
-        K1RotMat = (self._s[0]._rot_mat *
-            (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
+        K1pos = self._s[0].pos + self._s[0].rot_mat * dpos
+        K1RotMat = (self._s[0].rot_mat *
              inertia.rotate_space_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
-                                       0.0])))
+                                       0.0]))
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
                               K1RotMat,
@@ -1242,10 +1236,9 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # right shank-foot
-        K2pos = self._k[2].end_pos
-        # WARNING: The right knee flexion is negated.
-        K2RotMat = (self._k[2]._rot_mat *
-            inertia.rotate_space_123([-self.CFG['K1K2flexion'], 0.0, 0.0]))
+        K2pos = self._k[2].endpos
+        K2RotMat = (self._k[2].rot_mat *
+            inertia.rotate_space_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         self.K2 = seg.Segment('K2: Right shank-foot',
                                K2pos,
                                K2RotMat,
@@ -1449,5 +1442,3 @@ class Human(object):
         fid = open(CFGfname, 'w')
         yaml.dump(self.CFG, fid, default_flow_style=False)
         fid.close()
-
-
