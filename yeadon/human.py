@@ -1162,9 +1162,9 @@ class Human(object):
         a1_vector = np.array([[0.0],
                               [0.0],
                               [self._a[1].height]])
-        A1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * (
+        A1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * \
             local_left_shoulder_point - A1RotMat * (a1_vector +
-            a0_vector))
+            a0_vector)
         self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
                               [self._a[1], self._a[0]], (0, 1, 0))
 
