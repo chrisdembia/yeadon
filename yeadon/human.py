@@ -65,22 +65,22 @@ class Human(object):
     CFGbounds = [[-np.pi, np.pi],
                  [-np.pi, np.pi],
                  [-np.pi, np.pi],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi*3/2],
-                 [-np.pi*3/2, np.pi],
+                 [-np.pi / 2, np.pi],
+                 [-np.pi / 2, np.pi / 2],
+                 [-np.pi / 2, np.pi / 2],
+                 [-np.pi / 2, np.pi / 2],
+                 [-np.pi / 2, np.pi * 3 / 2],
+                 [-np.pi * 3 / 2, np.pi],
                  [-np.pi, np.pi],
-                 [-np.pi/2, np.pi*3/2],
-                 [-np.pi*3/2, np.pi],
+                 [-np.pi / 2, np.pi * 3 / 2],
+                 [-np.pi * 3 / 2, np.pi],
                  [-np.pi, np.pi],
                  [0, np.pi],
                  [0, np.pi],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
+                 [-np.pi / 2, np.pi],
+                 [-np.pi / 2, np.pi / 2],
+                 [-np.pi / 2, np.pi],
+                 [-np.pi / 2, np.pi / 2],
                  [0, np.pi],
                  [0, np.pi]]
 
@@ -225,9 +225,9 @@ class Human(object):
         self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
-        self.segments = [ self.P, self.T, self.C,
-                          self.A1, self.A2, self.B1, self.B2,
-                          self.J1, self.J2, self.K1, self.K2]
+        self.segments = [self.P, self.T, self.C,
+                         self.A1, self.A2, self.B1, self.B2,
+                         self.J1, self.J2, self.K1, self.K2]
         for s in self.segments:
             s.calc_properties()
         # Must update segment properties before updating the human properties.

@@ -65,7 +65,7 @@ class Stadium(object):
 
     def __init__(self, label, inID, in1, in2=None, alignment='ML'):
         """Defines a 2D stadium shape and checks inputs for errors. A stadium,
-        described in Yeadon 1990-ii, is defined by two parameters.  Stadia can
+        described in Yeadon 1990-ii, is defined by two parameters. Stadia can
         depracate to circles if their "thickness" is 0.
 
         Parameters
