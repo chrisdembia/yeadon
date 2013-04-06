@@ -1151,8 +1151,8 @@ class Human(object):
         dpos = np.array([[self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3].rot_mat * dpos
-        A1RotMat = (self._s[3].rot_mat *
+        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
+        A1RotMat = (self._s[3]._rot_mat *
              inertia.euler_123([self.CFG['CA1elevation'],
                                 self.CFG['CA1abduction'],
                                 self.CFG['CA1rotation']]))
@@ -1174,8 +1174,8 @@ class Human(object):
         dpos = np.array([[-self._s[3].stads[1].width / 2.0],
                          [0.0],
                          [self._s[3].height]])
-        B1pos = self._s[3].pos + self._s[3].rot_mat * dpos
-        B1RotMat = (self._s[3].rot_mat *
+        B1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
+        B1RotMat = (self._s[3]._rot_mat *
                 inertia.euler_123([self.CFG['CB1elevation'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
@@ -1199,8 +1199,8 @@ class Human(object):
         # left thigh
         dpos = np.array([[0.5 * self._s[0]. stads[0].thickness +
                           0.5 * self._s[0].stads[0].radius], [0.0], [0.0]])
-        J1pos = self._s[0].pos + self._s[0].rot_mat * dpos
-        J1RotMat = (self._s[0].rot_mat *
+        J1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
+        J1RotMat = (self._s[0]._rot_mat *
              inertia.rotate_space_123([self.CFG['PJ1flexion'],
                                        self.CFG['PJ1abduction'],
                                        0.0]))
@@ -1211,8 +1211,8 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # left shank-foot
-        J2pos = self._j[2].endpos
-        J2RotMat = (self._j[2].rot_mat *
+        J2pos = self._j[2]._end_pos
+        J2RotMat = (self._j[2]._rot_mat *
             inertia.rotate_space_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         self.J2 = seg.Segment('J2: Left shank-foot',
                               J2pos,
@@ -1224,8 +1224,8 @@ class Human(object):
         # right thigh
         dpos = np.array([[-.5*self._s[0].stads[0].thickness-
                            .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self._s[0].pos + self._s[0].rot_mat * dpos
-        K1RotMat = (self._s[0].rot_mat *
+        K1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
+        K1RotMat = (self._s[0]._rot_mat *
              inertia.rotate_space_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
@@ -1236,8 +1236,8 @@ class Human(object):
                               (0.0, 1.0, 0.0))
 
         # right shank-foot
-        K2pos = self._k[2].endpos
-        K2RotMat = (self._k[2].rot_mat *
+        K2pos = self._k[2]._end_pos
+        K2RotMat = (self._k[2]._rot_mat *
             inertia.rotate_space_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         self.K2 = seg.Segment('K2: Right shank-foot',
                                K2pos,
