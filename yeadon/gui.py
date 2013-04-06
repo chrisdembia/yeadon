@@ -35,7 +35,7 @@ sliders = ['somersalt',
 def format_func(value):
     return '{:1.3}'.format(value)
 
-def _d2r(angle):
+def _deg2rad(angle):
     '''Converts an angle from units of degrees to units of radians.'''
     return angle * nppi / 180.0
 
@@ -284,134 +284,134 @@ class YeadonGUI(HasTraits):
     def _update_reset_configuration(self):
         for cfg in sliders:
             setattr(self, cfg, self.trait(cfg).default_value()[1])
-        
+
     @on_trait_change('somersalt')
     def _update_somersalt(self):
-        self.H.set_CFG('somersalt', _d2r(self.somersalt))
+        self.H.set_CFG('somersalt', _deg2rad(self.somersalt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('tilt')
     def _update_tilt(self):
-        self.H.set_CFG('tilt', _d2r(self.tilt))
+        self.H.set_CFG('tilt', _deg2rad(self.tilt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('twist')
     def _update_twist(self):
-        self.H.set_CFG('twist', _d2r(self.twist))
+        self.H.set_CFG('twist', _deg2rad(self.twist))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PTSagittalFlexion')
     def _update_PTsagittalFlexion(self):
-        self.H.set_CFG('PTsagittalFlexion', _d2r(self.PtSagittalFlexion))
+        self.H.set_CFG('PTsagittalFlexion', _deg2rad(self.PTSagittalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PTFrontalFlexion')
     def _update_PTFrontalFlexion(self):
-        self.H.set_CFG('PTfrontalFlexion', _d2r(self.PtFrontalFlexion))
+        self.H.set_CFG('PTfrontalFlexion', _deg2rad(self.PTFrontalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('TCSpinalTorsion')
     def _update_TCSpinalTorsion(self):
-        self.H.set_CFG('TCspinalTorsion', _d2r(self.TcSpinalTorsion))
+        self.H.set_CFG('TCspinalTorsion', _deg2rad(self.TCSpinalTorsion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('TCLateralSpinalFlexion')
     def _update_TCLateralSpinalFlexion(self):
         self.H.set_CFG('TClateralSpinalFlexion',
-                _d2r(self.TcLateralSpinalFlexion))
+                _deg2rad(self.TCLateralSpinalFlexion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1elevation')
     def _update_CA1elevation(self):
-        self.H.set_CFG('CA1elevation', _d2r(self.CA1elevation))
+        self.H.set_CFG('CA1elevation', _deg2rad(self.CA1elevation))
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1abduction')
     def _update_CA1abduction(self):
-        self.H.set_CFG('CA1abduction', _d2r(self.CA1abduction))
+        self.H.set_CFG('CA1abduction', _deg2rad(self.CA1abduction))
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CA1rotation')
     def _update_CA1rotation(self):
-        self.H.set_CFG('CA1rotation', _d2r(self.CA1rotation))
+        self.H.set_CFG('CA1rotation', _deg2rad(self.CA1rotation))
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1elevation')
     def _update_CB1elevation(self):
-        self.H.set_CFG('CB1elevation', _d2r(self.CB1elevation))
+        self.H.set_CFG('CB1elevation', _deg2rad(self.CB1elevation))
         self._update_mayavi(['B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1abduction')
     def _update_CB1abduction(self):
-        self.H.set_CFG('CB1abduction', _d2r(self.CB1abduction))
+        self.H.set_CFG('CB1abduction', _deg2rad(self.CB1abduction))
         self._update_mayavi(['B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('CB1rotation')
     def _update_CB1rotation(self):
-        self.H.set_CFG('CB1rotation', _d2r(self.CB1rotation))
+        self.H.set_CFG('CB1rotation', _deg2rad(self.CB1rotation))
         self._update_mayavi(['B1', 'B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('A1A2flexion')
     def _update_A1A2flexion(self):
-        self.H.set_CFG('A1A2flexion', _d2r(self.A1A2flexion))
+        self.H.set_CFG('A1A2flexion', _deg2rad(self.A1A2flexion))
         self._update_mayavi(['A2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('B1B2flexion')
     def _update_B1B2flexion(self):
-        self.H.set_CFG('B1B2flexion', _d2r(self.B1B2flexion))
+        self.H.set_CFG('B1B2flexion', _deg2rad(self.B1B2flexion))
         self._update_mayavi(['B2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PJ1flexion')
     def _update_PJ1flexion(self):
-        self.H.set_CFG('PJ1flexion', _d2r(self.PJ1flexion))
+        self.H.set_CFG('PJ1flexion', _deg2rad(self.PJ1flexion))
         self._update_mayavi(['J1', 'J2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PJ1abduction')
     def _update_PJ1abduction(self):
-        self.H.set_CFG('PJ1abduction', _d2r(self.PJ1abduction))
+        self.H.set_CFG('PJ1abduction', _deg2rad(self.PJ1abduction))
         self._update_mayavi(['J1', 'J2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PK1flexion')
     def _update_PK1flexion(self):
-        self.H.set_CFG('PK1flexion', _d2r(self.PK1flexion))
+        self.H.set_CFG('PK1flexion', _deg2rad(self.PK1flexion))
         self._update_mayavi(['K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('PK1abduction')
     def _update_PK1abduction(self):
-        self.H.set_CFG('PK1abduction', _d2r(self.PK1abduction))
+        self.H.set_CFG('PK1abduction', _deg2rad(self.PK1abduction))
         self._update_mayavi(['K1', 'K2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('J1J2flexion')
     def _update_J1J2flexion(self):
-        self.H.set_CFG('J1J2flexion', _d2r(self.J1J2flexion))
+        self.H.set_CFG('J1J2flexion', _deg2rad(self.J1J2flexion))
         self._update_mayavi(['J2'])
         self._maybe_update_inertia_ellipse()
 
     @on_trait_change('K1K2flexion')
     def _update_K1K2flexion(self):
-        self.H.set_CFG('K1K2flexion', _d2r(self.K1K2flexion))
+        self.H.set_CFG('K1K2flexion', _deg2rad(self.K1K2flexion))
         self._update_mayavi(['K2'])
         self._maybe_update_inertia_ellipse()
 
