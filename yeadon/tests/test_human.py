@@ -332,31 +332,31 @@ class TestHuman(unittest.TestCase):
 
         # Two values out of range.
         CFG = {'somersalt': 0.0,
-                'tilt': 0.0,
-                'twist': 3*np.pi,
-                'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
-                'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
-                'CA1rotation': 0.0,
-                'CB1elevation': 0.0,
-                'CB1abduction': np.pi/4,
-                'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'B1B2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': -10*np.pi,
-                'PK1abduction': 0.0,
-                'J1J2flexion': 0.0,
-                'K1K2flexion': 0.0,
-                }
+               'tilt': 0.0,
+               'twist': 3.0 * np.pi,
+               'PTsagittalFlexion': 0.0,
+               'PTfrontalFlexion': 0.0,
+               'TCspinalTorsion': 0.0,
+               'TClateralSpinalFlexion': 0.0,
+               'CA1elevation': 0.0,
+               'CA1abduction': 0.0,
+               'CA1rotation': 0.0,
+               'CB1elevation': 0.0,
+               'CB1abduction': np.pi / 4.0,
+               'CB1rotation': 0.0,
+               'A1A2flexion': 0.0,
+               'B1B2flexion': 0.0,
+               'PJ1flexion': 0.0,
+               'PJ1abduction': 0.0,
+               'PK1flexion': -10.0 * np.pi,
+               'PK1abduction': 0.0,
+               'J1J2flexion': 0.0,
+               'K1K2flexion': 0.0,
+               }
         desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
                 "Must be between -1.0 and 1.0 pi-rad.\n"
                 "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
-                "Must be between -0.5 and 1.0 pi-rad.\n")
+                "Must be between -0.5 and 0.5 pi-rad.\n")
 
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
@@ -453,6 +453,9 @@ class TestHuman(unittest.TestCase):
                     "'testing' is not a correct variable name.")
 
     def test_print_properties(self):
+        # TODO : This is not a good test with the high print precision because
+        # the values can be different between machines. If you format to just a
+        # couple decimal places then this would work.
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         h = hum.Human(self.male1meas)
@@ -702,7 +705,7 @@ class TestHuman(unittest.TestCase):
     def test_inertia_transformed(self):
         """Tests the functionality of getting an inertia tensor about a
         different point and in a different frame.
-        
+
         """
         h = hum.Human(self.male1meas)
         h.set_CFG('somersalt', np.pi * 0.25)
@@ -887,6 +890,30 @@ class TestHuman(unittest.TestCase):
         # that I compute with euler_rotation
 
         testing.assert_allclose(h.A1.rot_mat, R.T)
+
+        # right arm
+
+        elevation = pi / 5.0
+        abduction = pi - pi / 10.0
+        rotation = pi / 14.0
+
+        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1abduction', abduction)
+        h.set_CFG('CB1rotation', rotation)
+
+        # now we should manually calculate the rotation matrix for Euler 1-2-3
+        # Yeadon starts with the C frame and rotates the F frame
+        # (attached to P) through the body fixed 123 angles.
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation
+
+        testing.assert_allclose(h.B1.rot_mat, R.T)
 
 
 # TODO compare ISEG output to our output.
