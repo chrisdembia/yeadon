@@ -2,22 +2,22 @@ stadsolAB properties:
 
 Mass (kg): 44.8928951608 
 
-COM in local solid's frame (m):
+COM in solid's frame from solid's origin (m):
 [[ 0.        ]
  [ 0.        ]
  [ 3.36848217]] 
 
-COM in fixed human frame (m):
+COM in global frame from bottom center of pelvis (Ls0) (m):
 [[ 4.36848217]
  [ 2.        ]
  [ 3.        ]] 
 
-Inertia tensor in solid's frame about local solid's COM (kg-m^2):
+Inertia tensor in solid's frame about solid's COM (kg-m^2):
 [[ 78.97729864   0.           0.        ]
  [  0.          95.37444572   0.        ]
  [  0.           0.          45.38688017]] 
 
-Inertia tensor in fixed human frame about local solid's COM (kg-m^2):
+Inertia tensor in global frame about solid's COM (kg-m^2):
 [[  4.53868802e+01   1.81319638e-47  -1.25943897e-31]
  [  1.81319638e-47   9.53744457e+01   1.00403568e-15]
  [ -1.25943897e-31   1.00403568e-15   7.89772986e+01]] 
@@ -26,22 +26,22 @@ stadsolBC properties:
 
 Mass (kg): 1754.64151729 
 
-COM in local solid's frame (m):
+COM in solid's frame from solid's origin (m):
 [[ 0.        ]
  [ 0.        ]
  [ 4.14397086]] 
 
-COM in fixed human frame (m):
+COM in global frame from bottom center of pelvis (Ls0) (m):
 [[ 10.14397086]
  [  2.        ]
  [  3.        ]] 
 
-Inertia tensor in solid's frame about local solid's COM (kg-m^2):
+Inertia tensor in solid's frame about solid's COM (kg-m^2):
 [[ 12535.88471424      0.              0.        ]
  [     0.          37969.56110313      0.        ]
  [     0.              0.          45927.34359093]] 
 
-Inertia tensor in fixed human frame about local solid's COM (kg-m^2):
+Inertia tensor in global frame about solid's COM (kg-m^2):
 [[  4.59273436e+04   2.87804485e-45   1.25197918e-28]
  [  2.87804485e-45   3.79695611e+04   1.55736352e-12]
  [  1.25197918e-28   1.55736352e-12   1.25358847e+04]] 
@@ -50,22 +50,22 @@ stadsolCD properties:
 
 Mass (kg): 2499.61963612 
 
-COM in local solid's frame (m):
+COM in solid's frame from solid's origin (m):
 [[ 0.        ]
  [ 0.        ]
  [ 1.99868515]] 
 
-COM in fixed human frame (m):
+COM in global frame from bottom center of pelvis (Ls0) (m):
 [[ 13.99868515]
  [  2.        ]
  [  3.        ]] 
 
-Inertia tensor in solid's frame about local solid's COM (kg-m^2):
+Inertia tensor in solid's frame about solid's COM (kg-m^2):
 [[ 19482.00733291      0.              0.        ]
  [     0.          57478.0403736       0.        ]
  [     0.              0.          66990.97500878]] 
 
-Inertia tensor in fixed human frame about local solid's COM (kg-m^2):
+Inertia tensor in global frame about solid's COM (kg-m^2):
 [[  6.69909750e+04   4.47276695e-45   1.78130098e-28]
  [  4.47276695e-45   5.74780404e+04   2.32658601e-12]
  [  1.78130098e-28   2.32658601e-12   1.94820073e+04]] 

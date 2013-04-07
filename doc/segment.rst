@@ -1,3 +1,5 @@
+.. _segment:
+
 :mod:`segment` Module
 =====================
 

@@ -1,28 +1,39 @@
+# For redirecting stdout.
+from cStringIO import StringIO
+import copy
+import sys
+import os
+
 import unittest
 import nose
 import numpy as np
 from numpy import testing, pi
-# For redirecting stdout.
-from cStringIO import StringIO
-import sys
-import os
 
+import yeadon.inertia as inertia
 import yeadon.human as hum
 import yeadon.densities as dens
-
-# TODO Jason: maybe the better test is to just check against the output of
-# ISEG.
 
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
 
+    male1meas = os.path.join(os.path.split(__file__)[0], '..', '..',
+            'misc', 'samplemeasurements', 'male1.txt')
+
     def test_init_default_cfg(self):
         """Uses misc/samplemeasurements/male1.txt."""
 
-        measPath = os.path.join(os.path.split(__file__)[0], '..', '..',
-                'misc', 'samplemeasurements', 'male1.txt')
-        h = hum.Human(measPath)
+        h = hum.Human(self.male1meas)
         meas = h.meas
+
+        # Regression test.
+        testing.assert_almost_equal(h.mass, 58.200488588422544)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.63093850
+        inertiaDes[1, 1] = 9.99497872
+        inertiaDes[2, 2] = 5.45117742e-01
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [1.19967938e-02]]), atol=1e-15)
 
         assert h.is_symmetric == True
         assert h.meas_mass == -1
@@ -123,8 +134,6 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h._s[7].density, dens.Ds[7])
 
         # Check that all segments exist.
-        # TODO
-
         self.assertEquals(len(h.segments), 11)
         self.assertEquals(h.segments[0], h.P)
         self.assertEquals(h.segments[1], h.T)
@@ -139,13 +148,15 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h.segments[10], h.K2)
 
         # Ensure mass is unchanged from what it should be.
-        testing.assert_almost_equal(h.mass, 
+        testing.assert_almost_equal(h.mass,
                 h.P.mass + h.T.mass + h.C.mass + h.A1.mass + h.A2.mass +
                 h.B1.mass + h.B2.mass + h.J1.mass + h.J2.mass +
                 h.K1.mass + h.K2.mass)
 
         # Initialize measurements using the dict from the previous one.
         h2 = hum.Human(h.meas)
+        # Crude test...
+        testing.assert_almost_equal(h.mass, h2.mass)
 
         # - Inspect symmetry.
         # Symmetric by default.
@@ -155,56 +166,535 @@ class TestHuman(unittest.TestCase):
         self.assertEqual(h.A1.mass, h.B1.mass)
         self.assertEqual(h.A2.mass, h.B2.mass)
 
-    def test_init_interesting_cfg(self):
-        # TODO
-        pass
+    def test_density_set(self):
+        """Tests the Chandler and Clauser density sets."""
+
+        # Ensure the densities themselves have not regressed.
+        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+
+        # Input error.
+        self.assertRaises(Exception,
+                hum.Human, self.male1meas, density_set='badname')
+        try:
+            hum.Human(self.male1meas, density_set='badname')
+        except Exception as e:
+            self.assertEquals(e.message, "Density set 'badname' is not one "
+                    "of 'Chandler', 'Clauser', or 'Dempster'.")
+
+        h = hum.Human(self.male1meas, density_set='Chandler')
+
+        # Ensure the densities themselves have not regressed.
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+        segmental_densities = h.segmental_densities
+        for key, val in segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens, segmental_densities_des[key][seg])
+
+        # Regression test.
+        testing.assert_almost_equal(h.mass, 54.639701113740323)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.26910316
+        inertiaDes[1, 1] = 9.61346162
+        inertiaDes[2, 2] = 0.512454528
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [2.08057425e-03]]), atol=1e-15)
+
+        # Regression for the remaining density set.
+        h = hum.Human(self.male1meas, density_set='Clauser')
+
+        testing.assert_almost_equal(h.mass, 59.061501074879487)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.6382444
+        inertiaDes[1, 1] = 10.002298
+        inertiaDes[2, 2] = 0.550455953
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [0.0176605046]]), atol=1e-15)
 
     def test_init_symmetry_off(self):
-        # TODO
-        pass
+        """Uses misc/samplemeasurements/male1.txt."""
 
-    def test_init_input_errors(self):
-        # TODO
-        pass
+        h = hum.Human(self.male1meas, symmetric=False)
 
-    def test_update_solids(self):
-        # TODO
-        pass
+        self.assertFalse(h.is_symmetric)
+        self.assertNotEqual(h.K1.mass, h.J1.mass)
+        self.assertNotEqual(h.K2.mass, h.J2.mass)
+        self.assertNotEqual(h.A1.mass, h.B1.mass)
+        self.assertNotEqual(h.A2.mass, h.B2.mass)
 
-    def test_update_segments(self):
-        # TODO
-        pass
+    def test_init_interesting_cfg(self):
+        """Providing a dict for CFG, input errors, and out of bounds errors."""
+
+        # Normal behavior.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'B1B2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        h = hum.Human(self.male1meas, CFG)
+        self.assertEqual(h.CFG, CFG)
+
+        # Missing a value.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        self.assertRaises(Exception, hum.Human, self.male1meas, CFG)
+        try:
+            hum.Human(self.male1meas, CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Number of CFG variables, 20, is incorrect.")
+
+        # Invalid key.
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'wrong': 0.01,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        self.assertRaises(Exception, hum.Human, self.male1meas, CFG)
+        try:
+            hum.Human(self.male1meas, CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "'wrong' is not a correct variable name.")
 
     def test_validate_cfg(self):
-        # TODO
-        pass
+        """Ensures that out-of-range values elicit a print, but no exception."""
+
+        # Two values out of range.
+        CFG = {'somersalt': 0.0,
+               'tilt': 0.0,
+               'twist': 3.0 * np.pi,
+               'PTsagittalFlexion': 0.0,
+               'PTfrontalFlexion': 0.0,
+               'TCspinalTorsion': 0.0,
+               'TClateralSpinalFlexion': 0.0,
+               'CA1elevation': 0.0,
+               'CA1abduction': 0.0,
+               'CA1rotation': 0.0,
+               'CB1elevation': 0.0,
+               'CB1abduction': np.pi / 4.0,
+               'CB1rotation': 0.0,
+               'A1A2flexion': 0.0,
+               'B1B2flexion': 0.0,
+               'PJ1flexion': 0.0,
+               'PJ1abduction': 0.0,
+               'PK1flexion': -10.0 * np.pi,
+               'PK1abduction': 0.0,
+               'J1J2flexion': 0.0,
+               'K1K2flexion': 0.0,
+               }
+        desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
+                "Must be between -1.0 and 1.0 pi-rad.\n"
+                "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
+                "Must be between -0.5 and 0.5 pi-rad.\n")
+
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        hum.Human(self.male1meas, CFG)
+        sys.stdout = old_stdout
+
+        self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_set_CFG(self):
-        # TODO
-        pass
+        """Setting an individual CFG variable works. Also, error checks."""
+
+        h = hum.Human(self.male1meas)
+        h.set_CFG('K1K2flexion', np.pi * 0.2)
+
+        testing.assert_almost_equal(h.CFG['K1K2flexion'], np.pi * 0.2)
+
+        self.assertRaises(Exception, h.set_CFG, 'testing', 0.1)
+        try:
+            h.set_CFG('testing', 0.1)
+        except Exception as e:
+            self.assertEqual(e.message, "'testing' is not a valid name of a "
+                    "configuration variable.")
+
+        # Reset CFG.
+        h = hum.Human(self.male1meas)
+        # Inertia, etc, is affected correctly.
+        h2 = hum.Human(self.male1meas)
+        h2.set_CFG('somersalt', np.pi / 2)
+        # Relative inertia unchanged.
+        testing.assert_allclose(h2.P.rel_inertia, h.P.rel_inertia)
+        # Absolute inertia is changed.
+        testing.assert_almost_equal(h2.inertia[0, 0], h.inertia[0, 0])
+        testing.assert_almost_equal(h2.inertia[1, 1], h.inertia[2, 2])
+        testing.assert_almost_equal(h2.inertia[2, 2], h.inertia[1, 1])
+
+        h2.set_CFG('somersalt', 0)
+        h2.set_CFG('CA1elevation', np.pi / 2)
+        testing.assert_almost_equal(h2.A1.rel_inertia, h.A1.rel_inertia)
+        testing.assert_almost_equal(h2.A2.rel_inertia, h.A2.rel_inertia)
+        # y and z components are swapped.
+        testing.assert_almost_equal(h2.A1.inertia[0, 0], h.A1.inertia[0, 0])
+        testing.assert_almost_equal(h2.A1.inertia[1, 1], h.A1.inertia[2, 2])
+        testing.assert_almost_equal(h2.A1.inertia[2, 2], h.A1.inertia[1, 1])
+        testing.assert_almost_equal(h2.A2.inertia[0, 0], h.A2.inertia[0, 0])
+        testing.assert_almost_equal(h2.A2.inertia[1, 1], h.A2.inertia[2, 2])
+        testing.assert_almost_equal(h2.A2.inertia[2, 2], h.A2.inertia[1, 1])
+
+        # Subtract out the arm, and see if the remaining inertia is good.
+        # That is, the only part of the human's inertia tensor that changed
+        # should be that which comes from the arm A.
+        # Obtain inertia tensors about origin; the other option would be
+        # h.center_of_mass, but this changes depending on A1A2flexion.
+        a1inertia_before = np.mat(inertia.parallel_axis( h.A1.inertia, h.A1.mass,
+            h.A1.center_of_mass.T.tolist()[0]))
+        a1inertia_after = np.mat(inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
+            h2.A1.center_of_mass.T.tolist()[0]))
+        a2inertia_before = np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
+            h.A2.center_of_mass.T.tolist()[0]))
+        a2inertia_after = np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
+            h2.A2.center_of_mass.T.tolist()[0]))
+        whole_inertia_before = np.mat(inertia.parallel_axis(h.inertia, h.mass,
+            h.center_of_mass.T.tolist()[0]))
+        whole_inertia_after = np.mat(inertia.parallel_axis(h2.inertia, h2.mass,
+            h2.center_of_mass.T.tolist()[0]))
+        testing.assert_allclose(
+                whole_inertia_after - a1inertia_after - a2inertia_after,
+                whole_inertia_before - a1inertia_before - a2inertia_before,
+                atol=1e-15)
 
     def test_set_CFG_dict(self):
-        # TODO
-        pass
+        """Checks input errors and that the assignment occurs."""
 
-    def test_calc_properties(self):
-        # TODO
-        pass
+        h = hum.Human(self.male1meas)
+
+        h2 = hum.Human(self.male1meas)
+        h2.set_CFG_dict(h.CFG)
+        self.assertEqual(h2.CFG, h.CFG)
+
+        CFG = copy.copy(h.CFG)
+        CFG.pop('twist')
+        self.assertRaises(Exception, h2.set_CFG_dict, CFG)
+        try:
+            h2.set_CFG_dict(CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Number of CFG variables, 20, is incorrect.")
+
+        CFG['testing'] = 0.5
+        self.assertRaises(Exception, h2.set_CFG_dict, CFG)
+        try:
+            h2.set_CFG_dict(CFG)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "'testing' is not a correct variable name.")
 
     def test_print_properties(self):
-        # TODO
-        pass
+        # TODO : This is not a good test with the high print precision because
+        # the values can be different between machines. If you format to just a
+        # couple decimal places then this would work.
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        h = hum.Human(self.male1meas)
+        h.print_properties()
+        sys.stdout = old_stdout
+
+        fname = os.path.join(os.path.split(__file__)[0],
+                'human_print_des.txt')
+        fid = open(fname, 'r')
+        desStr = fid.read()
+        fid.close()
+
+        self.assertEquals(mystdout.getvalue(), desStr)
+
+    def test_scale_human_by_mass(self):
+        """User can scale human's mass, via meas input or API."""
+
+        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+
+        # For comparison, unscaled densities.
+        h = hum.Human(self.male1meas)
+
+        # From measurement file, scaling mass though.
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_scale.txt')
+        h2 = hum.Human(measPath)
+
+        # Make sure the mass is 100.
+        self.assertEqual(h2.mass, 100)
+
+        # Make sure all density values are scaled appropriately.
+        factor = h2.mass / h.mass
+
+        # Make sure densities are scaled correctly.
+        for key, val in h.segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens,
+                        segmental_densities_des[key][seg] * factor)
+
+        # Check a few individual segments and solids.
+        testing.assert_almost_equal(h2.K1.mass, h.K1.mass * factor)
+        testing.assert_almost_equal(h2.A2.solids[0].mass, h.A2.solids[0].mass * factor)
+
+        # Check center of mass is not modified.
+        testing.assert_almost_equal(h2.center_of_mass[2], h.center_of_mass[2])
+        # Check that inertia is modified.
+        testing.assert_allclose(h2.inertia, h.inertia * factor, atol=1e-15)
+        testing.assert_allclose(h2.B1.solids[0].inertia, h.B1.solids[0].inertia
+                * factor)
+
+        # Scale again.
+        h2.scale_human_by_mass(30)
+        testing.assert_almost_equal(h2.mass, 30)
+
+        factor2 = h2.mass / 100
+        # Make sure densities are scaled correctly.
+        for key, val in h2.segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens,
+                        segmental_densities_des[key][seg] * factor * factor2)
+
+    def test_read_measurements(self):
+        # TODO is it expected behavior for the user to update the measurements?
+        # -- Measurement input file errors.
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badkey.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message, "Variable LsLL is not "
+                    "valid name for a measurement.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_badval.txt')
+        self.assertRaises(ValueError, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except ValueError as e:
+            self.assertEqual(e.message,
+                    "Variable Ls1L has inappropriate value.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_mcf.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message,
+                    "Variable measurementconversionfactor not provided "
+                    "or is 0. Set as 1 if measurements are given in meters.")
+
+        measPath = os.path.join(os.path.split(__file__)[0],
+                'male1_missingkey.txt')
+        self.assertRaises(Exception, hum.Human, measPath)
+        try:
+            h = hum.Human(measPath)
+        except Exception as e:
+            self.assertEqual(e.message, "There should be 95 "
+                    "measurements, but 94 were found.")
+
+    def test_write_measurements(self):
+        """Writes a valid YAML file that can be read back in."""
+
+        path = os.path.join(os.path.split(__file__)[0],
+                'meas_output.txt')
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'meas_output_des.txt')
+
+        h = hum.Human(self.male1meas)
+        h.write_measurements(path)
+
+        # Output is correct.
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        # Works as input.
+        h2 = hum.Human(path)
+        self.assertEqual(h2.meas, h.meas)
+
+        os.remove(path)
+
+    def test_write_meas_for_ISEG(self):
+        """Ensures ISEG input is written correctly."""
+
+        path = os.path.join(os.path.split(__file__)[0],
+                'meas_iseg.txt')
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'meas_iseg_des.txt')
+
+        h = hum.Human(self.male1meas)
+        h.write_meas_for_ISEG(path)
+
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        os.remove(path)
+
+    def test_read_CFG(self):
+        """Particularly checks input errors."""
+
+        # Unrecognized variable.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_badkey.txt')
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
+        try:
+            hum.Human(self.male1meas, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message,
+                    "'invalid' is not a correct variable name.")
+
+        # Too few inputs.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_missingkey.txt')
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
+        try:
+            hum.Human(self.male1meas, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message, "Number of CFG variables, 20, is "
+                    "incorrect.")
+
+        # No value for a key.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                'CFG_badval.txt')
+        self.assertRaises(StandardError, hum.Human, self.male1meas, cfgPath)
+        try:
+            hum.Human(self.male1meas, cfgPath)
+        except StandardError as e:
+            self.assertEqual(e.message,
+                    "Variable PTsagittalFlexion has no value.")
+
+    def test_write_CFG(self):
+        """Writes a valid YAML file that can be read back in."""
+
+        CFG = {'somersalt': 0.0,
+                'tilt': 0.0,
+                'twist': np.pi/2,
+                'PTsagittalFlexion': 0.0,
+                'PTfrontalFlexion': 0.0,
+                'TCspinalTorsion': 0.0,
+                'TClateralSpinalFlexion': 0.0,
+                'CA1elevation': 0.0,
+                'CA1abduction': 0.0,
+                'CA1rotation': 0.0,
+                'CB1elevation': 0.0,
+                'CB1abduction': np.pi/4,
+                'CB1rotation': 0.0,
+                'A1A2flexion': 0.0,
+                'B1B2flexion': 0.0,
+                'PJ1flexion': 0.0,
+                'PJ1abduction': 0.0,
+                'PK1flexion': 0.0,
+                'PK1abduction': 0.0,
+                'J1J2flexion': 0.0,
+                'K1K2flexion': 0.0,
+                }
+        path = os.path.join(os.path.split(__file__)[0],
+                'CFG_output.txt')
+        h = hum.Human(self.male1meas, CFG)
+        h.write_CFG(path)
+
+        pathDes = os.path.join(os.path.split(__file__)[0],
+                'CFG_output_des.txt')
+        self.assertEqual(open(path, 'r').read(), open(pathDes, 'r').read())
+
+        # Can use the cfg output as input.
+        h = hum.Human(self.male1meas, path)
+        self.assertEqual(h.CFG, CFG)
+
+        os.remove(path)
 
     def test_translate_coord_sys(self):
-        # TODO Check out properties again.
-        pass
+        """Just translates once and makes sure only COM changes."""
+        # TODO this method has been hidden for v1.0 release.
+        h = hum.Human(self.male1meas)
+        h2 = hum.Human(self.male1meas)
+        h2._translate_coord_sys([1, 2, 3])
+
+        testing.assert_almost_equal(h2.mass, h.mass)
+        testing.assert_allclose(h2.center_of_mass,
+                h.center_of_mass + np.array([[1], [2], [3]]))
+        testing.assert_allclose(h2.inertia, h.inertia, atol=1e-15)
 
     def test_rotate_coord_sys(self):
         # TODO Check out properties again.
+        h = hum.Human(self.male1meas)
+        # TODO this method has been hidden for v1.0 release.
         pass
 
     def test_transform_coord_sys(self):
         # TODO this can be simple.
+        # TODO this method has been hidden for v1.0 release.
         pass
 
     def test_combine_inertia(self):
@@ -212,39 +702,227 @@ class TestHuman(unittest.TestCase):
         # TODO test input errors.
         pass
 
-    def test_scale_by_mass(self):
+    def test_inertia_transformed(self):
+        """Tests the functionality of getting an inertia tensor about a
+        different point and in a different frame.
+
+        """
+        h = hum.Human(self.male1meas)
+        h.set_CFG('somersalt', np.pi * 0.25)
+        inertia_pre = h.inertia
+        m = h.mass
+
+        # A simple change in position.
+        d = 15
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    h.center_of_mass[2, 0]])
+        offset = m * d**2
+        # Moments of inertia.
+        testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[1, 1] + offset)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[2, 2] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 1])
+        testing.assert_almost_equal(inertia_post[0, 2], inertia_pre[0, 2])
+        testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # A more complicated change in position.
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    2*d + h.center_of_mass[2, 0]])
+        offset2 = m * 4 * d**2
+        # Moments of inertia.
+        testing.assert_almost_equal(
+                inertia_post[0, 0], inertia_pre[0, 0] + offset2)
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[1, 1] + offset + offset2)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[2, 2] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 1])
+        testing.assert_almost_equal(
+                inertia_post[0, 2], inertia_pre[0, 2] - m * 2 * d**2)
+        testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # A combined change in position and basis.
+        inertia_post = h.inertia_transformed(
+                pos=[d + h.center_of_mass[0, 0],
+                    h.center_of_mass[1, 0],
+                    h.center_of_mass[2, 0]],
+                rotmat= inertia.rotate_space_123((0.5 * np.pi,0,0)))
+        # Moments of inertia.
+        testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
+        testing.assert_almost_equal(
+                inertia_post[1, 1], inertia_pre[2, 2] + offset)
+        testing.assert_almost_equal(
+                inertia_post[2, 2], inertia_pre[1, 1] + offset)
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 2])
+        testing.assert_almost_equal(inertia_post[0, 2], -inertia_pre[0, 1])
+        testing.assert_almost_equal(inertia_post[1, 2], -inertia_pre[1, 2])
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+
+        # Make sure the direction of the rotation matrix is correct.
         # TODO
+        # Inertia tensor of two point masses in the x-y plane, one at (2, 1),
+        # and one at (-2, -1), each with mass 1. Rotating a positive atan(1/2)
+        # should give a zero xy product of inertia if the rotation matrix is
+        # what we think it is.
+        in_ptmass = np.mat(np.zeros((3, 3)))
+        in_ptmass[0, 0] = 2
+        in_ptmass[1, 1] = 8
+        in_ptmass[2, 2] = 10
+        in_ptmass[1, 0] = 4
+        in_ptmass[0, 1] = 4
+        angle = np.arctan(1 / 2.0)
+        h._inertia = in_ptmass
+        rotmat = inertia.rotate_space_123((0, 0, angle))
+        inertia_post = h.inertia_transformed(rotmat=rotmat)
 
-        # TODO cannot scale twice, or make sure the scale is relative to the
-        # old scale.
-        pass
+    def test_lower_torso_rotations(self):
+        """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
+        lower torso, this is somersalt-tilt-twist relative to the inertial
+        reference frame."""
 
-    def test_read_measurements(self):
-        # TODO is it expected behavior for the user to update the measurements?
-        pass
+        h = hum.Human(self.male1meas)
 
-    def test_write_measurements(self):
-        # TODO this will have to change if we change the file format.
-        pass
+        # specify some arbitrary angles
+        somersalt = pi / 5.0
+        tilt = pi / 10.0
+        twist = pi / 14.0
 
-    def test_write_meas_for_ISEG(self):
-        # TODO
-        pass
+        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('tilt', tilt)
+        h.set_CFG('twist', twist)
 
-    def test_read_CFG(self):
-        # TODO
-        pass
+        # Now manually calculate the rotation matrix for Euler 1-2-3 using the
+        # inerita.euler_rotation function. Yeadon starts with the I frame
+        # (inertial) and rotates the F frame (attached to P) through the body
+        # fixed 123 angles. The euler_rotation function defines R as:
 
-    def test_write_CFG(self):
-        # TODO
-        pass
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
 
+        R = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
 
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation.
 
+        # R = rot_mat.T
 
+        testing.assert_almost_equal(h.P.rot_mat, R.T)
 
+        # Yeadon presents this rotation matrix on page 3 of his first paper,
+        # but it has two errors. The entry Sfi[1, 0] should be `+ sin(phi)`
+        # instead of `+ sin(theta)` and the entry Sfi[1, 1] should be
+        # `cos(phi)cos(psi) -` instead of `cos(theta)cos(psi) -`. The following
+        # is the matrix with the error corrected. His definition of the
+        # rotation matrix is:
 
-# TODO translating the entire human: check resulting inertia properties.
+        # v_i = Sfi * v_f
+
+        # which is the inverse of the definition in the euler_rotation
+        # function (i.e. the same as Chris's definition)
+
+        phi = somersalt
+        theta = tilt
+        psi = twist
+
+        cph = np.cos(phi)
+        sph = np.sin(phi)
+        cth = np.cos(theta)
+        sth = np.sin(theta)
+        cps = np.cos(psi)
+        sps = np.sin(psi)
+
+        Sfi = np.mat(
+            [[cth * cps, -cth * sps, sth],
+             [cph * sps + sph * sth * cps,
+              cph * cps - sph * sth * sps,
+              -sph * cth],
+             [sph * sps - cph * sth * cps,
+              sph * cps + cph * sth * sps,
+              cph * cth]])
+
+        testing.assert_almost_equal(h.P.rot_mat, Sfi)
+
+    def test_shoulder_rotation(self):
+        """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
+        left arm, A, this is elevation-abduction-rotation relative to the C
+        body (shoulders/head)."""
+
+        h = hum.Human(self.male1meas)
+
+        elevation = pi / 5.0
+        abduction = pi - pi / 10.0
+        rotation = pi / 14.0
+
+        h.set_CFG('CA1elevation', elevation)
+        h.set_CFG('CA1abduction', abduction)
+        h.set_CFG('CA1rotation', rotation)
+
+        # now we should manually calculate the rotation matrix for Euler 1-2-3
+        # Yeadon starts with the C frame and rotates the F frame
+        # (attached to P) through the body fixed 123 angles.
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation
+
+        testing.assert_allclose(h.A1.rot_mat, R.T)
+
+        # right arm
+
+        elevation = pi / 5.0
+        abduction = pi - pi / 10.0
+        rotation = pi / 14.0
+
+        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1abduction', abduction)
+        h.set_CFG('CB1rotation', rotation)
+
+        # now we should manually calculate the rotation matrix for Euler 1-2-3
+        # Yeadon starts with the C frame and rotates the F frame
+        # (attached to P) through the body fixed 123 angles.
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation
+
+        testing.assert_allclose(h.B1.rot_mat, R.T)
+
 
 # TODO compare ISEG output to our output.
-# TODO test CFGbounds functionality.
+# TODO test combineinerita by manual calculations.
+# TODO try out a program flow: make sure we do all necessary updates after
+# construction, say when we change a joint angle, etc. CANNOT just change
+# measurements on the fly.
+# TODO make sure we're averaging the correct limbs
+# TODO it's possible that by averaging the measurements, we're coming up
+# with more false stadia than we would otherwise, but if we don't average
+# the measurements, how do we draw?
+# TODO translating the entire human: check resulting inertia properties.

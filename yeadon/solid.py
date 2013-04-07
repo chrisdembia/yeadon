@@ -1,29 +1,22 @@
-'''Solid objects are used by the segment module. A solid has a position, and
+"""Solid objects are used by the segment module. A solid has a position, and
 orientation (defined by a rotation matrix). This module also contains the
 class definition for stadium objects, which are used to construct
-stadiumsolid solids. The solid class has two children: the stadiumsolid and
-semiellipsoid classes.
+StadiumSolid solids. The Solid class has two subclasses: the StadiumSolid and
+Semiellipsoid classes.
 
-'''
-import textwrap
+"""
+# Use Python3 integer division rules.
+from __future__ import division
 import warnings
 
 import numpy as np
-try:
-    import visual as vis
-except ImportError:
-    # TODO: Make this a warning
-    print "Yeadon failed to import python-visual. It is possible that you do" \
-          " not have this package. This is fine, it just means that you " \
-          "cannot use the draw_visual() member functions."
 
 import inertia
 
-
 class Stadium(object):
-    '''Stadium, the 2D shape.
+    """Stadium, the 2D shape.
 
-    '''
+    """
     validStadiaLabels = {
         'Ls0': 'hip joint centre',
         'Ls1': 'umbilicus',
@@ -38,7 +31,7 @@ class Stadium(object):
         'La2': 'lowest front rib',
         'La3': 'nipple',
         'La4': 'wrist joint centre',
-        'La5': 'acromion',
+        'La5': 'base of thumb',
         'La6': 'knuckles',
         'La7': 'fingernails',
         'Lb0': 'shoulder joint centre',
@@ -46,7 +39,7 @@ class Stadium(object):
         'Lb2': 'lowest front rib',
         'Lb3': 'nipple',
         'Lb4': 'wrist joint centre',
-        'Lb5': 'acromion',
+        'Lb5': 'base of thumb',
         'Lb6': 'knuckles',
         'Lb7': 'fingernails',
         'Lj0': 'hip joint centre',
@@ -71,8 +64,8 @@ class Stadium(object):
         'Lk9': 'toe nails'}
 
     def __init__(self, label, inID, in1, in2=None, alignment='ML'):
-        '''Defines a 2D stadium shape and checks inputs for errors. A stadium,
-        described in Yeadon 1990-ii, is defined by two parameters.  Stadia can
+        """Defines a 2D stadium shape and checks inputs for errors. A stadium,
+        described in Yeadon 1990-ii, is defined by two parameters. Stadia can
         depracate to circles if their "thickness" is 0.
 
         Parameters
@@ -93,7 +86,7 @@ class Stadium(object):
             medio-lateral. Aleternatively, 'AP' (anteroposterior) can be
             supplied. The only 'AP' stadiums should be at the heels.
 
-        '''
+        """
         if label == 'Ls5: acromion/bottom of neck':
             self.label = label
         elif label in [lab + ': ' + desc for lab, desc in
@@ -114,7 +107,8 @@ class Stadium(object):
             self.perimeter = 2.0 * in2 + (np.pi - 2.0) * in1
             self.thickness = ((np.pi * self.width - self.perimeter) /
                           (2.0 * np.pi - 4.0))
-            self.radius = (self.perimeter - 2.0 * self.width) / (2.0 * np.pi - 4.0)
+            self.radius = (self.perimeter - 2.0 * self.width) / (2.0 * np.pi -
+                    4.0)
         elif inID == 'perimeter':
             self._set_as_circle(in1 / (2.0 * np.pi))
         elif inID == 'radius':
@@ -125,27 +119,32 @@ class Stadium(object):
             self.perimeter = 4.0 * self.thickness + 2.0 * np.pi * self.radius
             self.width = 2.0 * self.thickness + 2.0 * self.radius
         else:
-            raise ValueError("Error: stadium " + self.label +
+            raise ValueError("Stadium " + self.label +
                 " not defined properly, " + inID + " is not valid. You must " +
                 "use inID= perimwidth, depthwidth, perimeter, or radius.")
-        if self.radius <= 0 or self.thickness < 0:
-            warnings.warn(textwrap.dedent("""Error: stadium '{}' is defined
-                incorrectly, r must be positive and t must be nonnegative. r =
-                {} and t = {} . This means that 2 < perimeter/width < pi.
-                Currently, this ratio is {}.""").format(self.label, self.radius,
-                self.thickness, self.perimeter / self.width))
+        if self.radius == 0:
+            raise ValueError("Radius of stadium '%' is zero." % self.radius)
+        if self.radius < 0 or self.thickness < 0:
+            warnings.warn("Stadium '{}' is defined "
+                "incorrectly, r must be positive and t must be nonnegative. "
+                "r = {} and t = {} . This means that 2 < perimeter/width < pi. "
+                "Currently, this ratio is {}.\n".format(self.label,
+                    self.radius, self.thickness, self.perimeter / self.width))
             if inID == 'perimwidth':
                 self._set_as_circle(in1 / (2.0 * np.pi))
                 print "Fix: stadium set as circle with perimeter as given."
             elif inID == 'depthwidth':
-                self._set_as_circle(2 * in2)
+                self._set_as_circle(0.5 * in2)
                 print "Fix: stadium set as circle with diameter of given width."
+            else:
+                raise ValueError("Negative radius/thickness cannot be "
+                        "corrected.")
         if alignment != 'AP' and alignment != 'ML':
             raise ValueError("Error: stadium " + self.label +
                 " alignment is not valid, must be either AP or ML")
         else:
             self.alignment = alignment
-    
+
     def _set_as_circle(self, radius):
         """Sets radius, perimeter, thickness, and width if thickness is 0."""
         self.radius = radius
@@ -154,15 +153,61 @@ class Stadium(object):
         self.width = self.perimeter / np.pi
 
 class Solid(object):
-    '''Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
+    """Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
 
-    '''
+    """
     # Transparency for plotting.
     alpha = .5
 
+    @property
+    def mass(self):
+        """Mass of the solid, in units of kg."""
+        return self._mass
+
+    @property
+    def center_of_mass(self):
+        """Center of mass of the solid, a np.ndarray, in units of m, expressed
+        in the global frame, from the bottom center of the pelvis (Ls0)."""
+        return self._center_of_mass
+
+    @property
+    def inertia(self):
+        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
+        about the center of mass of the human, expressed in the global frame.
+        """
+        return self._inertia
+
+    @property
+    def rel_center_of_mass(self):
+        """Center of mass of the solid, a np.ndarray, in units of m, expressed
+        in the frame of the solid, from the origin of the solid."""
+        return self._rel_center_of_mass
+
+    @property
+    def rel_inertia(self):
+        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
+        about the center of mass of the solid, expressed in the frame of the
+        solid.  """
+        return self._rel_inertia
+
+    @property
+    def pos(self):
+        """Position of the origin of the solid, which is the center of the
+        surface closest to the pelvis, a np.ndarray, in units of m, expressed
+        in the global frame, from the bottom center of the pelvis (Ls0)."""
+        return self._pos
+
+    @property
+    def end_pos(self):
+        """Position of the point on the solid farthest from the origin along
+        the longitudinal axis of the segment, a np.ndarray, in units of m,
+        expressed in the global frame, from the bottom center of the pelvis
+        (Ls0)."""
+        return self._end_pos
+
     def __init__(self, label, density, height):
-        '''Defines a solid. This is a base class. Sets the alpha value to
+        """Defines a solid. This is a base class. Sets the alpha value to
         be used for drawing with matplotlib.
 
         Parameters
@@ -174,18 +219,18 @@ class Solid(object):
         height : float
             Distance from bottom to top of the solid
 
-        '''
+        """
         #TODO: Check for valid labels
         self.label = label
         #TODO: Check that these two are floats
         self.density = density
         self.height = height
-        self.rel_inertia = np.zeros((3, 3)) # this gets set in subclasses
-        self.mass = 0.0
-        self.rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
+        self._rel_inertia = np.zeros((3, 3)) # this gets set in subclasses
+        self._mass = 0.0
+        self._rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
 
     def set_orientation(self, pos, rot_mat):
-        '''Sets the position, rotation matrix of the solid, and calculates
+        """Sets the position, rotation matrix of the solid, and calculates
         the "absolute" properties (center of mass, and inertia tensor) of the
         solid.
 
@@ -197,21 +242,22 @@ class Solid(object):
         rot_mat : np.matrix (3,3)
             Orientation of solid, with respect to the fixed coordinate system.
 
-        '''
-        self.pos = pos
-        self.rot_mat = rot_mat
-        self.endpos = self.pos + (self.height * self.rot_mat *
+        """
+        self._pos = pos
+        self._rot_mat = rot_mat
+        self._end_pos = self.pos + (self.height * self._rot_mat *
                                   np.array([[0], [0], [1]]))
         self.calc_properties()
 
     def calc_properties(self):
-        '''Sets the center of mass and inertia of the solid, both with respect
+        """Sets the center of mass and inertia of the solid, both with respect
         to the fixed human frame.
 
-        '''
+        """
         try:
             try:
-                self.center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
+                self._center_of_mass = (self.pos + self._rot_mat *
+                        self.rel_center_of_mass)
             except AttributeError as err:
                 err.message = err.message + \
                     '. You must set the orientation before attempting ' + \
@@ -220,33 +266,41 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self.inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate3_inertia(self._rot_mat, self.rel_inertia)
 
     def print_properties(self):
-        '''Prints the mass, center of mass (local and absolute), and inertia
-        tensor (local and absolute) of the solid.
+        """Prints mass, center of mass (in solid and global frames),
+        and inertia (in solid and global frames).
 
-        '''
+        The solid's origin is at the bottom center of the proximal stadium (or
+        stadium closest to the pelvis, Ls0).
+
+        """
+        # self.COM, etc. needs to be defined first.
+        if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
+            self.calc_properties()
+
         print self.label, "properties:\n"
-        print "Mass (kg):", self.mass,"\n"
-        print "COM in local solid's frame (m):\n", self.rel_center_of_mass,"\n"
-        print "COM in fixed human frame (m):\n", self.center_of_mass,"\n"
-        print "Inertia tensor in solid's frame about local solid's",\
-               "COM (kg-m^2):\n", self.rel_inertia,"\n"
-        print "Inertia tensor in fixed human frame about local solid's",\
-               "COM (kg-m^2):\n", self.inertia,"\n"
+        print "Mass (kg):", self.mass, "\n"
+        print "COM in solid's frame from solid's origin (m):\n",\
+                self.rel_center_of_mass,"\n"
+        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
+                self.center_of_mass,"\n"
+        print "Inertia tensor in solid's frame about solid's",\
+                "COM (kg-m^2):\n", self.rel_inertia,"\n"
+        print "Inertia tensor in global frame about solid's",\
+                "COM (kg-m^2):\n", self.inertia,"\n"
 
-    def draw(self, ax, c):
-        #TODO: Make into warning
-        raise NotImplementedError("Cannot draw from base class Solid, use a "
-                "subclass like StadiumSolid or SemiEllipsoidSolid).")
+    def draw_mayavi(self, mlabobj, col):
+        raise NotImplementedError()
+
 
 class StadiumSolid(Solid):
-    '''Stadium solid. Derived from the solid class.
+    """Stadium solid. Derived from the solid class.
 
-    '''
-    def __init__(self,label,density,stadium0,stadium1,height):
-        '''Defines a stadium solid object. Creates its base object, and
+    """
+    def __init__(self, label, density, stadium0, stadium1, height):
+        """Defines a stadium solid object. Creates its base object, and
         calculates relative/local inertia properties.
 
         Parameters
@@ -262,144 +316,141 @@ class StadiumSolid(Solid):
         height : float
             Distance between the lower and upper stadia.
 
-        '''
-        super(StadiumSolid, self).__init__(label,density,height)
-        self.stads = [stadium0,stadium1]
+        """
+        super(StadiumSolid, self).__init__(label, density, height)
+        self.stads = [stadium0, stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anteroposteriorly.
         # inertia must be rotated, and the plots must be modified
         if (self.stads[0].alignment == 'AP' or
             self.stads[1].alignment == 'AP'):
             self.alignment = 'AP'
+        if stadium0.thickness == 0:
+            self.degenerate_by_t0 = True
+        else:
+            self.degenerate_by_t0 = False
         self.calc_rel_properties()
+        self._orig_mesh_points = list()
+        self._orig_mesh_points.append(self._make_mesh(0))
+        self._orig_mesh_points.append(self._make_mesh(1))
 
     def calc_rel_properties(self):
-        '''Calculates mass, relative center of mass, and relative/local
+        """Calculates mass, relative center of mass, and relative/local
         inertia, according to formulae in Appendix B of Yeadon 1990-ii. If the
         stadium solid is arranged anteroposteriorly, the inertia is rotated
         by pi/2 about the z axis.
 
-        '''
+        """
+        # There are two cases of stadium solid degeneracy to consider:
+        # t0 = 0, and t0 = t1 = 0. The degeneracy arises when b has a
+        # denominator of 0. The case that t1 = 0 is not an issue, then.
+        # The way the case of t0 = 0 is handled is by switching the two stadia.
+        # Note that thi affects how the relative center of mass is set, but
+        # does not affect the mass or moments of inertia calculations.
+        # The case in which t0 = t1 = 0, we set b to 1. That is because t = t0
+        # (1 + bz) is going to be zero anyway, since t0 = 0.
         D = self.density
         h = self.height
-        r0 = self.stads[0].radius
-        t0 = self.stads[0].thickness
-        r1 = self.stads[1].radius
-        t1 = self.stads[1].thickness
-        a = (r1 - r0) / r0
-        if (t0 == 0):
-            b = 1.0
+        if self.degenerate_by_t0:
+            # Swap the stadia.
+            r0 = self.stads[1].radius
+            t0 = self.stads[1].thickness
+            r1 = self.stads[0].radius
+            t1 = self.stads[0].thickness
         else:
-            b = (t1 - t0) / t0 # DOES NOT WORK FOR CIRCLES!!!
-        self.mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
+            r0 = self.stads[0].radius
+            t0 = self.stads[0].thickness
+            r1 = self.stads[1].radius
+            t1 = self.stads[1].thickness
+        a = (r1 - r0) / r0
+        if t0 == 0:
+            # Truncated cone, since both thicknesses are zero.
+            # b can be anything, because t = t0(1 + bz) = (0)(1 + bz) = 0.
+            b = 1
+        else:
+            b = (t1 - t0) / t0
+        self._mass = D * h * r0 * (4.0 * t0 * self._F1(a,b) +
                                   np.pi * r0 * self._F1(a,a))
         zcom = D * (h**2.0) * (4.0 * r0 * t0 * self._F2(a,b) +
                                np.pi * (r0**2.0) * self._F2(a,a)) / self.mass
-        self.rel_center_of_mass = np.array([[0.0],[0.0],[zcom]])
+        if self.degenerate_by_t0 and t0 != 0:
+            # We swapped the stadia, and it's not a truncated cone.
+            # Must define this intermediate because zcom above is still what
+            # must be used for the parallel axis theorem below.
+            adjusted_zcom = h - zcom
+        else:
+            adjusted_zcom = zcom
+        self._rel_center_of_mass = np.array([[0.0],[0.0],[adjusted_zcom]])
+
         # moments of inertia
         Izcom = D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                          np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
                          4.0 * (r0**3.0) * t0 * self._F4(b,a) +
                          np.pi * (r0**4.0) * self._F4(a,a) * 0.5 )
+        # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE. The Dh^3 in the
+        # formula below is missing from the second formula for Iy^0 on page 73
+        # of Yeadon1990-ii.
         Iy = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                        np.pi * (r0**2.0) * (t0**2.0) * self._F5(a,b) +
                        8.0 * (r0**3.0) * t0*self._F4(b,a) / 3.0 +
                       np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
-        # CAUGHT AN (minor) ERROR IN YEADON'S PAPER HERE
         Iycom = Iy - self.mass * (zcom**2.0)
         Ix = (D * h * (4.0 * r0 * (t0**3.0) * self._F4(a,b) / 3.0 +
                        np.pi * (r0**4.0) * self._F4(a,a) * 0.25) +
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
         Ixcom = Ix - self.mass*(zcom**2.0)
-        self.rel_inertia = np.mat([[Ixcom,0.0,0.0],
+        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterorposterior orientation
-            self.rel_inertia = inertia.rotate3_inertia(
+            self._rel_inertia = inertia.rotate3_inertia(
                     inertia.rotate_space_123([0,0,np.pi/2]), self.rel_inertia)
 
-    def draw(self, ax, c):
-        '''Draws stadium solid using matplotlib's mplot3d library. Plotted with
-        a non-one value for alpha. Also places the solid's label near the
-        center of mass of the solid. Adjusts the plot for solids oriented
-        anteroposteriorly. Plots coordinate axes of the solid at the base of
-        the solid.
-
-        Parameters
-        ----------
-        ax : plt.axes
-            Matplotlib axes upon which to draw.
-        c : str
-            Color (e.g. 'red') to use for drawing the solid
-
-        '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self._make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self._make_pos(1)
-        for idx in np.arange(X0.size-1):
-            Xpts = np.array([[X0[0,idx],X0[0,idx+1]],[X1[0,idx],X1[0,idx+1]]])
-            Ypts = np.array([[Y0[0,idx],Y0[0,idx+1]],[Y1[0,idx],Y1[0,idx+1]]])
-            Zpts = np.array([[Z0[0,idx],Z0[0,idx+1]],[Z1[0,idx],Z1[0,idx+1]]])
-            ax.plot_surface( Xpts, Ypts, Zpts, color=c, alpha=Solid.alpha, 
-                    edgecolor='');
-            if 0:
-                if idx == 8:
-                    print "IDX IS 8\n",Xpts,'\n',Ypts,'\n',Zpts
-                if idx == 9:
-                    print "IDX IS 9\n",Xpts,'\n',Ypts,'\n',Zpts
-        # draw stad0
-        ax.plot_surface( X0toplot, Y0toplot, Z0toplot,
-                         color=c, alpha=Solid.alpha)
-        # draw stad1
-        ax.plot_surface( X1toplot, Y1toplot, Z1toplot,
-                         color=c, alpha=Solid.alpha)
-        # rotated unit vectors (unit x prime, etc)
-        uxp = self.rot_mat * np.array([[1],[0],[0]]) + self.pos
-        uyp = self.rot_mat * np.array([[0],[1],[0]]) + self.pos
-        uzp = self.rot_mat * np.array([[0],[0],[1]]) + self.pos
-        if 0:
-            ax.plot( np.array([self.pos[0,0],uxp[0]]),
-                     np.array([self.pos[1,0],uxp[1]]),
-                     np.array([self.pos[2,0],uxp[2]]),
-                     color=(1,0,0,1), linewidth = 2)
-            ax.plot( np.array([self.pos[0,0],uyp[0]]),
-                     np.array([self.pos[1,0],uyp[1]]),
-                     np.array([self.pos[2,0],uyp[2]]),
-                     color=(0,1,0,1), linewidth = 2)
-            ax.plot( np.array([self.pos[0,0],uzp[0]]),
-                     np.array([self.pos[1,0],uzp[1]]),
-                     np.array([self.pos[2,0],uzp[2]]),
-                     color=(0,0,1,0), linewidth = 2)
-        # place solid's text label on the plot
-        (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.center_of_mass[0], self.center_of_mass[1],
-                self.center_of_mass[2], labelstring)
-
     def draw_mayavi(self, mlabobj, col):
-        '''Draws the stadium in 3D using MayaVi.
-        
+        """Draws the initial stadium in 3D using MayaVi.
+
         Parameters
         ----------
-        mlabobj : 
+        mlabobj : mayavi.soemthing
             The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
-        '''
-        X0,Y0,Z0,X0toplot,Y0toplot,Z0toplot = self._make_pos(0)
-        X1,Y1,Z1,X1toplot,Y1toplot,Z1toplot = self._make_pos(1)
+        """
+        self._generate_mesh()
+        self._mesh = mlabobj.mesh(self._mesh_points['x'], self._mesh_points['y'],
+                self._mesh_points['z'], color=col, opacity=Solid.alpha)
+
+    def _update_mayavi(self):
+        """Updates the mesh in MayaVi."""
+        self._generate_mesh()
+        self._mesh.mlab_source.set(x=self._mesh_points['x'],
+                y=self._mesh_points['y'], z=self._mesh_points['z'])
+
+    def _generate_mesh(self):
+        """Generates grid points for a MayaVi mesh."""
+        X0, Y0, Z0 = self._make_pos(0)
+        X1, Y1, Z1 = self._make_pos(1)
         Xpts = np.array(np.concatenate( (X0, X1), axis=0))
         Ypts = np.array(np.concatenate( (Y0, Y1), axis=0))
         Zpts = np.array(np.concatenate( (Z0, Z1), axis=0))
-        mlabobj.mesh(Xpts, Ypts, Zpts, color=col, opacity=Solid.alpha)
+        self._mesh_points = {'x': Xpts, 'y': Ypts, 'z': Zpts}
 
-    def _make_pos(self,i):
-        '''Generates coordinates to be used for 3D visualization purposes.
+    def _make_mesh(self, i):
+        """Generates the un-rotated coordinates of the solid. These values are
+        saved at instantiation.
 
-        '''
+        Parameters
+        ----------
+        i : int
+            Identifies which stadium to generate the mesh points for (the top
+            or bottom).
+        
+        """
         theta = [np.linspace(0.0,np.pi/2,5)]
         x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
         y = self.stads[i].radius * np.sin(theta);
@@ -414,39 +465,52 @@ class StadiumSolid(Solid):
         Y = np.concatenate( (y, yrev, -y, -yrev), axis=1)
         Z = i*self.height*np.ones((1,20))
         POSES = np.concatenate( (X, Y, Z), axis=0)
-        POSES = self.rot_mat * POSES
-        X,Y,Z = np.vsplit(POSES,3)
+        return POSES
+
+    def _make_pos(self, i):
+        """Generates coordinates to be used for 3D visualization purposes.
+
+        """
+        rotated_points = self._rot_mat * self._orig_mesh_points[i]
+        X, Y, Z = np.vsplit(rotated_points, 3)
         X = X + self.pos[0]
         Y = Y + self.pos[1]
         Z = Z + self.pos[2]
-        Xtoplot = np.array(np.concatenate((X, np.nan*X)))
-        Ytoplot = np.array(np.concatenate((Y, np.nan*Y)))
-        Ztoplot = np.array(np.concatenate((Z, np.nan*Z)))
-        return X,Y,Z,Xtoplot,Ytoplot,Ztoplot
+        return X, Y, Z
 
-    def _F1(self,a,b):
-        '''Integration term. See Yeadon 1990-ii Appendix 2.'''
+    @staticmethod
+    def _F1(a, b):
+        """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0 + (a + b) * 0.5 + a * b / 3.0
-    def _F2(self,a,b):
-        '''Integration term. See Yeadon 1990-ii Appendix 2.'''
+
+    @staticmethod
+    def _F2(a, b):
+        """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 0.5 + (a + b) / 3.0 + a * b * 0.25
-    def _F3(self,a,b):
-        '''Integration term. See Yeadon 1990-ii Appendix 2.'''
+
+    @staticmethod
+    def _F3(a, b):
+        """Integration term. See Yeadon 1990-ii Appendix 2."""
         return 1.0/3.0 + (a + b) / 4.0 + a * b *0.2
-    def _F4(self,a,b):
-        '''Integration term. See Yeadon 1990-ii Appendix 2.'''
+
+    @staticmethod
+    def _F4(a, b):
+        """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + 3.0 * b) * 0.5 + (a * b + b**2.0) +
                       (3.0 * a * b**2.0 + b**3.0) * 0.25 + a * (b**3.0) * 0.2)
-    def _F5(self,a,b):
-        '''Integration term. See Yeadon 1990-ii Appendix 2.'''
+
+    @staticmethod
+    def _F5(a, b):
+        """Integration term. See Yeadon 1990-ii Appendix 2."""
         return (1.0 + (a + b) + (a**2.0 + 4.0 * a * b + b**2.0) / 3.0 +
                        a * b * (a + b) * 0.5 + (a**2.0) * (b**2.0) * 0.2)
 
 class Semiellipsoid(Solid):
-    '''Semiellipsoid.
-    '''
+    """Semiellipsoid."""
+
+    n_mesh_points = 30
     def __init__(self,label,density,baseperim,height):
-        '''Defines a semiellipsoid (solid) object. Creates its base object, and
+        """Defines a semiellipsoid (solid) object. Creates its base object, and
         calculates relative/local inertia properties. The base is circular (its
         height axis is pointed upwards), so only 2 parameters are needed to
         define the semiellipsoid.
@@ -462,81 +526,83 @@ class Semiellipsoid(Solid):
         height : float
             The remaining minor axis.
 
-        '''
-        super(Semiellipsoid, self).__init__(label,density,height)
+        """
+        super(Semiellipsoid, self).__init__(label, density, height)
         self.baseperimeter = baseperim
         self.radius = self.baseperimeter/(2.0*np.pi)
-
         self.calc_rel_properties()
+        self._mesh_x, self._mesh_y, self._mesh_z = self._make_mesh()
 
     def calc_rel_properties(self):
-        '''Calculates mass, relative center of mass, and relative/local
+        """Calculates mass, relative center of mass, and relative/local
         inertia, according to somewhat commonly availble formulae.
 
-        '''
+        """
         D = self.density
         r = self.radius
         h = self.height
-        self.mass = D * 2.0/3.0 * np.pi * (r**2) * h
-        self.rel_center_of_mass = np.array([[0.0],[0.0],[3.0/8.0 * h]])
+        self._mass = D * 2.0/3.0 * np.pi * (r**2) * h
+        self._rel_center_of_mass = np.array([[0.0],[0.0],[3.0/8.0 * h]])
         Izcom = D * 4.0/15.0 * np.pi * (r**4.0) * h
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
             3.0/32.0 * (r**2.0) * (h**3.0))
         Ixcom = Iycom
-        self.rel_inertia = np.mat([[Ixcom,0.0,0.0],
+        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
                                   [0.0,Iycom,0.0],
                                   [0.0,0.0,Izcom]])
 
-    def draw(self,ax,c):
-        '''Draws semiellipsoid using matplotlib's mplot3d library. Plotted with
-        a non-one value for alpha. Also places the solid's label near the
-        center of mass of the solid. Plots coordinate axes of the solid at the
-        base of the solid. Code is modified from matplotlib documentation for
-        mplot3d.
-
-        Parameters
-        ----------
-        ax : plt.Axes3D
-            Matplotlib axes to draw upon.
-         c : str
-            Color (e.g. 'red').
-
-        '''
-        x, y, z = self._make_pos()
-        ax.plot_surface( x, y, z, rstride=4, cstride=4,
-                         color=c, alpha=Solid.alpha , edgecolor='')
-        (labelstring,b,c) = self.label.partition(':')
-        ax.text(self.center_of_mass[0], self.center_of_mass[1],
-                self.center_of_mass[2], labelstring)
-
     def draw_mayavi(self, mlabobj, col):
-        '''Draws the semiellipsoid in 3D using MayaVi.
-        
+        """Draws the semiellipsoid in 3D using MayaVi.
+
         Parameters
         ----------
-        mlabobj : 
+        mlabobj :
             The MayaVi object we can draw on.
         col : tuple (3,)
             Color as an rgb tuple, with values between 0 and 1.
 
-        '''
-        x, y, z = self._make_pos()
-        mlabobj.mesh(x, y, z, color=col, opacity=Solid.alpha)
+        """
+        self._generate_mesh()
+        self._mesh = mlabobj.mesh(*self._mesh_points, color=col,
+                opacity=Solid.alpha)
 
-    def _make_pos(self):
-        '''Generates coordinates to be used for 3D visualization purposes.
+    def _update_mayavi(self):
+        """Updates the mesh in MayaVi."""
+        self._generate_mesh()
+        self._mesh.mlab_source.set(x=self._mesh_points[0],
+                y=self._mesh_points[1], z=self._mesh_points[2])
 
-        '''
-        N = 30
-        u = np.linspace(0, 2.0 * np.pi, N)
-        v = np.linspace(0, np.pi / 2.0, N)
+    def _generate_mesh(self):
+        """Generates a mesh for MayaVi."""
+        self._mesh_points = self._make_pos()
+
+    def _make_mesh(self):
+        """Generates the un-rotated coordinates of the solid. These values are
+        saved at instantiation.
+        
+        """
+        u = np.linspace(0, 2.0 * np.pi, self.n_mesh_points)
+        v = np.linspace(0, np.pi / 2.0, self.n_mesh_points)
         x = self.radius * np.outer(np.cos(u), np.sin(v))
         y = self.radius * np.outer(np.sin(u), np.sin(v))
         z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
-        for i in np.arange(N):
-            for j in np.arange(N):
-                POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = self.rot_mat * POS
+        return x, y, z 
+
+    def _make_pos(self):
+        """Generates coordinates to be used for 3D visualization purposes,
+        given the position and orientation of the solid.
+
+        """
+        x = np.zeros(self._mesh_x.shape)
+        y = np.zeros(self._mesh_y.shape)
+        z = np.zeros(self._mesh_z.shape)
+        for i in np.arange(self.n_mesh_points):
+            for j in np.arange(self.n_mesh_points):
+                POS = np.array([
+                    [self._mesh_x[i,j]],
+                    [self._mesh_y[i,j]],
+                    [self._mesh_z[i,j]]])
+                POS = self._rot_mat * POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]

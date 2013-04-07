@@ -1,3 +1,5 @@
+.. _solid:
+
 :mod:`solid` Module
 ===================
 

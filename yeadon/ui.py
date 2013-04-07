@@ -38,7 +38,7 @@ def start_ui():
     # initialize the joint angle data
     # user supplies names/paths of input text files
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
-    print "MEASUREMENTS: can be provided as a 95-field dict (units must be " \
+    print "\nMEASUREMENTS: can be provided as a 95-field dict (units must be " \
           "meters), or a .TXT file"
     temp = raw_input("Type the name of the .TXT filename (to use preloaded " 
                     "measurements just hit enter): ")
@@ -57,7 +57,7 @@ def start_ui():
             elif file_exist_meas:
                 meas = temp
 
-    print "CONFIGURATION (joint angles): can be provided as a 21-field dict,"\
+    print "\nCONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
     CFG = raw_input("Type the name of the .TXT filename (for all joint angles " 
                     "as zero, just hit enter): ")
@@ -89,8 +89,7 @@ def start_ui():
               "  p: load joint angles from file\n",\
               "  s: format input measurements for ISEG Fortran code\n\n",\
               "  t: transform absolute/base/fixed coordinate system\n\n",\
-              "  d: draw 3D human using matplotlib\n",\
-              "  m: draw 3D human using MayaVi\n\n",\
+              "  d: draw 3D human\n\n",\
               "  h: print human properties\n",\
               "  g: print segment properties\n",\
               "  l: print solid properties\n\n",\
@@ -158,15 +157,9 @@ def start_ui():
             H.translate_coord_sys( (posx,posy,posz) )
             print "All done!"
 
-        # DRAW HUMAN WITH MATPLOTLIB
-        elif userIn == 'd':
-            print "To continue using the YEADON UI after drawing,",\
-                   "close the plot window."
-            H.draw()
-
         # DRAW HUMAN WITH MAYAVI
-        elif userIn == 'm':
-            H.draw_mayavi()
+        elif userIn == 'd':
+            H.draw()
 
         # PRINT HUMAN PROPERTIES
         elif userIn == 'h':

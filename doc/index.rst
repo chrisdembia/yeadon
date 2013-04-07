@@ -3,25 +3,27 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to yeadon's documentation!
+Welcome to ``yeadon``'s documentation!
 ==================================
 
-Contents of this documentation:
+This package calculates the masses, center of mass positions, and inertia
+tensors that correspond to the human inertia model developed by Yeadon
+in (Yeadon, 1990). The package allows for the input of both measurements from
+human subjects and configuration variables (joint angles) with which one can
+orient the model. Additionally, the package allows for 3D visualization of the
+model using the MayaVi package.
+
+The following is the contents of this documentation:
 
 .. toctree::
    :maxdepth: 1
 
    overview.rst
-   modules.rst
    usage.rst
    measurements.rst
    configuration.rst
    releasenotes.rst
-
-Information about this package can also be obtained from within python with
-commands such as help(yeadon) and help(yeadon.human) (assuming the user has
-imported yeadon) or from the README.txt file in the root yeadon/ directory, or
-from the sample text input files in the root yeadon/ directory.
+   apidoc.rst
 
 The README.txt contains installation instructions.
 
@@ -37,3 +39,9 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+References
+==========
+
+M. R. Yeadon, 1990. The Simulation of Aerial Movement-ii. Mathematical Inertia
+Model of the Human Body. Journal of Biomechanics, 23:67-74.

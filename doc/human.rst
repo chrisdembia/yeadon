@@ -1,3 +1,5 @@
+.. _human:
+
 :mod:`human` Module
 ===================
 

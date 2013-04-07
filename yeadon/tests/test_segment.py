@@ -1,11 +1,11 @@
-import unittest
-import nose
-import numpy as np
-from numpy import testing, pi
 # For redirecting stdout.
 from cStringIO import StringIO
 import sys
 import os
+
+import unittest
+import numpy as np
+from numpy import testing, pi
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -52,26 +52,26 @@ class TestSegments(unittest.TestCase):
         # -- Check the other constructor actions.
         # Setting orientations of all constituent solids.
         assert (seg1.solids[0].pos == pos).all()
-        assert (seg1.solids[0].rot_mat == rot).all()
+        assert (seg1.solids[0]._rot_mat == rot).all()
         pos2 = np.array([[6], [2], [3]])
-        assert (seg1.solids[0].endpos == pos2).all()
+        assert (seg1.solids[0].end_pos == pos2).all()
 
         # 2nd solid in the segment.
         assert (seg1.solids[1].pos == pos2).all()
-        assert (seg1.solids[1].rot_mat == rot).all()
+        assert (seg1.solids[1]._rot_mat == rot).all()
         # See definition of solids in setUp().
         pos3 = pos2 + np.array([[6],[0],[0]])
-        assert (seg1.solids[1].endpos == pos3).all()
+        assert (seg1.solids[1].end_pos == pos3).all()
 
         # 3rd solid in the segment.
         assert (seg1.solids[2].pos == pos3).all()
-        assert (seg1.solids[2].rot_mat == rot).all()
+        assert (seg1.solids[2]._rot_mat == rot).all()
         # See definition of solids in setUp().
         pos4 = pos3 + np.array([[7],[0],[0]])
-        assert (seg1.solids[2].endpos == pos4).all()
+        assert (seg1.solids[2].end_pos == pos4).all()
 
         # Other segment-wide attributes we define.
-        assert (seg1.endpos == pos4).all()
+        assert (seg1.end_pos == pos4).all()
         assert (seg1.length == (5 + 6 + 7)).all()
 
         # -- The constructor then calls calc_rel_properties().
@@ -204,26 +204,26 @@ class TestSegments(unittest.TestCase):
         sys.stdout = old_stdout
         desStr = ("seg1 properties:\n\n" +
                 "Mass (kg): 4299.15404857 \n\n" +
-                "COM in local segment frame (m):\n" +
+                "COM in segment's frame from segment's origin (m):\n" +
                 "[[  0.       ]\n" +
                 " [  0.       ]\n" +
                 " [ 11.3248746]] \n\n" +
-                "COM in fixed human frame (m):\n" +
+                "COM in global frame from bottom center of pelvis (Ls0) (m):\n" +
                 "[[ 12.3248746]\n" +
                 " [  2.       ]\n" +
                 " [  3.       ]] \n\n" +
-                "Inertia tensor in segment frame about local segment " +
+                "Inertia tensor in segment's frame about segment's " +
                 "COM (kg-m^2):\n" + 
                 "[[  50287.48961483       0.               0.        ]\n" +
                 " [      0.          113733.59619149       0.        ]\n" +
                 " [      0.               0.          112963.70547987]] \n\n" +
-                "Inertia tensor in fixed human frame about local segment " +
+                "Inertia tensor in global frame about segment's " +
                 "COM (kg-m^2):\n" +
                 "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
                 " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
                 " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
-        print "hi"
         print mystdout.getvalue()
+
         self.assertEquals(mystdout.getvalue(), desStr)
 
     def test_print_solid_properties(self):
