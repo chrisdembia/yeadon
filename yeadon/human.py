@@ -1076,7 +1076,7 @@ class Human(object):
         # thorax
         Tpos = self._s[1].end_pos
         TRotMat = (self._s[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['PTsagittalFlexion'],
+            inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTfrontalFlexion'],
                                       0.0]))
         self.T = seg.Segment('T: Thorax',
@@ -1088,9 +1088,9 @@ class Human(object):
         # chest-head
         Cpos = self._s[2].end_pos
         CRotMat = (self._s[2]._rot_mat *
-            inertia.rotate_space_123([0.0,
-                                      self.CFG['TClateralSpinalFlexion'],
-                                      self.CFG['TCspinalTorsion']]))
+            inertia.euler_123([self.CFG['TClateralSpinalFlexion'],
+                               0.0,
+                               self.CFG['TCspinalTorsion']]))
         self.C = seg.Segment('C: Chest-head',
                              Cpos,
                              CRotMat,
@@ -1120,7 +1120,7 @@ class Human(object):
 
         # left forearm-hand
         A2RotMat = (self._a_solids[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
         left_lower_arm_length = 0.0
         for n in reversed(range(2, 7)):
             left_lower_arm_length += self._a_solids[n].height
@@ -1152,7 +1152,7 @@ class Human(object):
 
         # right forearm-hand
         B2RotMat = (self._b_solids[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
         right_lower_arm_length = 0.0
         for n in reversed(range(2, 7)):
             right_lower_arm_length += self._b_solids[n].height
@@ -1174,9 +1174,9 @@ class Human(object):
                                          [0.0],
                                          [0.0]])
         J1RotMat = (Ls0_Ls1_solid._rot_mat *
-             inertia.rotate_space_123([self.CFG['PJ1flexion'],
-                                       self.CFG['PJ1abduction'],
-                                       0.0]))
+             inertia.euler_123([self.CFG['PJ1flexion'],
+                                self.CFG['PJ1abduction'],
+                                0.0]))
         # this vector point from the hip to knee in the J frame
         j_vector = np.array([[0.0],
                              [0.0],
@@ -1192,7 +1192,7 @@ class Human(object):
 
         # left shank-foot
         J2RotMat = (self._j_solids[2]._rot_mat *
-            inertia.rotate_space_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         left_lower_leg_length = sum([self._j_solids[n].height for n in range(3, 9)])
         J2pos = self._j_solids[2].pos + J2RotMat * \
                 np.array([[0.0], [0.0], [-left_lower_leg_length]])
@@ -1208,7 +1208,7 @@ class Human(object):
                                           [0.0],
                                           [0.0]])
         K1RotMat = (self._s[0]._rot_mat *
-             inertia.rotate_space_123([self.CFG['PK1flexion'],
+             inertia.euler_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
 
@@ -1228,7 +1228,7 @@ class Human(object):
 
         # right shank-foot
         K2RotMat = (self._k_solids[2]._rot_mat *
-            inertia.rotate_space_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         right_lower_leg_length = sum([self._k_solids[n].height for n in range(3, 9)])
         K2pos = self._k_solids[2].pos + K2RotMat * \
                 np.array([[0.0], [0.0], [-right_lower_leg_length]])
