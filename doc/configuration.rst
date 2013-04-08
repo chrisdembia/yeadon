@@ -29,7 +29,12 @@ Each segment has its own frame. The origins of the segments are denoted by the
 black dots, and are at the location of a joint center between two segments.
 Solids have their own frame as well, which share the same orientation of the
 segment containing them, but are shifted along the longitudinal (:math:`z`)
-axis of the segment. 
+axis of the segment.
+
+Each segment is rotated relative to the adjacent segment through body fixed
+x-y-z rotations (x-y-z Euler angles) as specified in M. R. Yeadon, “The
+simulation of aerial movement--I. The determination of orientation angles from
+film data.,” Journal of biomechanics, vol. 23, no. 1, pp. 59–66, Jan. 1990.
 
 Location of joint centers
 -------------------------
