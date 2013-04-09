@@ -241,6 +241,8 @@ class YeadonGUI(HasTraits):
 
     @on_trait_change('reset_configuration')
     def _update_reset_configuration(self):
+        # TODO: This is really slow because it sets every trait one by one. It
+        # would be nice to set them all to zero and only call the redraw once.
         for cfg in sliders:
             setattr(self, cfg, self.trait(cfg).default_value()[1])
 
