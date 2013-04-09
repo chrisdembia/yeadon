@@ -134,28 +134,28 @@ class Human(object):
         ----------
         meas_in : str or dict
             Holds 95 measurements (in meters) that allow the generation of
-            stadium solids and an ellipsoid with which to define the model's
-            goemetry. See sphinx documentation on how to take the measurements.
-            If its type is str, it is the path to a measurements input file.
-            See the template .txt file. If its type is a dict, it is a
-            dictionary with keys that are the names of the variables in
-            the text file. In this latter case, units must be in meters and
-            a measured mass canoot be provided.
+            stadium solids and a semi-ellipsoid with which to define the
+            model's geometry. See online documentation on how to take the
+            measurements.  If its type is str, it is the path to a measurements
+            input file.  See the template .txt file for example input. If its
+            type is a dict, it is a dictionary with keys that are the names of
+            the variables in the text file. In this latter case, units must be
+            in meters and a measured mass override cannot be provided.
         CFG : str or dict, optional
-            The configuration of the human (radians).
-            If its type is str, it is the path to a CFG input file in YAML
-            syntax (see template CFGtemplate.txt). If its type is dict, it must
-            have an entry for each of the 21 names in Human.CFGnames or in the
-            template. If not provided, the human is in a default configuration
-            in which all joint angles are set to zero.
+            The configuration of the human (radians). If its type is str, it is
+            the path to a CFG input file in YAML syntax (see template
+            CFGtemplate.txt). If its type is dict, it must have an entry for
+            each of the 21 names in Human.CFGnames or in the template. If not
+            provided, the human is in a default configuration in which all
+            joint angles are set to zero.
         symmetric : bool, optional
             True by default. Decides whether or not to average the measurements
             of the left and right limbs of the human. This has nothing to with
             the configuration being symmetric.
         density_set : str, optional
-            Selects a set of densities to use for the body segments.
-            Either 'Chandler', 'Clauser', or 'Dempster'. 'Dempster' by default.
-            See class variable `segmental_densities` to inspect their values.
+            Selects a set of densities to use for the body segments. Either
+            'Chandler', 'Clauser', or 'Dempster'. 'Dempster' is the default.
+            See class attribute `segmental_densities` to inspect their values.
 
         """
         # Initialize position and orientation of entire body.
@@ -183,8 +183,6 @@ class Human(object):
             self._average_limbs()
 
         # Start off a zero configuration.
-        # TODO: set default values for the CFG such that the human is in the
-        # nominal configuration.
         self.CFG = dict()
         for key in Human.CFGnames:
             self.CFG[key] = 0.0
@@ -273,8 +271,8 @@ class Human(object):
         # averaged)
         # [21, 38] U [57, 75] are the left limbs.
         # [39, 57] U [76, 95] are the right limbs.
-        leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
-        rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
+        leftidxs = np.concatenate((np.arange(21, 39), np.arange(57, 76)), 1)
+        rightidx = np.concatenate((np.arange(39, 57), np.arange(76, 95)), 1)
         for i in np.arange(len(leftidxs)):
             avg = 0.5 * (self.meas[Human.measnames[leftidxs[i]]] +
                          self.meas[Human.measnames[rightidx[i]]])
