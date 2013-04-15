@@ -995,9 +995,7 @@ class TestHuman(unittest.TestCase):
 
         def angle():
             """Returns a random angle between -2*pi and 2*pi."""
-            # I couldn't figure out how to make a flat distributions between
-            # [-1, 1]. This one puts out too many zeros. Must be a way...
-            return pi * np.random.randint(-1, 1) * 2 * np.random.rand()
+            return 2 * pi * np.random.uniform(-1, 1)
 
         # rotate the pelvis relative to the inertial frame
 
