@@ -33,7 +33,7 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 1-2-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # Likins, Levinson, 1982 page 423 (this is the transpose of what is
     # presented)
     C = mat([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
              [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
@@ -61,7 +61,7 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 3-1-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982 page 424 (this is the inverse of what is
+    # Likins, Levinson, 1982 page 424 (this is the transpose of what is
     # presented)
     C = mat([[-s1 * c2 * s3 + c3 * c1, c1 * c2 * s3 + c3 *s1, s2 *s3],
              [-s1 * c2 * c3 - s3 * c1, c1 * c2 * c3 - s3 * s1, s2 * c3],
@@ -88,7 +88,7 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body-three 1-3-2 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # Likins, Levinson, 1982 page 423 (this is the transpose of what is
     # presented)
 
     C = mat([[c2 * c3, c1 * s2 * c3 + s3 * s1, s1 * s2 * c3 - s3 * c1],
@@ -117,7 +117,7 @@ def test_euler_rotation(display=False):
     R = inertia.euler_rotation(a, order)
 
     # definition of body 2-1-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982 page 423 (this is the inverse of what is
+    # Likins, Levinson, 1982 page 423 (this is the transpose of what is
     # presented)
 
     C = mat([[s1 * s2 * s3 + c3 * c1, c2 * s3, c1 * s2 * s3 - c3 * s1],
@@ -133,6 +133,28 @@ def test_euler_rotation(display=False):
 
 def test_rotations():
     angles = pi * random(3)
+
+    s1 = sin(angles[0])
+    s2 = sin(angles[1])
+    s3 = sin(angles[2])
+
+    c1 = cos(angles[0])
+    c2 = cos(angles[1])
+    c3 = cos(angles[2])
+
+    R = [[c2 * c3, s1 * s2 * c3 - s3 * c1, c1 * s2 * c3 + s3 * s1],
+         [c2 * s3, s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 - c3 * s1],
+         [-s2, s1 * c2, c1 * c2]]
+
+    testing.assert_allclose(R, inertia.rotate_space_123(angles))
+
+    R = [[c2 * c3, -c2 * s3, s2],
+         [s1 * s2 * c3 + s3 * c1, -s1 * s2 * s3 + c3 * c1, -s1 * c2],
+         [-c1 * s2 * c3 + s3 * s1, c1 * s2 * s3 + c3 * s1, c1 * c2]]
+
+    testing.assert_allclose(R, inertia.euler_123(angles))
+
+    angles = -pi * random(3)
 
     s1 = sin(angles[0])
     s2 = sin(angles[1])

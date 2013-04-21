@@ -332,31 +332,31 @@ class TestHuman(unittest.TestCase):
 
         # Two values out of range.
         CFG = {'somersalt': 0.0,
-                'tilt': 0.0,
-                'twist': 3*np.pi,
-                'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
-                'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
-                'CA1rotation': 0.0,
-                'CB1elevation': 0.0,
-                'CB1abduction': np.pi/4,
-                'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'B1B2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': -10*np.pi,
-                'PK1abduction': 0.0,
-                'J1J2flexion': 0.0,
-                'K1K2flexion': 0.0,
-                }
+               'tilt': 0.0,
+               'twist': 3.0 * np.pi,
+               'PTsagittalFlexion': 0.0,
+               'PTfrontalFlexion': 0.0,
+               'TCspinalTorsion': 0.0,
+               'TClateralSpinalFlexion': 0.0,
+               'CA1elevation': 0.0,
+               'CA1abduction': 0.0,
+               'CA1rotation': 0.0,
+               'CB1elevation': 0.0,
+               'CB1abduction': np.pi / 4.0,
+               'CB1rotation': 0.0,
+               'A1A2flexion': 0.0,
+               'B1B2flexion': 0.0,
+               'PJ1flexion': 0.0,
+               'PJ1abduction': 0.0,
+               'PK1flexion': -10.0 * np.pi,
+               'PK1abduction': 0.0,
+               'J1J2flexion': 0.0,
+               'K1K2flexion': 0.0,
+               }
         desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
                 "Must be between -1.0 and 1.0 pi-rad.\n"
                 "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
-                "Must be between -0.5 and 1.0 pi-rad.\n")
+                "Must be between -0.5 and 0.5 pi-rad.\n")
 
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
@@ -453,6 +453,9 @@ class TestHuman(unittest.TestCase):
                     "'testing' is not a correct variable name.")
 
     def test_print_properties(self):
+        # TODO : This is not a good test with the high print precision because
+        # the values can be different between machines. If you format to just a
+        # couple decimal places then this would work.
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         h = hum.Human(self.male1meas)
@@ -702,7 +705,7 @@ class TestHuman(unittest.TestCase):
     def test_inertia_transformed(self):
         """Tests the functionality of getting an inertia tensor about a
         different point and in a different frame.
-        
+
         """
         h = hum.Human(self.male1meas)
         h.set_CFG('somersalt', np.pi * 0.25)
@@ -859,7 +862,57 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_almost_equal(h.P.rot_mat, Sfi)
 
-    def test_shoulder_rotation(self):
+    def test_leg_rotations(self):
+
+        h = hum.Human(self.male1meas)
+
+        elevation = pi / 10.05
+        abduction = pi / 68.4
+
+        h.set_CFG('PJ1flexion', elevation)
+        h.set_CFG('PJ1abduction', -abduction) # should be neg
+
+        RJ = inertia.euler_rotation((elevation, -abduction, 0.0), (1, 2, 3))
+
+        testing.assert_allclose(h.J1.rot_mat, RJ.T)
+
+        h.set_CFG('PK1flexion', elevation)
+        h.set_CFG('PK1abduction', abduction)
+
+        RK = inertia.euler_rotation((elevation, abduction, 0.0), (1, 2, 3))
+
+        testing.assert_allclose(h.K1.rot_mat, RK.T)
+
+        flexion = pi / 9.6
+
+        R2 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        h.set_CFG('J1J2flexion', flexion)
+        h.set_CFG('K1K2flexion', flexion)
+
+        testing.assert_allclose(h.J2.rot_mat, (R2 * RJ).T)
+        testing.assert_allclose(h.K2.rot_mat, RK.T * R2.T)
+
+        somersalt = pi / 5.0
+        tilt = pi / 10.0
+        twist = pi / 14.0
+
+        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('tilt', tilt)
+        h.set_CFG('twist', twist)
+
+        R3 = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+
+        # v_p = R3 * v_i
+        # v_j1 = R * v_p
+        # v_j2 = R2 * v_j1
+        # v_j2 = R2 * R * R3 * v_i
+        # v_i = R3^T * R^T * R2^T * v_j2
+
+        testing.assert_allclose(h.J2.rot_mat, R3.T * RJ.T * R2.T)
+        testing.assert_allclose(h.K2.rot_mat, R3.T * RK.T * R2.T)
+
+    def test_arm_rotations(self):
         """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
         left arm, A, this is elevation-abduction-rotation relative to the C
         body (shoulders/head)."""
@@ -888,6 +941,209 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_allclose(h.A1.rot_mat, R.T)
 
+        # now rotate the elbow
+
+        flexion = - pi / 4.3
+
+        R2 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        h.set_CFG('A1A2flexion', flexion)
+
+        testing.assert_allclose(h.A2.rot_mat, R.T * R2.T)
+
+        # right arm
+
+        elevation = pi / 5.0
+        abduction = pi - pi / 10.0
+        rotation = pi / 14.0
+
+        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1abduction', abduction)
+        h.set_CFG('CB1rotation', rotation)
+
+        # now we should manually calculate the rotation matrix for Euler 1-2-3
+        # Yeadon starts with the C frame and rotates the F frame
+        # (attached to P) through the body fixed 123 angles.
+
+        # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
+        # by the rotation matrix R)
+
+        R = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        # Chris's original code computes the inverse of the rotation matrix
+        # that I compute with euler_rotation
+
+        testing.assert_allclose(h.B1.rot_mat, R.T)
+
+        # now rotate the elbow
+        # v_a1 = R * v_c and v_a2 = R2 * v_a1
+        # v_a2 = R2 * R * v_c
+        # v_c =  R^T * R2^T * v_a2
+
+        flexion = -pi / 6.98
+
+        R2 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        h.set_CFG('B1B2flexion', flexion)
+
+        testing.assert_allclose(h.B2.rot_mat, R.T * R2.T)
+
+    def test_rotation_chain(self):
+        """This tests all of the rotations in the whole body."""
+
+        h = hum.Human(self.male1meas)
+
+        def angle():
+            """Returns a random angle between -2*pi and 2*pi."""
+            return 2 * pi * np.random.uniform(-1, 1)
+
+        # rotate the pelvis relative to the inertial frame
+
+        somersalt = angle()
+        tilt = angle()
+        twist = angle()
+
+        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('tilt', tilt)
+        h.set_CFG('twist', twist)
+
+        P_R_I = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+
+        testing.assert_allclose(h.P.rot_mat, P_R_I.T)
+
+        # rotate the thorax relative to the pelvis
+
+        sagflexion = angle()
+        frontflexion = angle()
+
+        h.set_CFG('PTsagittalFlexion', sagflexion)
+        h.set_CFG('PTfrontalFlexion', frontflexion)
+
+        T_R_P = inertia.euler_rotation((sagflexion, frontflexion, 0.0), (1, 2, 3))
+
+        T_R_I = T_R_P * P_R_I
+
+        testing.assert_allclose(h.T.rot_mat, T_R_I.T)
+
+        # rotate the chest relative to the thorax
+
+        spinalflexion = angle()
+        torsion = angle()
+
+        h.set_CFG('TClateralSpinalFlexion', spinalflexion)
+        h.set_CFG('TCspinalTorsion', torsion)
+
+        C_R_T = inertia.euler_rotation((spinalflexion, 0.0, torsion), (1, 2, 3))
+
+        C_R_I = C_R_T * T_R_I
+
+        testing.assert_allclose(h.C.rot_mat, C_R_I.T)
+
+        # rotate the left upper arm relative to the chest
+
+        elevation = angle()
+        abduction = angle() # neg
+        rotation = angle()
+
+        h.set_CFG('CA1elevation', elevation)
+        h.set_CFG('CA1abduction', abduction)
+        h.set_CFG('CA1rotation', rotation)
+
+        A1_R_C = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        A1_R_I = A1_R_C * C_R_I
+
+        testing.assert_allclose(h.A1.rot_mat, A1_R_I.T)
+
+        # rotate the left lower arm relative to the left upper arm
+
+        flexion = angle() #neg
+
+        h.set_CFG('A1A2flexion', flexion)
+
+        A2_R_A1 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        A2_R_I = A2_R_A1 * A1_R_I
+
+        testing.assert_allclose(h.A2.rot_mat, A2_R_I.T)
+
+        # rotate the right upper arm relative to the chest
+
+        elevation = angle()
+        abduction = angle()
+        rotation = angle()
+
+        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1abduction', abduction)
+        h.set_CFG('CB1rotation', rotation)
+
+        B1_R_C = inertia.euler_rotation((elevation, abduction, rotation), (1, 2, 3))
+
+        B1_R_I = B1_R_C * C_R_I
+
+        testing.assert_allclose(h.B1.rot_mat, B1_R_I.T)
+
+        # rotate the left lower arm relative to the left upper arm
+
+        flexion = angle() # neg
+
+        h.set_CFG('B1B2flexion', flexion)
+
+        B2_R_B1 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        B2_R_I = B2_R_B1 * B1_R_I
+
+        testing.assert_allclose(h.B2.rot_mat, B2_R_I.T)
+
+        # legs
+
+        # left leg
+
+        elevation = angle()
+        abduction = angle() # neg
+
+        h.set_CFG('PJ1flexion', elevation)
+        h.set_CFG('PJ1abduction', abduction) # should be neg
+
+        J1_R_P = inertia.euler_rotation((elevation, abduction, 0.0), (1, 2, 3))
+
+        J1_R_I = J1_R_P * P_R_I
+
+        testing.assert_allclose(h.J1.rot_mat, J1_R_I.T)
+
+        flexion = angle()
+
+        h.set_CFG('J1J2flexion', flexion)
+
+        J2_R_J1 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        J2_R_I = J2_R_J1 * J1_R_I
+
+        testing.assert_allclose(h.J2.rot_mat, J2_R_I.T)
+
+        # right leg
+
+        elevation = angle()
+        abduction = angle()
+
+        h.set_CFG('PK1flexion', elevation)
+        h.set_CFG('PK1abduction', abduction) # should be neg
+
+        K1_R_P = inertia.euler_rotation((elevation, abduction, 0.0), (1, 2, 3))
+
+        K1_R_I = K1_R_P * P_R_I
+
+        testing.assert_allclose(h.K1.rot_mat, K1_R_I.T)
+
+        flexion = angle()
+
+        h.set_CFG('K1K2flexion', flexion)
+
+        K2_R_K1 = inertia.euler_rotation((flexion, 0.0, 0.0), (1, 2, 3))
+
+        K2_R_I = K2_R_K1 * K1_R_I
+
+        testing.assert_allclose(h.K2.rot_mat, K2_R_I.T)
 
 # TODO compare ISEG output to our output.
 # TODO test combineinerita by manual calculations.

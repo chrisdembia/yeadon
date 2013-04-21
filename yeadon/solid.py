@@ -65,7 +65,7 @@ class Stadium(object):
 
     def __init__(self, label, inID, in1, in2=None, alignment='ML'):
         """Defines a 2D stadium shape and checks inputs for errors. A stadium,
-        described in Yeadon 1990-ii, is defined by two parameters.  Stadia can
+        described in Yeadon 1990-ii, is defined by two parameters. Stadia can
         depracate to circles if their "thickness" is 0.
 
         Parameters
@@ -318,7 +318,7 @@ class StadiumSolid(Solid):
 
         """
         super(StadiumSolid, self).__init__(label, density, height)
-        self.stads = [stadium0,stadium1]
+        self.stads = [stadium0, stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anteroposteriorly.
         # inertia must be rotated, and the plots must be modified
