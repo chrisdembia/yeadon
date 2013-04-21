@@ -60,8 +60,6 @@ class Human(object):
                 'J1J2flexion',
                 'K1K2flexion')
 
-    # TODO: Change the bounds for the affected joint angles.
-
     CFGbounds = [[-np.pi, np.pi],                   # somersault
                  [-np.pi, np.pi],                   # tilt
                  [-np.pi, np.pi],                   # twist
