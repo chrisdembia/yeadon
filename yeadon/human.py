@@ -62,27 +62,27 @@ class Human(object):
 
     # TODO: Change the bounds for the affected joint angles.
 
-    CFGbounds = [[-np.pi, np.pi],             # somersault
-                 [-np.pi, np.pi],             # tilt
-                 [-np.pi, np.pi],             # twist
-                 [-np.pi / 2.0, np.pi],       # PTsagittalFlexion
-                 [-np.pi / 2.0, np.pi / 2.0], # PTfrontalFlexion
-                 [-np.pi / 2.0, np.pi / 2.0], # TCspinalTorsion
-                 [-np.pi / 2.0, np.pi / 2.0], # TClatealSpinalFlexion
-                 [-np.pi, np.pi / 2.0],       # CA1elevation
-                 [-3.0 * np.pi / 2.0, 0.0],   # CA1abduction
-                 [-np.pi, np.pi],             # CA1rotation
-                 [-np.pi, np.pi / 2.0],       # CB1elevation
-                 [0.0, 3.0 * np.pi / 2.0],    # CB1abduction
-                 [-np.pi, np.pi],             # CB1rotation
-                 [-np.pi, 0.0],               # A1A2flexion
-                 [-np.pi, 0.0],               # B1B2flexion
-                 [-np.pi / 2.0, np.pi / 2.0], # PJ1flexion
-                 [-np.pi / 2.0, 0.0],         # PJ1abduction
-                 [-np.pi / 2.0, np.pi / 2.0], # PK1flexion
-                 [0.0, np.pi / 2],            # PK1abduction
-                 [0, np.pi],                  # J1J2flexion
-                 [0, np.pi]]                  # K1K2flexion
+    CFGbounds = [[-np.pi, np.pi],                   # somersault
+                 [-np.pi, np.pi],                   # tilt
+                 [-np.pi, np.pi],                   # twist
+                 [-np.pi / 2.0, np.pi],             # PTsagittalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PTfrontalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # TCspinalTorsion
+                 [-np.pi / 2.0, np.pi / 2.0],       # TClatealSpinalFlexion
+                 [-np.pi, np.pi / 2.0],             # CA1elevation
+                 [-3.0 * np.pi / 2.0, np.pi / 2.0], # CA1abduction
+                 [-np.pi, np.pi],                   # CA1rotation
+                 [-np.pi, np.pi / 2.0],             # CB1elevation
+                 [-np.pi / 2.0, 3.0 * np.pi / 2.0], # CB1abduction
+                 [-np.pi, np.pi],                   # CB1rotation
+                 [-np.pi, 0.0],                     # A1A2flexion
+                 [-np.pi, 0.0],                     # B1B2flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1abduction
+                 [-np.pi / 2.0, np.pi / 2.0],       # PK1flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PK1abduction
+                 [0, np.pi],                        # J1J2flexion
+                 [0, np.pi]]                        # K1K2flexion
 
     @property
     def mass(self):
