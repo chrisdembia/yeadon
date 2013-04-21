@@ -33,7 +33,7 @@ axis of the segment.
 
 Each segment is rotated relative to the adjacent segment through body fixed
 x-y-z rotations (x-y-z Euler angles) as specified in M. R. Yeadon, “The
-simulation of aerial movement--I. The determination of orientation angles from
+simulation of aerial movement--i. The determination of orientation angles from
 film data.,” Journal of biomechanics, vol. 23, no. 1, pp. 59–66, Jan. 1990.
 
 Location of joint centers
