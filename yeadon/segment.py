@@ -111,7 +111,6 @@ class Segment(object):
         self.length = np.linalg.norm(self._end_pos - self.pos)
         self.calc_rel_properties()
 
-
     def _set_orientations(self):
         """Sets the position (self.pos) and rotation matrix (self.rot_mat)
         for all solids in the segment by calling each constituent

@@ -60,27 +60,29 @@ class Human(object):
                 'J1J2flexion',
                 'K1K2flexion')
 
-    CFGbounds = [[-np.pi, np.pi],
-                 [-np.pi, np.pi],
-                 [-np.pi, np.pi],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi*3/2],
-                 [-np.pi*3/2, np.pi],
-                 [-np.pi, np.pi],
-                 [-np.pi/2, np.pi*3/2],
-                 [-np.pi*3/2, np.pi],
-                 [-np.pi, np.pi],
-                 [0, np.pi],
-                 [0, np.pi],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
-                 [-np.pi/2, np.pi],
-                 [-np.pi/2, np.pi/2],
-                 [0, np.pi],
-                 [0, np.pi]]
+    # TODO: Change the bounds for the affected joint angles.
+
+    CFGbounds = [[-np.pi, np.pi],                   # somersault
+                 [-np.pi, np.pi],                   # tilt
+                 [-np.pi, np.pi],                   # twist
+                 [-np.pi / 2.0, np.pi],             # PTsagittalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PTfrontalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # TCspinalTorsion
+                 [-np.pi / 2.0, np.pi / 2.0],       # TClatealSpinalFlexion
+                 [-np.pi, np.pi / 2.0],             # CA1elevation
+                 [-3.0 * np.pi / 2.0, np.pi / 2.0], # CA1abduction
+                 [-np.pi, np.pi],                   # CA1rotation
+                 [-np.pi, np.pi / 2.0],             # CB1elevation
+                 [-np.pi / 2.0, 3.0 * np.pi / 2.0], # CB1abduction
+                 [-np.pi, np.pi],                   # CB1rotation
+                 [-np.pi, 0.0],                     # A1A2flexion
+                 [-np.pi, 0.0],                     # B1B2flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1abduction
+                 [-np.pi / 2.0, np.pi / 2.0],       # PK1flexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PK1abduction
+                 [0, np.pi],                        # J1J2flexion
+                 [0, np.pi]]                        # K1K2flexion
 
     @property
     def mass(self):
@@ -132,28 +134,28 @@ class Human(object):
         ----------
         meas_in : str or dict
             Holds 95 measurements (in meters) that allow the generation of
-            stadium solids and an ellipsoid with which to define the model's
-            goemetry. See sphinx documentation on how to take the measurements.
-            If its type is str, it is the path to a measurements input file.
-            See the template .txt file. If its type is a dict, it is a
-            dictionary with keys that are the names of the variables in
-            the text file. In this latter case, units must be in meters and
-            a measured mass canoot be provided.
+            stadium solids and a semi-ellipsoid with which to define the
+            model's geometry. See online documentation on how to take the
+            measurements.  If its type is str, it is the path to a measurements
+            input file.  See the template .txt file for example input. If its
+            type is a dict, it is a dictionary with keys that are the names of
+            the variables in the text file. In this latter case, units must be
+            in meters and a measured mass override cannot be provided.
         CFG : str or dict, optional
-            The configuration of the human (radians).
-            If its type is str, it is the path to a CFG input file in YAML
-            syntax (see template CFGtemplate.txt). If its type is dict, it must
-            have an entry for each of the 21 names in Human.CFGnames or in the
-            template. If not provided, the human is in a default configuration
-            in which all joint angles are set to zero.
+            The configuration of the human (radians). If its type is str, it is
+            the path to a CFG input file in YAML syntax (see template
+            CFGtemplate.txt). If its type is dict, it must have an entry for
+            each of the 21 names in Human.CFGnames or in the template. If not
+            provided, the human is in a default configuration in which all
+            joint angles are set to zero.
         symmetric : bool, optional
             True by default. Decides whether or not to average the measurements
             of the left and right limbs of the human. This has nothing to with
             the configuration being symmetric.
         density_set : str, optional
-            Selects a set of densities to use for the body segments.
-            Either 'Chandler', 'Clauser', or 'Dempster'. 'Dempster' by default.
-            See class variable `segmental_densities` to inspect their values.
+            Selects a set of densities to use for the body segments. Either
+            'Chandler', 'Clauser', or 'Dempster'. 'Dempster' is the default.
+            See class attribute `segmental_densities` to inspect their values.
 
         """
         # Initialize position and orientation of entire body.
@@ -207,7 +209,7 @@ class Human(object):
         """
         self._define_torso_solids()
         self._define_arm_solids()
-        self._define_leg_segments()
+        self._define_leg_solids()
         self._update_segments()
 
     def _update_segments(self):
@@ -221,9 +223,9 @@ class Human(object):
         self._define_segments()
         # must redefine this Segments list,
         # the code does not work otherwise
-        self.segments = [ self.P, self.T, self.C,
-                          self.A1, self.A2, self.B1, self.B2,
-                          self.J1, self.J2, self.K1, self.K2]
+        self.segments = [self.P, self.T, self.C,
+                         self.A1, self.A2, self.B1, self.B2,
+                         self.J1, self.J2, self.K1, self.K2]
         for s in self.segments:
             s.calc_properties()
         # Must update segment properties before updating the human properties.
@@ -241,6 +243,9 @@ class Human(object):
             issue
 
         """
+        # TODO: Should this actually be errors? There probably isn't any reason
+        # to bound these, but there could be reason to avoid the singularities
+        # in the direction cosine matrices for each joint rotation.
         boolval = True
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
@@ -266,8 +271,8 @@ class Human(object):
         # averaged)
         # [21, 38] U [57, 75] are the left limbs.
         # [39, 57] U [76, 95] are the right limbs.
-        leftidxs = np.concatenate( (np.arange(21,39),np.arange(57,76) ),1)
-        rightidx = np.concatenate( (np.arange(39,57),np.arange(76,95) ),1)
+        leftidxs = np.concatenate((np.arange(21, 39), np.arange(57, 76)), 1)
+        rightidx = np.concatenate((np.arange(39, 57), np.arange(76, 95)), 1)
         for i in np.arange(len(leftidxs)):
             avg = 0.5 * (self.meas[Human.measnames[leftidxs[i]]] +
                          self.meas[Human.measnames[rightidx[i]]])
@@ -496,7 +501,7 @@ class Human(object):
                       'j0','j1','j2','j3','j4','j5','j6','j7','j8',
                       'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
         segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
-        solidvals = self._s + self._a + self._b + self._j + self._k
+        solidvals = self._s + self._a_solids + self._b_solids + self._j_solids + self._k_solids
         ObjDict = dict(zip(solidkeys + segmentkeys, solidvals + self.segments))
         # error-checking
         for key in (solidkeys + segmentkeys):
@@ -650,7 +655,7 @@ class Human(object):
         octact_no : int
             Integer in the range [1, 8] to identify the octant for which points
             are desired. The octants are defined as follows:
-            
+
             1.  x > 0, y > 0, z > 0
             2.  x < 0, y > 0, z > 0
             3.  x < 0, y < 0, z > 0
@@ -796,17 +801,27 @@ class Human(object):
 
         """
         meas = self.meas
+
+        arm_solid_density_sets = ['upper-arm',
+                                  'upper-arm',
+                                  'forearm',
+                                  'forearm',
+                                  'hand',
+                                  'hand',
+                                  'hand']
+
         # get solid heights from length measurements
-        a0h = meas['La2L'] * 0.5
-        a1h = meas['La2L'] - meas['La2L'] * 0.5
-        a2h = meas['La3L'] - meas['La2L']
-        a3h = meas['La4L'] - meas['La3L']
-        a4h = meas['La5L']
-        a5h = meas['La6L'] - meas['La5L']
-        a6h = meas['La7L'] - meas['La6L']
+        left_arm_solid_heights = [
+            meas['La2L'] * 0.5,
+            meas['La2L'] - meas['La2L'] * 0.5,
+            meas['La3L'] - meas['La2L'],
+            meas['La4L'] - meas['La3L'],
+            meas['La5L'],
+            meas['La6L'] - meas['La5L'],
+            meas['La7L'] - meas['La6L']]
+
         # left arm
         self._La = []
-        self._a = []
         self._La.append( sol.Stadium('La0: shoulder joint centre',
                                     'perimeter', meas['La0p'], '=p'))
         self._La.append( sol.Stadium('La1: mid-arm',
@@ -824,52 +839,39 @@ class Human(object):
         self._La.append( sol.Stadium('La7: fingernails',
                                     'perimwidth', meas['La7p'], meas['La7w']))
         # define left arm solids
-        self._a.append( sol.StadiumSolid( 'a0: shoulder joint centre',
-                self.segmental_densities[self._density_set]['upper-arm'],
-                self._La[0],
-                self._La[1],
-                a0h))
-        self._a.append( sol.StadiumSolid( 'a1: mid-arm',
-                self.segmental_densities[self._density_set]['upper-arm'],
-                self._La[1],
-                self._La[2],
-                a1h))
-        self._a.append( sol.StadiumSolid( 'a2: elbow joint centre',
-                self.segmental_densities[self._density_set]['forearm'],
-                self._La[2],
-                self._La[3],
-                a2h))
-        self._a.append( sol.StadiumSolid( 'a3: maximum forearm perimeter',
-                self.segmental_densities[self._density_set]['forearm'],
-                self._La[3],
-                self._La[4],
-                a3h))
-        self._a.append( sol.StadiumSolid( 'a4: wrist joint centre',
-                self.segmental_densities[self._density_set]['hand'],
-                self._La[4],
-                self._La[5],
-                a4h))
-        self._a.append( sol.StadiumSolid( 'a5: base of thumb',
-                self.segmental_densities[self._density_set]['hand'],
-                self._La[5],
-                self._La[6],
-                a5h))
-        self._a.append( sol.StadiumSolid( 'a6: knuckles',
-                self.segmental_densities[self._density_set]['hand'],
-                self._La[6],
-                self._La[7],
-                a6h))
+        left_arm_solid_tags = ['a0: shoulder joint centre',
+                               'a1: mid-arm',
+                               'a2: elbow joint centre',
+                               'a3: maximum forearm perimeter',
+                               'a4: wrist joint centre',
+                               'a5: base of thumb',
+                               'a6: knuckles']
+
+        # build the list of stadium solids starting at the shoulder going down
+        # to the arm
+        self._a_solids = []
+        for i, (tag, density_set, height) in enumerate(
+                zip(left_arm_solid_tags, arm_solid_density_sets,
+                    left_arm_solid_heights)):
+
+            self._a_solids.append(sol.StadiumSolid(tag,
+                    self.segmental_densities[self._density_set][density_set],
+                    self._La[i + 1], #1, 2, 3, 4, 5, 6, 7
+                    self._La[i], #0, 1, 2, 3, 4, 5, 6
+                    height))
+
         # get solid heights from length measurements
-        b0h = meas['Lb2L'] * 0.5
-        b1h = meas['Lb2L'] - meas['Lb2L'] * 0.5
-        b2h = meas['Lb3L'] - meas['Lb2L']
-        b3h = meas['Lb4L'] - meas['Lb3L']
-        b4h = meas['Lb5L']
-        b5h = meas['Lb6L'] - meas['Lb5L']
-        b6h = meas['Lb7L'] - meas['Lb6L']
+        right_arm_solid_heights = [
+            meas['Lb2L'] * 0.5,
+            meas['Lb2L'] - meas['Lb2L'] * 0.5,
+            meas['Lb3L'] - meas['Lb2L'],
+            meas['Lb4L'] - meas['Lb3L'],
+            meas['Lb5L'],
+            meas['Lb6L'] - meas['Lb5L'],
+            meas['Lb7L'] - meas['Lb6L']]
+
         # right arm
         self._Lb = []
-        self._b = []
         self._Lb.append( sol.Stadium('Lb0: shoulder joint centre',
                                     'perimeter', meas['Lb0p'], '=p'))
         self._Lb.append( sol.Stadium('Lb1: mid-arm',
@@ -887,43 +889,28 @@ class Human(object):
         self._Lb.append( sol.Stadium('Lb7: fingernails',
                                     'perimwidth', meas['Lb7p'], meas['Lb7w']))
         # define right arm solids
-        self._b.append( sol.StadiumSolid( 'b0: shoulder joint centre',
-                self.segmental_densities[self._density_set]['upper-arm'],
-                self._Lb[0],
-                self._Lb[1],
-                b0h))
-        self._b.append( sol.StadiumSolid( 'b1: mid-arm',
-                self.segmental_densities[self._density_set]['upper-arm'],
-                self._Lb[1],
-                self._Lb[2],
-                b1h))
-        self._b.append( sol.StadiumSolid( 'b2: elbow joint centre',
-                self.segmental_densities[self._density_set]['forearm'],
-                self._Lb[2],
-                self._Lb[3],
-                b2h))
-        self._b.append( sol.StadiumSolid( 'b3: maximum forearm perimeter',
-                self.segmental_densities[self._density_set]['forearm'],
-                self._Lb[3],
-                self._Lb[4],
-                b3h))
-        self._b.append( sol.StadiumSolid( 'b4: wrist joint centre',
-                self.segmental_densities[self._density_set]['hand'],
-                self._Lb[4],
-                self._Lb[5],
-                b4h))
-        self._b.append( sol.StadiumSolid( 'b5: base of thumb',
-                self.segmental_densities[self._density_set]['hand'],
-                self._Lb[5],
-                self._Lb[6],
-                b5h))
-        self._b.append( sol.StadiumSolid( 'b6: knuckles',
-                self.segmental_densities[self._density_set]['hand'],
-                self._Lb[6],
-                self._Lb[7],
-                b6h))
+        right_arm_solid_tags = ['b0: shoulder joint centre',
+                                'b1: mid-arm',
+                                'b2: elbow joint centre',
+                                'b3: maximum forearm perimeter',
+                                'b4: wrist joint centre',
+                                'b5: base of thumb',
+                                'b6: knuckles']
 
-    def _define_leg_segments(self):
+        # build the list of stadium solids starting at the shoulder going down
+        # to the arm
+        self._b_solids = []
+        for i, (tag, density_set, height) in enumerate(
+                zip(right_arm_solid_tags, arm_solid_density_sets,
+                    right_arm_solid_heights)):
+
+            self._b_solids.append(sol.StadiumSolid(tag,
+                    self.segmental_densities[self._density_set][density_set],
+                    self._La[i + 1], #1, 2, 3, 4, 5, 6, 7
+                    self._La[i], #0, 1, 2, 3, 4, 5, 6
+                    height))
+
+    def _define_leg_solids(self):
         """Defines the solids (from solid.py) that create the legs of the
         human. This requires the definition of 2D stadium levels using
         the input measurement parameters .
@@ -931,18 +918,18 @@ class Human(object):
         """
         meas = self.meas
         # get solid heights from length measurements
-        j0h = meas['Lj1L']
-        j1h = (meas['Lj3L'] + meas['Lj1L']) * 0.5 - meas['Lj1L']
-        j2h = meas['Lj3L'] - (meas['Lj3L'] + meas['Lj1L']) * 0.5
-        j3h = meas['Lj4L'] - meas['Lj3L']
-        j4h = meas['Lj5L'] - meas['Lj4L']
-        j5h = meas['Lj6L']
-        j6h = (meas['Lj8L'] + meas['Lj6L']) * 0.5 - meas['Lj6L']
-        j7h = meas['Lj8L'] - (meas['Lj8L'] + meas['Lj6L']) * 0.5
-        j8h = meas['Lj9L'] - meas['Lj8L']
+        left_leg_solid_heights = [
+            meas['Lj1L'],
+            (meas['Lj3L'] + meas['Lj1L']) * 0.5 - meas['Lj1L'],
+            meas['Lj3L'] - (meas['Lj3L'] + meas['Lj1L']) * 0.5,
+            meas['Lj4L'] - meas['Lj3L'],
+            meas['Lj5L'] - meas['Lj4L'],
+            meas['Lj6L'],
+            (meas['Lj8L'] + meas['Lj6L']) * 0.5 - meas['Lj6L'],
+            meas['Lj8L'] - (meas['Lj8L'] + meas['Lj6L']) * 0.5,
+            meas['Lj9L'] - meas['Lj8L']]
         # left leg
         self._Lj = []
-        self._j = []
         Lj0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self._Ls[0].radius *
                                                 self._Ls[0].width))
         self._Lj.append( sol.Stadium('Lj0: hip joint centre',
@@ -967,64 +954,56 @@ class Human(object):
         self._Lj.append( sol.Stadium('Lj9: toe nails',
                                     'perimwidth', meas['Lj9p'], meas['Lj9w']))
         # define left leg solids
-        self._j.append( sol.StadiumSolid( 'j0: hip joint centre',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lj[0],
-                self._Lj[1],
-                j0h))
-        self._j.append( sol.StadiumSolid( 'j1: crotch',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lj[1],
-                self._Lj[2],
-                j1h))
-        self._j.append( sol.StadiumSolid( 'j2: mid-thigh',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lj[2],
-                self._Lj[3],
-                j2h))
-        self._j.append( sol.StadiumSolid( 'j3: knee joint centre',
-                self.segmental_densities[self._density_set]['lower-leg'],
-                self._Lj[3],
-                self._Lj[4],
-                j3h))
-        self._j.append( sol.StadiumSolid( 'j4: maximum calf parimeter',
-                self.segmental_densities[self._density_set]['lower-leg'],
-                self._Lj[4],
-                self._Lj[5],
-                j4h))
-        self._j.append( sol.StadiumSolid( 'j5: ankle joint centre',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lj[5],
-                self._Lj[6],
-                j5h))
-        self._j.append( sol.StadiumSolid( 'j6: heel',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lj[6],
-                self._Lj[7],
-                j6h))
-        self._j.append( sol.StadiumSolid( 'j7: arch',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lj[7],
-                self._Lj[8],
-                j7h))
-        self._j.append( sol.StadiumSolid( 'k8: ball',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lj[8],
-                self._Lj[9],
-                j8h))
-        # get solid heights from length measurements
-        k0h = meas['Lk1L']
-        k1h = (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L']
-        k2h = meas['Lk3L'] - (meas['Lk3L'] + meas['Lk1L']) * 0.5
-        k3h = meas['Lk4L'] - meas['Lk3L']
-        k4h = meas['Lk5L'] - meas['Lk4L']
-        k5h = meas['Lk6L']
-        k6h = (meas['Lk8L'] + meas['Lk6L']) * 0.5 - meas['Lk6L']
-        k7h = meas['Lk8L'] - (meas['Lk8L'] + meas['Lk6L']) * 0.5
-        k8h = meas['Lk9L'] - meas['Lk8L']
+
+        leg_solid_density_sets = ['thigh',
+                'thigh',
+                'thigh',
+                'lower-leg',
+                'lower-leg',
+                'foot',
+                'foot',
+                'foot',
+                'foot']
+
+        left_leg_solid_tags = [
+            'j0: hip joint centre',
+            'j1: crotch',
+            'j2: mid-thigh',
+            'j3: knee joint centre',
+            'j4: maximum calf parimeter',
+            'j5: ankle joint centre',
+            'j6: heel',
+            'j7: arch',
+            'j8: ball']
+
+        # build the list of stadium solids starting at the shoulder going down
+        # to the arm
+        self._j_solids = []
+        for i, (tag, density_set, height) in enumerate(
+                zip(left_leg_solid_tags, leg_solid_density_sets,
+                    left_leg_solid_heights)):
+
+            self._j_solids.append(sol.StadiumSolid(tag,
+                    self.segmental_densities[self._density_set][density_set],
+                    self._Lj[i + 1], #1, 2, 3, 4, 5, 6, 7, ...
+                    self._Lj[i], #0, 1, 2, 3, 4, 5, 6, ...
+                    height))
+
         # right leg
+
+        # get solid heights from length measurements
+        right_leg_solid_heights = [
+            meas['Lk1L'],
+            (meas['Lk3L'] + meas['Lk1L']) * 0.5 - meas['Lk1L'],
+            meas['Lk3L'] - (meas['Lk3L'] + meas['Lk1L']) * 0.5,
+            meas['Lk4L'] - meas['Lk3L'],
+            meas['Lk5L'] - meas['Lk4L'],
+            meas['Lk6L'],
+            (meas['Lk8L'] + meas['Lk6L']) * 0.5 - meas['Lk6L'],
+            meas['Lk8L'] - (meas['Lk8L'] + meas['Lk6L']) * 0.5,
+            meas['Lk9L'] - meas['Lk8L']]
+
         self._Lk = []
-        self._k = []
         Lk0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self._Ls[0].radius *
                                                 self._Ls[0].width))
         self._Lk.append( sol.Stadium('Lk0: hip joint centre',
@@ -1048,51 +1027,28 @@ class Human(object):
                                     'perimwidth', meas['Lk8p'], meas['Lk8w']))
         self._Lk.append( sol.Stadium('Lk9: toe nails',
                                     'perimwidth', meas['Lk9p'], meas['Lk9w']))
-        self._k.append( sol.StadiumSolid( 'k0: hip joint centre',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lk[0],
-                self._Lk[1],
-                k0h))
-        self._k.append( sol.StadiumSolid( 'k1: crotch',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lk[1],
-                self._Lk[2],
-                k1h))
-        self._k.append( sol.StadiumSolid( 'k2: mid-thigh',
-                self.segmental_densities[self._density_set]['thigh'],
-                self._Lk[2],
-                self._Lk[3],
-                k2h))
-        self._k.append( sol.StadiumSolid( 'k3: knee joint centre',
-                self.segmental_densities[self._density_set]['lower-leg'],
-                self._Lk[3],
-                self._Lk[4],
-                k3h))
-        self._k.append( sol.StadiumSolid( 'k4: maximum calf perimeter',
-                self.segmental_densities[self._density_set]['lower-leg'],
-                self._Lk[4],
-                self._Lk[5],
-                k4h))
-        self._k.append( sol.StadiumSolid( 'k5: ankle joint centre',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lk[5],
-                self._Lk[6],
-                k5h))
-        self._k.append( sol.StadiumSolid( 'k6: heel',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lk[6],
-                self._Lk[7],
-                k6h))
-        self._k.append( sol.StadiumSolid( 'k7: arch',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lk[7],
-                self._Lk[8],
-                k7h))
-        self._k.append( sol.StadiumSolid( 'k8: ball',
-                self.segmental_densities[self._density_set]['foot'],
-                self._Lk[8],
-                self._Lk[9],
-                k8h))
+
+        right_leg_solid_tags = [
+            'k0: hip joint centre',
+            'k1: crotch',
+            'k2: mid-thigh',
+            'k3: knee joint centre',
+            'k4: maximum calf parimeter',
+            'k5: ankle joint centre',
+            'k6: heel',
+            'k7: arch',
+            'k8: ball']
+
+        self._k_solids = []
+        for i, (tag, density_set, height) in enumerate(
+                zip(right_leg_solid_tags, leg_solid_density_sets,
+                    right_leg_solid_heights)):
+
+            self._k_solids.append(sol.StadiumSolid(tag,
+                    self.segmental_densities[self._density_set][density_set],
+                    self._Lk[i + 1], #1, 2, 3, 4, 5, 6, 7, ...
+                    self._Lk[i], #0, 1, 2, 3, 4, 5, 6, ...
+                    height))
 
     def _define_segments(self):
         """Define segment objects using previously defined solids.
@@ -1118,7 +1074,7 @@ class Human(object):
         # thorax
         Tpos = self._s[1].end_pos
         TRotMat = (self._s[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['PTsagittalFlexion'],
+            inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTfrontalFlexion'],
                                       0.0]))
         self.T = seg.Segment('T: Thorax',
@@ -1130,9 +1086,9 @@ class Human(object):
         # chest-head
         Cpos = self._s[2].end_pos
         CRotMat = (self._s[2]._rot_mat *
-            inertia.rotate_space_123([0.0,
-                                      self.CFG['TClateralSpinalFlexion'],
-                                      self.CFG['TCspinalTorsion']]))
+            inertia.euler_123([self.CFG['TClateralSpinalFlexion'],
+                               0.0,
+                               self.CFG['TCspinalTorsion']]))
         self.C = seg.Segment('C: Chest-head',
                              Cpos,
                              CRotMat,
@@ -1140,117 +1096,145 @@ class Human(object):
                                 self._s[7]],
                              (1.0, 1.0, 0.0))
 
+        # arms
+
+        Ls3_Ls4_stadium = self._s[3] # nipple to shoulder
+        shoulder_width = Ls3_Ls4_stadium.stads[1].width
+
         # left upper arm
-        dpos = np.array([[self._s[3].stads[1].width / 2.0],
-                         [0.0],
-                         [self._s[3].height]])
-        A1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
-        # WARNING: The arms are pre-rotated in abduction to be in the down
-        # position and the abduction and rotation angles are negated.
-        A1RotMat = (self._s[3]._rot_mat *
-            (inertia.rotate_space_123([0,-np.pi,0]) *
+        local_left_shoulder_point = \
+                np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_stadium.height]])
+        A1RotMat = (Ls3_Ls4_stadium._rot_mat *
              inertia.euler_123([self.CFG['CA1elevation'],
-                               -self.CFG['CA1abduction'],
-                               -self.CFG['CA1rotation']])))
-        self.A1 = seg.Segment( 'A1: Left upper arm', A1pos, A1RotMat,
-                               [self._a[0],self._a[1]] , (0,1,0))
+                                self.CFG['CA1abduction'],
+                                self.CFG['CA1rotation']]))
+        a_vector = np.array([[0.0],
+                              [0.0],
+                              [self._a_solids[0].height + self._a_solids[1].height]])
+        A1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * \
+            local_left_shoulder_point - A1RotMat * a_vector
+        self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
+                              [self._a_solids[1], self._a_solids[0]], (0, 1, 0))
 
         # left forearm-hand
-        A2pos = self._a[1].end_pos
-        A2RotMat = (self._a[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
+        A2RotMat = (self._a_solids[1]._rot_mat *
+            inertia.euler_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
+        left_lower_arm_length = 0.0
+        for n in reversed(range(2, 7)):
+            left_lower_arm_length += self._a_solids[n].height
+        A2pos = self._a_solids[1].pos - A2RotMat * \
+                np.array([[0.0], [0.0], [left_lower_arm_length]])
         self.A2 = seg.Segment('A2: Left forearm-hand',
                               A2pos,
                               A2RotMat,
-                              [self._a[2], self._a[3], self._a[4], self._a[5],
-                                self._a[6]],
+                              [self._a_solids[x] for x in reversed(range(2, 7))],
                               (1.0, 0.0, 0.0))
 
         # right upper arm
-        dpos = np.array([[-self._s[3].stads[1].width / 2.0],
-                         [0.0],
-                         [self._s[3].height]])
-        B1pos = self._s[3].pos + self._s[3]._rot_mat * dpos
-        # WARNING: The arms are pre-rotated in abduction to be in the down
-        # position.
-        B1RotMat = (self._s[3]._rot_mat *
-            (inertia.rotate_space_123([0.0, -np.pi, 0.0]) *
+        local_right_shoulder_point = \
+                np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_stadium.height]])
+        B1RotMat = (Ls3_Ls4_stadium._rot_mat *
                 inertia.euler_123([self.CFG['CB1elevation'],
                                    self.CFG['CB1abduction'],
-                                   self.CFG['CB1rotation']])))
+                                   self.CFG['CB1rotation']]))
+        b_vector = np.array([[0.0],
+                             [0.0],
+                             [self._a_solids[0].height + self._a_solids[1].height]])
+        B1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * \
+            local_right_shoulder_point - B1RotMat * b_vector
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
                                B1RotMat,
-                               [self._b[0], self._b[1]],
+                               [self._b_solids[1], self._b_solids[0]],
                                (0.0, 1.0, 0.0))
 
         # right forearm-hand
-        B2pos = self._b[1].end_pos
-        B2RotMat = (self._b[1]._rot_mat *
-            inertia.rotate_space_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
+        B2RotMat = (self._b_solids[1]._rot_mat *
+            inertia.euler_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
+        right_lower_arm_length = 0.0
+        for n in reversed(range(2, 7)):
+            right_lower_arm_length += self._b_solids[n].height
+        B2pos = self._b_solids[1].pos - B2RotMat * \
+                np.array([[0.0], [0.0], [right_lower_arm_length]])
         self.B2 = seg.Segment('B2: Right forearm-hand',
                               B2pos,
                               B2RotMat,
-                              [self._b[2], self._b[3], self._b[4], self._b[5],
-                                self._b[6]],
+                              [self._b_solids[x] for x in reversed(range(2, 7))],
                               (1.0, 0.0, 0.0))
 
+        # legs
+        Ls0_Ls1_solid = self._s[0]
+        hip_width = Ls0_Ls1_solid.stads[0].thickness + \
+            Ls0_Ls1_solid.stads[0].radius
+
         # left thigh
-        dpos = np.array([[0.5 * self._s[0]. stads[0].thickness +
-                          0.5 * self._s[0].stads[0].radius], [0.0], [0.0]])
-        J1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
-        # WARNING: The left leg is pre-rotated in abduction to be in the down
-        # position and the abduction is negated.
-        J1RotMat = (self._s[0]._rot_mat *
-            (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
-             inertia.rotate_space_123([self.CFG['PJ1flexion'],
-                                       -self.CFG['PJ1abduction'],
-                                       0.0])))
+        local_left_hip_point = np.array([[hip_width / 2.0],
+                                         [0.0],
+                                         [0.0]])
+        J1RotMat = (Ls0_Ls1_solid._rot_mat *
+             inertia.euler_123([self.CFG['PJ1flexion'],
+                                self.CFG['PJ1abduction'],
+                                0.0]))
+        # this vector point from the hip to knee in the J frame
+        j_vector = np.array([[0.0],
+                             [0.0],
+                             [-sum([self._j_solids[n].height for n in
+                                 range(3)])]])
+        J1pos = Ls0_Ls1_solid.pos + Ls0_Ls1_solid._rot_mat * \
+            local_left_hip_point + J1RotMat * j_vector
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
                               J1RotMat,
-                              [self._j[0], self._j[1], self._j[2]],
+                              [self._j_solids[2], self._j_solids[1], self._j_solids[0]],
                               (0.0, 1.0, 0.0))
 
         # left shank-foot
-        J2pos = self._j[2].end_pos
-        # WARNING: The left knee flexion is negated.
-        J2RotMat = (self._j[2]._rot_mat *
-            inertia.rotate_space_123([-self.CFG['J1J2flexion'], 0.0, 0.0]))
+        J2RotMat = (self._j_solids[2]._rot_mat *
+            inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
+        left_lower_leg_length = sum([self._j_solids[n].height for n in range(3, 9)])
+        J2pos = self._j_solids[2].pos + J2RotMat * \
+                np.array([[0.0], [0.0], [-left_lower_leg_length]])
         self.J2 = seg.Segment('J2: Left shank-foot',
                               J2pos,
                               J2RotMat,
-                              [self._j[3], self._j[4], self._j[5], self._j[6],
-                                self._j[7], self._j[8]],
+                              [self._j_solids[n] for n in reversed(range(3,
+                                  9))],
                               (1.0, 0.0, 0.0))
 
         # right thigh
-        dpos = np.array([[-.5*self._s[0].stads[0].thickness-
-                           .5*self._s[0].stads[0].radius],[0.0],[0.0]])
-        K1pos = self._s[0].pos + self._s[0]._rot_mat * dpos
-        # WARNING: The left leg is pre-rotated in abduction to be in the down
-        # position.
+        local_right_hip_point = np.array([[-hip_width / 2.0],
+                                          [0.0],
+                                          [0.0]])
         K1RotMat = (self._s[0]._rot_mat *
-            (inertia.rotate_space_123(np.array([0.0, np.pi, 0.0])) *
-             inertia.rotate_space_123([self.CFG['PK1flexion'],
+             inertia.euler_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
-                                       0.0])))
+                                       0.0]))
+
+        # this vector points from the hip to knee in the K frame
+        k_vector = np.array([[0.0],
+                             [0.0],
+                             [-sum([self._j_solids[n].height for n in
+                                 range(3)])]])
+
+        K1pos = Ls0_Ls1_solid.pos + Ls0_Ls1_solid._rot_mat * \
+            local_right_hip_point + K1RotMat * k_vector
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
                               K1RotMat,
-                              [self._k[0], self._k[1], self._k[2]],
+                              [self._k_solids[2], self._k_solids[1], self._k_solids[0]],
                               (0.0, 1.0, 0.0))
 
         # right shank-foot
-        K2pos = self._k[2].end_pos
-        # WARNING: The right knee flexion is negated.
-        K2RotMat = (self._k[2]._rot_mat *
-            inertia.rotate_space_123([-self.CFG['K1K2flexion'], 0.0, 0.0]))
+        K2RotMat = (self._k_solids[2]._rot_mat *
+            inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
+        right_lower_leg_length = sum([self._k_solids[n].height for n in range(3, 9)])
+        K2pos = self._k_solids[2].pos + K2RotMat * \
+                np.array([[0.0], [0.0], [-right_lower_leg_length]])
         self.K2 = seg.Segment('K2: Right shank-foot',
                                K2pos,
                                K2RotMat,
-                               [self._k[3], self._k[4], self._k[5], self._k[6],
-                                self._k[7], self._k[8]],
+                               [self._k_solids[n] for n in reversed(range(3,
+                                  9))],
                                (1.0, 0.0, 0.0))
 
     def scale_human_by_mass(self, measmass):
@@ -1449,5 +1433,3 @@ class Human(object):
         fid = open(CFGfname, 'w')
         yaml.dump(self.CFG, fid, default_flow_style=False)
         fid.close()
-
-
