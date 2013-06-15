@@ -26,15 +26,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="241.20658"
-     inkscape:cy="698.84008"
+     inkscape:cx="342.34382"
+     inkscape:cy="184.55437"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="846"
+     inkscape:window-width="1366"
+     inkscape:window-height="744"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="24"
      inkscape:window-maximized="1"
      units="in" />
   <defs
@@ -1104,7 +1104,7 @@
          sodipodi:role="line"
          id="tspan3303">3 <tspan
    style="font-weight:normal"
-   id="tspan4143">depth is measured in lieu of perimeter since arms interfere.</tspan></tspan><tspan
+   id="tspan4143">depth is measured in lieu of perimeter since arms interfere and width is measured with respect to the shoulder joint centers.</tspan></tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          y="929.40173"
          x="47.792896"
