@@ -3,8 +3,8 @@
 API Documentation
 =================
 
-The user only interacts with the :py:mod:`yeadon.human` module. The interface to the other
-modules are only useful to developers.
+The user only interacts with the :py:mod:`yeadon.human` module. The interface
+to the other modules is only useful to developers.
 
 :mod:`yeadon` Package
 ---------------------
