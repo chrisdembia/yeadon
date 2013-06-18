@@ -1,4 +1,6 @@
 langauge: python
 python:
   - "2.7"
+install:
+  - sudo pip install nosetests
 script: sudo python setup.py nosetests
