@@ -25,7 +25,6 @@ following sets of 2 parameters:
  - a depth :math:`d` and a width :math:`w`.
 
 .. image:: stadium.png
-   :scale: 15 %
 
 A circle can be defined by a stadium whose thickness is zero, :math:`t = 0`.
 
