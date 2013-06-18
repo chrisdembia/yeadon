@@ -11,7 +11,6 @@ from numpy import testing, pi
 
 import yeadon.inertia as inertia
 import yeadon.human as hum
-import yeadon.densities as dens
 
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
