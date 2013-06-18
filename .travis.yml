@@ -2,5 +2,7 @@ langauge: python
 python:
   - "2.7"
 install:
-  - sudo pip install numpy pyyaml nose
+  - sudo apt-get install python-distribute python-numpy python-yaml
+  - sudo apt-get install python-nose
+  - sudo apt-get install python-sphinx mayavi2
 script: sudo python setup.py nosetests
