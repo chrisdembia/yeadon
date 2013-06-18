@@ -116,21 +116,29 @@ class TestHuman(unittest.TestCase):
 
         self.assertEquals(len(h._s), 8)
         self.assertEquals(h._s[0].label, 's0: hip joint centre')
-        self.assertEquals(h._s[0].density, dens.Ds[0])
+        self.assertEquals(h._s[0].density,
+                h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[1].label, 's1: umbilicus')
-        self.assertEquals(h._s[1].density, dens.Ds[1])
+        self.assertEquals(h._s[1].density,
+                h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[2].label, 's2: lowest front rib')
-        self.assertEquals(h._s[2].density, dens.Ds[2])
+        self.assertEquals(h._s[2].density,
+                h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[3].label, 's3: nipple')
-        self.assertEquals(h._s[3].density, dens.Ds[3])
+        self.assertEquals(h._s[3].density,
+                h.segmental_densities['Dempster']['thorax'])
         self.assertEquals(h._s[4].label, 's4: shoulder joint centre')
-        self.assertEquals(h._s[4].density, dens.Ds[4])
+        self.assertEquals(h._s[4].density,
+                h.segmental_densities['Dempster']['shoulders'])
         self.assertEquals(h._s[5].label, 's5: acromion')
-        self.assertEquals(h._s[5].density, dens.Ds[5])
+        self.assertEquals(h._s[5].density,
+                h.segmental_densities['Dempster']['head-neck'])
         self.assertEquals(h._s[6].label, 's6: beneath nose')
-        self.assertEquals(h._s[6].density, dens.Ds[6])
+        self.assertEquals(h._s[6].density,
+                h.segmental_densities['Dempster']['head-neck'])
         self.assertEquals(h._s[7].label, 's7: above ear')
-        self.assertEquals(h._s[7].density, dens.Ds[7])
+        self.assertEquals(h._s[7].density,
+                h.segmental_densities['Dempster']['head-neck'])
 
         # Check that all segments exist.
         self.assertEquals(len(h.segments), 11)
