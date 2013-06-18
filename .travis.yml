@@ -2,5 +2,5 @@ langauge: python
 python:
   - "2.7"
 install:
-  - sudo pip install distutils numpy pyyaml nose
+  - sudo pip install numpy pyyaml nose
 script: sudo python setup.py nosetests
