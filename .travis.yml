@@ -4,5 +4,4 @@ python:
 install:
   - sudo apt-get install python-distribute python-numpy python-yaml
   - sudo apt-get install python-nose
-  - sudo apt-get install python-sphinx mayavi2
 script: sudo python setup.py nosetests
