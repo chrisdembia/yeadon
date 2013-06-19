@@ -210,6 +210,90 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h._Lb[7].perimeter, meas['Lb7p'])
         testing.assert_almost_equal(h._Lb[7].width, meas['Lb7w'])
 
+        # legs
+        # 'j'
+        self.assertEquals(len(h._Lj), 10)
+        Lj0p = np.pi * np.sqrt(h._Ls[0].radius * h._Ls[0].width)
+        self.assertEquals(h._Lj[0].label, 'Lj0: hip joint centre')
+        testing.assert_almost_equal(h._Lj[0].perimeter, Lj0p)
+        self.assertEquals(h._Lj[0].thickness, 0)
+
+        self.assertEquals(h._Lj[1].label, 'Lj1: crotch')
+        testing.assert_almost_equal(h._Lj[1].perimeter, meas['Lj1p'])
+        self.assertEquals(h._Lj[1].thickness, 0)
+
+        self.assertEquals(h._Lj[2].label, 'Lj2: mid-thigh')
+        testing.assert_almost_equal(h._Lj[2].perimeter, meas['Lj2p'])
+        self.assertEquals(h._Lj[2].thickness, 0)
+
+        self.assertEquals(h._Lj[3].label, 'Lj3: knee joint centre')
+        testing.assert_almost_equal(h._Lj[3].perimeter, meas['Lj3p'])
+        self.assertEquals(h._Lj[3].thickness, 0)
+
+        self.assertEquals(h._Lj[4].label, 'Lj4: maximum calf perimeter')
+        testing.assert_almost_equal(h._Lj[4].perimeter, meas['Lj4p'])
+        self.assertEquals(h._Lj[4].thickness, 0)
+
+        self.assertEquals(h._Lj[5].label, 'Lj5: ankle joint centre')
+        testing.assert_almost_equal(h._Lj[5].perimeter, meas['Lj5p'])
+        self.assertEquals(h._Lj[5].thickness, 0)
+
+        self.assertEquals(h._Lj[6].label, 'Lj6: heel')
+        testing.assert_almost_equal(h._Lj[6].perimeter, meas['Lj6p'])
+        testing.assert_almost_equal(h._Lj[6].width, meas['Lj6d'])
+
+        self.assertEquals(h._Lj[7].label, 'Lj7: arch')
+        testing.assert_almost_equal(h._Lj[7].perimeter, meas['Lj7p'])
+
+        self.assertEquals(h._Lj[8].label, 'Lj8: ball')
+        testing.assert_almost_equal(h._Lj[8].perimeter, meas['Lj8p'])
+        testing.assert_almost_equal(h._Lj[8].width, meas['Lj8w'])
+
+        self.assertEquals(h._Lj[9].label, 'Lj9: toe nails')
+        testing.assert_almost_equal(h._Lj[9].perimeter, meas['Lj9p'])
+        testing.assert_almost_equal(h._Lj[9].width, meas['Lj9w'])
+
+        # 'k'
+        self.assertEquals(len(h._Lk), 10)
+        Lk0p = np.pi * np.sqrt(h._Ls[0].radius * h._Ls[0].width)
+        self.assertEquals(h._Lk[0].label, 'Lk0: hip joint centre')
+        testing.assert_almost_equal(h._Lk[0].perimeter, Lk0p)
+        self.assertEquals(h._Lk[0].thickness, 0)
+
+        self.assertEquals(h._Lk[1].label, 'Lk1: crotch')
+        testing.assert_almost_equal(h._Lk[1].perimeter, meas['Lk1p'])
+        self.assertEquals(h._Lk[1].thickness, 0)
+
+        self.assertEquals(h._Lk[2].label, 'Lk2: mid-thigh')
+        testing.assert_almost_equal(h._Lk[2].perimeter, meas['Lk2p'])
+        self.assertEquals(h._Lk[2].thickness, 0)
+
+        self.assertEquals(h._Lk[3].label, 'Lk3: knee joint centre')
+        testing.assert_almost_equal(h._Lk[3].perimeter, meas['Lk3p'])
+        self.assertEquals(h._Lk[3].thickness, 0)
+
+        self.assertEquals(h._Lk[4].label, 'Lk4: maximum calf perimeter')
+        testing.assert_almost_equal(h._Lk[4].perimeter, meas['Lk4p'])
+        self.assertEquals(h._Lk[4].thickness, 0)
+
+        self.assertEquals(h._Lk[5].label, 'Lk5: ankle joint centre')
+        testing.assert_almost_equal(h._Lk[5].perimeter, meas['Lk5p'])
+        self.assertEquals(h._Lk[5].thickness, 0)
+
+        self.assertEquals(h._Lk[6].label, 'Lk6: heel')
+        testing.assert_almost_equal(h._Lk[6].perimeter, meas['Lk6p'])
+        testing.assert_almost_equal(h._Lk[6].width, meas['Lk6d'])
+
+        self.assertEquals(h._Lk[7].label, 'Lk7: arch')
+        testing.assert_almost_equal(h._Lk[7].perimeter, meas['Lk7p'])
+
+        self.assertEquals(h._Lk[8].label, 'Lk8: ball')
+        testing.assert_almost_equal(h._Lk[8].perimeter, meas['Lk8p'])
+        testing.assert_almost_equal(h._Lk[8].width, meas['Lk8w'])
+
+        self.assertEquals(h._Lk[9].label, 'Lk9: toe nails')
+        testing.assert_almost_equal(h._Lk[9].perimeter, meas['Lk9p'])
+        testing.assert_almost_equal(h._Lk[9].width, meas['Lk9w'])
 
         # Check that all segments exist.
         self.assertEquals(len(h.segments), 11)
