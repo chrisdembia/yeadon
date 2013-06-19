@@ -74,71 +74,142 @@ class TestHuman(unittest.TestCase):
         testing.assert_allclose(h.coord_sys_orient, np.eye(3))
 
         # Check that all solids exist.
-        # TODO
+        # TODO must do for other segments.
+        # segment s
         self.assertEquals(len(h._Ls), 9)
         self.assertEquals(h._Ls[0].label, 'Ls0: hip joint centre')
-        self.assertEquals(h._Ls[0].perimeter, meas['Ls0p'])
-        self.assertEquals(h._Ls[0].width, meas['Ls0w'])
+        testing.assert_almost_equal(h._Ls[0].perimeter, meas['Ls0p'])
+        testing.assert_almost_equal(h._Ls[0].width, meas['Ls0w'])
 
         self.assertEquals(h._Ls[1].label, 'Ls1: umbilicus')
-        self.assertEquals(h._Ls[1].perimeter, meas['Ls1p'])
-        self.assertEquals(h._Ls[1].width, meas['Ls1w'])
+        testing.assert_almost_equal(h._Ls[1].perimeter, meas['Ls1p'])
+        testing.assert_almost_equal(h._Ls[1].width, meas['Ls1w'])
 
         self.assertEquals(h._Ls[2].label, 'Ls2: lowest front rib')
-        self.assertEquals(h._Ls[2].perimeter, meas['Ls2p'])
-        self.assertEquals(h._Ls[2].width, meas['Ls2w'])
+        testing.assert_almost_equal(h._Ls[2].perimeter, meas['Ls2p'])
+        testing.assert_almost_equal(h._Ls[2].width, meas['Ls2w'])
 
         self.assertEquals(h._Ls[3].label, 'Ls3: nipple')
-        self.assertEquals(h._Ls[3].perimeter, meas['Ls3p'])
-        self.assertEquals(h._Ls[3].width, meas['Ls3w'])
+        testing.assert_almost_equal(h._Ls[3].perimeter, meas['Ls3p'])
+        testing.assert_almost_equal(h._Ls[3].width, meas['Ls3w'])
 
         self.assertEquals(h._Ls[4].label, 'Ls4: shoulder joint centre')
-        self.assertEquals(h._Ls[4].radius, meas['Ls4d'] / 2)
-        self.assertEquals(h._Ls[4].width, meas['Ls4w'])
+        testing.assert_almost_equal(h._Ls[4].radius, meas['Ls4d'] / 2)
+        testing.assert_almost_equal(h._Ls[4].width, meas['Ls4w'])
 
         # TODO Hard-coded parameters for the acromion from Yeadon's ISEG.
         self.assertEquals(h._Ls[5].label, 'Ls5: acromion')
-        self.assertEquals(
+        testing.assert_almost_equal(
                 h._Ls[5].thickness, h._Ls[4].width / 2 - h._Ls[5].radius)
-        self.assertEquals(h._Ls[5].radius, 0.57 * h._Ls[4].radius)
+        testing.assert_almost_equal(h._Ls[5].radius, 0.57 * h._Ls[4].radius)
 
         self.assertEquals(h._Ls[6].label, 'Ls5: acromion/bottom of neck')
-        self.assertEquals(h._Ls[6].perimeter, meas['Ls5p'])
+        testing.assert_almost_equal(h._Ls[6].perimeter, meas['Ls5p'])
         self.assertEquals(h._Ls[6].thickness, 0)
 
         self.assertEquals(h._Ls[7].label, 'Ls6: beneath nose')
-        self.assertEquals(h._Ls[7].perimeter, meas['Ls6p'])
+        testing.assert_almost_equal(h._Ls[7].perimeter, meas['Ls6p'])
         self.assertEquals(h._Ls[7].thickness, 0)
 
         self.assertEquals(h._Ls[8].label, 'Ls7: above ear')
-        self.assertEquals(h._Ls[8].perimeter, meas['Ls7p'])
+        testing.assert_almost_equal(h._Ls[8].perimeter, meas['Ls7p'])
         self.assertEquals(h._Ls[8].thickness, 0)
 
         self.assertEquals(len(h._s), 8)
         self.assertEquals(h._s[0].label, 's0: hip joint centre')
-        self.assertEquals(h._s[0].density,
+        testing.assert_almost_equal(h._s[0].density,
                 h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[1].label, 's1: umbilicus')
-        self.assertEquals(h._s[1].density,
+        testing.assert_almost_equal(h._s[1].density,
                 h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[2].label, 's2: lowest front rib')
-        self.assertEquals(h._s[2].density,
+        testing.assert_almost_equal(h._s[2].density,
                 h.segmental_densities['Dempster']['thorax'])
         self.assertEquals(h._s[3].label, 's3: nipple')
-        self.assertEquals(h._s[3].density,
+        testing.assert_almost_equal(h._s[3].density,
                 h.segmental_densities['Dempster']['thorax'])
         self.assertEquals(h._s[4].label, 's4: shoulder joint centre')
-        self.assertEquals(h._s[4].density,
+        testing.assert_almost_equal(h._s[4].density,
                 h.segmental_densities['Dempster']['shoulders'])
         self.assertEquals(h._s[5].label, 's5: acromion')
-        self.assertEquals(h._s[5].density,
+        testing.assert_almost_equal(h._s[5].density,
                 h.segmental_densities['Dempster']['head-neck'])
         self.assertEquals(h._s[6].label, 's6: beneath nose')
-        self.assertEquals(h._s[6].density,
+        testing.assert_almost_equal(h._s[6].density,
                 h.segmental_densities['Dempster']['head-neck'])
         self.assertEquals(h._s[7].label, 's7: above ear')
-        self.assertEquals(h._s[7].density,
+        testing.assert_almost_equal(h._s[7].density,
                 h.segmental_densities['Dempster']['head-neck'])
+
+        # arms
+        # 'a'
+        self.assertEquals(len(h._La), 8)
+        self.assertEquals(h._La[0].label, 'La0: shoulder joint centre')
+        testing.assert_almost_equal(h._La[0].perimeter, meas['La0p'])
+        self.assertEquals(h._La[0].thickness, 0)
+
+        self.assertEquals(h._La[1].label, 'La1: mid-arm')
+        testing.assert_almost_equal(h._La[1].perimeter, meas['La1p'])
+        self.assertEquals(h._La[1].thickness, 0)
+
+        self.assertEquals(h._La[2].label, 'La2: elbow joint centre')
+        testing.assert_almost_equal(h._La[2].perimeter, meas['La2p'])
+        self.assertEquals(h._La[2].thickness, 0)
+
+        self.assertEquals(h._La[3].label, 'La3: maximum forearm perimeter')
+        testing.assert_almost_equal(h._La[3].perimeter, meas['La3p'])
+        self.assertEquals(h._La[3].thickness, 0)
+
+        self.assertEquals(h._La[4].label, 'La4: wrist joint centre')
+        testing.assert_almost_equal(h._La[4].perimeter, meas['La4p'])
+        testing.assert_almost_equal(h._La[4].width, meas['La4w'])
+
+        self.assertEquals(h._La[5].label, 'La5: base of thumb')
+        testing.assert_almost_equal(h._La[5].perimeter, meas['La5p'])
+        testing.assert_almost_equal(h._La[5].width, meas['La5w'])
+
+        self.assertEquals(h._La[6].label, 'La6: knuckles')
+        testing.assert_almost_equal(h._La[6].perimeter, meas['La6p'])
+        testing.assert_almost_equal(h._La[6].width, meas['La6w'])
+
+        self.assertEquals(h._La[7].label, 'La7: fingernails')
+        testing.assert_almost_equal(h._La[7].perimeter, meas['La7p'])
+        testing.assert_almost_equal(h._La[7].width, meas['La7w'])
+
+        # 'b'
+        self.assertEquals(len(h._Lb), 8)
+        self.assertEquals(h._Lb[0].label, 'Lb0: shoulder joint centre')
+        testing.assert_almost_equal(h._Lb[0].perimeter, meas['Lb0p'])
+        self.assertEquals(h._Lb[0].thickness, 0)
+
+        self.assertEquals(h._Lb[1].label, 'Lb1: mid-arm')
+        testing.assert_almost_equal(h._Lb[1].perimeter, meas['Lb1p'])
+        self.assertEquals(h._Lb[1].thickness, 0)
+
+        self.assertEquals(h._Lb[2].label, 'Lb2: elbow joint centre')
+        testing.assert_almost_equal(h._Lb[2].perimeter, meas['Lb2p'])
+        self.assertEquals(h._Lb[2].thickness, 0)
+
+        self.assertEquals(h._Lb[3].label, 'Lb3: maximum forearm perimeter')
+        testing.assert_almost_equal(h._Lb[3].perimeter, meas['Lb3p'])
+        self.assertEquals(h._Lb[3].thickness, 0)
+
+        self.assertEquals(h._Lb[4].label, 'Lb4: wrist joint centre')
+        testing.assert_almost_equal(h._Lb[4].perimeter, meas['Lb4p'])
+        testing.assert_almost_equal(h._Lb[4].width, meas['Lb4w'])
+
+        self.assertEquals(h._Lb[5].label, 'Lb5: base of thumb')
+        testing.assert_almost_equal(h._Lb[5].perimeter, meas['Lb5p'])
+        testing.assert_almost_equal(h._Lb[5].width, meas['Lb5w'])
+
+        self.assertEquals(h._Lb[6].label, 'Lb6: knuckles')
+        testing.assert_almost_equal(h._Lb[6].perimeter, meas['Lb6p'])
+        testing.assert_almost_equal(h._Lb[6].width, meas['Lb6w'])
+
+        self.assertEquals(h._Lb[7].label, 'Lb7: fingernails')
+        testing.assert_almost_equal(h._Lb[7].perimeter, meas['Lb7p'])
+        testing.assert_almost_equal(h._Lb[7].width, meas['Lb7w'])
+
 
         # Check that all segments exist.
         self.assertEquals(len(h.segments), 11)

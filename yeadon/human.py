@@ -745,11 +745,11 @@ class Human(object):
         self._Ls.append( sol.Stadium('Ls5: acromion',
                                     'thicknessradius', thicknessLs5, radiusLs5))
         self._Ls.append( sol.Stadium('Ls5: acromion/bottom of neck',
-                                    'perimeter',meas['Ls5p'], '=p'))
+                                    'perimeter',meas['Ls5p'], ''))
         self._Ls.append( sol.Stadium('Ls6: beneath nose',
-                                    'perimeter', meas['Ls6p'], '=p'))
+                                    'perimeter', meas['Ls6p'], ''))
         self._Ls.append( sol.Stadium('Ls7: above ear',
-                                    'perimeter', meas['Ls7p'], '=p'))
+                                    'perimeter', meas['Ls7p'], ''))
         # define solids: this can definitely be done in a loop
         self._s.append( sol.StadiumSolid( 's0: hip joint centre',
                 self.segmental_densities[self._density_set]['abdomen-pelvis'],
@@ -820,13 +820,13 @@ class Human(object):
         # left arm
         self._La = []
         self._La.append( sol.Stadium('La0: shoulder joint centre',
-                                    'perimeter', meas['La0p'], '=p'))
+                                    'perimeter', meas['La0p'], ''))
         self._La.append( sol.Stadium('La1: mid-arm',
-                                    'perimeter', meas['La1p'], '=p'))
-        self._La.append( sol.Stadium('La2: lowest front rib',
-                                    'perimeter', meas['La2p'], '=p'))
-        self._La.append( sol.Stadium('La3: nipple',
-                                    'perimeter', meas['La3p'], '=p'))
+                                    'perimeter', meas['La1p'], ''))
+        self._La.append( sol.Stadium('La2: elbow joint centre',
+                                    'perimeter', meas['La2p'], ''))
+        self._La.append( sol.Stadium('La3: maximum forearm perimeter',
+                                    'perimeter', meas['La3p'], ''))
         self._La.append( sol.Stadium('La4: wrist joint centre',
                                     'perimwidth', meas['La4p'], meas['La4w']))
         self._La.append( sol.Stadium('La5: base of thumb',
@@ -870,13 +870,13 @@ class Human(object):
         # right arm
         self._Lb = []
         self._Lb.append( sol.Stadium('Lb0: shoulder joint centre',
-                                    'perimeter', meas['Lb0p'], '=p'))
+                                    'perimeter', meas['Lb0p'], ''))
         self._Lb.append( sol.Stadium('Lb1: mid-arm',
-                                    'perimeter', meas['Lb1p'], '=p'))
-        self._Lb.append( sol.Stadium('Lb2: lowest front rib',
-                                    'perimeter', meas['Lb2p'], '=p'))
-        self._Lb.append( sol.Stadium('Lb3: nipple',
-                                    'perimeter', meas['Lb3p'], '=p'))
+                                    'perimeter', meas['Lb1p'], ''))
+        self._Lb.append( sol.Stadium('Lb2: elbow joint centre',
+                                    'perimeter', meas['Lb2p'], ''))
+        self._Lb.append( sol.Stadium('Lb3: maximum forearm perimeter',
+                                    'perimeter', meas['Lb3p'], ''))
         self._Lb.append( sol.Stadium('Lb4: wrist joint centre',
                                     'perimwidth', meas['Lb4p'], meas['Lb4w']))
         self._Lb.append( sol.Stadium('Lb5: base of thumb',
@@ -930,22 +930,22 @@ class Human(object):
         Lj0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self._Ls[0].radius *
                                                 self._Ls[0].width))
         self._Lj.append( sol.Stadium('Lj0: hip joint centre',
-                                    'perimeter', Lj0p, '=p'))
+                                    'perimeter', Lj0p, ''))
         self._Lj.append( sol.Stadium('Lj1: crotch',
-                                    'perimeter', meas['Lj1p'], '=p'))
+                                    'perimeter', meas['Lj1p'], ''))
         self._Lj.append( sol.Stadium('Lj2: mid-thigh',
-                                    'perimeter', meas['Lj2p'], '=p'))
+                                    'perimeter', meas['Lj2p'], ''))
         self._Lj.append( sol.Stadium('Lj3: knee joint centre',
-                                    'perimeter', meas['Lj3p'], '=p'))
+                                    'perimeter', meas['Lj3p'], ''))
         self._Lj.append( sol.Stadium('Lj4: maximum calf perimeter',
-                                    'perimeter', meas['Lj4p'], '=p'))
+                                    'perimeter', meas['Lj4p'], ''))
         self._Lj.append( sol.Stadium('Lj5: ankle joint centre',
-                                    'perimeter', meas['Lj5p'], '=p'))
+                                    'perimeter', meas['Lj5p'], ''))
         self._Lj.append( sol.Stadium('Lj6: heel',
                                     'perimwidth', meas['Lj6p'], meas['Lj6d'],
                                     'AP'))
         self._Lj.append( sol.Stadium('Lj7: arch',
-                                    'perimeter', meas['Lj7p'], '=p'))
+                                    'perimeter', meas['Lj7p'], ''))
         self._Lj.append( sol.Stadium('Lj8: ball',
                                     'perimwidth', meas['Lj8p'], meas['Lj8w']))
         self._Lj.append( sol.Stadium('Lj9: toe nails',
@@ -1004,22 +1004,22 @@ class Human(object):
         Lk0p = 2 * np.pi * 0.5 * np.sqrt(np.abs(self._Ls[0].radius *
                                                 self._Ls[0].width))
         self._Lk.append( sol.Stadium('Lk0: hip joint centre',
-                                    'perimeter', Lk0p, '=p'))
+                                    'perimeter', Lk0p, ''))
         self._Lk.append( sol.Stadium('Lk1: crotch',
-                                    'perimeter', meas['Lk1p'], '=p'))
+                                    'perimeter', meas['Lk1p'], ''))
         self._Lk.append( sol.Stadium('Lk2: mid-thigh',
-                                    'perimeter', meas['Lk2p'], '=p'))
+                                    'perimeter', meas['Lk2p'], ''))
         self._Lk.append( sol.Stadium('Lk3: knee joint centre',
-                                    'perimeter', meas['Lk3p'], '=p'))
+                                    'perimeter', meas['Lk3p'], ''))
         self._Lk.append( sol.Stadium('Lk4: maximum calf perimeter',
-                                    'perimeter', meas['Lk4p'], '=p'))
+                                    'perimeter', meas['Lk4p'], ''))
         self._Lk.append( sol.Stadium('Lk5: ankle joint centre',
-                                    'perimeter', meas['Lk5p'], '=p'))
+                                    'perimeter', meas['Lk5p'], ''))
         self._Lk.append( sol.Stadium('Lk6: heel',
                                     'perimwidth', meas['Lk6p'], meas['Lk6d'],
                                     'AP'))
         self._Lk.append( sol.Stadium('Lk7: arch',
-                                    'perimeter', meas['Lk7p'], '=p'))
+                                    'perimeter', meas['Lk7p'], ''))
         self._Lk.append( sol.Stadium('Lk8: ball',
                                     'perimwidth', meas['Lk8p'], meas['Lk8w']))
         self._Lk.append( sol.Stadium('Lk9: toe nails',
