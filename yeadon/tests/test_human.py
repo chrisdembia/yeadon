@@ -73,8 +73,115 @@ class TestHuman(unittest.TestCase):
         testing.assert_allclose(h.coord_sys_pos, np.array([[0, 0, 0]]).T)
         testing.assert_allclose(h.coord_sys_orient, np.eye(3))
 
-        # Check that all solids exist.
-        # TODO must do for other segments.
+
+        # Check that all segments exist.
+        self.assertEquals(len(h.segments), 11)
+        self.assertEquals(h.segments[0], h.P)
+        self.assertEquals(h.segments[1], h.T)
+        self.assertEquals(h.segments[2], h.C)
+        self.assertEquals(h.segments[3], h.A1)
+        self.assertEquals(h.segments[4], h.A2)
+        self.assertEquals(h.segments[5], h.B1)
+        self.assertEquals(h.segments[6], h.B2)
+        self.assertEquals(h.segments[7], h.J1)
+        self.assertEquals(h.segments[8], h.J2)
+        self.assertEquals(h.segments[9], h.K1)
+        self.assertEquals(h.segments[10], h.K2)
+
+        # Ensure mass is unchanged from what it should be.
+        testing.assert_almost_equal(h.mass,
+                h.P.mass + h.T.mass + h.C.mass + h.A1.mass + h.A2.mass +
+                h.B1.mass + h.B2.mass + h.J1.mass + h.J2.mass +
+                h.K1.mass + h.K2.mass)
+
+        # Initialize measurements using the dict from the previous one.
+        h2 = hum.Human(h.meas)
+        # Crude test...
+        testing.assert_almost_equal(h.mass, h2.mass)
+
+        # - Inspect symmetry.
+        # Symmetric by default.
+        self.assertTrue(h.is_symmetric)
+        self.assertEqual(h.K1.mass, h.J1.mass)
+        self.assertEqual(h.K2.mass, h.J2.mass)
+        self.assertEqual(h.A1.mass, h.B1.mass)
+        self.assertEqual(h.A2.mass, h.B2.mass)
+
+    def test_density_set(self):
+        """Tests the Chandler and Clauser density sets."""
+
+        # Ensure the densities themselves have not regressed.
+        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
+                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+
+        # Input error.
+        self.assertRaises(Exception,
+                hum.Human, self.male1meas, density_set='badname')
+        try:
+            hum.Human(self.male1meas, density_set='badname')
+        except Exception as e:
+            self.assertEquals(e.message, "Density set 'badname' is not one "
+                    "of 'Chandler', 'Clauser', or 'Dempster'.")
+
+        h = hum.Human(self.male1meas, density_set='Chandler')
+
+        # Ensure the densities themselves have not regressed.
+        segmental_densities_des = {
+            'Chandler': dict(zip(segment_names,
+            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
+            'Dempster': dict(zip(segment_names,
+            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
+            'Clauser': dict(zip(segment_names,
+            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
+            }
+        segmental_densities = h.segmental_densities
+        for key, val in segmental_densities.items():
+            for seg, dens in val.items():
+                self.assertEquals(dens, segmental_densities_des[key][seg])
+
+        # Regression test.
+        testing.assert_almost_equal(h.mass, 54.639701113740323)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.26910316
+        inertiaDes[1, 1] = 9.61346162
+        inertiaDes[2, 2] = 0.512454528
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [2.08057425e-03]]), atol=1e-15)
+
+        # Regression for the remaining density set.
+        h = hum.Human(self.male1meas, density_set='Clauser')
+
+        testing.assert_almost_equal(h.mass, 59.061501074879487)
+        inertiaDes = np.zeros((3, 3))
+        inertiaDes[0, 0] = 9.6382444
+        inertiaDes[1, 1] = 10.002298
+        inertiaDes[2, 2] = 0.550455953
+        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
+        testing.assert_allclose(h.center_of_mass,
+                np.array([[0], [0], [0.0176605046]]), atol=1e-15)
+
+    def test_init_symmetry_off(self):
+        """Uses misc/samplemeasurements/male1.txt."""
+
+        h = hum.Human(self.male1meas, symmetric=False)
+        meas = h.meas
+
+        self.assertFalse(h.is_symmetric)
+        self.assertNotEqual(h.K1.mass, h.J1.mass)
+        self.assertNotEqual(h.K2.mass, h.J2.mass)
+        self.assertNotEqual(h.A1.mass, h.B1.mass)
+        self.assertNotEqual(h.A2.mass, h.B2.mass)
+
+        # Check level definitions.
         # segment s
         self.assertEquals(len(h._Ls), 9)
         self.assertEquals(h._Ls[0].label, 'Ls0: hip joint centre')
@@ -294,112 +401,6 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h._Lk[9].label, 'Lk9: toe nails')
         testing.assert_almost_equal(h._Lk[9].perimeter, meas['Lk9p'])
         testing.assert_almost_equal(h._Lk[9].width, meas['Lk9w'])
-
-        # Check that all segments exist.
-        self.assertEquals(len(h.segments), 11)
-        self.assertEquals(h.segments[0], h.P)
-        self.assertEquals(h.segments[1], h.T)
-        self.assertEquals(h.segments[2], h.C)
-        self.assertEquals(h.segments[3], h.A1)
-        self.assertEquals(h.segments[4], h.A2)
-        self.assertEquals(h.segments[5], h.B1)
-        self.assertEquals(h.segments[6], h.B2)
-        self.assertEquals(h.segments[7], h.J1)
-        self.assertEquals(h.segments[8], h.J2)
-        self.assertEquals(h.segments[9], h.K1)
-        self.assertEquals(h.segments[10], h.K2)
-
-        # Ensure mass is unchanged from what it should be.
-        testing.assert_almost_equal(h.mass,
-                h.P.mass + h.T.mass + h.C.mass + h.A1.mass + h.A2.mass +
-                h.B1.mass + h.B2.mass + h.J1.mass + h.J2.mass +
-                h.K1.mass + h.K2.mass)
-
-        # Initialize measurements using the dict from the previous one.
-        h2 = hum.Human(h.meas)
-        # Crude test...
-        testing.assert_almost_equal(h.mass, h2.mass)
-
-        # - Inspect symmetry.
-        # Symmetric by default.
-        self.assertTrue(h.is_symmetric)
-        self.assertEqual(h.K1.mass, h.J1.mass)
-        self.assertEqual(h.K2.mass, h.J2.mass)
-        self.assertEqual(h.A1.mass, h.B1.mass)
-        self.assertEqual(h.A2.mass, h.B2.mass)
-
-    def test_density_set(self):
-        """Tests the Chandler and Clauser density sets."""
-
-        # Ensure the densities themselves have not regressed.
-        segment_names = ['head-neck', 'shoulders', 'thorax', 'abdomen-pelvis',
-                'upper-arm', 'forearm', 'hand', 'thigh', 'lower-leg', 'foot']
-        segmental_densities_des = {
-            'Chandler': dict(zip(segment_names,
-            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
-            'Dempster': dict(zip(segment_names,
-            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
-            'Clauser': dict(zip(segment_names,
-            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
-            }
-
-        # Input error.
-        self.assertRaises(Exception,
-                hum.Human, self.male1meas, density_set='badname')
-        try:
-            hum.Human(self.male1meas, density_set='badname')
-        except Exception as e:
-            self.assertEquals(e.message, "Density set 'badname' is not one "
-                    "of 'Chandler', 'Clauser', or 'Dempster'.")
-
-        h = hum.Human(self.male1meas, density_set='Chandler')
-
-        # Ensure the densities themselves have not regressed.
-        segmental_densities_des = {
-            'Chandler': dict(zip(segment_names,
-            [1056,  853,  853,  853, 1005, 1052, 1080, 1020, 1078, 1091])),
-            'Dempster': dict(zip(segment_names,
-            [1110, 1040,  920, 1010, 1070, 1130, 1160, 1050, 1090, 1100])),
-            'Clauser': dict(zip(segment_names,
-            [1070, 1019, 1019, 1019, 1056, 1089, 1109, 1044, 1085, 1084])),
-            }
-        segmental_densities = h.segmental_densities
-        for key, val in segmental_densities.items():
-            for seg, dens in val.items():
-                self.assertEquals(dens, segmental_densities_des[key][seg])
-
-        # Regression test.
-        testing.assert_almost_equal(h.mass, 54.639701113740323)
-        inertiaDes = np.zeros((3, 3))
-        inertiaDes[0, 0] = 9.26910316
-        inertiaDes[1, 1] = 9.61346162
-        inertiaDes[2, 2] = 0.512454528
-        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
-        testing.assert_allclose(h.center_of_mass,
-                np.array([[0], [0], [2.08057425e-03]]), atol=1e-15)
-
-        # Regression for the remaining density set.
-        h = hum.Human(self.male1meas, density_set='Clauser')
-
-        testing.assert_almost_equal(h.mass, 59.061501074879487)
-        inertiaDes = np.zeros((3, 3))
-        inertiaDes[0, 0] = 9.6382444
-        inertiaDes[1, 1] = 10.002298
-        inertiaDes[2, 2] = 0.550455953
-        testing.assert_allclose(h.inertia, inertiaDes, atol=1e-15)
-        testing.assert_allclose(h.center_of_mass,
-                np.array([[0], [0], [0.0176605046]]), atol=1e-15)
-
-    def test_init_symmetry_off(self):
-        """Uses misc/samplemeasurements/male1.txt."""
-
-        h = hum.Human(self.male1meas, symmetric=False)
-
-        self.assertFalse(h.is_symmetric)
-        self.assertNotEqual(h.K1.mass, h.J1.mass)
-        self.assertNotEqual(h.K2.mass, h.J2.mass)
-        self.assertNotEqual(h.A1.mass, h.B1.mass)
-        self.assertNotEqual(h.A2.mass, h.B2.mass)
 
     def test_init_interesting_cfg(self):
         """Providing a dict for CFG, input errors, and out of bounds errors."""
