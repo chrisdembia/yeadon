@@ -181,7 +181,7 @@ class TestHuman(unittest.TestCase):
         self.assertNotEqual(h.A1.mass, h.B1.mass)
         self.assertNotEqual(h.A2.mass, h.B2.mass)
 
-        # Check level definitions.
+        # Check level and solid definitions.
         # segment s
         self.assertEquals(len(h._Ls), 9)
         self.assertEquals(h._Ls[0].label, 'Ls0: hip joint centre')
@@ -283,6 +283,35 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h._La[7].perimeter, meas['La7p'])
         testing.assert_almost_equal(h._La[7].width, meas['La7w'])
 
+        self.assertEquals(len(h._a_solids), 7)
+        self.assertEquals(h._a_solids[0].label, 'a0: shoulder joint centre')
+        testing.assert_almost_equal(h._a_solids[0].density,
+                h.segmental_densities['Dempster']['upper-arm'])
+
+        self.assertEquals(h._a_solids[1].label, 'a1: mid-arm')
+        testing.assert_almost_equal(h._a_solids[1].density,
+                h.segmental_densities['Dempster']['upper-arm'])
+
+        self.assertEquals(h._a_solids[2].label, 'a2: elbow joint centre')
+        testing.assert_almost_equal(h._a_solids[2].density,
+                h.segmental_densities['Dempster']['forearm'])
+
+        self.assertEquals(h._a_solids[3].label, 'a3: maximum forearm perimeter')
+        testing.assert_almost_equal(h._a_solids[3].density,
+                h.segmental_densities['Dempster']['forearm'])
+
+        self.assertEquals(h._a_solids[4].label, 'a4: wrist joint centre')
+        testing.assert_almost_equal(h._a_solids[4].density,
+                h.segmental_densities['Dempster']['hand'])
+
+        self.assertEquals(h._a_solids[5].label, 'a5: base of thumb')
+        testing.assert_almost_equal(h._a_solids[5].density,
+                h.segmental_densities['Dempster']['hand'])
+
+        self.assertEquals(h._a_solids[6].label, 'a6: knuckles')
+        testing.assert_almost_equal(h._a_solids[6].density,
+                h.segmental_densities['Dempster']['hand'])
+
         # 'b'
         self.assertEquals(len(h._Lb), 8)
         self.assertEquals(h._Lb[0].label, 'Lb0: shoulder joint centre')
@@ -316,6 +345,35 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h._Lb[7].label, 'Lb7: fingernails')
         testing.assert_almost_equal(h._Lb[7].perimeter, meas['Lb7p'])
         testing.assert_almost_equal(h._Lb[7].width, meas['Lb7w'])
+
+        self.assertEquals(len(h._b_solids), 7)
+        self.assertEquals(h._b_solids[0].label, 'b0: shoulder joint centre')
+        testing.assert_almost_equal(h._b_solids[0].density,
+                h.segmental_densities['Dempster']['upper-arm'])
+
+        self.assertEquals(h._b_solids[1].label, 'b1: mid-arm')
+        testing.assert_almost_equal(h._b_solids[1].density,
+                h.segmental_densities['Dempster']['upper-arm'])
+
+        self.assertEquals(h._b_solids[2].label, 'b2: elbow joint centre')
+        testing.assert_almost_equal(h._b_solids[2].density,
+                h.segmental_densities['Dempster']['forearm'])
+
+        self.assertEquals(h._b_solids[3].label, 'b3: maximum forearm perimeter')
+        testing.assert_almost_equal(h._b_solids[3].density,
+                h.segmental_densities['Dempster']['forearm'])
+
+        self.assertEquals(h._b_solids[4].label, 'b4: wrist joint centre')
+        testing.assert_almost_equal(h._b_solids[4].density,
+                h.segmental_densities['Dempster']['hand'])
+
+        self.assertEquals(h._b_solids[5].label, 'b5: base of thumb')
+        testing.assert_almost_equal(h._b_solids[5].density,
+                h.segmental_densities['Dempster']['hand'])
+
+        self.assertEquals(h._b_solids[6].label, 'b6: knuckles')
+        testing.assert_almost_equal(h._b_solids[6].density,
+                h.segmental_densities['Dempster']['hand'])
 
         # legs
         # 'j'
@@ -360,6 +418,43 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h._Lj[9].perimeter, meas['Lj9p'])
         testing.assert_almost_equal(h._Lj[9].width, meas['Lj9w'])
 
+        self.assertEquals(len(h._j_solids), 9)
+        self.assertEquals(h._j_solids[0].label, 'j0: hip joint centre')
+        testing.assert_almost_equal(h._j_solids[0].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._j_solids[1].label, 'j1: crotch')
+        testing.assert_almost_equal(h._j_solids[1].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._j_solids[2].label, 'j2: mid-thigh')
+        testing.assert_almost_equal(h._j_solids[2].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._j_solids[3].label, 'j3: knee joint centre')
+        testing.assert_almost_equal(h._j_solids[3].density,
+                h.segmental_densities['Dempster']['lower-leg'])
+
+        self.assertEquals(h._j_solids[4].label, 'j4: maximum calf perimeter')
+        testing.assert_almost_equal(h._j_solids[4].density,
+                h.segmental_densities['Dempster']['lower-leg'])
+
+        self.assertEquals(h._j_solids[5].label, 'j5: ankle joint centre')
+        testing.assert_almost_equal(h._j_solids[5].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._j_solids[6].label, 'j6: heel')
+        testing.assert_almost_equal(h._j_solids[6].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._j_solids[7].label, 'j7: arch')
+        testing.assert_almost_equal(h._j_solids[7].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._j_solids[8].label, 'j8: ball')
+        testing.assert_almost_equal(h._j_solids[8].density,
+                h.segmental_densities['Dempster']['foot'])
+
         # 'k'
         self.assertEquals(len(h._Lk), 10)
         Lk0p = np.pi * np.sqrt(h._Ls[0].radius * h._Ls[0].width)
@@ -401,6 +496,43 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(h._Lk[9].label, 'Lk9: toe nails')
         testing.assert_almost_equal(h._Lk[9].perimeter, meas['Lk9p'])
         testing.assert_almost_equal(h._Lk[9].width, meas['Lk9w'])
+
+        self.assertEquals(len(h._k_solids), 9)
+        self.assertEquals(h._k_solids[0].label, 'k0: hip joint centre')
+        testing.assert_almost_equal(h._k_solids[0].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._k_solids[1].label, 'k1: crotch')
+        testing.assert_almost_equal(h._k_solids[1].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._k_solids[2].label, 'k2: mid-thigh')
+        testing.assert_almost_equal(h._k_solids[2].density,
+                h.segmental_densities['Dempster']['thigh'])
+
+        self.assertEquals(h._k_solids[3].label, 'k3: knee joint centre')
+        testing.assert_almost_equal(h._k_solids[3].density,
+                h.segmental_densities['Dempster']['lower-leg'])
+
+        self.assertEquals(h._k_solids[4].label, 'k4: maximum calf perimeter')
+        testing.assert_almost_equal(h._k_solids[4].density,
+                h.segmental_densities['Dempster']['lower-leg'])
+
+        self.assertEquals(h._k_solids[5].label, 'k5: ankle joint centre')
+        testing.assert_almost_equal(h._k_solids[5].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._k_solids[6].label, 'k6: heel')
+        testing.assert_almost_equal(h._k_solids[6].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._k_solids[7].label, 'k7: arch')
+        testing.assert_almost_equal(h._k_solids[7].density,
+                h.segmental_densities['Dempster']['foot'])
+
+        self.assertEquals(h._k_solids[8].label, 'k8: ball')
+        testing.assert_almost_equal(h._k_solids[8].density,
+                h.segmental_densities['Dempster']['foot'])
 
     def test_init_interesting_cfg(self):
         """Providing a dict for CFG, input errors, and out of bounds errors."""
