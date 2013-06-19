@@ -123,7 +123,7 @@ class TestHuman(unittest.TestCase):
                 h.segmental_densities['Dempster']['abdomen-pelvis'])
         self.assertEquals(h._s[2].label, 's2: lowest front rib')
         self.assertEquals(h._s[2].density,
-                h.segmental_densities['Dempster']['abdomen-pelvis'])
+                h.segmental_densities['Dempster']['thorax'])
         self.assertEquals(h._s[3].label, 's3: nipple')
         self.assertEquals(h._s[3].density,
                 h.segmental_densities['Dempster']['thorax'])

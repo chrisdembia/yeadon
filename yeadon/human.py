@@ -12,12 +12,9 @@ import numpy as np
 import yaml
 try:
     from mayavi import mlab
-except ImportError:
-    print "Yeadon failed to import mayavi. It is possible that you do" \
-          " not have this package. This is fine, it just means that you " \
-          "cannot use the draw() member function."
 except Exception as e:
-    print e.message
+    print "Failed to import mayavi. This is fine, it just means that you " \
+          "cannot use the draw() member function."
 
 import inertia
 import solid as sol
