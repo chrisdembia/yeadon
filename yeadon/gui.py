@@ -4,7 +4,8 @@ from numpy import deg2rad, rad2deg
 
 from traits.api import HasTraits, Range, Instance, \
         on_trait_change, Float, Property, File, Bool, Button
-from traitsui.api import View, Item, VSplit, HSplit, Group
+from traitsui.api import \
+        View, Item, VSplit, VGroup, HSplit, HGroup, Group, Label
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
@@ -50,94 +51,94 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    input_group = Group(Item('measurement_file_name'),
-            label='Input',
-            show_border=True)
-    drawing_group = Group(Item('show_inertia_ellipsoid'),
-            label='Drawing settings',
-            show_border=True)
+    input_group = Group(Item('measurement_file_name'))
 
     vis_group = Group(Item('scene',
-        editor=SceneEditor(scene_class=MayaviScene), height=500, width=500,
+        editor=SceneEditor(scene_class=MayaviScene), height=580, width=430,
         show_label=False))
-    config_group = VSplit(
-            Group(
-                Group(
-                    Item('somersalt'),
-                    Item('tilt'),
-                    Item('twist'),
-                    Item('PTsagittalFlexion', label='PT sagittal flexion'),
-                    Item('PTfrontalFlexion', label='PT frontal flexion'),
-                    Item('TCspinalTorsion', label='TC spinal torsion'),
-                    Item('TClateralSpinalFlexion',
-                        label='TC lateral spinal flexion'),
-                    label='Whole-body, pelvis, torso',
-                    show_border=True,
-                    dock='tab',
-                    ),
-                Group(
-                    Item('CA1elevation', label='CA1 elevation'),
-                    Item('CA1abduction', label='CA1 abduction'),
-                    Item('CA1rotation', label='CA1 rotation'),
-                    Item('CB1elevation', label='CB1 elevation'),
-                    Item('CB1abduction', label='CB1 abduction'),
-                    Item('CB1rotation', label='CB1 rotation'),
-                    Item('A1A2flexion', label='A1A2 flexion'),
-                    Item('B1B2flexion', label='B1B2 flexion'),
-                    label='Upper limbs',
-                    show_border=True,
-                    dock='tab',
-                    ),
-                Group(
-                    Item('PJ1flexion', label='PJ1 flexion'),
-                    Item('PJ1abduction', label='PJ1 abduction'),
-                    Item('PK1flexion', label='PK1 flexion'),
-                    Item('PK1abduction', label='PK1 abduction'),
-                    Item('J1J2flexion', label='J1J2 flexion'),
-                    Item('K1K2flexion', label='K1K2 flexion'),
-                    label='Lower limbs',
-                    show_border=True,
-                    dock='tab',
-                    ),
-                layout='tabbed'
+
+    config_first_group = Group(
+            Item('somersalt'),
+            Item('tilt'),
+            Item('twist'),
+            Item('PTsagittalFlexion', label='PT sagittal flexion'),
+            Item('PTfrontalFlexion', label='PT frontal flexion'),
+            Item('TCspinalTorsion', label='TC spinal torsion'),
+            Item('TClateralSpinalFlexion',
+                label='TC lateral spinal flexion'),
+            label='Whole-body, pelvis, torso',
+            dock='tab',
+            )
+    config_upper_group = Group(
+            Item('CA1elevation', label='CA1 elevation'),
+            Item('CA1abduction', label='CA1 abduction'),
+            Item('CA1rotation', label='CA1 rotation'),
+            Item('CB1elevation', label='CB1 elevation'),
+            Item('CB1abduction', label='CB1 abduction'),
+            Item('CB1rotation', label='CB1 rotation'),
+            Item('A1A2flexion', label='A1A2 flexion'),
+            Item('B1B2flexion', label='B1B2 flexion'),
+            label='Upper limbs',
+            dock='tab',
+            )
+    config_lower_group = Group(
+            Item('PJ1flexion', label='PJ1 flexion'),
+            Item('PJ1abduction', label='PJ1 abduction'),
+            Item('PK1flexion', label='PK1 flexion'),
+            Item('PK1abduction', label='PK1 abduction'),
+            Item('J1J2flexion', label='J1J2 flexion'),
+            Item('K1K2flexion', label='K1K2 flexion'),
+            label='Lower limbs',
+            dock='tab',
+            )
+    config_group = VGroup(
+            Label('Configuration'),
+            Group(config_first_group, config_upper_group, config_lower_group,
+                layout='tabbed',
                 ),
-            Item('reset_configuration'),
-            label='Configuration variables',
+            Item('reset_configuration', show_label=False),
+            Label('P: pelvis (red); T: thorax (orange); C: chest-head (yellow)'),
+            Label('A1/A2: left upper arm/forearm-hand; B1/B2: right arm'),
+            Label('J1/J2: left thigh/shank-foot; K1/K2: right leg'),
             show_border=True,
             )
 
-    inertia_prop = HSplit( # HSplit 2
-                    Group(
-                      Item('Ixx', style='readonly', format_func=format_func),
-                      Item('Iyx', style='readonly', format_func=format_func),
-                      Item('Izx', style='readonly', format_func=format_func),
-                         ),
-                    Group(
-                      Item('Ixy', style='readonly', format_func=format_func),
-                      Item('Iyy', style='readonly', format_func=format_func),
-                      Item('Izy', style='readonly', format_func=format_func),
-                         ),
-                    Group(
-                      Item('Ixz', style='readonly', format_func=format_func),
-                      Item('Iyz', style='readonly', format_func=format_func),
-                      Item('Izz', style='readonly', format_func=format_func)
-                         ),
-                    # center of mass
-                    Group(
-                      Item('x', style='readonly', format_func=format_func),
-                      Item('y', style='readonly', format_func=format_func),
-                      Item('z', style='readonly', format_func=format_func)
-                         ),
-                    label='Inertia properties',
-                    show_border=True,
-                    ) # end HSplit 2
+    inertia_prop = VGroup(
+            Label('Mass center (from origin of coord. sys.) (m):'),
+            HGroup(
+                Item('x', style='readonly', format_func=format_func),
+                Item('y', style='readonly', format_func=format_func),
+                Item('z', style='readonly', format_func=format_func)
+                ),
+            Label('Inertia tensor (about origin, in basis shown) (kg-m^2):'),
+            HSplit( # HSplit 2
+                Group(
+                    Item('Ixx', style='readonly', format_func=format_func),
+                    Item('Iyx', style='readonly', format_func=format_func),
+                    Item('Izx', style='readonly', format_func=format_func),
+                    ),
+                Group(
+                    Item('Ixy', style='readonly', format_func=format_func),
+                    Item('Iyy', style='readonly', format_func=format_func),
+                    Item('Izy', style='readonly', format_func=format_func),
+                    ),
+                Group(
+                    Item('Ixz', style='readonly', format_func=format_func),
+                    Item('Iyz', style='readonly', format_func=format_func),
+                    Item('Izz', style='readonly', format_func=format_func)
+                    ),
+                ), # end HSplit 2
+            Label('X, Y, Z axes drawn as red, green, blue arrows, respectively.'),
+                show_border=True,
+            ) # end VGroup
+
     view = View(
             VSplit(
                 input_group,
-                drawing_group,
                 HSplit(vis_group,
                     VSplit(
                         config_group,
+                        Item('show_inertia_ellipsoid'),
                         inertia_prop
                         )
                     ),
