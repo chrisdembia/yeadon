@@ -38,10 +38,46 @@ class TestHuman(unittest.TestCase):
         assert h.meas_mass == -1
         # reading measurements.
         assert len(h.meas) == 95
-        # TODO
 
         # averaging limbs.
-        # TODO
+        testing.assert_almost_equal(meas['La2L'], meas['Lb2L'])
+        testing.assert_almost_equal(meas['La3L'], meas['Lb3L'])
+        testing.assert_almost_equal(meas['La4L'], meas['Lb4L'])
+        testing.assert_almost_equal(meas['La5L'], meas['Lb5L'])
+        testing.assert_almost_equal(meas['La6L'], meas['Lb6L'])
+        testing.assert_almost_equal(meas['La7L'], meas['Lb7L'])
+        testing.assert_almost_equal(meas['La0p'], meas['Lb0p'])
+        testing.assert_almost_equal(meas['La1p'], meas['Lb1p'])
+        testing.assert_almost_equal(meas['La2p'], meas['Lb2p'])
+        testing.assert_almost_equal(meas['La3p'], meas['Lb3p'])
+        testing.assert_almost_equal(meas['La4p'], meas['Lb4p'])
+        testing.assert_almost_equal(meas['La5p'], meas['Lb5p'])
+        testing.assert_almost_equal(meas['La6p'], meas['Lb6p'])
+        testing.assert_almost_equal(meas['La7p'], meas['Lb7p'])
+        testing.assert_almost_equal(meas['La4w'], meas['Lb4w'])
+        testing.assert_almost_equal(meas['La5w'], meas['Lb5w'])
+        testing.assert_almost_equal(meas['La6w'], meas['Lb6w'])
+        testing.assert_almost_equal(meas['La7w'], meas['Lb7w'])
+
+        testing.assert_almost_equal(meas['Lj1L'], meas['Lk1L'])
+        testing.assert_almost_equal(meas['Lj3L'], meas['Lk3L'])
+        testing.assert_almost_equal(meas['Lj4L'], meas['Lk4L'])
+        testing.assert_almost_equal(meas['Lj5L'], meas['Lk5L'])
+        testing.assert_almost_equal(meas['Lj6L'], meas['Lk6L'])
+        testing.assert_almost_equal(meas['Lj8L'], meas['Lk8L'])
+        testing.assert_almost_equal(meas['Lj9L'], meas['Lk9L'])
+        testing.assert_almost_equal(meas['Lj1p'], meas['Lk1p'])
+        testing.assert_almost_equal(meas['Lj2p'], meas['Lk2p'])
+        testing.assert_almost_equal(meas['Lj3p'], meas['Lk3p'])
+        testing.assert_almost_equal(meas['Lj4p'], meas['Lk4p'])
+        testing.assert_almost_equal(meas['Lj5p'], meas['Lk5p'])
+        testing.assert_almost_equal(meas['Lj6p'], meas['Lk6p'])
+        testing.assert_almost_equal(meas['Lj7p'], meas['Lk7p'])
+        testing.assert_almost_equal(meas['Lj8p'], meas['Lk8p'])
+        testing.assert_almost_equal(meas['Lj9p'], meas['Lk9p'])
+        testing.assert_almost_equal(meas['Lj8w'], meas['Lk8w'])
+        testing.assert_almost_equal(meas['Lj9w'], meas['Lk9w'])
+        testing.assert_almost_equal(meas['Lj6d'], meas['Lk6d'])
 
         # configuration.
         assert len(h.CFG) == 21
