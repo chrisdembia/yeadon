@@ -213,5 +213,5 @@ def test_parallel_axis():
             inertia1[2, 2] + dpos[0]**2 + dpos[1]**2)
 
 
-#TODO: test parallel_axis
+#TODO: test parallel_axis, additional (non-diagonal) cases
 #TODO: test rotate3_inertia

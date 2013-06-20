@@ -245,8 +245,3 @@ class TestSegments(unittest.TestCase):
         desStr = open(os.path.join(os.path.split(__file__)[0],
             'segment_print_solid_des.txt'), 'r').read()
         self.assertEquals(mystdout.getvalue(), desStr)
-
-    def test_draw(self):
-        # TODO could compare printed SVG's or use matplotlib's ability
-        # to compare bitmaps.
-        pass

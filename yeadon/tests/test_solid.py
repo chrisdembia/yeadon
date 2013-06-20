@@ -12,8 +12,6 @@ from numpy import testing, pi, array, matrix, sin, cos, zeros, array
 
 from yeadon.solid import Stadium, Solid, StadiumSolid
 
-# TODO Test Stadium negative radius/thickness issue in constructor.
-
 class StadiumSolidCheck(unittest.TestCase):
     """To check the formulae in yeadon.solid against those in the Yeadon1990-ii
     paper.
@@ -452,6 +450,7 @@ def test_degenerate_stadiumsolid_symmetry():
     testing.assert_almost_equal(solidA.rel_inertia[2,2], solidB.rel_inertia[2,2])
 
     # A third case for when both t0 and t0 are zero.
+    # TODO
 
 def test_stadiumsolidcheck_against_truncated_cone():
     """Tests the StadiumSolidCheck formulae above against truncated cone

@@ -858,7 +858,6 @@ class TestHuman(unittest.TestCase):
                         segmental_densities_des[key][seg] * factor * factor2)
 
     def test_read_measurements(self):
-        # TODO is it expected behavior for the user to update the measurements?
         # -- Measurement input file errors.
         measPath = os.path.join(os.path.split(__file__)[0],
                 'male1_badkey.txt')
@@ -1328,7 +1327,7 @@ class TestHuman(unittest.TestCase):
             """Returns a random angle between -2*pi and 2*pi."""
             return 2 * pi * np.random.uniform(-1, 1)
 
-        # rotate the pelvis relative to the inertial frame
+        # rotate the pelvis (P) relative to the inertial frame (I)
 
         somersalt = angle()
         tilt = angle()
@@ -1342,7 +1341,7 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_allclose(h.P.rot_mat, P_R_I.T)
 
-        # rotate the thorax relative to the pelvis
+        # rotate the thorax (T) relative to the pelvis (P)
 
         sagflexion = angle()
         frontflexion = angle()
