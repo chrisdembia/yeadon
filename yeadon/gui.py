@@ -191,7 +191,7 @@ class YeadonGUI(HasTraits):
         return self.H.inertia[0, 1]
 
     def _get_Ixz(self):
-        return self.H.inertia[1, 2]
+        return self.H.inertia[0, 2]
 
     def _get_Iyx(self):
         return self.H.inertia[1, 0]
@@ -200,7 +200,7 @@ class YeadonGUI(HasTraits):
         return self.H.inertia[1, 1]
 
     def _get_Iyz(self):
-        return self.H.inertia[2, 2]
+        return self.H.inertia[1, 2]
 
     def _get_Izx(self):
         return self.H.inertia[2, 0]
