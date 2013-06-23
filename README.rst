@@ -108,7 +108,9 @@ like `pip` to obtain the package from the Python Package Index (PyPi)::
    $ easy_install pip
    $ pip install yeadon # sudo if system install
 
-You can also obtain an archive of the package at the Python Package Index (`https://pypi.python.org/pypi/yeadon`_), and then install the package on your own by executing the following from the root directory of the package::
+You can also obtain an archive of the package at the Python Package Index
+(`<https://pypi.python.org/pypi/yeadon>`_), and then install the package on your
+own by executing the following from the root directory of the package::
 
    $ python setup.py install # sudo if system install
 
