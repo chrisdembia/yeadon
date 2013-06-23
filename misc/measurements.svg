@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="765"
-   height="990"
+   width="699.7926"
+   height="897.1701"
    id="svg3956"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="cld72_yeadon_meas_0716.svg"
-   inkscape:export-filename="/home/fitze/repos/yeadon/doc/cld72_yeadon_meas_0716.png"
+   sodipodi:docname="measurements.svg"
+   inkscape:export-filename="/home/fitze/repos/yeadon/doc/measurements.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <sodipodi:namedview
@@ -25,18 +25,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="342.34382"
-     inkscape:cy="546.94928"
+     inkscape:zoom="0.7"
+     inkscape:cx="238.22379"
+     inkscape:cy="449.45349"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1600"
-     inkscape:window-height="873"
-     inkscape:window-x="1600"
-     inkscape:window-y="0"
+     inkscape:window-height="846"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
-     units="in" />
+     units="in"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <defs
      id="defs3958">
     <inkscape:perspective
@@ -125,7 +129,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -133,7 +137,7 @@
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
-     transform="translate(0,-62.35975)">
+     transform="translate(-46.97717,-114.8367)">
     <path
        inkscape:connector-curvature="0"
        id="path3780"
@@ -1118,7 +1122,7 @@
          sodipodi:role="line"
          id="tspan3309">5 <tspan
    style="font-weight:normal"
-   id="tspan4147">stadium (circle) parameter calculated from the stadium at Ls0.</tspan></tspan><tspan
+   id="tspan4147">stadium (circle) perimeter is calculated from the dimensions of the stadium at Ls0.</tspan></tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
          y="961.33008"
          x="47.792896"
@@ -1736,7 +1740,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot4604"
-       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><flowRegion
          id="flowRegion4606"><rect
            id="rect4608"
            width="430.32498"
@@ -1745,30 +1749,6 @@
            y="-7.0205617" /></flowRegion><flowPara
          id="flowPara4610" /></flowRoot>    <text
        xml:space="preserve"
-       style="font-size:38.55421066px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="47.683346"
-       y="97.435066"
-       id="text4612"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4614"
-         x="47.683346"
-         y="97.435066"
-         style="font-size:28.91565704px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans">Yeadon Measurements</tspan></text>
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot4657"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="matrix(0.96385526,0,0,0.96385526,-485.7765,-98.56066)"><flowRegion
-         id="flowRegion4659"><rect
-           id="rect4661"
-           width="695.71429"
-           height="42.857197"
-           x="551.42859"
-           y="1161.4286" /></flowRegion><flowPara
-         id="flowPara4663"
-         style="font-size:13.25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans">Yeadon, M. R. (1990). The simulation of aerial movement-ii. a mathematical inertia model of the human body. Journal of Biomechanics, 23:67–74.</flowPara></flowRoot>    <text
-       xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="322.23865"
        y="133.39064"
@@ -1776,7 +1756,9 @@
        sodipodi:linespacing="125%"
        transform="translate(0,62.35975)"><tspan
          sodipodi:role="line"
-         id="tspan3371" /></text>
+         id="tspan3371"
+         x="322.23865"
+         y="133.39064" /></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 47.47717,222.76054 201.02036,0"

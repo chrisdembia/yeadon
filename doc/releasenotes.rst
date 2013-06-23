@@ -1,9 +1,9 @@
 Release Notes
 =============
 
-v0.8 on 18 July 2011
---------------------
-This is the first release.
+Future releases
+---------------
+See issues on github at `<https://github.com/fitze/yeadon/issues>`_
 
 v1.0
 ----
@@ -16,6 +16,6 @@ v1.0
    attributes.
  - Improved setup/build/installation process.
 
-Future releases
----------------
-See issues on github at `<https://github.com/fitze/yeadon/issues>`_
+v0.8 on 18 July 2011
+--------------------
+This is the first release.

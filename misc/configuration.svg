@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="547.48834"
-   height="909.78101"
+   width="543.1698"
+   height="827.41736"
    id="svg3956"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="cld72_yeadon_cfg_0718.svg"
-   inkscape:export-filename="/home/moorepants/src/yeadon/doc/cld72_yeadon_cfg_0718.png"
+   sodipodi:docname="configuration.svg"
+   inkscape:export-filename="/home/fitze/repos/yeadon/doc/configuration.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <sodipodi:namedview
@@ -25,16 +25,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.87826703"
-     inkscape:cx="273.74417"
-     inkscape:cy="585.6997"
+     inkscape:zoom="0.62102857"
+     inkscape:cx="265.10713"
+     inkscape:cy="393.81015"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1366"
-     inkscape:window-height="744"
+     inkscape:window-width="1600"
+     inkscape:window-height="846"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      units="px"
      fit-margin-top="0"
@@ -960,7 +960,7 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-15.681481,-52.008564)"
+     transform="translate(-20,-102.8367)"
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
@@ -1070,32 +1070,6 @@
            width="430.32498"
            id="rect4608" /></flowRegion><flowPara
          id="flowPara4610" /></flowRoot>    <text
-       sodipodi:linespacing="125%"
-       id="text4612"
-       y="73.435066"
-       x="19.219276"
-       style="font-size:38.55421066px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       xml:space="preserve"><tspan
-         style="font-size:28.91565704px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
-         y="73.435066"
-         x="19.219276"
-         id="tspan4614"
-         sodipodi:role="line">Yeadon Configuration</tspan></text>
-    <flowRoot
-       transform="matrix(0.96385526,0,0,0.96385526,-511.67196,-187.9008)"
-       style="font-size:15px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       id="flowRoot4657"
-       xml:space="preserve"><flowRegion
-         id="flowRegion4659"><rect
-           y="1161.4286"
-           x="551.42859"
-           height="40.761112"
-           width="593.00696"
-           id="rect4661" /></flowRegion><flowPara
-         style="font-size:13.25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
-         id="flowPara4663">Yeadon, M. R. (1990). The simulation of aerial movement-iii. a mathematical inertia model of </flowPara><flowPara
-         style="font-size:13.25px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans"
-         id="flowPara3456">the human body. Journal of Biomechanics, 23:67–74.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:12.77135181px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:FreeSans;-inkscape-font-specification:FreeSans"
        x="588.73663"
@@ -2759,7 +2733,9 @@
        sodipodi:linespacing="125%"
        transform="translate(15.681481,52.008564)"><tspan
          sodipodi:role="line"
-         id="tspan3435" /></text>
+         id="tspan3435"
+         x="156.57364"
+         y="72.364555" /></text>
     <g
        transform="translate(323.67131,68.193744)"
        style="fill:#00aa44;stroke:#00aa44;stroke-opacity:1"
