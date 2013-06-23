@@ -25,7 +25,8 @@ The following is the contents of this documentation:
    releasenotes.rst
    apidoc.rst
 
-The README.txt contains installation instructions.
+The README.rst file contained in the source distribution contains installation
+instructions.
 
 This package was developed during the Summer of 2011 at the University of
 California, Davis, to aid with the bicycle research of Jason Moore and Dale

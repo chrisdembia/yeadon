@@ -25,12 +25,16 @@ Directories
 Installing
 ==========
 
-This package was developed in Python 2.7. It depends on the following
-widely-used packages:
+This package was developed in Python 2.7.
 
-- setuptools_ or distribute_ for installation, distribute is preferred
-- NumPy_ basic array manipulations and computations
-- PyYAML_ used for the input files
+Dependencies
+------------
+
+`yeadon` depends on the following widely-used packages:
+
+- setuptools_ or distribute_ for installation; distribute is preferred
+- NumPy_ for computations
+- PyYAML_ for parsing input files
 
 .. _setuptools: http://pythonhosted.org/setuptools
 .. _distribute: http://pytonhosted.org/distribute
@@ -39,42 +43,77 @@ widely-used packages:
 
 The following packages are optional:
 
-- MayaVi_ used for pretty visualization and GUI interaction
-- nose_ used for unit tests
-- Sphinx_  needed to create documentation
-- numpydoc_ sphinx extension for NumPy-style documentation formatting
+- MayaVi_ for visualization and GUI interaction
+- nose_ for tests
+- Sphinx_ to create documentation
+- numpydoc_ Sphinx extension for NumPy-style documentation formatting
 
 .. _MayaVi: http://mayavi.sourceforge.net
 .. _nose: https://nose.readthedocs.org
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pythonhosted.org/numpydoc
 
+Getting the dependencies
+------------------------
+
+Option 1: Scientific python distributions
+`````````````````````````````````````````
+
 Most `scientific python distributions
 <http://numfocus.org/projects-2/software-distributions/>`_ provide all of these
 dependencies and it is often easiest to install one of them to get started. Once
-you have a distribution, you simply have to install the yeadon package. This is
+you have a distribution, you simply need to install the yeadon package. This is
 the best solution for Windows users.
 
-The dependencies can also be obtained easily from your operating system's
-package manager. For example, in Debian systems, you should be able to obtain
-all of these packages by opening a terminal window (CTRL-ALT-T) and typing::
+Option 2: Operating system package manager
+``````````````````````````````````````````
 
-   $ # use sudo if system install is desired
+In some operating systems, the dependencies can also be obtained from the
+operating system's package manager. For example, in Debian systems, you should
+be able to obtain all of these packages by opening a terminal window and
+typing::
+
+   $ # prepend sudo to each line below if you desire a system install
    $ apt-get install python-distribute python-numpy python-yaml # required
    $ apt-get install python-nose python-sphinx mayavi2 # optional packages
-   $ easy_install numpydoc # only on PyPi
+   $ easy_install numpydoc # this package is not in the Debian repositories
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
 
-The easiest way to download and install the yeadon package is by using a tool
-like `pip` to get the package from PyPi::
+Option 3: Building dependencies from source
+```````````````````````````````````````````
+
+This option is required if you want to use `yeadon` in a virtualenv. You can
+build the dependencies from source and then install them by using a tool like
+`pip`::
+
+    $ easy_install pip
+    $ pip install distribute numpy PyYAML
+    $ pip install nose sphinx mayavi
+    $ pip install numpydoc
+
+or you can obtain the source code, perhaps from GitHub_, and install the
+packages manually.
+
+.. _GitHub: http://github.com
+
+Getting yeadon
+--------------
+
+Once you've obtained the dependencies, you can install `yeadon`. The
+easiest way to download and install the `yeadon` package is by using a tool
+like `pip` to obtain the package from the Python Package Index (PyPi)::
 
    $ easy_install pip
    $ pip install yeadon # sudo if system install
 
-An alternative for downloading and installing on a Unix system that does not
-rely on a tool like `pip` is as follows::
+You can also obtain an archive of the package at the Python Package Index (`https://pypi.python.org/pypi/yeadon`_), and then install the package on your own by executing the following from the root directory of the package::
+
+   $ python setup.py install # sudo if system install
+
+On Unix, you can obtain the package source code and install it without leaving
+your terminal::
 
    $ # change X.X.X to the desired version
    $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
@@ -82,8 +121,8 @@ rely on a tool like `pip` is as follows::
    $ cd yeadon-X.X.X.tar.gz
    $ python setup.py install # sudo if system install
 
-Both of these options assume that your default Python interpreter is version
-2.7.
+Both of these options assume that the version of your default Python
+interpreter is 2.7.
 
 Run the tests with::
 
@@ -123,12 +162,12 @@ Once the package is installed you can start the program with::
 
 If you have MayaVi installed, the GUI will launch. If you don't, the text based
 UI will launch. You can explicitly specify whether you want to load the GUI or
-the UI with these flags::
+the UI with command-line flags::
 
    $ yeadon --gui
    $ yeadon --ui
 
-You can also interact with yeadon in a Python interpreter session or Python
+You can also interact with `yeadon` in a Python interpreter session or Python
 script/module via the API by importing the package. For example::
 
    $ python
@@ -140,14 +179,15 @@ Now you can create a human object with::
 
 where `<measfilename>` and `<CFGfilename>` are replaced by strings that contain
 a relative or absolute path to the appropriate input `.txt` files. For more
-basics on how to use a human object, you can go into a python command prompt and
-type::
+basics on how to use a `Human` object, you can go into a python command prompt
+and type::
 
    >>> help(yeadon.Human)
 
 or see the documentation.
 
-You can also start the UI or the GUI by executing::
+You can also start the UI or the GUI from within a Python interpreter by
+executing::
 
    >>> yeadon.start_ui()
 
@@ -155,8 +195,7 @@ or::
 
    >>> yeadon.start_gui()
 
-within a Python interpreter. See the HTML or PDF documentation for more
-information.
+See the documentation for more information.
 
 Contact
 =======
@@ -164,5 +203,5 @@ Contact
 Feel free to contact Chris Dembia (chris530d, gmail) with any questions or
 comments.
 
-All development is handled at `<http://github.com/fitze/yeadon>`_, including issue
-tracking.
+All development is handled at `<http://github.com/fitze/yeadon>`_, including
+issue tracking.
