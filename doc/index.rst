@@ -11,9 +11,24 @@ tensors that correspond to the human inertia model developed by Yeadon
 in (Yeadon, 1990). The package allows for the input of both measurements from
 human subjects and configuration variables (joint angles) with which one can
 orient the model. Additionally, the package allows for 3D visualization of the
-model using the MayaVi package.
+model using the package.
 
-The following is the contents of this documentation:
+One possible use of the package is to incorporate the inertial properties of an
+actual human into a rigid-body dynamics model that contains a human. Then, the
+model containing the human can be compared to experiments performed with the
+same human.
+
+This package was developed during the Summer of 2011 at the University of
+California, Davis, to aid with the bicycle research of Jason Moore and Dale
+Luke Peterson in the Sports Biomechanics Lab of Professor Mont Hubbard. Jason
+Moore had a multibody dynamics model of a human riding a bicycle, and performed
+experiments with humans riding a bicycle. To compare his model to his
+experiments, he needed the inertial properties of the human riding the bicycle.
+That's what this package was able to provide him. Learn more about the Sports
+Biomechanics Lab at `biosport.ucdavis.edu <http://biosport.ucdavis.edu>`_.
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 1
@@ -25,21 +40,17 @@ The following is the contents of this documentation:
    releasenotes.rst
    apidoc.rst
 
-The README.rst file contained in the source distribution contains installation
-instructions.
+Installation
+============
 
-This package was developed during the Summer of 2011 at the University of
-California, Davis, to aid with the bicycle research of Jason Moore and Dale
-Luke Peterson in the Sports Biomechanics Lab of Professor Mont Hubbard. Learn
-more about the Sports Biomechanics Lab at `biosport.ucdavis.edu
-<http://biosport.ucdavis.edu>`_.
+The README.rst file in the source distribution of this packge contains
+installation instructions.
 
-Indices and tables
+Website navigation
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 References
 ==========
