@@ -106,8 +106,8 @@ class TestHuman(unittest.TestCase):
             assert h.CFG[key] == 0.0
 
         # Check initialized global position and orientation.
-        testing.assert_allclose(h.coord_sys_pos, np.array([[0, 0, 0]]).T)
-        testing.assert_allclose(h.coord_sys_orient, np.eye(3))
+        testing.assert_allclose(h._coord_sys_pos, np.array([[0, 0, 0]]).T)
+        testing.assert_allclose(h._coord_sys_orient, np.eye(3))
 
 
         # Check that all segments exist.
@@ -1485,3 +1485,4 @@ class TestHuman(unittest.TestCase):
 # with more false stadia than we would otherwise, but if we don't average
 # the measurements, how do we draw?
 # TODO translating the entire human: check resulting inertia properties.
+# TODO finish test of inertia_transformed

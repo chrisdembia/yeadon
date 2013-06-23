@@ -156,8 +156,8 @@ class Human(object):
 
         """
         # Initialize position and orientation of entire body.
-        self.coord_sys_pos = np.array([[0],[0],[0]])
-        self.coord_sys_orient = inertia.rotate_space_123((0,0,0))
+        self._coord_sys_pos = np.array([[0],[0],[0]])
+        self._coord_sys_orient = inertia.rotate_space_123((0,0,0))
 
         # Assign densities for the solids.
         if density_set not in ['Chandler', 'Clauser', 'Dempster']:
@@ -377,7 +377,7 @@ class Human(object):
         newpos[0] = vec[0]
         newpos[1] = vec[1]
         newpos[2] = vec[2]
-        self.coord_sys_pos = newpos
+        self._coord_sys_pos = newpos
         self._update_segments()
 
     def _rotate_coord_sys(self, varin):
@@ -401,7 +401,7 @@ class Human(object):
             rotmat = inertia.rotate_space_123(varin)
         else:
             rotmat = varin
-        self.coord_sys_orient = rotmat
+        self._coord_sys_orient = rotmat
         self._update_segments()
 
     def _transform_coord_sys(self, vec, rotmat):
@@ -1057,8 +1057,8 @@ class Human(object):
         """
 
         # pelvis
-        Ppos = self.coord_sys_pos
-        PRotMat = (self.coord_sys_orient *
+        Ppos = self._coord_sys_pos
+        PRotMat = (self._coord_sys_orient *
             inertia.euler_123([self.CFG['somersalt'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
