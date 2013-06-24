@@ -339,7 +339,7 @@ class Human(object):
         # inertia
         self._inertia = np.mat(np.zeros((3,3)))
         for s in self.segments:
-            dist = s.center_of_mass - self.center_of_mass
+            dist = self.center_of_mass - s.center_of_mass
             self._inertia += np.mat(
                 inertia.parallel_axis(s.inertia,
                                       s.mass,
@@ -487,65 +487,69 @@ class Human(object):
 
         Returns
         -------
-        resultantMass : float
-            Sum of the mass of the input solids and/or segments.
-        resultantCOM : np.array (3,1)
-            Position of the center of mass of the input solids and/or segments.
-            Uses the absolute fixed coordinate system.
-        resultantInertia : np.matrix (3,3)
-            Inertia tensor at the resultantCOM, with axes aligned with the axes
-            of the global frame with respect to the center of the Ls0 stadium.
+        combined_mass : float
+            Sum of the masses of the input solids and/or segments.
+        combined_COM : np.array (3,1)
+            Position of the center of mass of the input solids and/or segments,
+            expressed in the global frame .
+        combined_inertia : np.matrix (3,3)
+            Inertia tensor about the combined_COM, expressed in the global frame.
+
+        See documentation for description of the global frame.
 
         """
-        # preparing to arrange input
-        solidkeys = ['s0','s1','s2','s3','s4','s5','s6','s7',
-                      'a0','a1','a2','a3','a4','a5','a6',
-                      'b0','b1','b2','b3','b4','b5','b6',
-                      'j0','j1','j2','j3','j4','j5','j6','j7','j8',
-                      'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
+        if objlist == []:
+            raise Exception("Empty input.")
+        # Preparing.
+        solidkeys = [
+                's0','s1','s2','s3','s4','s5','s6','s7',
+                'a0','a1','a2','a3','a4','a5','a6',
+                'b0','b1','b2','b3','b4','b5','b6',
+                'j0','j1','j2','j3','j4','j5','j6','j7','j8',
+                'k0','k1','k2','k3','k4','k5','k6','k7','k8',]
         segmentkeys = ['P','T','C','A1','A2','B1','B2','J1','J2','K1','K2']
         solidvals = self._s + self._a_solids + self._b_solids + self._j_solids + self._k_solids
         ObjDict = dict(zip(solidkeys + segmentkeys, solidvals + self.segments))
-        # error-checking
+
+        # Error-check.
         for key in (solidkeys + segmentkeys):
             if objlist.count(key) > 1:
-                print "In yeadon.human.Human.combine_inertia(), an object is" \
-                      " listed more than once. A solid/segment can only be" \
-                      " listed once."
-                raise Exception()
+                raise Exception("An object is listed more than once. "
+                        "A solid/segment can only be listed once.")
         for segkey in segmentkeys:
             if objlist.count(segkey) == 1:
                 # this segment is listed as input
                 for solobj in objlist:
                     for segsol in ObjDict[segkey].solids:
                         if solobj == segsol.label[0:2]:
-                            print "In yeadon.human.Human.combine_inertia()," \
-                                  " a solid",solobj,"and its parent segment", \
-                                  segkey,"have both been given as inputs." \
-                                  " This duplicates that solid."
-                            raise Exception()
-        print "Combining/lumping segments/solids",objlist,"."
-        resultantMass = 0.0
-        resultantMoment = np.zeros( (3,1) )
+                            raise Exception("A solid {0} and its parent "
+                                    "segment {1} have both been given "
+                                    "as inputs. This duplicates that solid's "
+                                    "contribution.".format(solobj, segkey))
+
+        # Perform computations.
+        print "Combining segments/solids", objlist, "."
+        combined_mass = 0.0
+        combinedMoment = np.zeros( (3,1) )
         for objstr in objlist:
             if ObjDict.has_key(objstr) == False:
-                print "In yeadon.human.Human.combine_inertia(),", \
-                      "the string",objstr,"does not identify a segment", \
-                      "or solid of the human."
-                raise Exception()
+                raise Exception("The string {0!r} does not identify a segment "
+                      "or solid of the human.".format(objstr))
             obj = ObjDict[objstr]
-            resultantMass += obj.mass
-            resultantMoment += obj.mass * obj.center_of_mass
-        resultantCOM = resultantMoment / resultantMass
-        resultantInertia = np.mat(np.zeros( (3,3) ))
+            combined_mass += obj.mass
+            combinedMoment += obj.mass * obj.center_of_mass
+        combined_COM = combinedMoment / combined_mass
+        combined_inertia = np.mat(np.zeros( (3,3) ))
+        # Move inertia tensor of an object from the point it is currently about
+        # (the object's COM) so that it is about combined_COM.
         for objstr in objlist:
             obj = ObjDict[objstr]
-            dist = obj.center_of_mass - resultantCOM
-            resultantInertia += np.mat(inertia.parallel_axis(
+            dist = combined_COM - obj.center_of_mass
+            combined_inertia += np.mat(inertia.parallel_axis(
                                        obj.inertia,
                                        obj.mass,
                                        [dist[0,0],dist[1,0],dist[2,0]]))
-        return resultantMass, resultantCOM, resultantInertia
+        return combined_mass, combined_COM, combined_inertia
 
     def get_segment_by_name(self, name):
         """Returns a segment given its name."""

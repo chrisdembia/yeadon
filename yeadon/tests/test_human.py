@@ -1028,9 +1028,93 @@ class TestHuman(unittest.TestCase):
         pass
 
     def test_combine_inertia(self):
-        # TODO Try a few different cases
-        # TODO test input errors.
-        pass
+        """Tries input errors and checks output against some hand
+        calculations."""
+        # Input errors.
+        h = hum.Human(self.male1meas, symmetric=True)
+
+        # Nonsensical input.
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia([''])
+        self.assertEquals(e.exception.message, "The string '' does not "
+                "identify a segment or solid of the human.")
+
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia()
+
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia([])
+        self.assertEquals(e.exception.message, "Empty input.")
+
+        # List a string that doesn't identify a segment or solid.
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia(['abracadabra'])
+        self.assertEquals(e.exception.message, "The string 'abracadabra' does "
+                "not identify a segment or solid of the human.")
+
+        # List a solid more than once.
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia(['j4', 'a0', 's0', 'a0', 'A2'])
+        self.assertEquals(e.exception.message, "An object is listed more than "
+                "once. A solid/segment can only be listed once.")
+
+        # List solid and its parent segment.
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia(['k2', 'K1'])
+        self.assertEquals(e.exception.message, "A solid k2 and its parent "
+                "segment K1 have both been given as inputs. This duplicates "
+                "that solid's contribution.")
+
+        with self.assertRaises(Exception) as e:
+            h.combine_inertia(['B2', 'b6'])
+
+        # The following depends on the fact that we've imposed symmetry.
+        # 'c' for combined.
+        c_mass, c_com, c_inertia = h.combine_inertia(['a0', 'b0'])
+        # Using _a_solids instead of A1.solids because we've reversed the order
+        # of the solids in the segments.
+        c_mass_des = h._a_solids[0].mass + h._b_solids[0].mass
+        self.assertEquals(c_mass, c_mass_des)
+        testing.assert_allclose(c_com,
+                (h._a_solids[0].mass * h._a_solids[0].center_of_mass +
+                    h._b_solids[0].mass * h._b_solids[0].center_of_mass) /
+                c_mass_des)
+        # Given symmetry, com's x-component should be zero.
+        self.assertEquals(c_com[0, 0], 0.0)
+        # ... z-component is the same as for individual solids.
+        self.assertEquals(c_com[2, 0], h._a_solids[0].center_of_mass[2, 0])
+        # The 2 comes from symmetry; then we have parallel axis theorem.
+        self.assertEquals(c_inertia[0, 0], 2 * h._a_solids[0].inertia[0, 0])
+        parallel_term = \
+                h._a_solids[0].mass * h._a_solids[0].center_of_mass[0, 0]**2
+        Iyy_des = 2.0 * (h._a_solids[0].inertia[1, 1] + parallel_term)
+        self.assertEquals(c_inertia[1, 1], Iyy_des)
+        Izz_des = 2.0 * (h._a_solids[0].inertia[2, 2] + parallel_term)
+        self.assertEquals(c_inertia[2, 2], Izz_des)
+        self.assertEquals(c_inertia[0, 1], 0.0)
+        self.assertEquals(c_inertia[0, 2], 0.0)
+        self.assertEquals(c_inertia[1, 2], 0.0)
+
+        c_mass = None
+        c_com = None
+        c_inertia = None
+
+        # Try segments.
+        c_mass, c_com, c_inertia = h.combine_inertia(['A2', 'B2'])
+        c_mass_des = h.A2.mass + h.B2.mass
+        self.assertEquals(c_mass, c_mass_des)
+        self.assertEquals(c_com[0, 0], 0.0)
+        self.assertEquals(c_com[2, 0], h.B2.center_of_mass[2, 0])
+        self.assertEquals(c_inertia[0, 0], 2 * h.A2.inertia[0, 0])
+        parallel_term = h.A2.mass * h.A2.center_of_mass[0, 0]**2
+        Iyy_des = 2.0 * (h.A2.inertia[1, 1] + parallel_term)
+        self.assertEquals(c_inertia[1, 1], Iyy_des)
+        Izz_des = 2.0 * (h.A2.inertia[2, 2] + parallel_term)
+        self.assertEquals(c_inertia[2, 2], Izz_des)
+
+        self.assertEquals(c_inertia[0, 1], 0.0)
+        self.assertEquals(c_inertia[0, 2], 0.0)
+        self.assertEquals(c_inertia[1, 2], 0.0)
 
     def test_inertia_transformed(self):
         """Tests the functionality of getting an inertia tensor about a
@@ -1112,7 +1196,6 @@ class TestHuman(unittest.TestCase):
         inertia_post = None
 
         # Make sure the direction of the rotation matrix is correct.
-        # TODO
         # Inertia tensor of 2 point mass in the y-z plane; at (2, 1) and (-2,
         # -1), both with mass 1.
         # Rotating a positive atan(1/2) should give a zero xy product of
