@@ -1060,9 +1060,10 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(inertia_post[0, 2], inertia_pre[0, 2])
         testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
         # Symmetry is preserved.
-        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
-        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
-        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[0, 1])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[0, 2])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
+        inertia_post = None
 
         # A more complicated change in position.
         inertia_post = h.inertia_transformed(
@@ -1080,19 +1081,20 @@ class TestHuman(unittest.TestCase):
         # Products of inertia.
         testing.assert_almost_equal(inertia_post[0, 1], inertia_pre[0, 1])
         testing.assert_almost_equal(
-                inertia_post[0, 2], inertia_pre[0, 2] - m * 2 * d**2)
+                inertia_post[0, 2], inertia_pre[0, 2] - m * 2 * d * d)
         testing.assert_almost_equal(inertia_post[1, 2], inertia_pre[1, 2])
         # Symmetry is preserved.
-        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
-        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
-        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[0, 1])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[0, 2])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
+        inertia_post = None
 
         # A combined change in position and basis.
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
                     h.center_of_mass[1, 0],
                     h.center_of_mass[2, 0]],
-                rotmat= inertia.rotate_space_123((0.5 * np.pi,0,0)))
+                rotmat=inertia.rotate_space_123((0.5 * np.pi,0,0)))
         # Moments of inertia.
         testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
         testing.assert_almost_equal(
@@ -1104,26 +1106,45 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(inertia_post[0, 2], -inertia_pre[0, 1])
         testing.assert_almost_equal(inertia_post[1, 2], -inertia_pre[1, 2])
         # Symmetry is preserved.
-        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[1, 0])
-        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[2, 0])
-        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[2, 1])
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[0, 1])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[0, 2])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
+        inertia_post = None
 
         # Make sure the direction of the rotation matrix is correct.
         # TODO
-        # Inertia tensor of two point masses in the x-y plane, one at (2, 1),
-        # and one at (-2, -1), each with mass 1. Rotating a positive atan(1/2)
-        # should give a zero xy product of inertia if the rotation matrix is
-        # what we think it is.
-        in_ptmass = np.mat(np.zeros((3, 3)))
-        in_ptmass[0, 0] = 2
-        in_ptmass[1, 1] = 8
-        in_ptmass[2, 2] = 10
-        in_ptmass[1, 0] = 4
-        in_ptmass[0, 1] = 4
-        angle = np.arctan(1 / 2.0)
-        h._inertia = in_ptmass
-        rotmat = inertia.rotate_space_123((0, 0, angle))
+        # Inertia tensor of 2 point mass in the y-z plane; at (2, 1) and (-2,
+        # -1), both with mass 1.
+        # Rotating a positive atan(1/2) should give a zero xy product of
+        # inertia if the rotation matrix is what we think it is.
+        inertia_ptmass = np.mat(np.zeros((3, 3)))
+        inertia_ptmass[0, 0] = 2 * 1 * (2**2 + 1**1)
+        inertia_ptmass[1, 1] = 2 * 1 * (1**1)
+        inertia_ptmass[2, 2] = 2 * 1 * (2**2)
+        Iyz = 2 * 1 * (2 * 1)
+        inertia_ptmass[1, 2] = Iyz
+        inertia_ptmass[2, 1] = Iyz # symmetry
+        angle = np.arctan(1.0 / 2.0)
+        rotmat = inertia.rotate_space_123((angle, 0, 0))
+        # Here is a little cheating to test out the method itself with our own
+        # center of mass and inertia:
+        h._mass = 1
+        h._center_of_mass = np.array([[0], [0], [0]])
+        h._inertia = inertia_ptmass
         inertia_post = h.inertia_transformed(rotmat=rotmat)
+        # Moments of inertia.
+        testing.assert_almost_equal(inertia_post[0, 0], inertia_ptmass[0, 0])
+        testing.assert_almost_equal(inertia_post[1, 1], 0.0)
+        testing.assert_almost_equal(inertia_post[2, 2], inertia_ptmass[0, 0])
+        # Products of inertia.
+        testing.assert_almost_equal(inertia_post[0, 1], 0.0)
+        testing.assert_almost_equal(inertia_post[0, 2], 0.0)
+        testing.assert_almost_equal(inertia_post[1, 2], 0.0)
+        # Symmetry is preserved.
+        testing.assert_almost_equal(inertia_post[1, 0], inertia_post[0, 1])
+        testing.assert_almost_equal(inertia_post[2, 0], inertia_post[0, 2])
+        testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
+        inertia_post = None
 
     def test_lower_torso_rotations(self):
         """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
@@ -1475,14 +1496,13 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_allclose(h.K2.rot_mat, K2_R_I.T)
 
-# TODO compare ISEG output to our output.
 # TODO test combineinerita by manual calculations.
+
+# TODO compare ISEG output to our output.
+
 # TODO try out a program flow: make sure we do all necessary updates after
 # construction, say when we change a joint angle, etc. CANNOT just change
 # measurements on the fly.
-# TODO make sure we're averaging the correct limbs
 # TODO it's possible that by averaging the measurements, we're coming up
 # with more false stadia than we would otherwise, but if we don't average
 # the measurements, how do we draw?
-# TODO translating the entire human: check resulting inertia properties.
-# TODO finish test of inertia_transformed

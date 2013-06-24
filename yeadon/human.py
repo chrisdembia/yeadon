@@ -425,30 +425,36 @@ class Human(object):
         `rotmat` relative to the global frame. The position is to be provided
         from the origin of the global frame, which is at the center of the Ls0
         stadium (bottom of pelvis), and its components are expressed in the
-        basis of the global frame.
+        basis of the global frame. This method does NOT alter any attributes of
+        the Human (it is 'const').
 
         Parameters
         ----------
         pos : list or tuple (3,), optional
-            Position in the global frame to the point about which
-            the user desires the inertia tensor. If not provided, the tensor is
-            provided about the center of mass of the human.
+            Position in the global frame from the origin of the global frame to
+            the point about which the user desires the inertia tensor. If not
+            provided, the tensor is provided about the center of mass of the
+            human.
         rotmat : np.matrix (3,3), optional
             If not provided, the tensor is expressed in the global frame.
             Consider N to be the global frame and B to be the frame in which
             the user desires the inertia tensor. Then `rotmat` is the rotation
             matrix that converts a vector expressed in the basis B to a vector
             expressed in the basis N. That is, the columns of `rotmat` are the
-            unit vectors b_x, b_y, and b_z, and the rows are n_x, n_y, and n_z.
-            See the notes for more information.
+            unit vectors b_x, b_y, and b_z, each expressed in the basis given
+            by the unit vectors n_x, n_y, n_z.
+
+        Returns
+        -------
+        transformed : np.matrix (3,3)
+            If B is the frame in which the user desires the inertia tensor,
+            this method returns ^{B}I^{H/P}, where P is the point specified by
+            `pos`, and H is the human system.
 
         Notes
         -----
-        If N is the global frame, B is the frame
-        in which the user desires the inertia tensor, then `rotmat` =
-        ^{N}R^{B}. This method returns ^{B}I^{H/P}, where P is the point
-        specified by `pos`, and H is the human system.
-
+        If N is the global frame, B is the frame in which the user desires the
+        inertia tensor, then `rotmat` = ^{N}R^{B}. 
         """
         # Shifting the inertia must happen first, because the position the user
         # provides is in the global frame.
