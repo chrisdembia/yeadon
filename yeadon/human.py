@@ -587,6 +587,7 @@ class Human(object):
                 make_drawing(mlabobj)
         else:
             make_drawing(mlabobj)
+        mlabobj.show()
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""

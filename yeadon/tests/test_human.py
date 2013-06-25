@@ -1630,8 +1630,6 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_allclose(h.K2.rot_mat, K2_R_I.T)
 
-# TODO test combineinerita by manual calculations.
-
 # TODO compare ISEG output to our output.
 
 # TODO try out a program flow: make sure we do all necessary updates after
