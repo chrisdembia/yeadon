@@ -40,14 +40,15 @@ def start_ui():
     print "PROVIDE DATA INPUTS: measurements and configuration (joint angles)."
     print "\nMEASUREMENTS: can be provided as a 95-field dict (units must be " \
           "meters), or a .TXT file"
-    temp = raw_input("Type the name of the .TXT filename (to use preloaded " 
+    temp = raw_input("Type the name of the .TXT filename (to use preloaded "
                     "measurements just hit enter): ")
     if temp == '':
         meas = measPreload
     else:
         file_exist_meas = os.path.exists(temp)
+        meas = temp
         while not file_exist_meas:
-            temp = raw_input("Please type the correct name of the .TXT filename " 
+            temp = raw_input("Please type the correct name of the .TXT filename "
                             "(or just use preloaded measurements just hit enter): ")
             file_exist_meas = os.path.exists(temp)
 
@@ -59,7 +60,7 @@ def start_ui():
 
     print "\nCONFIGURATION (joint angles): can be provided as a 21-field dict,"\
           " or a .TXT file"
-    CFG = raw_input("Type the name of the .TXT filename (for all joint angles " 
+    CFG = raw_input("Type the name of the .TXT filename (for all joint angles "
                     "as zero, just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print "Creating human object."
@@ -207,19 +208,19 @@ def start_ui():
                 print "\nOPTIONS"
                 print "-------"
                 print "  1: toggle symmetry (symmetry is",\
-                       sym[ int(H.isSymmetric) ],"now)\n", \
+                       sym[ int(H.is_symmetric) ],"now)\n", \
                       "  2: scale human by mass\n", \
                       "  q: back to main menu"
                 optionIn = raw_input("What would you like to do? ")
                 if optionIn == '1':
-                    if H.isSymmetric == True:
-                        H.isSymmetrc = False
+                    if H.is_symmetric == True:
+                        H.is_symmetric = False
                         H.meas = meas
-                    elif H.isSymmetric == False:
-                        H.isSymmetric = True
-                        H.average_limbs()
-                    H.update_solids()
-                    print "Symmetry is now turned",sym,"."
+                    elif H.is_symmetric == False:
+                        H.is_symmetric = True
+                        H._average_limbs()
+                    H.update()
+                    print "Symmetry is now turned", sym[int(H.is_symmetric)], "."
                 elif optionIn == '2':
                     measmass = raw_input("Provide a measured mass with which "\
                                "to scale the human (kg): ")
@@ -273,7 +274,7 @@ def modify_joint_angles(H):
                     valueIn = raw_input("Re-enter a value for this joint: ")
                     CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
     H.CFG = CFG
-    H.update_segments()
+    H._update_segments()
     return H
 
 def print_segment_properties(H):
@@ -288,7 +289,7 @@ def print_segment_properties(H):
         print "\nPRINT SEGMENT PROPERTIES"
         print "------------------------"
         counter = 0
-        for seg in H.Segments:
+        for seg in H.segments:
             print " ",counter,":",seg.label
             counter += 1
         printIn = raw_input("Enter a segment index to view the properties" \
@@ -297,7 +298,7 @@ def print_segment_properties(H):
             printdone = 1
         else:
             print ''
-            H.Segments[int(printIn)].print_properties()
+            H.segments[int(printIn)].print_properties()
             print ''
         # error check the input
 
@@ -313,7 +314,7 @@ def print_solid_properties(H):
         print "\nPRINT SOLID PROPERTIES"
         print "----------------------"
         counter = 0
-        for seg in H.Segments:
+        for seg in H.segments:
             print " ",counter,":",seg.label
             counter += 1
         printIn = raw_input("Enter the segment index to view the solid" \
@@ -321,7 +322,7 @@ def print_solid_properties(H):
         if printIn == 'q':
             printdone = 1
         else:
-            Seg = H.Segments[int(printIn)]
+            Seg = H.segments[int(printIn)]
             soldone = 0
             while soldone != 1:
                 print "Solids in segment",Seg.label
