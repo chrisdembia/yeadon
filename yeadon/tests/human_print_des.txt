@@ -1,7 +1,7 @@
 Mass (kg): 58.2004885884 
 
 COM in global frame from bottom center of pelvis (Ls0) (m):
-[[  1.90758368e-18]
+[[ -9.53791842e-19]
  [  0.00000000e+00]
  [  1.19967938e-02]] 
 

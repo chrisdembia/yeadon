@@ -229,24 +229,35 @@ class Solid(object):
         self._mass = 0.0
         self._rel_center_of_mass = np.array([[0.0], [0.0], [0.0]])
 
-    def set_orientation(self, pos, rot_mat):
+    def set_orientation(self, proximal_pos, rot_mat, build_toward_positive_z):
         """Sets the position, rotation matrix of the solid, and calculates
         the "absolute" properties (center of mass, and inertia tensor) of the
         solid.
 
         Parameters
         ----------
-        pos : np.array (3,1)
-            Position of the base of the solid in the absolute fixed coordinates
-            of the human.
+        proximal_pos : np.array (3,1)
+            Position of center of proximal end of solid in the absolute fixed
+            coordinates of the human.
         rot_mat : np.matrix (3,3)
             Orientation of solid, with respect to the fixed coordinate system.
+        build_toward_positive_z : bool, optional
+            The order of the solids in the parent segment matters. By default
+            they are stacked on top of each other in the segment's local +z
+            direction. If this is set to False, then they are stacked in the
+            local -z direction. This is done so that, for example, in the default
+            configuration, the arms are directed down.
 
         """
-        self._pos = pos
         self._rot_mat = rot_mat
-        self._end_pos = self.pos + (self.height * self._rot_mat *
-                                  np.array([[0], [0], [1]]))
+        if build_toward_positive_z:
+            self._pos = proximal_pos
+            self._end_pos = self.pos + (self.height * self._rot_mat *
+                                      np.array([[0], [0], [1]]))
+        else:
+            self._end_pos = proximal_pos
+            self._pos = self._end_pos - (self.height * self._rot_mat *
+                    np.array([[0], [0], [1]]))
         self.calc_properties()
 
     def calc_properties(self):

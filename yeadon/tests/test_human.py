@@ -139,7 +139,7 @@ class TestHuman(unittest.TestCase):
         # Symmetric by default.
         self.assertTrue(h.is_symmetric)
         self.assertEqual(h.K1.mass, h.J1.mass)
-        self.assertEqual(h.K2.mass, h.J2.mass)
+        testing.assert_almost_equal(h.K2.mass, h.J2.mass)
         self.assertEqual(h.A1.mass, h.B1.mass)
         self.assertEqual(h.A2.mass, h.B2.mass)
 
@@ -783,6 +783,57 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "'testing' is not a correct variable name.")
 
+    def test_crazy_CFG_regression(self):
+        """Puts the human in a crazy configuration (all angles are non-zero)
+        and compares all 3 inertial properties.
+        
+        This is a regression test, not a physical verification.
+
+        """
+        CFG = {'somersalt': 0.20 * np.pi,
+               'tilt': 0.10 * np.pi,
+               'twist': 0.30 * np.pi,
+               'PTsagittalFlexion': 0.35 * np.pi,
+               'PTfrontalFlexion': -0.18 * np.pi,
+               'TCspinalTorsion': -0.08 * np.pi,
+               'TClateralSpinalFlexion': 0.13 * np.pi,
+               'CA1elevation': -0.42 * np.pi,
+               'CA1abduction': 0.19 * np.pi,
+               'CA1rotation': 0.38 * np.pi,
+               'CB1elevation': -0.13 * np.pi,
+               'CB1abduction': 0.32 * np.pi,
+               'CB1rotation': 0.48 * np.pi,
+               'A1A2flexion': -0.45 * np.pi,
+               'B1B2flexion': -0.31 * np.pi,
+               'PJ1flexion': 0.26 * np.pi,
+               'PJ1abduction': 0.37 * np.pi,
+               'PK1flexion': -0.21 * np.pi,
+               'PK1abduction': 0.29 * np.pi,
+               'J1J2flexion': 0.23 * np.pi,
+               'K1K2flexion': 0.41 * np.pi,
+               }
+        h = hum.Human(self.male1meas, CFG)
+
+        testing.assert_almost_equal(h.mass, 58.2004885884)
+        testing.assert_allclose(h.center_of_mass,
+                [[-0.04602766], [-0.17716871], [-0.05332974]])
+        testing.assert_allclose(h.inertia,
+                np.matrix([[ 2.70251566,  0.34906855, -0.86147568],
+                    [ 0.34906855,  4.55807777, -0.01283679],
+                    [-0.86147568, -0.01283679,  4.13706487]]), atol=1e-6)
+
+    def test_segment_pos(self):
+        """Ensures that Segment.pos and Segment.end_pos return the correct
+        quantities, for arms and legs. Regression test."""
+        h = hum.Human(self.male1meas)
+        testing.assert_almost_equal(h.A1.pos[2, 0], 0.472)
+        testing.assert_almost_equal(h.A1.end_pos[2, 0], 0.2085)
+        testing.assert_almost_equal(h.B1.pos[2, 0], 0.472)
+        testing.assert_almost_equal(h.B1.end_pos[2, 0], 0.2085)
+
+        testing.assert_almost_equal(h.J2.pos[2, 0], -0.424)
+        testing.assert_almost_equal(h.J2.end_pos[2, 0], -1.02)
+
     def test_print_properties(self):
         # TODO : This is not a good test with the high print precision because
         # the values can be different between machines. If you format to just a
@@ -1104,7 +1155,7 @@ class TestHuman(unittest.TestCase):
         c_mass_des = h.A2.mass + h.B2.mass
         self.assertEquals(c_mass, c_mass_des)
         self.assertEquals(c_com[0, 0], 0.0)
-        self.assertEquals(c_com[2, 0], h.B2.center_of_mass[2, 0])
+        testing.assert_almost_equal(c_com[2, 0], h.B2.center_of_mass[2, 0])
         self.assertEquals(c_inertia[0, 0], 2 * h.A2.inertia[0, 0])
         parallel_term = h.A2.mass * h.A2.center_of_mass[0, 0]**2
         Iyy_des = 2.0 * (h.A2.inertia[1, 1] + parallel_term)
@@ -1113,7 +1164,7 @@ class TestHuman(unittest.TestCase):
         self.assertEquals(c_inertia[2, 2], Izz_des)
 
         self.assertEquals(c_inertia[0, 1], 0.0)
-        self.assertEquals(c_inertia[0, 2], 0.0)
+        testing.assert_almost_equal(c_inertia[0, 2], 0.0)
         self.assertEquals(c_inertia[1, 2], 0.0)
 
     def test_inertia_transformed(self):

@@ -1079,8 +1079,8 @@ class Human(object):
                               (1.0, 0.0, 0.0))
 
         # thorax
-        Tpos = self._s[1].end_pos
-        TRotMat = (self._s[1]._rot_mat *
+        Tpos = self.P.end_pos
+        TRotMat = (self.P.rot_mat *
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTfrontalFlexion'],
                                       0.0]))
@@ -1091,8 +1091,8 @@ class Human(object):
                              (1.0, 0.5, 0.0))
 
         # chest-head
-        Cpos = self._s[2].end_pos
-        CRotMat = (self._s[2]._rot_mat *
+        Cpos = self.T.end_pos
+        CRotMat = (self.T.rot_mat *
             inertia.euler_123([self.CFG['TClateralSpinalFlexion'],
                                0.0,
                                self.CFG['TCspinalTorsion']]))
@@ -1105,69 +1105,59 @@ class Human(object):
 
         # arms
 
-        Ls3_Ls4_stadium = self._s[3] # nipple to shoulder
-        shoulder_width = Ls3_Ls4_stadium.stads[1].width
+        Ls3_Ls4_solid = self._s[3] # nipple to shoulder
+        shoulder_width = Ls3_Ls4_solid.stads[1].width
 
         # left upper arm
         local_left_shoulder_point = \
-                np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_stadium.height]])
-        A1RotMat = (Ls3_Ls4_stadium._rot_mat *
+                np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
+        A1RotMat = (self.C.rot_mat *
              inertia.euler_123([self.CFG['CA1elevation'],
                                 self.CFG['CA1abduction'],
                                 self.CFG['CA1rotation']]))
-        a_vector = np.array([[0.0],
-                              [0.0],
-                              [self._a_solids[0].height + self._a_solids[1].height]])
-        A1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * \
-            local_left_shoulder_point - A1RotMat * a_vector
+        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+            local_left_shoulder_point
         self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
-                              [self._a_solids[1], self._a_solids[0]], (0, 1, 0))
+                              [self._a_solids[0], self._a_solids[1]], (0, 1, 0),
+                              build_toward_positive_z=False)
 
         # left forearm-hand
-        A2RotMat = (self._a_solids[1]._rot_mat *
+        A2RotMat = (self.A1.rot_mat *
             inertia.euler_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
-        left_lower_arm_length = 0.0
-        for n in reversed(range(2, 7)):
-            left_lower_arm_length += self._a_solids[n].height
-        A2pos = self._a_solids[1].pos - A2RotMat * \
-                np.array([[0.0], [0.0], [left_lower_arm_length]])
+        A2pos = self.A1.end_pos
         self.A2 = seg.Segment('A2: Left forearm-hand',
                               A2pos,
                               A2RotMat,
-                              [self._a_solids[x] for x in reversed(range(2, 7))],
-                              (1.0, 0.0, 0.0))
+                              [self._a_solids[x] for x in range(2, 7)],
+                              (1.0, 0.0, 0.0),
+                              build_toward_positive_z=False)
 
         # right upper arm
         local_right_shoulder_point = \
-                np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_stadium.height]])
-        B1RotMat = (Ls3_Ls4_stadium._rot_mat *
+                np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
+        B1RotMat = (self.C.rot_mat *
                 inertia.euler_123([self.CFG['CB1elevation'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
-        b_vector = np.array([[0.0],
-                             [0.0],
-                             [self._a_solids[0].height + self._a_solids[1].height]])
-        B1pos = Ls3_Ls4_stadium.pos + Ls3_Ls4_stadium._rot_mat * \
-            local_right_shoulder_point - B1RotMat * b_vector
+        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+            local_right_shoulder_point
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
                                B1RotMat,
-                               [self._b_solids[1], self._b_solids[0]],
-                               (0.0, 1.0, 0.0))
+                               [self._b_solids[0], self._b_solids[1]],
+                               (0.0, 1.0, 0.0),
+                               build_toward_positive_z=False)
 
         # right forearm-hand
-        B2RotMat = (self._b_solids[1]._rot_mat *
+        B2RotMat = (self.B1.rot_mat *
             inertia.euler_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
-        right_lower_arm_length = 0.0
-        for n in reversed(range(2, 7)):
-            right_lower_arm_length += self._b_solids[n].height
-        B2pos = self._b_solids[1].pos - B2RotMat * \
-                np.array([[0.0], [0.0], [right_lower_arm_length]])
+        B2pos = self.B1.end_pos
         self.B2 = seg.Segment('B2: Right forearm-hand',
                               B2pos,
                               B2RotMat,
-                              [self._b_solids[x] for x in reversed(range(2, 7))],
-                              (1.0, 0.0, 0.0))
+                              [self._b_solids[x] for x in range(2, 7)],
+                              (1.0, 0.0, 0.0),
+                              build_toward_positive_z=False)
 
         # legs
         Ls0_Ls1_solid = self._s[0]
@@ -1178,71 +1168,59 @@ class Human(object):
         local_left_hip_point = np.array([[hip_width / 2.0],
                                          [0.0],
                                          [0.0]])
-        J1RotMat = (Ls0_Ls1_solid._rot_mat *
+        J1RotMat = (self.P.rot_mat *
              inertia.euler_123([self.CFG['PJ1flexion'],
                                 self.CFG['PJ1abduction'],
                                 0.0]))
-        # this vector point from the hip to knee in the J frame
-        j_vector = np.array([[0.0],
-                             [0.0],
-                             [-sum([self._j_solids[n].height for n in
-                                 range(3)])]])
-        J1pos = Ls0_Ls1_solid.pos + Ls0_Ls1_solid._rot_mat * \
-            local_left_hip_point + J1RotMat * j_vector
+        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+            local_left_hip_point
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
                               J1RotMat,
-                              [self._j_solids[2], self._j_solids[1], self._j_solids[0]],
-                              (0.0, 1.0, 0.0))
+                              [self._j_solids[0], self._j_solids[1],
+                                  self._j_solids[2]],
+                              (0.0, 1.0, 0.0),
+                              build_toward_positive_z=False)
 
         # left shank-foot
-        J2RotMat = (self._j_solids[2]._rot_mat *
+        J2RotMat = (self.J1.rot_mat *
             inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
-        left_lower_leg_length = sum([self._j_solids[n].height for n in range(3, 9)])
-        J2pos = self._j_solids[2].pos + J2RotMat * \
-                np.array([[0.0], [0.0], [-left_lower_leg_length]])
+        J2pos = self.J1.end_pos
         self.J2 = seg.Segment('J2: Left shank-foot',
                               J2pos,
                               J2RotMat,
-                              [self._j_solids[n] for n in reversed(range(3,
-                                  9))],
-                              (1.0, 0.0, 0.0))
+                              [self._j_solids[n] for n in range(3, 9)],
+                              (1.0, 0.0, 0.0),
+                              build_toward_positive_z=False)
 
         # right thigh
         local_right_hip_point = np.array([[-hip_width / 2.0],
                                           [0.0],
                                           [0.0]])
-        K1RotMat = (self._s[0]._rot_mat *
+        K1RotMat = (self.P.rot_mat *
              inertia.euler_123([self.CFG['PK1flexion'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
-
-        # this vector points from the hip to knee in the K frame
-        k_vector = np.array([[0.0],
-                             [0.0],
-                             [-sum([self._j_solids[n].height for n in
-                                 range(3)])]])
-
-        K1pos = Ls0_Ls1_solid.pos + Ls0_Ls1_solid._rot_mat * \
-            local_right_hip_point + K1RotMat * k_vector
+        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+            local_right_hip_point
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
                               K1RotMat,
-                              [self._k_solids[2], self._k_solids[1], self._k_solids[0]],
-                              (0.0, 1.0, 0.0))
+                              [self._k_solids[0], self._k_solids[1],
+                                  self._k_solids[2]],
+                              (0.0, 1.0, 0.0),
+                              build_toward_positive_z=False)
 
         # right shank-foot
-        K2RotMat = (self._k_solids[2]._rot_mat *
+        K2RotMat = (self.K1.rot_mat *
             inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
-        right_lower_leg_length = sum([self._k_solids[n].height for n in range(3, 9)])
-        K2pos = self._k_solids[2].pos + K2RotMat * \
-                np.array([[0.0], [0.0], [-right_lower_leg_length]])
+        K2pos = self.K1.end_pos
         self.K2 = seg.Segment('K2: Right shank-foot',
                                K2pos,
                                K2RotMat,
-                               [self._k_solids[n] for n in reversed(range(3,
-                                  9))],
-                               (1.0, 0.0, 0.0))
+                               [self._k_solids[n] for n in range(3, 9)],
+                               (1.0, 0.0, 0.0),
+                               build_toward_positive_z=False)
 
     def scale_human_by_mass(self, measmass):
         """Takes a measured mass and scales all densities by that mass so that

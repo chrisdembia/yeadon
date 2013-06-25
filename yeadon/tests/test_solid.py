@@ -276,7 +276,7 @@ def test_solid():
                 [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
                 [s2, -s1 * c2, c1 * c2]])
 
-    sol.set_orientation(position, C)
+    sol.set_orientation(position, C, True)
     testing.assert_allclose(sol.pos, position)
     testing.assert_allclose(sol._rot_mat, C)
     testing.assert_allclose(sol.end_pos, position + (height * C * array([[0],

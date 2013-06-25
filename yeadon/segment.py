@@ -69,7 +69,8 @@ class Segment(object):
         the global frame."""
         return self._rot_mat
 
-    def __init__(self, label, pos, rot_mat, solids, color):
+    def __init__(self, label, pos, rot_mat, solids, color,
+            build_toward_positive_z=True):
         """Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
         calculates the "relative" inertia parameters (mass, center of mass
@@ -94,6 +95,12 @@ class Segment(object):
         color : tuple (3,)
             Color with which to plot this segment in the plotting functions.
             RGB tuple with float values between 0 and 1.
+        build_toward_positive_z : bool, optional
+            The order of the solids matters. By default they are stacked on top
+            of each other in the segment's local +z direction. If this is set to
+            False, then they are stacked in the local -z direction. This is
+            done so that, for example, in the default configuration, the arms
+            are directed down.
 
         """
         self.label = label
@@ -104,10 +111,14 @@ class Segment(object):
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
+        self._build_toward_positive_z = build_toward_positive_z
         # must set the position of constituent solids before being able to
-        # calculate relative/local properties.
+        # calculate relative/local properties, or set end_pos/length.
         self._set_orientations()
-        self._end_pos = self.solids[-1].end_pos
+        if self._build_toward_positive_z:
+            self._end_pos = self.solids[-1].end_pos
+        else:
+            self._end_pos = self.solids[-1].pos
         self.length = np.linalg.norm(self._end_pos - self.pos)
         self.calc_rel_properties()
 
@@ -121,12 +132,17 @@ class Segment(object):
 
         """
         # pos and rot_mat for first solid
-        self.solids[0].set_orientation(self.pos, self.rot_mat)
+        self.solids[0].set_orientation(self.pos, self.rot_mat,
+                self._build_toward_positive_z)
         # pos and rot_mat for remaining solids
         for i in np.arange(self.nSolids):
             if i != 0:
-                pos = self.solids[i-1].end_pos
-                self.solids[i].set_orientation(pos, self.rot_mat)
+                if self._build_toward_positive_z:
+                    pos = self.solids[i-1].end_pos
+                else:
+                    pos = self.solids[i-1].pos
+                self.solids[i].set_orientation(pos, self.rot_mat,
+                        self._build_toward_positive_z)
 
     def calc_rel_properties(self):
         """Calculates the mass, relative/local center of mass, and
@@ -142,20 +158,33 @@ class Segment(object):
         # relative position of each solid w.r.t. segment orientation and
         # segment's origin
         solidpos = []
-        solidpos.append(np.zeros((3, 1)))
-        for i in np.arange(self.nSolids):
-            if i != 0:
-                solidpos.append( solidpos[i-1] +
-                                      self.solids[i-1].height *
-                                      np.array([[0, 0, 1]]).T)
         # center of mass of each solid w.r.t. segment orientation and
         # segment's origin
         solidCOM = []
-        solidCOM.append(self.solids[0].rel_center_of_mass)
-        for i in np.arange(self.nSolids):
-            if i != 0:
-                solidCOM.append( solidpos[i] +
-                                      self.solids[i].rel_center_of_mass)
+        z_unit_vector = np.array([[0, 0, 1]]).T
+        if self._build_toward_positive_z:
+            solidpos.append(np.zeros((3, 1)))
+            for i in np.arange(self.nSolids):
+                if i != 0:
+                    solidpos.append( solidpos[i-1] +
+                                          self.solids[i-1].height *
+                                          z_unit_vector)
+            solidCOM.append(self.solids[0].rel_center_of_mass)
+            for i in np.arange(self.nSolids):
+                if i != 0:
+                    solidCOM.append( solidpos[i] +
+                                          self.solids[i].rel_center_of_mass)
+        else: # not self._build_toward_positive_z
+            # solidpos
+            last_pos = np.zeros((3, 1))
+            for solid in self.solids:
+                solidpos.append(last_pos - solid.height * z_unit_vector)
+                last_pos = solidpos[-1]
+            # solidCOM
+            for i in np.arange(self.nSolids):
+                solidCOM.append(solidpos[i] +
+                        self.solids[i].rel_center_of_mass)
+        # TODO above code could be substantially cleaned up.
         # relative center of mass
         relmoment = np.zeros((3, 1))
         for i in np.arange(self.nSolids):
