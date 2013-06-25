@@ -561,11 +561,7 @@ class Human(object):
         The mouse can be used to control or explore the 3D view.
 
         """
-        try:
-            mlabobj = mlab
-        except NameError:
-            raise('MayaVi is not installed, this method is not available.')
-        else:
+        def make_drawing(mlabobj):
             for s in self.segments:
                 s.draw_mayavi(mlabobj)
             L = 0.4
@@ -581,6 +577,16 @@ class Human(object):
             #mlabobj.contour3d(x_plate, y_plate, z_plate + L, color=(0, 0, 1))
             #mlabobj.contour3d(x_plate, z_plate + L, y_plate, color=(0, 1, 0))
             #mlabobj.contour3d(z_plate + L, x_plate, y_plate, color=(1, 0, 0))
+
+        if mlabobj is None:
+            try:
+                mlabobj = mlab
+            except NameError:
+                raise('MayaVi is not installed, this method is not available.')
+            else:
+                make_drawing(mlabobj)
+        else:
+            make_drawing(mlabobj)
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""
