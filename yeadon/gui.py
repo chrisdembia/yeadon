@@ -180,7 +180,7 @@ class YeadonGUI(HasTraits):
         self._init_draw_human()
 
     def _init_draw_human(self):
-        self.H.draw(self.scene.mlab)
+        self.H.draw(self.scene.mlab, True)
         if self.show_inertia_ellipsoid:
             self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
 

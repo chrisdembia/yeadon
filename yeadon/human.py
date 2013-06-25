@@ -556,7 +556,7 @@ class Human(object):
         labels = [s.label[0:len(name)] for s in self.segments]
         return self.segments[labels.index(name)]
 
-    def draw(self, mlabobj=None):
+    def draw(self, mlabobj=None, gui=False):
         """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
@@ -587,7 +587,9 @@ class Human(object):
                 make_drawing(mlabobj)
         else:
             make_drawing(mlabobj)
-        mlabobj.show()
+
+        if gui == False:
+            mlabobj.show()
 
     def _update_mayavi(self):
         """Updates all of the segments for MayaVi."""
