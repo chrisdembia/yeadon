@@ -5,7 +5,7 @@ setup(
     version='1.0.0',
     author='Chris Dembia',
     author_email='chris530d@gmail.com',
-    url="https://github.com/fitze/yeadon/",
+    url="https://github.com/chrisdembia/yeadon/",
     description='Estimates the inertial properties of a human.',
     long_description=open('README.rst').read(),
     keywords="human inertia yeadon sports biomechanics gymnastics",

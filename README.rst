@@ -205,5 +205,5 @@ Contact
 Feel free to contact Chris Dembia (chris530d, gmail) with any questions or
 comments.
 
-All development is handled at `<http://github.com/fitze/yeadon>`_, including
+All development is handled at `<http://github.com/chrisdembia/yeadon>`_, including
 issue tracking.
