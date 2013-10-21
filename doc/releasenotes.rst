@@ -3,7 +3,7 @@ Release Notes
 
 Future releases
 ---------------
-See issues on github at `<https://github.com/fitze/yeadon/issues>`_
+See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_
 
 v1.0
 ----
