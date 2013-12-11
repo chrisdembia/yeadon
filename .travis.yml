@@ -2,5 +2,10 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install PyYaml
-script: nosetests
+  - pip install PyYaml sphinx numpydoc
+script:
+  - nosetests
+  - cd doc
+  - make html
+  - cd ..
+  - python setup.py install
