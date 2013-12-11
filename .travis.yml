@@ -5,7 +5,5 @@ install:
   - pip install PyYaml sphinx numpydoc
 script:
   - nosetests
-  - cd doc
-  - make html
-  - cd ..
+  - cd doc && make html && cd ..
   - python setup.py install
