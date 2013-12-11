@@ -32,12 +32,11 @@ Dependencies
 
 `yeadon` depends on the following widely-used packages:
 
-- setuptools_ or distribute_ for installation; distribute is preferred
+- setuptools_ for installation
 - NumPy_ for computations
 - PyYAML_ for parsing input files
 
 .. _setuptools: http://pythonhosted.org/setuptools
-.. _distribute: http://pytonhosted.org/distribute
 .. _NumPy: http://numpy.scipy.org
 .. _PyYAML: http://pyyaml.org
 
@@ -74,7 +73,7 @@ be able to obtain all of these packages by opening a terminal window and
 typing::
 
    $ # prepend sudo to each line below if you desire a system install
-   $ apt-get install python-distribute python-numpy python-yaml # required
+   $ apt-get install python-setuptools python-numpy python-yaml # required
    $ apt-get install python-nose python-sphinx mayavi2 # optional packages
    $ easy_install numpydoc # this package is not in the Debian repositories
 
@@ -89,7 +88,7 @@ build the dependencies from source and then install them by using a tool like
 `pip`::
 
     $ easy_install pip
-    $ pip install distribute numpy PyYAML
+    $ pip install numpy PyYAML
     $ pip install nose sphinx mayavi
     $ pip install numpydoc
 
