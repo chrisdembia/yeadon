@@ -70,7 +70,7 @@ def start_ui():
     else:
         file_exist_CFG = os.path.exists(CFG)
         while not file_exist_CFG:
-            CFG = raw_input("Please type the correct name of the .TXT filename " 
+            CFG = raw_input("Please type the correct name of the .TXT filename "
                             "(for all joint angles as zero, just hit enter): ")
             file_exist_CFG = os.path.exists(CFG)
 
@@ -342,7 +342,7 @@ def print_solid_properties(H):
 # other sets of joint angles
 
 # this one was for fun; looks like a skydiver
-CFGskydiver = {      'somersalt' : 0.0,
+CFGskydiver = {      'somersault' : 0.0,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : 0.0,
@@ -365,7 +365,7 @@ CFGskydiver = {      'somersalt' : 0.0,
            'K1K2flexion' : np.pi/2}
 
 # almost in a bike-riding position
-CFGbiker = {      'somersalt' : np.pi/2 * 0.2,
+CFGbiker = {      'somersault' : np.pi/2 * 0.2,
                   'tilt' : 0.0,
                   'twist' : 0.0,
      'PTsagittalFlexion' : np.pi/2 * 0.1,

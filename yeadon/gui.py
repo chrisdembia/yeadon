@@ -58,7 +58,7 @@ class YeadonGUI(HasTraits):
         show_label=False))
 
     config_first_group = Group(
-            Item('somersalt'),
+            Item('somersault'),
             Item('tilt'),
             Item('twist'),
             Item('PTsagittalFlexion', label='PT sagittal flexion'),
@@ -247,9 +247,9 @@ class YeadonGUI(HasTraits):
         for cfg in sliders:
             setattr(self, cfg, self.trait(cfg).default_value()[1])
 
-    @on_trait_change('somersalt')
-    def _update_somersalt(self):
-        self.H.set_CFG('somersalt', deg2rad(self.somersalt))
+    @on_trait_change('somersault')
+    def _update_somersault(self):
+        self.H.set_CFG('somersault', deg2rad(self.somersault))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
         self._maybe_update_inertia_ellipsoid()

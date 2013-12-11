@@ -16,6 +16,6 @@ PTfrontalFlexion: 0.0
 PTsagittalFlexion: 0.0
 TClateralSpinalFlexion: 0.0
 TCspinalTorsion: 0.0
-somersalt: 0.0
+somersault: 0.0
 tilt: 0.0
 twist: 1.5707963267948966

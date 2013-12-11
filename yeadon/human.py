@@ -37,7 +37,7 @@ class Human(object):
                  'Lk1p', 'Lk2p', 'Lk3p', 'Lk4p', 'Lk5p', 'Lk6p', 'Lk7p',
                  'Lk8p', 'Lk9p', 'Lk8w', 'Lk9w', 'Lk6d')
 
-    CFGnames = ('somersalt',
+    CFGnames = ('somersault',
                 'tilt',
                 'twist',
                 'PTsagittalFlexion',
@@ -454,7 +454,7 @@ class Human(object):
         Notes
         -----
         If N is the global frame, B is the frame in which the user desires the
-        inertia tensor, then `rotmat` = ^{N}R^{B}. 
+        inertia tensor, then `rotmat` = ^{N}R^{B}.
         """
         # Shifting the inertia must happen first, because the position the user
         # provides is in the global frame.
@@ -1078,7 +1078,7 @@ class Human(object):
         # pelvis
         Ppos = self._coord_sys_pos
         PRotMat = (self._coord_sys_orient *
-            inertia.euler_123([self.CFG['somersalt'],
+            inertia.euler_123([self.CFG['somersault'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
         self.P = seg.Segment('P: Pelvis',
