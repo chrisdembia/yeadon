@@ -33,6 +33,11 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
 'sphinx.ext.pngmath', 'sphinx.ext.viewcode', 'numpydoc']
 #mathjax_path='http://mathjax.connectmv.com/MathJax.js'
 # Add any paths that contain templates here, relative to this directory.
+
+# To suppress autodoc warnings. See issue 68.
+# http://stackoverflow.com/questions/12206334/sphinx-autosummary-toctree-contains-reference-to-nonexisting-document-warnings
+numpydoc_show_class_members = False
+
 templates_path = ['_templates']
 
 # The suffix of source filenames.
