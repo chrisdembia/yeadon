@@ -21,6 +21,14 @@ import inertia
 import solid as sol
 import segment as seg
 
+class YeadonDeprecationWarning(DeprecationWarning):
+    """Simple wrapper so that we can exclusively display our deprecated
+    warnings."""
+    pass
+
+# Display our warnings to the user.
+warnings.simplefilter('always', YeadonDeprecationWarning)
+
 class Human(object):
     measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
                  'Ls8L', 'Ls0p', 'Ls1p', 'Ls2p', 'Ls3p', 'Ls5p', 'Ls6p',
@@ -296,7 +304,7 @@ class Human(object):
         if varname == 'somersalt':
             msg = ("'somersalt' should be spelled 'somersault'." +
                    " This will raise an error in future versions.")
-            warnings.warn(msg, DeprecationWarning)
+            warnings.warn(msg, YeadonDeprecationWarning)
             varname = 'somersault'
         elif varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
@@ -320,7 +328,7 @@ class Human(object):
         if 'somersalt' in CFG:
             msg = ("'somersalt' should be spelled 'somersault'." +
                    " This will raise an error in future versions.")
-            warnings.warn(msg, DeprecationWarning)
+            warnings.warn(msg, YeadonDeprecationWarning)
             value = CFG.pop('somersalt')
             CFG['somersault'] = value
 
@@ -1418,7 +1426,7 @@ class Human(object):
                     key = 'somersault'
                     msg = ("'somersalt' should be spelled 'somersault'." +
                         " This will raise an error in future versions.")
-                    warnings.warn(msg, DeprecationWarning)
+                    warnings.warn(msg, YeadonDeprecationWarning)
                 elif key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise StandardError(mes)
