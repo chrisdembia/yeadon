@@ -22,8 +22,8 @@ import solid as sol
 import segment as seg
 
 class YeadonDeprecationWarning(DeprecationWarning):
-    """Simple wrapper so that we can exclusively display our deprecated
-    warnings."""
+    """Simple wrapper so that our deprecation warnings are shown to the
+    user. By default, DeprecationWarning's are not printed."""
     pass
 
 # Display our warnings to the user.
