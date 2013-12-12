@@ -7,6 +7,7 @@ calculates their properties, and manages file input/output.
 # Use Python3 integer division rules.
 from __future__ import division
 import copy
+import warnings
 
 import numpy as np
 import yaml
@@ -19,6 +20,14 @@ except Exception as e:
 import inertia
 import solid as sol
 import segment as seg
+
+class YeadonDeprecationWarning(DeprecationWarning):
+    """Simple wrapper so that our deprecation warnings are shown to the
+    user. By default, DeprecationWarning's are not printed."""
+    pass
+
+# Display our warnings to the user.
+warnings.simplefilter('always', YeadonDeprecationWarning)
 
 class Human(object):
     measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
@@ -37,7 +46,7 @@ class Human(object):
                  'Lk1p', 'Lk2p', 'Lk3p', 'Lk4p', 'Lk5p', 'Lk6p', 'Lk7p',
                  'Lk8p', 'Lk9p', 'Lk8w', 'Lk9w', 'Lk6d')
 
-    CFGnames = ('somersalt',
+    CFGnames = ('somersault',
                 'tilt',
                 'twist',
                 'PTsagittalFlexion',
@@ -292,7 +301,12 @@ class Human(object):
             limits.
 
         """
-        if varname not in self.CFGnames:
+        if varname == 'somersalt':
+            msg = ("'somersalt' should be spelled 'somersault'." +
+                   " This will raise an error in future versions.")
+            warnings.warn(msg, YeadonDeprecationWarning)
+            varname = 'somersault'
+        elif varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
                     "variable.".format(varname))
         self.CFG[varname] = value
@@ -311,6 +325,13 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
+        if 'somersalt' in CFG:
+            msg = ("'somersalt' should be spelled 'somersault'." +
+                   " This will raise an error in future versions.")
+            warnings.warn(msg, YeadonDeprecationWarning)
+            value = CFG.pop('somersalt')
+            CFG['somersault'] = value
+
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -454,7 +475,7 @@ class Human(object):
         Notes
         -----
         If N is the global frame, B is the frame in which the user desires the
-        inertia tensor, then `rotmat` = ^{N}R^{B}. 
+        inertia tensor, then `rotmat` = ^{N}R^{B}.
         """
         # Shifting the inertia must happen first, because the position the user
         # provides is in the global frame.
@@ -1078,7 +1099,7 @@ class Human(object):
         # pelvis
         Ppos = self._coord_sys_pos
         PRotMat = (self._coord_sys_orient *
-            inertia.euler_123([self.CFG['somersalt'],
+            inertia.euler_123([self.CFG['somersault'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
         self.P = seg.Segment('P: Pelvis',
@@ -1401,7 +1422,12 @@ class Human(object):
         with open(CFGfname, 'r') as fid:
             mydict = yaml.load(fid.read())
             for key, val in mydict.items():
-                if key not in self.CFGnames:
+                if key == 'somersalt':
+                    key = 'somersault'
+                    msg = ("'somersalt' should be spelled 'somersault'." +
+                        " This will raise an error in future versions.")
+                    warnings.warn(msg, YeadonDeprecationWarning)
+                elif key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise StandardError(mes)
                 if val == None:

@@ -81,7 +81,7 @@ class TestHuman(unittest.TestCase):
 
         # configuration.
         assert len(h.CFG) == 21
-        CFGnames = ('somersalt',
+        CFGnames = ('somersault',
                     'tilt',
                     'twist',
                     'PTsagittalFlexion',
@@ -574,7 +574,7 @@ class TestHuman(unittest.TestCase):
         """Providing a dict for CFG, input errors, and out of bounds errors."""
 
         # Normal behavior.
-        CFG = {'somersalt': 0.0,
+        CFG = {'somersault': 0.0,
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
@@ -600,7 +600,7 @@ class TestHuman(unittest.TestCase):
         self.assertEqual(h.CFG, CFG)
 
         # Missing a value.
-        CFG = {'somersalt': 0.0,
+        CFG = {'somersault': 0.0,
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
@@ -629,7 +629,7 @@ class TestHuman(unittest.TestCase):
                     "Number of CFG variables, 20, is incorrect.")
 
         # Invalid key.
-        CFG = {'somersalt': 0.0,
+        CFG = {'somersault': 0.0,
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
@@ -662,7 +662,7 @@ class TestHuman(unittest.TestCase):
         """Ensures that out-of-range values elicit a print, but no exception."""
 
         # Two values out of range.
-        CFG = {'somersalt': 0.0,
+        CFG = {'somersault': 0.0,
                'tilt': 0.0,
                'twist': 3.0 * np.pi,
                'PTsagittalFlexion': 0.0,
@@ -715,7 +715,7 @@ class TestHuman(unittest.TestCase):
         h = hum.Human(self.male1meas)
         # Inertia, etc, is affected correctly.
         h2 = hum.Human(self.male1meas)
-        h2.set_CFG('somersalt', np.pi / 2)
+        h2.set_CFG('somersault', np.pi / 2)
         # Relative inertia unchanged.
         testing.assert_allclose(h2.P.rel_inertia, h.P.rel_inertia)
         # Absolute inertia is changed.
@@ -723,7 +723,7 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h2.inertia[1, 1], h.inertia[2, 2])
         testing.assert_almost_equal(h2.inertia[2, 2], h.inertia[1, 1])
 
-        h2.set_CFG('somersalt', 0)
+        h2.set_CFG('somersault', 0)
         h2.set_CFG('CA1elevation', np.pi / 2)
         testing.assert_almost_equal(h2.A1.rel_inertia, h.A1.rel_inertia)
         testing.assert_almost_equal(h2.A2.rel_inertia, h.A2.rel_inertia)
@@ -757,6 +757,17 @@ class TestHuman(unittest.TestCase):
                 whole_inertia_before - a1inertia_before - a2inertia_before,
                 atol=1e-15)
 
+        # In yeadon 1.0.2 we realized that somersault was mispelled as
+        # somersalt, but we still want to accept incorrect spellings for
+        # backward incompatibility. It should issue a depreciation warning
+        # if you use the incorrect spelling but the code should run anyways.
+
+        h = hum.Human(self.male1meas)
+        h.set_CFG('somersalt', np.pi / 2)
+        assert 'somersalt' not in h.CFG.keys()
+        testing.assert_allclose(h.CFG['somersault'], np.pi / 2)
+
+
     def test_set_CFG_dict(self):
         """Checks input errors and that the assignment occurs."""
 
@@ -783,14 +794,28 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "'testing' is not a correct variable name.")
 
+        # In yeadon 1.0.2 we realized that somersault was mispelled as
+        # somersalt, but we still want to accept incorrect spellings for
+        # backward incompatibility. It should issue a depreciation warning
+        # if you use the incorrect spelling but the code should run anyways.
+
+        h = hum.Human(self.male1meas)
+        CFG = copy.copy(h.CFG)
+        CFG.pop('somersault')
+        CFG['somersalt'] = 1.0
+        h.set_CFG_dict(CFG)
+        assert 'somersalt' not in h.CFG.keys()
+        assert 'somersault' in h.CFG.keys()
+        testing.assert_allclose(h.CFG['somersault'], 1.0)
+
     def test_crazy_CFG_regression(self):
         """Puts the human in a crazy configuration (all angles are non-zero)
         and compares all 3 inertial properties.
-        
+
         This is a regression test, not a physical verification.
 
         """
-        CFG = {'somersalt': 0.20 * np.pi,
+        CFG = {'somersault': 0.20 * np.pi,
                'tilt': 0.10 * np.pi,
                'twist': 0.30 * np.pi,
                'PTsagittalFlexion': 0.35 * np.pi,
@@ -1015,10 +1040,17 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "Variable PTsagittalFlexion has no value.")
 
+        # Mispelled somersault.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                               'CFG_somersalt.txt')
+        h = hum.Human(self.male1meas, cfgPath)
+        assert 'somersalt' not in h.CFG.keys()
+        assert 'somersault' in h.CFG.keys()
+
     def test_write_CFG(self):
         """Writes a valid YAML file that can be read back in."""
 
-        CFG = {'somersalt': 0.0,
+        CFG = {'somersault': 0.0,
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
@@ -1173,7 +1205,7 @@ class TestHuman(unittest.TestCase):
 
         """
         h = hum.Human(self.male1meas)
-        h.set_CFG('somersalt', np.pi * 0.25)
+        h.set_CFG('somersault', np.pi * 0.25)
         inertia_pre = h.inertia
         m = h.mass
 
@@ -1282,17 +1314,17 @@ class TestHuman(unittest.TestCase):
 
     def test_lower_torso_rotations(self):
         """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
-        lower torso, this is somersalt-tilt-twist relative to the inertial
+        lower torso, this is somersault-tilt-twist relative to the inertial
         reference frame."""
 
         h = hum.Human(self.male1meas)
 
         # specify some arbitrary angles
-        somersalt = pi / 5.0
+        somersault = pi / 5.0
         tilt = pi / 10.0
         twist = pi / 14.0
 
-        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('somersault', somersault)
         h.set_CFG('tilt', tilt)
         h.set_CFG('twist', twist)
 
@@ -1304,7 +1336,7 @@ class TestHuman(unittest.TestCase):
         # v_f = R * v_i (a vector in I can be expressed in F by premultiplying
         # by the rotation matrix R)
 
-        R = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+        R = inertia.euler_rotation((somersault, tilt, twist), (1, 2, 3))
 
         # Chris's original code computes the inverse of the rotation matrix
         # that I compute with euler_rotation.
@@ -1325,7 +1357,7 @@ class TestHuman(unittest.TestCase):
         # which is the inverse of the definition in the euler_rotation
         # function (i.e. the same as Chris's definition)
 
-        phi = somersalt
+        phi = somersault
         theta = tilt
         psi = twist
 
@@ -1378,15 +1410,15 @@ class TestHuman(unittest.TestCase):
         testing.assert_allclose(h.J2.rot_mat, (R2 * RJ).T)
         testing.assert_allclose(h.K2.rot_mat, RK.T * R2.T)
 
-        somersalt = pi / 5.0
+        somersault = pi / 5.0
         tilt = pi / 10.0
         twist = pi / 14.0
 
-        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('somersault', somersault)
         h.set_CFG('tilt', tilt)
         h.set_CFG('twist', twist)
 
-        R3 = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+        R3 = inertia.euler_rotation((somersault, tilt, twist), (1, 2, 3))
 
         # v_p = R3 * v_i
         # v_j1 = R * v_p
@@ -1484,15 +1516,15 @@ class TestHuman(unittest.TestCase):
 
         # rotate the pelvis (P) relative to the inertial frame (I)
 
-        somersalt = angle()
+        somersault = angle()
         tilt = angle()
         twist = angle()
 
-        h.set_CFG('somersalt', somersalt)
+        h.set_CFG('somersault', somersault)
         h.set_CFG('tilt', tilt)
         h.set_CFG('twist', twist)
 
-        P_R_I = inertia.euler_rotation((somersalt, tilt, twist), (1, 2, 3))
+        P_R_I = inertia.euler_rotation((somersault, tilt, twist), (1, 2, 3))
 
         testing.assert_allclose(h.P.rot_mat, P_R_I.T)
 
