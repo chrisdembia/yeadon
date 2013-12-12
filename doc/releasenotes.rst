@@ -5,6 +5,11 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_
 
+v1.0.3
+------
+
+- Fixed somersault mispelling, issue #67.
+
 v1.0
 ----
  - Fairly thorough unit tests.
