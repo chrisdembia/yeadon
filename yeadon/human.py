@@ -454,7 +454,7 @@ class Human(object):
         Notes
         -----
         If N is the global frame, B is the frame in which the user desires the
-        inertia tensor, then `rotmat` = ^{N}R^{B}. 
+        inertia tensor, then `rotmat` = ^{N}R^{B}.
         """
         # Shifting the inertia must happen first, because the position the user
         # provides is in the global frame.
@@ -477,13 +477,18 @@ class Human(object):
         specified. This method does not assign anything to any object
         attributes (it is 'const'), it simply returns the desired quantities.
 
+        See documentation for description of the global frame.
+
         Parameters
         ----------
         objlist : tuple
-            Tuple of strings that identifies solids and/or segments. Options
-            for inputs are:
-                s0 - s7, a0 - a6, b0 - b6, j0 - j8, k0 - k8
-                P, T, C, A1, A2, B1, B2, J1, J2, K1, K2
+            Tuple of strings that identify a solid or segment. The
+            strings can be any of the following:
+
+            * solids: 's0' through 's7', 'a0' through 'a6', 'b0' through 'b6',
+              'j0' through 'j8', 'k0' through 'k8'
+            * segments: 'P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
+              'K1', 'K2'
 
         Returns
         -------
@@ -494,8 +499,6 @@ class Human(object):
             expressed in the global frame .
         combined_inertia : np.matrix (3,3)
             Inertia tensor about the combined_COM, expressed in the global frame.
-
-        See documentation for description of the global frame.
 
         """
         if objlist == []:
