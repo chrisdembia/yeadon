@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
 
+from yeadon import __version__
+
 setup(
     name='yeadon',
-    version='1.0.2',
+    version=__version__,
     author='Chris Dembia',
     author_email='chris530d@gmail.com',
     url="https://github.com/chrisdembia/yeadon/",
