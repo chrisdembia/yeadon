@@ -757,6 +757,17 @@ class TestHuman(unittest.TestCase):
                 whole_inertia_before - a1inertia_before - a2inertia_before,
                 atol=1e-15)
 
+        # In yeadon 1.0.2 we realized that somersault was mispelled as
+        # somersalt, but we still want to accept incorrect spellings for
+        # backward incompatibility. It should issue a depreciation warning
+        # if you use the incorrect spelling but the code should run anyways.
+
+        h = hum.Human(self.male1meas)
+        h.set_CFG('somersalt', np.pi / 2)
+        assert 'somersalt' not in h.CFG.keys()
+        testing.assert_allclose(h.CFG['somersault'], np.pi / 2)
+
+
     def test_set_CFG_dict(self):
         """Checks input errors and that the assignment occurs."""
 
@@ -782,6 +793,20 @@ class TestHuman(unittest.TestCase):
         except Exception as e:
             self.assertEqual(e.message,
                     "'testing' is not a correct variable name.")
+
+        # In yeadon 1.0.2 we realized that somersault was mispelled as
+        # somersalt, but we still want to accept incorrect spellings for
+        # backward incompatibility. It should issue a depreciation warning
+        # if you use the incorrect spelling but the code should run anyways.
+
+        h = hum.Human(self.male1meas)
+        CFG = copy.copy(h.CFG)
+        CFG.pop('somersault')
+        CFG['somersalt'] = 1.0
+        h.set_CFG_dict(CFG)
+        assert 'somersalt' not in h.CFG.keys()
+        assert 'somersault' in h.CFG.keys()
+        testing.assert_allclose(h.CFG['somersault'], 1.0)
 
     def test_crazy_CFG_regression(self):
         """Puts the human in a crazy configuration (all angles are non-zero)
@@ -1014,6 +1039,13 @@ class TestHuman(unittest.TestCase):
         except StandardError as e:
             self.assertEqual(e.message,
                     "Variable PTsagittalFlexion has no value.")
+
+        # Mispelled somersault.
+        cfgPath = os.path.join(os.path.split(__file__)[0],
+                               'CFG_somersalt.txt')
+        h = hum.Human(self.male1meas, cfgPath)
+        assert 'somersalt' not in h.CFG.keys()
+        assert 'somersault' in h.CFG.keys()
 
     def test_write_CFG(self):
         """Writes a valid YAML file that can be read back in."""

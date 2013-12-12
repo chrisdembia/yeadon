@@ -7,6 +7,7 @@ calculates their properties, and manages file input/output.
 # Use Python3 integer division rules.
 from __future__ import division
 import copy
+import warnings
 
 import numpy as np
 import yaml
@@ -292,7 +293,12 @@ class Human(object):
             limits.
 
         """
-        if varname not in self.CFGnames:
+        if varname == 'somersalt':
+            msg = ("'somersalt' should be spelled 'somersault'." +
+                   " This will raise an error in future versions.")
+            warnings.warn(msg, DeprecationWarning)
+            varname = 'somersault'
+        elif varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
                     "variable.".format(varname))
         self.CFG[varname] = value
@@ -311,6 +317,13 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
+        if 'somersalt' in CFG:
+            msg = ("'somersalt' should be spelled 'somersault'." +
+                   " This will raise an error in future versions.")
+            warnings.warn(msg, DeprecationWarning)
+            value = CFG.pop('somersalt')
+            CFG['somersault'] = value
+
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -1401,7 +1414,12 @@ class Human(object):
         with open(CFGfname, 'r') as fid:
             mydict = yaml.load(fid.read())
             for key, val in mydict.items():
-                if key not in self.CFGnames:
+                if key == 'somersalt':
+                    key = 'somersault'
+                    msg = ("'somersalt' should be spelled 'somersault'." +
+                        " This will raise an error in future versions.")
+                    warnings.warn(msg, DeprecationWarning)
+                elif key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise StandardError(mes)
                 if val == None:
