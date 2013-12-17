@@ -25,7 +25,7 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.62102857"
+     inkscape:zoom="1.7565341"
      inkscape:cx="265.10713"
      inkscape:cy="393.81015"
      inkscape:document-units="px"
@@ -955,7 +955,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2010,7 +2010,7 @@
          id="tspan4140-7-6-5-5-1-5-3-3-7-0-2"
          x="336.05206"
          y="492.03845"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans">PTsaggitalFlexion</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:FreeSans;-inkscape-font-specification:FreeSans">PTsagittalFlexion</tspan></text>
     <path
        inkscape:connector-curvature="0"
        id="path8770"
