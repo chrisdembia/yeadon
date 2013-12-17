@@ -59,7 +59,7 @@ Option 1: Scientific python distributions
 `````````````````````````````````````````
 
 Most `scientific python distributions
-<http://numfocus.org/projects-2/software-distributions/>`_ provide all of these
+<https://wiki.python.org/moin/PythonDistributions>`_ provide all of these
 dependencies and it is often easiest to install one of them to get started. Once
 you have a distribution, you simply need to install the yeadon package. This is
 the best solution for Windows users.
