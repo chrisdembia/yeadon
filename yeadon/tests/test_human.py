@@ -687,7 +687,7 @@ class TestHuman(unittest.TestCase):
         desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
                 "Must be between -1.0 and 1.0 pi-rad.\n"
                 "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
-                "Must be between -0.5 and 0.5 pi-rad.\n")
+                "Must be between -0.5 and 1.0 pi-rad.\n")
 
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()

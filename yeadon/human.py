@@ -83,9 +83,9 @@ class Human(object):
                  [-np.pi, np.pi],                   # CB1rotation
                  [-np.pi, 0.0],                     # A1A2flexion
                  [-np.pi, 0.0],                     # B1B2flexion
-                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1flexion
+                 [-np.pi / 2.0, np.pi],             # PJ1flexion
                  [-np.pi / 2.0, np.pi / 2.0],       # PJ1abduction
-                 [-np.pi / 2.0, np.pi / 2.0],       # PK1flexion
+                 [-np.pi / 2.0, np.pi],             # PK1flexion
                  [-np.pi / 2.0, np.pi / 2.0],       # PK1abduction
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
