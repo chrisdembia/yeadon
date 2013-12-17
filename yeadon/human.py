@@ -584,6 +584,14 @@ class Human(object):
         """Draws the human in 3D in a new window using MayaVi.
         The mouse can be used to control or explore the 3D view.
 
+        Parameters
+        ----------
+        mlabobj : mayavi.mlab, optional, default=None
+            A mayavi mlab object. If None a new one will be created.
+        gui: boolean, optional, default=False
+            If false the mlab.show() command will be called and the scene
+            will be displayed to the screen.
+
         """
         def make_drawing(mlabobj):
             for s in self.segments:
