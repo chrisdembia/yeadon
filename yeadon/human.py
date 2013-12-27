@@ -516,10 +516,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         Parameters
         ----------
         pos : array_like, (3,), (1, 3), or (3, 1), optional
-            Position from the origin of the global frame to the point about
-            which the user desires the inertia tensor expressed in the
-            global frame. If not provided, the tensor is given about the
-            center of mass of the human.
+            Position vector from the origin (center of Ls0) to the point
+            about which the user desires the inertia tensor. This position
+            vector must be expressed in the global reference frame. If not
+            provided, the tensor is given about the center of mass of the
+            human.
         rotmat : np.matrix (3,3), optional
             If not provided, the returned tensor is expressed in the global
             frame, else the returned tensor is expressed in the rotated
