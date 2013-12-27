@@ -2,6 +2,7 @@
 from cStringIO import StringIO
 import sys
 import os
+import warnings
 
 import unittest
 import numpy as np
@@ -10,6 +11,9 @@ from numpy import testing, pi
 import yeadon.solid as sol
 import yeadon.segment as seg
 from yeadon import inertia
+
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 
 class TestSegments(unittest.TestCase):
     """Tests the :py:class:`Segment` class."""
@@ -88,10 +92,10 @@ class TestSegments(unittest.TestCase):
 
         # Helper definitions
         relCOM_AB = self.solidAB.rel_center_of_mass
-        relCOM_BC = (np.array([[0, 0, self.solidAB.height]]).T + 
+        relCOM_BC = (np.array([[0, 0, self.solidAB.height]]).T +
                 self.solidBC.rel_center_of_mass)
         relCOM_CD = (
-                np.array([[0, 0, self.solidAB.height+self.solidBC.height]]).T + 
+                np.array([[0, 0, self.solidAB.height+self.solidBC.height]]).T +
                 self.solidCD.rel_center_of_mass)
 
         # Inertia for each direction.

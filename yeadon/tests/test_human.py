@@ -3,6 +3,7 @@ from cStringIO import StringIO
 import copy
 import sys
 import os
+import warnings
 
 import unittest
 import nose
@@ -11,6 +12,8 @@ from numpy import testing, pi
 
 import yeadon.inertia as inertia
 import yeadon.human as hum
+
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""

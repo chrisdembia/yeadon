@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
+import warnings
+
 from numpy import testing, pi, sin, cos, zeros, mat
 from numpy.random import random
+
 from yeadon import inertia
+
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 
 def test_euler_rotation(display=False):
     # body-three 1-2-3

@@ -12,6 +12,9 @@ from numpy import testing, pi, array, matrix, sin, cos, zeros, array
 
 from yeadon.solid import Stadium, Solid, StadiumSolid
 
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+
 class StadiumSolidCheck(unittest.TestCase):
     """To check the formulae in yeadon.solid against those in the Yeadon1990-ii
     paper.
@@ -175,7 +178,7 @@ class TestStadium(unittest.TestCase):
     def test_invalid_stadium(self):
         """Tests that if a stadium is defined in such a way that it is invalid
         (negative radius or negative thickness), the correct action is taken.
-        
+
         """
         # TODO Redirecting stdout is not working.
         actual_stdout = sys.stdout
@@ -481,7 +484,7 @@ def test_stadiumsolidcheck_against_truncated_cone():
     solid_des2 = StadiumSolidCheck(density, thick0, rad0, thick1, rad1, height)
 
     testing.assert_almost_equal(solid_des2.mass(),
-            truncated_cone_mass(density, rad0, rad1, height) + 
+            truncated_cone_mass(density, rad0, rad1, height) +
             density * (2 * thick0 * height * 0.5 * (rad0 * 2)), decimal=4)
 
 
