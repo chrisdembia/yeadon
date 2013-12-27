@@ -21,6 +21,7 @@ import inertia
 import solid as sol
 import segment as seg
 from .utils import printoptions
+from exceptions import YeadonDeprecationWarning
 
 class YeadonDeprecationWarning(DeprecationWarning):
     """Simple wrapper so that our deprecation warnings are shown to the
@@ -491,52 +492,71 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         self.rotate_coord_sys(rotmat)
 
     def inertia_transformed(self, pos=None, rotmat=None):
-        """Returns an inertia tensor about `pos` and in the frame given by
-        `rotmat` relative to the global frame. The position is to be provided
-        from the origin of the global frame, which is at the center of the Ls0
-        stadium (bottom of pelvis), and its components are expressed in the
-        basis of the global frame. This method does NOT alter any attributes of
-        the Human (it is 'const').
+        new_function = self.transform_inertia
+        __doc__ = new_function.__doc__
+
+        # TODO : Remove this function in Yeadon 2.0.
+
+        msg = ("inertia_transformed has been renamed to transform_inertia, " +
+               "this function signature will be removed in Yeadon 2.0.")
+        warnings.warn(msg, YeadonDeprecationWarning)
+
+        return new_function(pos=pos, rotmat=rotmat)
+
+    def transform_inertia(self, pos=None, rotmat=None):
+        """Returns an inertia tensor of the human with respect to the
+        position provided in `pos` and a new frame that is defined by
+        rotation relative to the global frame with the direction cosine
+        matrix `rotmat`. The position is to be provided from the origin of
+        the global frame, which is at the center of the Ls0 stadium (bottom
+        of pelvis), and its components are expressed in the basis of the
+        global frame. This method does NOT alter any attributes of the Human
+        (it is 'const').
 
         Parameters
         ----------
-        pos : list or tuple (3,), optional
-            Position in the global frame from the origin of the global frame to
-            the point about which the user desires the inertia tensor. If not
-            provided, the tensor is provided about the center of mass of the
-            human.
+        pos : array_like, (3,), (1, 3), or (3, 1), optional
+            Position from the origin of the global frame to the point about
+            which the user desires the inertia tensor expressed in the
+            global frame. If not provided, the tensor is given about the
+            center of mass of the human.
         rotmat : np.matrix (3,3), optional
-            If not provided, the tensor is expressed in the global frame.
-            Consider N to be the global frame and B to be the frame in which
-            the user desires the inertia tensor. Then `rotmat` is the rotation
-            matrix that converts a vector expressed in the basis B to a vector
-            expressed in the basis N. That is, the columns of `rotmat` are the
-            unit vectors b_x, b_y, and b_z, each expressed in the basis given
-            by the unit vectors n_x, n_y, n_z.
+            If not provided, the returned tensor is expressed in the global
+            frame, else the returned tensor is expressed in the rotated
+            reference frame. Consider N to be the global frame and B to be
+            the frame in which the user desires the inertia tensor. Then
+            `rotmat` is the rotation matrix that converts a vector expressed
+            in the basis B to a vector expressed in the basis N (i.e. vN =
+            rotmat * vB). That is, the columns of `rotmat` are the unit
+            vectors b_x, b_y, and b_z, each expressed in the basis given by
+            the unit vectors n_x, n_y, n_z.
 
         Returns
         -------
         transformed : np.matrix (3,3)
             If B is the frame in which the user desires the inertia tensor,
-            this method returns ^{B}I^{H/P}, where P is the point specified by
-            `pos`, and H is the human system.
+            this method returns ^{B}I^{H/P}, where P is the point specified
+            by `pos`, and H is the human system.
 
         Notes
         -----
-        If N is the global frame, B is the frame in which the user desires the
-        inertia tensor, then `rotmat` = ^{N}R^{B}.
+        If N is the global frame, B is the frame in which the user desires
+        the inertia tensor, then `rotmat` = ^{N}R^{B}.
+
         """
-        # Shifting the inertia must happen first, because the position the user
-        # provides is in the global frame.
+        # Shifting the inertia must happen first, because the position the
+        # user provides is in the global frame.
+
         if pos is not None:
-            transformed = np.mat(inertia.parallel_axis(self.inertia, self.mass,
-                [pos[0] - self.center_of_mass[0, 0],
-                    pos[1] - self.center_of_mass[1, 0],
-                    pos[2] - self.center_of_mass[2, 0]]))
+            pos = np.asmatrix(pos).reshape((3, 1))
+            transformed = inertia.parallel_axis(self.inertia, self.mass, pos
+                                                - self.center_of_mass)
         else:
             transformed = self.inertia.copy()
+
         if rotmat is not None:
-            transformed = inertia.rotate3_inertia(rotmat, transformed)
+            transformed = inertia.rotate_inertia(transformed, rotmat.T)
+
         return transformed
 
     def combine_inertia(self, objlist):

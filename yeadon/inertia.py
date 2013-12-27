@@ -1,37 +1,53 @@
 # Use Python3 integer division rules.
 from __future__ import division
 
+import warnings
+
 import numpy as np
+
+from .exceptions import YeadonDeprecationWarning
+
+# Display our warnings to the user.
+warnings.simplefilter('always', YeadonDeprecationWarning)
+
 
 def parallel_axis(Ic, m, d):
     '''Returns the moment of inertia of a body about a different point.
 
     Parameters
     ----------
-    Ic : ndarray, shape(3,3)
-        The moment of inertia about the center of mass of the body with respect
-        to an orthogonal coordinate system.
+    Ic : array_like, shape(3,3)
+        The moment of inertia about the center of mass of the body with
+        respect to an orthogonal coordinate system.
     m : float
         The mass of the body.
-    d : ndarray, shape(3,)
-        The distances along the three ordinates that located the new point
-        relative to the center of mass of the body.
+    d : array_like, shape(3,) or shape(3, 1) or shape(1, 3)
+        The distances along the x, y, and z ordinates that locate the new
+        point relative to the center of mass of the body.
 
     Returns
     -------
-    I : ndarray, shape(3,3)
-        The moment of inertia of a body about a point located by the distances
-        in d.
+    I : numpy.matrix, shape(3,3)
+        The moment of inertia of a body about a point located by the
+        distances in `d`.
 
     '''
-    a = d[0]
-    b = d[1]
-    c = d[2]
+
+    Ic = np.asmatrix(Ic)
+    d = np.asmatrix(d).reshape((3, 1))
+
+    a = d[0, 0]
+    b = d[1, 0]
+    c = d[2, 0]
+
     dMat = np.zeros((3, 3), dtype=Ic.dtype)
-    dMat[0] = np.array([b**2 + c**2, -a * b, -a * c])
-    dMat[1] = np.array([-a * b, c**2 + a**2, -b * c])
-    dMat[2] = np.array([-a * c, -b * c, a**2 + b**2])
+
+    dMat[0] = np.array([b ** 2 + c ** 2, -a * b, -a * c])
+    dMat[1] = np.array([-a * b, c ** 2 + a ** 2, -b * c])
+    dMat[2] = np.array([-a * c, -b * c, a ** 2 + b ** 2])
+
     return Ic + m * dMat
+
 
 def rotate_space_123(angles):
     """
@@ -171,45 +187,73 @@ def euler_123(angles):
 
     return R1 * R2 * R3
 
-def rotate3_inertia(rot_mat, relInertia):
-    """
-    Rotates an inertia tensor. A derivation of the formula in this function
-    can be found in Crandall 1968, Dynamics of mechanical and electromechanical
-    systems. This function only transforms an inertia tensor for rotations with
-    respect to a fixed point. To translate an inertia tensor, one must use the
-    parallel axis analogue for tensors. An inertia tensor contains both moments
-    of inertia and products of inertia for a rigid body in a Cartesian (xyz)
-    frame.
+
+def rotate3_inertia(rotation_matrix, inertia):
+
+    __doc__ = rotate_inertia.__doc__
+
+    # TODO : Remove this function in Yeadon 2.0.
+
+    msg = ("rotate3_inertia has been renamed to rotate_inertia, this " +
+           "function signature will be removed in Yeadon 2.0.")
+    warnings.warn(msg, YeadonDeprecationWarning)
+
+    return rotate_inertia(inertia, rotation_matrix)
+
+
+def rotate_inertia(inertia, rotation_matrix):
+    """Returns an inertia tensor expressed in a reference frame which has
+    been rotated with respect to the frame the inertia tensor is currently
+    expressed in.
 
     Parameters
     ----------
-    rot_mat : numpy.matrix, shape(3,3)
-        Three-dimensional rotation matrix specifying the coordinate frame that
-        the input inertia tensor is in, with respect to a fixed coordinate
-        system in which one desires to express the inertia tensor.
-    relInertia : numpy.matrix, shape(3,3)
-        Three-dimensional cartesian inertia tensor describing the inertia of a
-        mass in a rotated coordinate frame.
+    inertia : numpy.matrix, shape(3,3)
+        Three-dimensional cartesian tensor describing the inertia of a rigid
+        body in a reference frame.
+    rotation_matrix : numpy.matrix, shape(3,3)
+        Three-dimensional rotation/transformation/direction-cosine matrix
+        that transforms a vector in the current reference frame into a
+        rotated reference frame.
 
     Returns
     -------
-    Inertia : numpy.matrix, shape(3,3)
-        Inertia tensor with respect to a fixed coordinate system ("unrotated").
+    rotated_inertia : numpy.matrix, shape(3,3)
+        The inertia tensor expressed in the rotated reference frame.
 
     Notes
     -----
 
-    This function expects that the rotation matrix is defined such that R times
-    a vector v_b in the rotated reference frame equals the same vector, v_a,
-    expressed in the unrotated reference frame.
+    The provided inertia tensor is expressed in a reference frame, A, and
+    there is a reference frame, B, which is rotated with respect to A such
+    that a vector, v, expressed in A as v_a can be expressed in B as v_b by
+    pre-multiplying by the rotation matrix, R:
 
-        R * v_b = v_a
+    v_b = R * v_a
 
-    Where v_a is the vector expressed in the original fixed reference frame and
-    v_b is the same vector expressed in the rotated reference frame.
+    Angular momentum of a rigid body in expressed in B is defined as:
+
+    H_b = I_b * w_b
+
+    where H_b and w_b are the angular momentum and angular rate vectors,
+    respectively and I_b is the inertia tensor, all expressed in B.
+    Expressing H_b and w_b in A gives:
+
+    R * H_a = I_b * R * w_a
+
+    R * I_a * w_a = I_b * R * w_a
+
+    So,
+
+    R * I_a = I_b * R
+
+    and thus:
+
+    I_b = R * I_a * R^T
 
     """
-    return rot_mat * relInertia * rot_mat.T
+    return rotation_matrix * inertia * rotation_matrix.T
+
 
 def total_com(coordinates, masses):
     """
