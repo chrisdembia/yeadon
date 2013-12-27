@@ -219,5 +219,25 @@ def test_parallel_axis():
             inertia1[2, 2] + dpos[0]**2 + dpos[1]**2)
 
 
+def test_rotate_inertia():
+
+    """Here I_b = R * I_a * R^T where v_b = R * v_a."""
+
+    I_a = mat([[1.0, 0.0, 0.0],
+               [0.0, 2.0, 0.0],
+               [0.0, 0.0, 3.0]])
+
+    # Space fixed rotation 231 about -pi/2, pi/2, 0
+    R = mat([[0.0, 0.0, 1.0],
+             [-1.0, 0.0, 0.0],
+             [0.0, -1.0, 0.0]])
+
+    I_b = inertia.rotate_inertia(I_a, R)
+
+    expected_I_b = mat([[3.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0],
+                        [0.0, 0.0, 2.0]])
+
+    testing.assert_allclose(I_b, expected_I_b)
+
 #TODO: test parallel_axis, additional (non-diagonal) cases
-#TODO: test rotate3_inertia
