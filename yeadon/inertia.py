@@ -22,8 +22,13 @@ def parallel_axis(Ic, m, d):
     m : float
         The mass of the body.
     d : array_like, shape(3,) or shape(3, 1) or shape(1, 3)
+<<<<<<< HEAD
         The distances along the x, y, and z axes that locate the new point
         relative to the center of mass of the body.
+=======
+        The distances along the x, y, and z ordinates that locate the new
+        point relative to the center of mass of the body.
+>>>>>>> Rewrites documentation for rotate3_inertia and renames to relevant functions.
 
     Returns
     -------
@@ -214,7 +219,7 @@ def rotate_inertia(inertia, rotation_matrix):
     ----------
     inertia : numpy.matrix, shape(3,3)
         Three-dimensional cartesian tensor describing the inertia of a rigid
-        body.
+        body in a reference frame.
     rotation_matrix : numpy.matrix, shape(3,3)
         Three-dimensional rotation/transformation/direction-cosine matrix
         that transforms a vector in the current reference frame into a

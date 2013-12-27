@@ -23,11 +23,6 @@ import segment as seg
 from .utils import printoptions
 from exceptions import YeadonDeprecationWarning
 
-class YeadonDeprecationWarning(DeprecationWarning):
-    """Simple wrapper so that our deprecation warnings are shown to the
-    user. By default, DeprecationWarning's are not printed."""
-    pass
-
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)
 
