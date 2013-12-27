@@ -50,10 +50,9 @@ def parallel_axis(Ic, m, d):
 
 
 def rotate_space_123(angles):
-    """
-    Returns the direction cosine matrix relating a reference frame B rotated
-    relative to reference frame A through the x, y, then z axes of reference
-    frame A (spaced fixed rotations).
+    """Returns the direction cosine matrix relating a reference frame B
+    rotated relative to reference frame A through the x, y, then z axes of
+    reference frame A (spaced fixed rotations).
 
     Parameters
     ----------
@@ -86,6 +85,11 @@ def rotate_space_123(angles):
     vectors a1, a2, a3) with:
 
     b1 = c2 * c3 * a1 + c2 * s3 * a2 - s2 * a3
+
+    Thus a vector vb which is expressed in frame B can be expressed in A by
+    pre-multiplying by R:
+
+    va = R * vb
 
     """
     cx = np.cos(angles[0])

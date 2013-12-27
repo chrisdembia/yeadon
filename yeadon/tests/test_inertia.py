@@ -2,7 +2,7 @@
 
 import warnings
 
-from numpy import testing, pi, sin, cos, zeros, mat
+from numpy import testing, pi, sin, cos, zeros, mat, arctan
 from numpy.random import random
 
 from yeadon import inertia
@@ -237,6 +237,26 @@ def test_rotate_inertia():
     expected_I_b = mat([[3.0, 0.0, 0.0],
                         [0.0, 1.0, 0.0],
                         [0.0, 0.0, 2.0]])
+
+    testing.assert_allclose(I_b, expected_I_b)
+
+    # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
+    # (0, -2, -1) in the global reference frame, A.
+    I_a = mat([[10.0, 0.0, 0.0],
+               [0.0, 2.0, -4.0],
+               [0.0, -4.0, 8.0]])
+
+    # If we want the inertia about a new reference frame, B, such that the
+    # yb axis goes through both points we can rotate about xa through the
+    # angle arctan(1/2). Note that this function returns R from va = R * vb.
+    R = inertia.rotate_space_123((arctan(1.0 / 2.0), 0.0, 0.0))
+
+    # This function expects R to be from vb = R * va, so we transpose R.
+    I_b = inertia.rotate_inertia(I_a, R.T)
+
+    expected_I_b = mat([[10.0, 0.0, 0.0],
+                        [0.0, 0.0, 0.0],
+                        [0.0, 0.0, 10.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
 
