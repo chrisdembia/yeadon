@@ -1295,15 +1295,17 @@ class TestHuman(unittest.TestCase):
         inertia_ptmass[1, 1] = 2 * 1 * (1**1)
         inertia_ptmass[2, 2] = 2 * 1 * (2**2)
         Iyz = 2 * 1 * (2 * 1)
-        inertia_ptmass[1, 2] = Iyz
-        inertia_ptmass[2, 1] = Iyz # symmetry
+        inertia_ptmass[1, 2] = -Iyz
+        inertia_ptmass[2, 1] = -Iyz # symmetry
         angle = np.arctan(1.0 / 2.0)
-        rotmat = inertia.rotate_space_123((angle, 0, 0))
+        # This returns R from va = R * vb:
+        rotmat = inertia.rotate_space_123((angle, 0.0, 0.0))
         # Here is a little cheating to test out the method itself with our own
         # center of mass and inertia:
         h._mass = 1
         h._center_of_mass = np.array([[0], [0], [0]])
         h._inertia = inertia_ptmass
+        # This expects R from va = R * vb:
         inertia_post = h.inertia_transformed(rotmat=rotmat)
         # Moments of inertia.
         testing.assert_almost_equal(inertia_post[0, 0], inertia_ptmass[0, 0])
