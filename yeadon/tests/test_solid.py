@@ -274,7 +274,8 @@ def test_solid():
     s2 = sin(angles[1])
     s3 = sin(angles[2])
     # definition of body 1-2-3 rotations from Spacecraft Dynamics, Kane,
-    # Likins, Levinson, 1982
+    # Likins, Levinson, 1982 page 423 (this is the transpose of what is
+    # presented)
     C = matrix([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
                 [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
                 [s2, -s1 * c2, c1 * c2]])
