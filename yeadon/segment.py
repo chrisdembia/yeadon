@@ -10,6 +10,7 @@ from __future__ import division
 import numpy as np
 
 import inertia
+from .utils import printoptions
 
 class Segment(object):
 
@@ -210,33 +211,81 @@ class Segment(object):
         # inertia in frame f w.r.t. segment's COM
         self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
-    def print_properties(self):
+    def print_properties(self, precision=5, suppress=True):
         """Prints mass, center of mass (in segment and global frames),
         and inertia (in solid and global frames).
+
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
 
         """
         # self.COM, etc. needs to be defined first.
         if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
             self.calc_properties()
-        print self.label, "properties:\n"
-        print "Mass (kg):", self.mass, "\n"
-        print "COM in segment's frame from segment's origin (m):\n",\
-                self.rel_center_of_mass, "\n"
-        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
-                self.center_of_mass, "\n"
-        print "Inertia tensor in segment's frame about segment's",\
-               "COM (kg-m^2):\n", self.rel_inertia, "\n"
-        print "Inertia tensor in global frame about segment's",\
-               "COM (kg-m^2):\n", self.inertia, "\n"
 
-    def print_solid_properties(self):
+        template = \
+"""\
+{label} properties:
+
+Mass (kg):
+
+{mass:1.{precision}f}
+
+COM in segment's frame from segment's origin (m):
+
+{rel_center_of_mass}
+
+COM in global frame from bottom center of pelvis (Ls0) (m):
+
+{center_of_mass}
+
+Inertia tensor in segment's frame about segment's COM (kg-m^2):
+
+{rel_inertia}
+
+Inertia tensor in global frame about segment's COM (kg-m^2):
+
+{inertia}
+"""
+
+        with printoptions(precision=precision, suppress=suppress):
+            print(template.format(label=self.label,
+                                  mass=self.mass,
+                                  precision=precision,
+                                  rel_center_of_mass=self.rel_center_of_mass,
+                                  center_of_mass=self.center_of_mass,
+                                  rel_inertia=self.rel_inertia,
+                                  inertia=self.inertia))
+
+    def print_solid_properties(self, precision=5, suppress=True):
         """Calls the print_properties() member method of each of this
         segment's solids. See the solid class's definition of
         print_properties(self) for more detail.
 
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
+
         """
         for s in self.solids:
-            s.print_properties()
+            s.print_properties(precision=5, suppress=True)
 
     def draw_mayavi(self, mlabobj):
         """Draws in a MayaVi window all the solids within this segment.  """

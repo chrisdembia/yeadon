@@ -12,6 +12,7 @@ import warnings
 import numpy as np
 
 import inertia
+from .utils import printoptions
 
 class Stadium(object):
     """Stadium, the 2D shape.
@@ -279,28 +280,63 @@ class Solid(object):
 
         self._inertia = inertia.rotate3_inertia(self._rot_mat, self.rel_inertia)
 
-    def print_properties(self):
-        """Prints mass, center of mass (in solid and global frames),
-        and inertia (in solid and global frames).
+    def print_properties(self, precision=5, suppress=True):
+        """Prints mass, center of mass (in solid and global frames), and
+        inertia (in solid and global frames).
 
-        The solid's origin is at the bottom center of the proximal stadium (or
-        stadium closest to the pelvis, Ls0).
+        The solid's origin is at the bottom center of the proximal stadium
+        (or stadium closest to the pelvis, Ls0).
+
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
 
         """
         # self.COM, etc. needs to be defined first.
         if not hasattr(self, 'center_of_mass') or not hasattr(self, 'inertia'):
             self.calc_properties()
 
-        print self.label, "properties:\n"
-        print "Mass (kg):", self.mass, "\n"
-        print "COM in solid's frame from solid's origin (m):\n",\
-                self.rel_center_of_mass,"\n"
-        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
-                self.center_of_mass,"\n"
-        print "Inertia tensor in solid's frame about solid's",\
-                "COM (kg-m^2):\n", self.rel_inertia,"\n"
-        print "Inertia tensor in global frame about solid's",\
-                "COM (kg-m^2):\n", self.inertia,"\n"
+        template = \
+"""\
+{label} properties:
+
+Mass (kg):
+
+{mass:1.{precision}f}
+
+COM in solid's frame from solid's origin (m):
+
+{rel_center_of_mass}
+
+COM in global frame from bottom center of pelvis (Ls0) (m):
+
+{center_of_mass}
+
+Inertia tensor in solid's frame about solid's COM (kg-m^2):
+
+{rel_inertia}
+
+Inertia tensor in global frame about solid's COM (kg-m^2):
+
+{inertia}
+"""
+
+        with printoptions(precision=precision, suppress=suppress):
+            print(template.format(label=self.label,
+                                  mass=self.mass,
+                                  precision=precision,
+                                  rel_center_of_mass=self.rel_center_of_mass,
+                                  center_of_mass=self.center_of_mass,
+                                  rel_inertia=self.rel_inertia,
+                                  inertia=self.inertia))
 
     def draw_mayavi(self, mlabobj, col):
         raise NotImplementedError()
@@ -460,7 +496,7 @@ class StadiumSolid(Solid):
         i : int
             Identifies which stadium to generate the mesh points for (the top
             or bottom).
-        
+
         """
         theta = [np.linspace(0.0,np.pi/2,5)]
         x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
@@ -590,14 +626,14 @@ class Semiellipsoid(Solid):
     def _make_mesh(self):
         """Generates the un-rotated coordinates of the solid. These values are
         saved at instantiation.
-        
+
         """
         u = np.linspace(0, 2.0 * np.pi, self.n_mesh_points)
         v = np.linspace(0, np.pi / 2.0, self.n_mesh_points)
         x = self.radius * np.outer(np.cos(u), np.sin(v))
         y = self.radius * np.outer(np.sin(u), np.sin(v))
         z = self.height * np.outer(np.ones(np.size(u)), np.cos(v))
-        return x, y, z 
+        return x, y, z
 
     def _make_pos(self):
         """Generates coordinates to be used for 3D visualization purposes,
