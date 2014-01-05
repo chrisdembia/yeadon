@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
+# standard lib
 import warnings
 
+# external
 from numpy import testing, pi, sin, cos, zeros, mat, arctan
 from numpy.random import random
 
-from yeadon import inertia
+# local
+from .. import inertia
 
+# Don't show deprecation warnings when running tests.
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 
@@ -220,7 +224,7 @@ def test_parallel_axis():
     testing.assert_almost_equal(inertia2[2, 2],
             inertia1[2, 2] + dpos[0]**2 + dpos[1]**2)
 
-#TODO: test parallel_axis, additional (non-diagonal) cases
+# TODO : test parallel_axis, additional (non-diagonal) cases
 
 
 def test_rotate_inertia():
