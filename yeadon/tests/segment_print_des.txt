@@ -24,7 +24,7 @@ Inertia tensor in segment's frame about segment's COM (kg-m^2):
 
 Inertia tensor in global frame about segment's COM (kg-m^2):
 
-[[ 112963.70548       0.00000       0.00000]
+[[ 112963.70548       0.00000      -0.00000]
  [      0.00000  113733.59619       0.00000]
- [      0.00000       0.00000   50287.48961]]
+ [     -0.00000       0.00000   50287.48961]]
 
