@@ -73,10 +73,6 @@ class Segment(object):
         the global frame."""
         return self._rot_mat
 
-    @rot_mat.setter
-    def rot_mat(self, rot_mat):
-        self._rot_mat = np.asmatrix(rot_mat)
-
     def __init__(self, label, pos, rot_mat, solids, color,
                  build_toward_positive_z=True):
         """Initializes a segment object. Stores inputs as instance variables,
@@ -115,7 +111,7 @@ class Segment(object):
         if pos.shape != (3, 1):
             raise ValueError("Position must be 3-D.")
         self._pos = pos
-        self.rot_mat = rot_mat
+        self._rot_mat = np.asmatrix(rot_mat)
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
