@@ -202,23 +202,23 @@ def rotate3_inertia(rotation_matrix, inertia):
            "function signature will be removed in Yeadon 2.0.")
     warnings.warn(msg, YeadonDeprecationWarning)
 
-    return rotate_inertia(inertia, rotation_matrix)
+    return rotate_inertia(rotation_matrix, inertia)
 
 
-def rotate_inertia(inertia, rotation_matrix):
+def rotate_inertia(rotation_matrix, inertia):
     """Returns an inertia tensor expressed in a reference frame which has
     been rotated with respect to the frame the inertia tensor is currently
     expressed in.
 
     Parameters
     ----------
-    inertia : numpy.matrix, shape(3,3)
-        Three-dimensional cartesian tensor describing the inertia of a rigid
-        body.
     rotation_matrix : numpy.matrix, shape(3,3)
         Three-dimensional rotation/transformation/direction-cosine matrix
-        that transforms a vector in the current reference frame into a
-        rotated reference frame.
+        that transforms a vector in the rotated reference frame into one in
+        the current reference frame.
+    inertia : numpy.matrix, shape(3,3)
+        Three-dimensional cartesian tensor describing the inertia of a rigid
+        body in a reference frame.
 
     Returns
     -------
@@ -230,33 +230,33 @@ def rotate_inertia(inertia, rotation_matrix):
 
     The provided inertia tensor is expressed in a reference frame, A, and
     there is a reference frame, B, which is rotated with respect to A such
-    that a vector, v, expressed in A as v_a can be expressed in B as v_b by
+    that a vector, v, expressed in B as v_b can be expressed in A as v_a by
     pre-multiplying by the rotation matrix, R:
 
-    v_b = R * v_a
+    v_a = R * v_b
 
-    Angular momentum of a rigid body expressed in B is defined as:
+    Angular momentum of a rigid body expressed in A is defined as:
 
-    H_b = I_b * w_b
+    H_a = I_a * w_a
 
-    where H_b and w_b are the angular momentum and angular rate vectors,
-    respectively and I_b is the inertia tensor, all expressed in B.
-    Expressing H_b and w_b in A gives:
+    where H_a and w_a are the angular momentum and angular rate vectors,
+    respectively and I_a is the inertia tensor, all expressed in A.
+    Expressing H_a and w_a in B gives:
 
-    R * H_a = I_b * R * w_a
+    R * H_b = I_a * R * w_b
 
-    R * I_a * w_a = I_b * R * w_a
+    R * I_b * w_b = I_a * R * w_b
 
     So,
 
-    R * I_a = I_b * R
+    R * I_b = I_a * R
 
     and thus:
 
-    I_b = R * I_a * R^T
+    I_b = R^T * I_a * R
 
     """
-    return rotation_matrix * inertia * rotation_matrix.T
+    return rotation_matrix.T * inertia * rotation_matrix
 
 
 def total_com(coordinates, masses):
