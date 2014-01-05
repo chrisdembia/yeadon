@@ -487,18 +487,6 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         self.rotate_coord_sys(rotmat)
 
     def inertia_transformed(self, pos=None, rotmat=None):
-        new_function = self.transform_inertia
-        __doc__ = new_function.__doc__
-
-        # TODO : Remove this function in Yeadon 2.0.
-
-        msg = ("inertia_transformed has been renamed to transform_inertia, " +
-               "this function signature will be removed in Yeadon 2.0.")
-        warnings.warn(msg, YeadonDeprecationWarning)
-
-        return new_function(pos=pos, rotmat=rotmat)
-
-    def transform_inertia(self, pos=None, rotmat=None):
         """Returns an inertia tensor of the human with respect to the
         position provided in `pos` and a new frame that is defined by
         rotation relative to the global frame with the direction cosine
