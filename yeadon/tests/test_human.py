@@ -21,6 +21,10 @@ class TestHuman(unittest.TestCase):
     male1meas = os.path.join(os.path.split(__file__)[0], '..', '..',
             'misc', 'samplemeasurements', 'male1.txt')
 
+    def runTest(self):
+        # NOTE : This allows one to run this test at the interpreter.
+        pass
+
     def test_init_default_cfg(self):
         """Uses misc/samplemeasurements/male1.txt."""
 
@@ -843,12 +847,17 @@ class TestHuman(unittest.TestCase):
         h = hum.Human(self.male1meas, CFG)
 
         testing.assert_almost_equal(h.mass, 58.2004885884)
-        testing.assert_allclose(h.center_of_mass,
-                [[-0.04602766], [-0.17716871], [-0.05332974]])
-        testing.assert_allclose(h.inertia,
-                np.matrix([[ 2.70251566,  0.34906855, -0.86147568],
-                    [ 0.34906855,  4.55807777, -0.01283679],
-                    [-0.86147568, -0.01283679,  4.13706487]]), atol=1e-6)
+
+        expected_center_of_mass = np.matrix([[-0.04602766],
+                                             [-0.17716871],
+                                             [-0.05332974]])
+        testing.assert_allclose(h.center_of_mass, expected_center_of_mass)
+
+        expected_inertia = \
+           np.matrix([[ 2.89276755,  0.43049026, -0.80508996],
+                      [ 0.43049026,  4.37335248,  0.17229662],
+                      [-0.80508996,  0.17229662,  4.13153827]])
+        testing.assert_allclose(h.inertia, expected_inertia, atol=1e-6)
 
     def test_segment_pos(self):
         """Ensures that Segment.pos and Segment.end_pos return the correct
