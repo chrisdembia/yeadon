@@ -24,9 +24,9 @@ Inertia tensor in solid's frame about solid's COM (kg-m^2):
 
 Inertia tensor in global frame about solid's COM (kg-m^2):
 
-[[ 45.38688   0.00000  -0.00000]
+[[ 45.38688   0.00000   0.00000]
  [  0.00000  95.37445   0.00000]
- [ -0.00000   0.00000  78.97730]]
+ [  0.00000   0.00000  78.97730]]
 
 stadsolBC properties:
 
@@ -54,9 +54,9 @@ Inertia tensor in solid's frame about solid's COM (kg-m^2):
 
 Inertia tensor in global frame about solid's COM (kg-m^2):
 
-[[ 45927.34359      0.00000      0.00000]
- [     0.00000  37969.56110      0.00000]
- [     0.00000      0.00000  12535.88471]]
+[[ 45927.34359     -0.00000     -0.00000]
+ [    -0.00000  37969.56110      0.00000]
+ [    -0.00000      0.00000  12535.88471]]
 
 stadsolCD properties:
 
@@ -84,7 +84,7 @@ Inertia tensor in solid's frame about solid's COM (kg-m^2):
 
 Inertia tensor in global frame about solid's COM (kg-m^2):
 
-[[ 66990.97501      0.00000      0.00000]
- [     0.00000  57478.04037      0.00000]
- [     0.00000      0.00000  19482.00733]]
+[[ 66990.97501     -0.00000     -0.00000]
+ [    -0.00000  57478.04037      0.00000]
+ [    -0.00000      0.00000  19482.00733]]
 

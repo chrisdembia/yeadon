@@ -3,6 +3,7 @@ from cStringIO import StringIO
 import copy
 import sys
 import os
+import warnings
 
 import unittest
 import nose
@@ -12,11 +13,17 @@ from numpy import testing, pi
 import yeadon.inertia as inertia
 import yeadon.human as hum
 
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
 class TestHuman(unittest.TestCase):
     """Tests the :py:class:`Human` class."""
 
     male1meas = os.path.join(os.path.split(__file__)[0], '..', '..',
             'misc', 'samplemeasurements', 'male1.txt')
+
+    def runTest(self):
+        # NOTE : This allows one to run this test at the interpreter.
+        pass
 
     def test_init_default_cfg(self):
         """Uses misc/samplemeasurements/male1.txt."""
@@ -840,12 +847,17 @@ class TestHuman(unittest.TestCase):
         h = hum.Human(self.male1meas, CFG)
 
         testing.assert_almost_equal(h.mass, 58.2004885884)
-        testing.assert_allclose(h.center_of_mass,
-                [[-0.04602766], [-0.17716871], [-0.05332974]])
-        testing.assert_allclose(h.inertia,
-                np.matrix([[ 2.70251566,  0.34906855, -0.86147568],
-                    [ 0.34906855,  4.55807777, -0.01283679],
-                    [-0.86147568, -0.01283679,  4.13706487]]), atol=1e-6)
+
+        expected_center_of_mass = np.matrix([[-0.04602766],
+                                             [-0.17716871],
+                                             [-0.05332974]])
+        testing.assert_allclose(h.center_of_mass, expected_center_of_mass)
+
+        expected_inertia = \
+           np.matrix([[ 2.89276755,  0.43049026, -0.80508996],
+                      [ 0.43049026,  4.37335248,  0.17229662],
+                      [-0.80508996,  0.17229662,  4.13153827]])
+        testing.assert_allclose(h.inertia, expected_inertia, atol=1e-6)
 
     def test_segment_pos(self):
         """Ensures that Segment.pos and Segment.end_pos return the correct
@@ -860,9 +872,6 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h.J2.end_pos[2, 0], -1.02)
 
     def test_print_properties(self):
-        # TODO : This is not a good test with the high print precision because
-        # the values can be different between machines. If you format to just a
-        # couple decimal places then this would work.
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         h = hum.Human(self.male1meas)
@@ -1214,7 +1223,7 @@ class TestHuman(unittest.TestCase):
         m = h.mass
 
         # A simple change in position.
-        d = 15
+        d = 15  # meters
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
                     h.center_of_mass[1, 0],
@@ -1239,8 +1248,8 @@ class TestHuman(unittest.TestCase):
         # A more complicated change in position.
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
-                    h.center_of_mass[1, 0],
-                    2*d + h.center_of_mass[2, 0]])
+                     h.center_of_mass[1, 0],
+                     2 * d + h.center_of_mass[2, 0]])
         offset2 = m * 4 * d**2
         # Moments of inertia.
         testing.assert_almost_equal(
@@ -1260,12 +1269,13 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
         inertia_post = None
 
-        # A combined change in position and basis.
+        # A combined change in position and basis. Shift in x and rotation
+        # about X.
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
-                    h.center_of_mass[1, 0],
-                    h.center_of_mass[2, 0]],
-                rotmat=inertia.rotate_space_123((0.5 * np.pi,0,0)))
+                         h.center_of_mass[1, 0],
+                         h.center_of_mass[2, 0]],
+                rotmat=inertia.rotate_space_123((0.5 * np.pi, 0.0, 0.0)))
         # Moments of inertia.
         testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
         testing.assert_almost_equal(
@@ -1292,15 +1302,17 @@ class TestHuman(unittest.TestCase):
         inertia_ptmass[1, 1] = 2 * 1 * (1**1)
         inertia_ptmass[2, 2] = 2 * 1 * (2**2)
         Iyz = 2 * 1 * (2 * 1)
-        inertia_ptmass[1, 2] = Iyz
-        inertia_ptmass[2, 1] = Iyz # symmetry
+        inertia_ptmass[1, 2] = -Iyz
+        inertia_ptmass[2, 1] = -Iyz # symmetry
         angle = np.arctan(1.0 / 2.0)
-        rotmat = inertia.rotate_space_123((angle, 0, 0))
+        # This returns R from va = R * vb:
+        rotmat = inertia.rotate_space_123((angle, 0.0, 0.0))
         # Here is a little cheating to test out the method itself with our own
         # center of mass and inertia:
         h._mass = 1
         h._center_of_mass = np.array([[0], [0], [0]])
         h._inertia = inertia_ptmass
+        # This expects R from va = R * vb:
         inertia_post = h.inertia_transformed(rotmat=rotmat)
         # Moments of inertia.
         testing.assert_almost_equal(inertia_post[0, 0], inertia_ptmass[0, 0])

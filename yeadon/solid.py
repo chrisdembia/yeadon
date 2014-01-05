@@ -163,53 +163,57 @@ class Solid(object):
 
     @property
     def mass(self):
-        """Mass of the solid, in units of kg."""
+        """Mass of the solid, a float in units of kg."""
         return self._mass
 
     @property
     def center_of_mass(self):
-        """Center of mass of the solid, a np.ndarray, in units of m, expressed
-        in the global frame, from the bottom center of the pelvis (Ls0)."""
+        """Center of mass of the solid, a np.ndarray of shape (3,1), in
+        units of m, expressed in the global frame, from the bottom center of
+        the pelvis (Ls0)."""
         return self._center_of_mass
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
-        about the center of mass of the human, expressed in the global frame.
+        """Inertia matrix of the solid, a np.matrix of shape (3,3), in units
+        of kg-m^2, about the center of mass of the human, expressed in the
+        global frame.
         """
         return self._inertia
 
     @property
     def rel_center_of_mass(self):
-        """Center of mass of the solid, a np.ndarray, in units of m, expressed
-        in the frame of the solid, from the origin of the solid."""
+        """Center of mass of the solid, a np.ndarray of shape (3,1), in
+        units of m, expressed in the frame of the solid, from the origin of
+        the solid."""
         return self._rel_center_of_mass
 
     @property
     def rel_inertia(self):
-        """Inertia matrix/dyadic of the solid, a np.matrix, in units of kg-m^2,
-        about the center of mass of the solid, expressed in the frame of the
-        solid.  """
+        """Inertia matrix of the solid, a np.matrix of shape (3,3), in units
+        of kg-m^2, about the center of mass of the solid, expressed in the
+        frame of the solid."""
         return self._rel_inertia
 
     @property
     def pos(self):
         """Position of the origin of the solid, which is the center of the
-        surface closest to the pelvis, a np.ndarray, in units of m, expressed
-        in the global frame, from the bottom center of the pelvis (Ls0)."""
+        surface closest to the pelvis, a np.ndarray of shape (3,1), in units
+        of m, expressed in the global frame, from the bottom center of the
+        pelvis (Ls0)."""
         return self._pos
 
     @property
     def end_pos(self):
         """Position of the point on the solid farthest from the origin along
-        the longitudinal axis of the segment, a np.ndarray, in units of m,
-        expressed in the global frame, from the bottom center of the pelvis
-        (Ls0)."""
+        the longitudinal axis of the segment, a np.ndarray of shape (3,1),
+        in units of m, expressed in the global frame, from the bottom center
+        of the pelvis (Ls0)."""
         return self._end_pos
 
     def __init__(self, label, density, height):
         """Defines a solid. This is a base class. Sets the alpha value to
-        be used for drawing with matplotlib.
+        be used for drawing with MayaVi.
 
         Parameters
         ----------
@@ -268,6 +272,8 @@ class Solid(object):
         """
         try:
             try:
+                # Here is v_a = R * v_b, where A is global frame and B is
+                # rotated frame relative to A.
                 self._center_of_mass = (self.pos + self._rot_mat *
                         self.rel_center_of_mass)
             except AttributeError as err:
@@ -278,7 +284,7 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self._inertia = inertia.rotate3_inertia(self._rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate_inertia(self._rot_mat, self.rel_inertia)
 
     def print_properties(self, precision=5, suppress=True):
         """Prints mass, center of mass (in solid and global frames), and
@@ -454,8 +460,8 @@ class StadiumSolid(Solid):
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterorposterior orientation
-            self._rel_inertia = inertia.rotate3_inertia(
-                    inertia.rotate_space_123([0,0,np.pi/2]), self.rel_inertia)
+            self._rel_inertia = inertia.rotate_inertia(
+                    inertia.rotate_space_123([0, 0, np.pi/2]), self.rel_inertia)
 
     def draw_mayavi(self, mlabobj, col):
         """Draws the initial stadium in 3D using MayaVi.
@@ -657,4 +663,3 @@ class Semiellipsoid(Solid):
         y = self.pos[1,0] + y
         z = self.pos[2,0] + z
         return x, y, z
-

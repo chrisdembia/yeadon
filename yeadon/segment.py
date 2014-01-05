@@ -7,10 +7,13 @@ user does not interact with this module.
 # Use Python3 integer division rules.
 from __future__ import division
 
+# external imports
 import numpy as np
 
+# local imports
 import inertia
 from .utils import printoptions
+
 
 class Segment(object):
 
@@ -28,8 +31,8 @@ class Segment(object):
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the segment, a np.matrix, in units of
-        kg-m^2, about the center of mass of the human, expressed in the global
+        """Inertia matrix of the segment, a np.matrix, in units of kg-m^2,
+        about the center of mass of the human, expressed in the global
         frame."""
         return self._inertia
 
@@ -71,7 +74,7 @@ class Segment(object):
         return self._rot_mat
 
     def __init__(self, label, pos, rot_mat, solids, color,
-            build_toward_positive_z=True):
+                 build_toward_positive_z=True):
         """Initializes a segment object. Stores inputs as instance variables,
         calculates the orientation of the segment's child solids, and
         calculates the "relative" inertia parameters (mass, center of mass
@@ -108,7 +111,7 @@ class Segment(object):
         if pos.shape != (3, 1):
             raise ValueError("Position must be 3-D.")
         self._pos = pos
-        self._rot_mat = rot_mat
+        self._rot_mat = np.asmatrix(rot_mat)
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
@@ -209,7 +212,7 @@ class Segment(object):
         # center of mass
         self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
-        self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate_inertia(self.rot_mat, self.rel_inertia)
 
     def __str__(self):
         return(self._properties_string())
