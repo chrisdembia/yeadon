@@ -216,7 +216,7 @@ class Segment(object):
         # center of mass
         self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
-        self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate_inertia(self.rot_mat, self.rel_inertia)
 
     def __str__(self):
         return(self._properties_string())

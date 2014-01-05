@@ -284,7 +284,7 @@ class Solid(object):
         except AttributeError as e:
             print(e.message)
 
-        self._inertia = inertia.rotate3_inertia(self._rot_mat, self.rel_inertia)
+        self._inertia = inertia.rotate_inertia(self._rot_mat, self.rel_inertia)
 
     def print_properties(self, precision=5, suppress=True):
         """Prints mass, center of mass (in solid and global frames), and
@@ -460,7 +460,7 @@ class StadiumSolid(Solid):
                                   [0.0,0.0,Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterorposterior orientation
-            self._rel_inertia = inertia.rotate3_inertia(
+            self._rel_inertia = inertia.rotate_inertia(
                     inertia.rotate_space_123([0, 0, np.pi/2]), self.rel_inertia)
 
     def draw_mayavi(self, mlabobj, col):
