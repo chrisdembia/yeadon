@@ -31,6 +31,10 @@ class TestSegments(unittest.TestCase):
         self.solidBC = sol.StadiumSolid('stadsolBC', 3, surfB, surfC, 6)
         self.solidCD = sol.StadiumSolid('stadsolCD', 4, surfC, surfD, 7)
 
+    def runTest(self):
+        # NOTE : This just allows you to run this test from the interpreter.
+        pass
+
     def test_init_real_input(self):
         """Ensures the constructor for valid input makes correct calculations.
 
