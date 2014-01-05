@@ -62,29 +62,29 @@ class YeadonGUI(HasTraits):
             Item('tilt'),
             Item('twist'),
             Item('PTsagittalFlexion', label='PT sagittal flexion'),
-            Item('PTfrontalFlexion', label='PT frontal flexion'),
+            Item('PTbending', label='PT bending'),
             Item('TCspinalTorsion', label='TC spinal torsion'),
-            Item('TClateralSpinalFlexion',
-                label='TC lateral spinal flexion'),
+            Item('TCsagittalSpinalFlexion',
+                label='TC sagittal spinal flexion'),
             label='Whole-body, pelvis, torso',
             dock='tab',
             )
     config_upper_group = Group(
-            Item('CA1elevation', label='CA1 elevation'),
-            Item('CA1abduction', label='CA1 abduction'),
+            Item('CA1extension', label='CA1 extension'),
+            Item('CA1adduction', label='CA1 adduction'),
             Item('CA1rotation', label='CA1 rotation'),
-            Item('CB1elevation', label='CB1 elevation'),
+            Item('CB1extension', label='CB1 extension'),
             Item('CB1abduction', label='CB1 abduction'),
             Item('CB1rotation', label='CB1 rotation'),
-            Item('A1A2flexion', label='A1A2 flexion'),
-            Item('B1B2flexion', label='B1B2 flexion'),
+            Item('A1A2extension', label='A1A2 extension'),
+            Item('B1B2extension', label='B1B2 extension'),
             label='Upper limbs',
             dock='tab',
             )
     config_lower_group = Group(
-            Item('PJ1flexion', label='PJ1 flexion'),
-            Item('PJ1abduction', label='PJ1 abduction'),
-            Item('PK1flexion', label='PK1 flexion'),
+            Item('PJ1extension', label='PJ1 extension'),
+            Item('PJ1adduction', label='PJ1 adduction'),
+            Item('PK1extension', label='PK1 extension'),
             Item('PK1abduction', label='PK1 abduction'),
             Item('J1J2flexion', label='J1J2 flexion'),
             Item('K1K2flexion', label='K1K2 flexion'),
@@ -274,9 +274,9 @@ class YeadonGUI(HasTraits):
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('PTfrontalFlexion')
+    @on_trait_change('PTbending')
     def _update_PTFrontalFlexion(self):
-        self.H.set_CFG('PTfrontalFlexion', deg2rad(self.PTfrontalFlexion))
+        self.H.set_CFG('PTbending', deg2rad(self.PTbending))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
@@ -286,22 +286,22 @@ class YeadonGUI(HasTraits):
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('TClateralSpinalFlexion')
+    @on_trait_change('TCsagittalSpinalFlexion')
     def _update_TCLateralSpinalFlexion(self):
-        self.H.set_CFG('TClateralSpinalFlexion',
-                deg2rad(self.TClateralSpinalFlexion))
+        self.H.set_CFG('TCsagittalSpinalFlexion',
+                deg2rad(self.TCsagittalSpinalFlexion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('CA1elevation')
-    def _update_CA1elevation(self):
-        self.H.set_CFG('CA1elevation', deg2rad(self.CA1elevation))
+    @on_trait_change('CA1extension')
+    def _update_CA1extension(self):
+        self.H.set_CFG('CA1extension', deg2rad(self.CA1extension))
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('CA1abduction')
-    def _update_CA1abduction(self):
-        self.H.set_CFG('CA1abduction', deg2rad(self.CA1abduction))
+    @on_trait_change('CA1adduction')
+    def _update_CA1adduction(self):
+        self.H.set_CFG('CA1adduction', deg2rad(self.CA1adduction))
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipsoid()
 
@@ -311,9 +311,9 @@ class YeadonGUI(HasTraits):
         self._update_mayavi(['A1', 'A2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('CB1elevation')
-    def _update_CB1elevation(self):
-        self.H.set_CFG('CB1elevation', deg2rad(self.CB1elevation))
+    @on_trait_change('CB1extension')
+    def _update_CB1extension(self):
+        self.H.set_CFG('CB1extension', deg2rad(self.CB1extension))
         self._update_mayavi(['B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
@@ -329,33 +329,33 @@ class YeadonGUI(HasTraits):
         self._update_mayavi(['B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('A1A2flexion')
-    def _update_A1A2flexion(self):
-        self.H.set_CFG('A1A2flexion', deg2rad(self.A1A2flexion))
+    @on_trait_change('A1A2extension')
+    def _update_A1A2extension(self):
+        self.H.set_CFG('A1A2extension', deg2rad(self.A1A2extension))
         self._update_mayavi(['A2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('B1B2flexion')
-    def _update_B1B2flexion(self):
-        self.H.set_CFG('B1B2flexion', deg2rad(self.B1B2flexion))
+    @on_trait_change('B1B2extension')
+    def _update_B1B2extension(self):
+        self.H.set_CFG('B1B2extension', deg2rad(self.B1B2extension))
         self._update_mayavi(['B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('PJ1flexion')
-    def _update_PJ1flexion(self):
-        self.H.set_CFG('PJ1flexion', deg2rad(self.PJ1flexion))
+    @on_trait_change('PJ1extension')
+    def _update_PJ1extension(self):
+        self.H.set_CFG('PJ1extension', deg2rad(self.PJ1extension))
         self._update_mayavi(['J1', 'J2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('PJ1abduction')
-    def _update_PJ1abduction(self):
-        self.H.set_CFG('PJ1abduction', deg2rad(self.PJ1abduction))
+    @on_trait_change('PJ1adduction')
+    def _update_PJ1adduction(self):
+        self.H.set_CFG('PJ1adduction', deg2rad(self.PJ1adduction))
         self._update_mayavi(['J1', 'J2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('PK1flexion')
-    def _update_PK1flexion(self):
-        self.H.set_CFG('PK1flexion', deg2rad(self.PK1flexion))
+    @on_trait_change('PK1extension')
+    def _update_PK1extension(self):
+        self.H.set_CFG('PK1extension', deg2rad(self.PK1extension))
         self._update_mayavi(['K1', 'K2'])
         self._maybe_update_inertia_ellipsoid()
 

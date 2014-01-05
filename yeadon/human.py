@@ -47,20 +47,20 @@ class Human(object):
                 'tilt',
                 'twist',
                 'PTsagittalFlexion',
-                'PTfrontalFlexion',
+                'PTbending',
                 'TCspinalTorsion',
-                'TClateralSpinalFlexion',
-                'CA1elevation',
-                'CA1abduction',
+                'TCsagittalSpinalFlexion',
+                'CA1extension',
+                'CA1adduction',
                 'CA1rotation',
-                'CB1elevation',
+                'CB1extension',
                 'CB1abduction',
                 'CB1rotation',
-                'A1A2flexion',
-                'B1B2flexion',
-                'PJ1flexion',
-                'PJ1abduction',
-                'PK1flexion',
+                'A1A2extension',
+                'B1B2extension',
+                'PJ1extension',
+                'PJ1adduction',
+                'PK1extension',
                 'PK1abduction',
                 'J1J2flexion',
                 'K1K2flexion')
@@ -69,23 +69,37 @@ class Human(object):
                  [-np.pi, np.pi],                   # tilt
                  [-np.pi, np.pi],                   # twist
                  [-np.pi / 2.0, np.pi],             # PTsagittalFlexion
-                 [-np.pi / 2.0, np.pi / 2.0],       # PTfrontalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PTbending
                  [-np.pi / 2.0, np.pi / 2.0],       # TCspinalTorsion
-                 [-np.pi / 2.0, np.pi / 2.0],       # TClatealSpinalFlexion
-                 [-np.pi, np.pi / 2.0],             # CA1elevation
-                 [-3.0 * np.pi / 2.0, np.pi / 2.0], # CA1abduction
+                 [-np.pi / 2.0, np.pi / 2.0],       # TCsagittalSpinalFlexion
+                 [-np.pi, np.pi / 2.0],             # CA1extension
+                 [-3.0 * np.pi / 2.0, np.pi / 2.0], # CA1adduction
                  [-np.pi, np.pi],                   # CA1rotation
-                 [-np.pi, np.pi / 2.0],             # CB1elevation
+                 [-np.pi, np.pi / 2.0],             # CB1extension
                  [-np.pi / 2.0, 3.0 * np.pi / 2.0], # CB1abduction
                  [-np.pi, np.pi],                   # CB1rotation
-                 [-np.pi, 0.0],                     # A1A2flexion
-                 [-np.pi, 0.0],                     # B1B2flexion
-                 [-np.pi / 2.0, np.pi],             # PJ1flexion
-                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1abduction
-                 [-np.pi / 2.0, np.pi],             # PK1flexion
+                 [-np.pi, 0.0],                     # A1A2extension
+                 [-np.pi, 0.0],                     # B1B2extension
+                 [-np.pi, np.pi / 2.0],             # PJ1extension
+                 [-np.pi / 2.0, np.pi / 2.0],       # PJ1adduction
+                 [-np.pi, np.pi / 2.0],             # PK1extension
                  [-np.pi / 2.0, np.pi / 2.0],       # PK1abduction
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
+
+    _deprecated_CFGnames = {
+            'somersalt': 'somersault',
+            'CA1elevation': 'CA1extension',
+            'CB1elevation': 'CB1extension',
+            'CA1abduction': 'CA1adduction',
+            'A1A2flexion': 'A1A2extension',
+            'B1B2flexion': 'B1B2extension',
+            'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
+            'PJ1flexion': 'PJ1extension',
+            'PK1flexion': 'PK1extension',
+            'PJ1abduction': 'PJ1adduction',
+            'PTfrontalFlexion': 'PTbending',
+            }
 
     @property
     def mass(self):
@@ -298,11 +312,12 @@ class Human(object):
             limits.
 
         """
-        if varname == 'somersalt':
-            msg = ("'somersalt' should be spelled 'somersault'." +
-                   " This will raise an error in future versions.")
+        if varname in self._deprecated_CFGnames:
+            msg = ("'{0}' should be called '{1}'."
+                   " This will raise an error in future versions.".format(
+                       varname, self._deprecated_CFGnames[varname]))
             warnings.warn(msg, YeadonDeprecationWarning)
-            varname = 'somersault'
+            varname = self._deprecated_CFGnames[varname]
         elif varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
                     "variable.".format(varname))
@@ -322,12 +337,14 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
-        if 'somersalt' in CFG:
-            msg = ("'somersalt' should be spelled 'somersault'." +
-                   " This will raise an error in future versions.")
-            warnings.warn(msg, YeadonDeprecationWarning)
-            value = CFG.pop('somersalt')
-            CFG['somersault'] = value
+        for depr_name, new_name in self._deprecated_CFGnames.items():
+            if depr_name in CFG:
+                msg = ("'{0}' should be called '{1}'."
+                       " This will raise an error in future versions.".format(
+                           depr_name, new_name))
+                warnings.warn(msg, YeadonDeprecationWarning)
+                value = CFG.pop(depr_name)
+                CFG[new_name] = value
 
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
@@ -1176,7 +1193,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         Tpos = self.P.end_pos
         TRotMat = (self.P.rot_mat *
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
-                                      self.CFG['PTfrontalFlexion'],
+                                      self.CFG['PTbending'],
                                       0.0]))
         self.T = seg.Segment('T: Thorax',
                              Tpos,
@@ -1187,7 +1204,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # chest-head
         Cpos = self.T.end_pos
         CRotMat = (self.T.rot_mat *
-            inertia.euler_123([self.CFG['TClateralSpinalFlexion'],
+            inertia.euler_123([self.CFG['TCsagittalSpinalFlexion'],
                                0.0,
                                self.CFG['TCspinalTorsion']]))
         self.C = seg.Segment('C: Chest-head',
@@ -1206,8 +1223,8 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_left_shoulder_point = \
                 np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
         A1RotMat = (self.C.rot_mat *
-             inertia.euler_123([self.CFG['CA1elevation'],
-                                self.CFG['CA1abduction'],
+             inertia.euler_123([self.CFG['CA1extension'],
+                                self.CFG['CA1adduction'],
                                 self.CFG['CA1rotation']]))
         A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
             local_left_shoulder_point
@@ -1217,7 +1234,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # left forearm-hand
         A2RotMat = (self.A1.rot_mat *
-            inertia.euler_123([self.CFG['A1A2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['A1A2extension'], 0.0, 0.0]))
         A2pos = self.A1.end_pos
         self.A2 = seg.Segment('A2: Left forearm-hand',
                               A2pos,
@@ -1230,7 +1247,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_right_shoulder_point = \
                 np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
         B1RotMat = (self.C.rot_mat *
-                inertia.euler_123([self.CFG['CB1elevation'],
+                inertia.euler_123([self.CFG['CB1extension'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
         B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
@@ -1244,7 +1261,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # right forearm-hand
         B2RotMat = (self.B1.rot_mat *
-            inertia.euler_123([self.CFG['B1B2flexion'], 0.0, 0.0]))
+            inertia.euler_123([self.CFG['B1B2extension'], 0.0, 0.0]))
         B2pos = self.B1.end_pos
         self.B2 = seg.Segment('B2: Right forearm-hand',
                               B2pos,
@@ -1263,8 +1280,8 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                          [0.0],
                                          [0.0]])
         J1RotMat = (self.P.rot_mat *
-             inertia.euler_123([self.CFG['PJ1flexion'],
-                                self.CFG['PJ1abduction'],
+             inertia.euler_123([self.CFG['PJ1extension'],
+                                self.CFG['PJ1adduction'],
                                 0.0]))
         J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
             local_left_hip_point
@@ -1292,7 +1309,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                           [0.0],
                                           [0.0]])
         K1RotMat = (self.P.rot_mat *
-             inertia.euler_123([self.CFG['PK1flexion'],
+             inertia.euler_123([self.CFG['PK1extension'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
         K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
@@ -1486,11 +1503,12 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         with open(CFGfname, 'r') as fid:
             mydict = yaml.load(fid.read())
             for key, val in mydict.items():
-                if key == 'somersalt':
-                    key = 'somersault'
-                    msg = ("'somersalt' should be spelled 'somersault'." +
-                        " This will raise an error in future versions.")
+                if key in self._deprecated_CFGnames.keys():
+                    msg = ("'{0}' should be called '{1}'."
+                        " This will raise an error in future versions.".format(
+                            key, self._deprecated_CFGnames[key]))
                     warnings.warn(msg, YeadonDeprecationWarning)
+                    key = self._deprecated_CFGnames[key]
                 elif key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise StandardError(mes)
