@@ -202,29 +202,15 @@ class TestSegments(unittest.TestCase):
         # Calling print_properties before calc_properties should still work.
         seg1.print_properties()
         sys.stdout = old_stdout
-        desStr = ("seg1 properties:\n\n" +
-                "Mass (kg): 4299.15404857 \n\n" +
-                "COM in segment's frame from segment's origin (m):\n" +
-                "[[  0.       ]\n" +
-                " [  0.       ]\n" +
-                " [ 11.3248746]] \n\n" +
-                "COM in global frame from bottom center of pelvis (Ls0) (m):\n" +
-                "[[ 12.3248746]\n" +
-                " [  2.       ]\n" +
-                " [  3.       ]] \n\n" +
-                "Inertia tensor in segment's frame about segment's " +
-                "COM (kg-m^2):\n" + 
-                "[[  50287.48961483       0.               0.        ]\n" +
-                " [      0.          113733.59619149       0.        ]\n" +
-                " [      0.               0.          112963.70547987]] \n\n" +
-                "Inertia tensor in global frame about segment's " +
-                "COM (kg-m^2):\n" +
-                "[[  1.12963705e+05   1.15452283e-44   2.34998170e-28]\n" +
-                " [  1.15452283e-44   1.13733596e+05   3.88495357e-12]\n" +
-                " [  2.34998170e-28   3.88495357e-12   5.02874896e+04]] \n\n")
-        print mystdout.getvalue()
 
-        self.assertEquals(mystdout.getvalue(), desStr)
+        des_str = open(os.path.join(os.path.split(__file__)[0],
+            'segment_print_des.txt'), 'r').read()
+
+        self.assertEquals(mystdout.getvalue(), des_str)
+
+        # Use the __str__method.
+        # It's just a fluke that we need to append an additional newline char.
+        self.assertEquals(seg1.__str__() + '\n', des_str)
 
     def test_print_solid_properties(self):
 

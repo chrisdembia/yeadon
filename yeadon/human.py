@@ -20,6 +20,7 @@ except Exception as e:
 import inertia
 import solid as sol
 import segment as seg
+from .utils import printoptions
 
 class YeadonDeprecationWarning(DeprecationWarning):
     """Simple wrapper so that our deprecation warnings are shown to the
@@ -366,15 +367,63 @@ class Human(object):
                                       s.mass,
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
-    def print_properties(self):
+    def __str__(self):
+        return(self._properties_string())
+
+    def print_properties(self, precision=5, suppress=True):
         """Prints human mass, center of mass, and inertia.
 
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
+
         """
-        print "Mass (kg):", self.mass, "\n"
-        print "COM in global frame from bottom center of pelvis (Ls0) (m):\n",\
-                self.center_of_mass, "\n"
-        print "Inertia tensor in global frame about human's COM (kg-m^2):\n",\
-                self.inertia, "\n"
+        print(self._properties_string(precision=precision, suppress=suppress))
+
+    def _properties_string(self, precision=5, suppress=True):
+        """Prints human mass, center of mass, and inertia.
+
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
+
+        """
+        template = \
+"""\
+Mass (kg):
+
+{mass:1.{precision}f}
+
+COM in global frame from bottom center of pelvis (Ls0) (m):
+
+{center_of_mass}
+
+Inertia tensor in global frame about human's COM (kg-m^2):
+
+{inertia}
+"""
+
+        with printoptions(precision=precision, suppress=suppress):
+            return template.format(mass=self.mass,
+                                  precision=precision,
+                                  center_of_mass=self.center_of_mass,
+                                  inertia=self.inertia)
 
     def _translate_coord_sys(self, vec):
         """Moves the cooridinate system from the center of the bottom of the
