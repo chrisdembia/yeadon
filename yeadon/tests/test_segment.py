@@ -208,6 +208,10 @@ class TestSegments(unittest.TestCase):
 
         self.assertEquals(mystdout.getvalue(), des_str)
 
+        # Use the __str__method.
+        # It's just a fluke that we need to append an additional newline char.
+        self.assertEquals(seg1.__str__() + '\n', des_str)
+
     def test_print_solid_properties(self):
 
         # Create parameters.

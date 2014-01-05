@@ -211,7 +211,29 @@ class Segment(object):
         # inertia in frame f w.r.t. segment's COM
         self._inertia = inertia.rotate3_inertia(self.rot_mat, self.rel_inertia)
 
+    def __str__(self):
+        return(self._properties_string())
+
     def print_properties(self, precision=5, suppress=True):
+        """Prints mass, center of mass (in segment and global frames),
+        and inertia (in solid and global frames).
+
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
+
+        """
+        print(self._properties_string())
+
+    def _properties_string(self, precision=5, suppress=True):
         """Prints mass, center of mass (in segment and global frames),
         and inertia (in solid and global frames).
 
@@ -258,13 +280,13 @@ Inertia tensor in global frame about segment's COM (kg-m^2):
 """
 
         with printoptions(precision=precision, suppress=suppress):
-            print(template.format(label=self.label,
+            return template.format(label=self.label,
                                   mass=self.mass,
                                   precision=precision,
                                   rel_center_of_mass=self.rel_center_of_mass,
                                   center_of_mass=self.center_of_mass,
                                   rel_inertia=self.rel_inertia,
-                                  inertia=self.inertia))
+                                  inertia=self.inertia)
 
     def print_solid_properties(self, precision=5, suppress=True):
         """Calls the print_properties() member method of each of this
