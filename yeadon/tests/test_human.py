@@ -694,7 +694,7 @@ class TestHuman(unittest.TestCase):
         desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
                 "Must be between -1.0 and 1.0 pi-rad.\n"
                 "Joint angle PK1extension = -10.0 pi-rad is out of range. "
-                "Must be between -0.5 and 1.0 pi-rad.\n")
+                "Must be between -1.0 and 0.5 pi-rad.\n")
 
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
@@ -1546,7 +1546,7 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('PTsagittalFlexion', sagflexion)
         h.set_CFG('PTbending', bending)
 
-        T_R_P = inertia.euler_123((sagflexion, frontflexion, 0.0))
+        T_R_P = inertia.euler_rotation((sagflexion, bending, 0.0), (1, 2, 3))
 
         T_R_I = P_R_I * T_R_P
 
@@ -1576,7 +1576,7 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('CA1adduction', abduction)
         h.set_CFG('CA1rotation', rotation)
 
-        A1_R_C = inertia.euler_123((elevation, abduction, rotation))
+        A1_R_C = inertia.euler_rotation((extension, abduction, rotation), (1, 2, 3))
 
         A1_R_I = C_R_I * A1_R_C
 
@@ -1584,11 +1584,11 @@ class TestHuman(unittest.TestCase):
 
         # rotate the left lower arm relative to the left upper arm
 
-        flexion = angle() #neg
+        extension = angle() #neg
 
-        h.set_CFG('A1A2extension', flexion)
+        h.set_CFG('A1A2extension', extension)
 
-        A2_R_A1 = inertia.euler_123((flexion, 0.0, 0.0))
+        A2_R_A1 = inertia.euler_rotation((extension, 0.0, 0.0), (1, 2, 3))
 
         A2_R_I = A1_R_I * A2_R_A1
 
@@ -1596,15 +1596,15 @@ class TestHuman(unittest.TestCase):
 
         # rotate the right upper arm relative to the chest
 
-        elevation = angle()
+        extension = angle()
         abduction = angle()
         rotation = angle()
 
-        h.set_CFG('CB1extension', elevation)
+        h.set_CFG('CB1extension', extension)
         h.set_CFG('CB1abduction', abduction)
         h.set_CFG('CB1rotation', rotation)
 
-        B1_R_C = inertia.euler_123((elevation, abduction, rotation))
+        B1_R_C = inertia.euler_rotation((extension, abduction, rotation), (1, 2, 3))
 
         B1_R_I = C_R_I * B1_R_C
 
@@ -1616,7 +1616,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('B1B2extension', extension)
 
-        B2_R_B1 = inertia.euler_123((flexion, 0.0, 0.0))
+        B2_R_B1 = inertia.euler_rotation((extension, 0.0, 0.0), (1, 2, 3))
 
         B2_R_I = B1_R_I * B2_R_B1
 
