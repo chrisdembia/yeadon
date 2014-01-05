@@ -140,6 +140,8 @@ def test_euler_rotation(display=False):
         print R
         print C
     testing.assert_almost_equal(R, C)
+=======
+>>>>>>> Fixes #84 : Purges vb = R * va rotation definitions.
 
 
 def test_rotations():
