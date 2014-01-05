@@ -312,7 +312,7 @@ class Human(object):
 
         """
         if varname in self._deprecated_CFGnames:
-            msg = ("'{0}' should be spelled '{1}'."
+            msg = ("'{0}' should be called '{1}'."
                    " This will raise an error in future versions.".format(
                        varname, self._deprecated_CFGnames[varname]))
             warnings.warn(msg, YeadonDeprecationWarning)
@@ -338,7 +338,7 @@ class Human(object):
         """
         for depr_name, new_name in self._deprecated_CFGnames.items():
             if depr_name in CFG:
-                msg = ("'{0}' should be spelled '{1}'."
+                msg = ("'{0}' should be called '{1}'."
                        " This will raise an error in future versions.".format(
                            depr_name, new_name))
                 warnings.warn(msg, YeadonDeprecationWarning)
@@ -1503,7 +1503,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             mydict = yaml.load(fid.read())
             for key, val in mydict.items():
                 if key in self._deprecated_CFGnames.keys():
-                    msg = ("'{0}' should be spelled '{1}'."
+                    msg = ("'{0}' should be called '{1}'."
                         " This will raise an error in future versions.".format(
                             key, self._deprecated_CFGnames[key]))
                     warnings.warn(msg, YeadonDeprecationWarning)
