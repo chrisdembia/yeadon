@@ -204,7 +204,7 @@ class TestSegments(unittest.TestCase):
         sys.stdout = old_stdout
 
         des_str = open(os.path.join(os.path.split(__file__)[0],
-            'segment_print_des.txt', 'r')).read()
+            'segment_print_des.txt'), 'r').read()
 
         self.assertEquals(mystdout.getvalue(), des_str)
 
