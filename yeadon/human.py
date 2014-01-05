@@ -80,9 +80,9 @@ class Human(object):
                  [-np.pi, np.pi],                   # CB1rotation
                  [-np.pi, 0.0],                     # A1A2extension
                  [-np.pi, 0.0],                     # B1B2extension
-                 [-np.pi / 2.0, np.pi],             # PJ1extension
+                 [-np.pi, np.pi / 2.0],             # PJ1extension
                  [-np.pi / 2.0, np.pi / 2.0],       # PJ1adduction
-                 [-np.pi / 2.0, np.pi],             # PK1extension
+                 [-np.pi, np.pi / 2.0],             # PK1extension
                  [-np.pi / 2.0, np.pi / 2.0],       # PK1abduction
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
