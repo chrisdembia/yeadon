@@ -2,7 +2,7 @@ somersault: 0
 tilt: 0
 twist: 0
 PTsagittalFlexion:
-PTfrontalFlexion: 0.0
+PTbending: 0.0
 TCspinalTorsion: 0.0
 TCsagittalSpinalFlexion: 0.0
 CA1extension: 0.0

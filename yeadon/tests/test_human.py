@@ -92,7 +92,7 @@ class TestHuman(unittest.TestCase):
                     'tilt',
                     'twist',
                     'PTsagittalFlexion',
-                    'PTfrontalFlexion',
+                    'PTbending',
                     'TCspinalTorsion',
                     'TCsagittalSpinalFlexion',
                     'CA1extension',
@@ -585,7 +585,7 @@ class TestHuman(unittest.TestCase):
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
+                'PTbending': 0.0,
                 'TCspinalTorsion': 0.0,
                 'TCsagittalSpinalFlexion': 0.0,
                 'CA1extension': 0.0,
@@ -611,7 +611,7 @@ class TestHuman(unittest.TestCase):
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
+                'PTbending': 0.0,
                 'TCspinalTorsion': 0.0,
                 'TCsagittalSpinalFlexion': 0.0,
                 'CA1extension': 0.0,
@@ -640,7 +640,7 @@ class TestHuman(unittest.TestCase):
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
+                'PTbending': 0.0,
                 'TCspinalTorsion': 0.0,
                 'TCsagittalSpinalFlexion': 0.0,
                 'CA1extension': 0.0,
@@ -673,7 +673,7 @@ class TestHuman(unittest.TestCase):
                'tilt': 0.0,
                'twist': 3.0 * np.pi,
                'PTsagittalFlexion': 0.0,
-               'PTfrontalFlexion': 0.0,
+               'PTbending': 0.0,
                'TCspinalTorsion': 0.0,
                'TCsagittalSpinalFlexion': 0.0,
                'CA1extension': 0.0,
@@ -781,6 +781,7 @@ class TestHuman(unittest.TestCase):
                 'PJ1flexion': 'PJ1extension',
                 'PK1flexion': 'PK1extension',
                 'PJ1abduction': 'PJ1adduction',
+                'PTfrontalFlexion': 'PTbending',
                 }
 
         for old_name, new_name in deprecated_CFG_names.items():
@@ -847,7 +848,7 @@ class TestHuman(unittest.TestCase):
                'tilt': 0.10 * np.pi,
                'twist': 0.30 * np.pi,
                'PTsagittalFlexion': 0.35 * np.pi,
-               'PTfrontalFlexion': -0.18 * np.pi,
+               'PTbending': -0.18 * np.pi,
                'TCspinalTorsion': -0.08 * np.pi,
                'TCsagittalSpinalFlexion': 0.13 * np.pi,
                'CA1extension': -0.42 * np.pi,
@@ -1081,7 +1082,7 @@ class TestHuman(unittest.TestCase):
                 'tilt': 0.0,
                 'twist': np.pi/2,
                 'PTsagittalFlexion': 0.0,
-                'PTfrontalFlexion': 0.0,
+                'PTbending': 0.0,
                 'TCspinalTorsion': 0.0,
                 'TCsagittalSpinalFlexion': 0.0,
                 'CA1extension': 0.0,
@@ -1540,10 +1541,10 @@ class TestHuman(unittest.TestCase):
         # rotate the thorax (T) relative to the pelvis (P)
 
         sagflexion = angle()
-        frontflexion = angle()
+        bending = angle()
 
         h.set_CFG('PTsagittalFlexion', sagflexion)
-        h.set_CFG('PTfrontalFlexion', frontflexion)
+        h.set_CFG('PTbending', bending)
 
         T_R_P = inertia.euler_123((sagflexion, frontflexion, 0.0))
 

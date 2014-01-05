@@ -12,7 +12,7 @@ PJ1adduction: 0.0
 PJ1extension: 0.0
 PK1abduction: 0.0
 PK1extension: 0.0
-PTfrontalFlexion: 0.0
+PTbending: 0.0
 PTsagittalFlexion: 0.0
 TCsagittalSpinalFlexion: 0.0
 TCspinalTorsion: 0.0

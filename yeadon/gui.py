@@ -62,7 +62,7 @@ class YeadonGUI(HasTraits):
             Item('tilt'),
             Item('twist'),
             Item('PTsagittalFlexion', label='PT sagittal flexion'),
-            Item('PTfrontalFlexion', label='PT frontal flexion'),
+            Item('PTbending', label='PT bending'),
             Item('TCspinalTorsion', label='TC spinal torsion'),
             Item('TCsagittalSpinalFlexion',
                 label='TC sagittal spinal flexion'),
@@ -274,9 +274,9 @@ class YeadonGUI(HasTraits):
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 
-    @on_trait_change('PTfrontalFlexion')
+    @on_trait_change('PTbending')
     def _update_PTFrontalFlexion(self):
-        self.H.set_CFG('PTfrontalFlexion', deg2rad(self.PTfrontalFlexion))
+        self.H.set_CFG('PTbending', deg2rad(self.PTbending))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
         self._maybe_update_inertia_ellipsoid()
 

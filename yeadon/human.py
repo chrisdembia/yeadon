@@ -47,7 +47,7 @@ class Human(object):
                 'tilt',
                 'twist',
                 'PTsagittalFlexion',
-                'PTfrontalFlexion',
+                'PTbending',
                 'TCspinalTorsion',
                 'TCsagittalSpinalFlexion',
                 'CA1extension',
@@ -69,7 +69,7 @@ class Human(object):
                  [-np.pi, np.pi],                   # tilt
                  [-np.pi, np.pi],                   # twist
                  [-np.pi / 2.0, np.pi],             # PTsagittalFlexion
-                 [-np.pi / 2.0, np.pi / 2.0],       # PTfrontalFlexion
+                 [-np.pi / 2.0, np.pi / 2.0],       # PTbending
                  [-np.pi / 2.0, np.pi / 2.0],       # TCspinalTorsion
                  [-np.pi / 2.0, np.pi / 2.0],       # TCsagittalSpinalFlexion
                  [-np.pi, np.pi / 2.0],             # CA1extension
@@ -97,7 +97,8 @@ class Human(object):
             'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
             'PJ1flexion': 'PJ1extension',
             'PK1flexion': 'PK1extension',
-            'PJ1abduction': 'PJ1adduction'
+            'PJ1abduction': 'PJ1adduction',
+            'PTfrontalFlexion': 'PTbending',
             }
 
     @property
@@ -1192,7 +1193,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         Tpos = self.P.end_pos
         TRotMat = (self.P.rot_mat *
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
-                                      self.CFG['PTfrontalFlexion'],
+                                      self.CFG['PTbending'],
                                       0.0]))
         self.T = seg.Segment('T: Thorax',
                              Tpos,
