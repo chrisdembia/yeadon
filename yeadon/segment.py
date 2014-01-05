@@ -307,7 +307,7 @@ Inertia tensor in global frame about segment's COM (kg-m^2):
 
         """
         for s in self.solids:
-            s.print_properties(precision=5, suppress=True)
+            s.print_properties(precision=precision, suppress=suppress)
 
     def draw_mayavi(self, mlabobj):
         """Draws in a MayaVi window all the solids within this segment.  """
