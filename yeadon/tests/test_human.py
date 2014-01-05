@@ -872,9 +872,6 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h.J2.end_pos[2, 0], -1.02)
 
     def test_print_properties(self):
-        # TODO : This is not a good test with the high print precision because
-        # the values can be different between machines. If you format to just a
-        # couple decimal places then this would work.
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         h = hum.Human(self.male1meas)
