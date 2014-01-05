@@ -877,6 +877,10 @@ class TestHuman(unittest.TestCase):
 
         self.assertEquals(mystdout.getvalue(), desStr)
 
+        # Use the __str__method.
+        # It's just a fluke that we need to append an additional newline char.
+        self.assertEquals(h.__str__() + '\n', desStr)
+
     def test_scale_human_by_mass(self):
         """User can scale human's mass, via meas input or API."""
 

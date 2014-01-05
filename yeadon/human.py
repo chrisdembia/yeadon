@@ -367,7 +367,28 @@ class Human(object):
                                       s.mass,
                                       [dist[0,0],dist[1,0],dist[2,0]]))
 
+    def __str__(self):
+        return(self._properties_string())
+
     def print_properties(self, precision=5, suppress=True):
+        """Prints human mass, center of mass, and inertia.
+
+        Parameters
+        ----------
+        precision : integer, default=5
+            The precision for floating point representation.
+        suppress : boolean, default=True
+            Print very small values as 0 instead of scientific notation.
+
+        Notes
+        -----
+        See numpy.set_printoptions for more details on the optional
+        arguments.
+
+        """
+        print(self._properties_string(precision=precision, suppress=suppress))
+
+    def _properties_string(self, precision=5, suppress=True):
         """Prints human mass, center of mass, and inertia.
 
         Parameters
@@ -399,10 +420,10 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 """
 
         with printoptions(precision=precision, suppress=suppress):
-            print(template.format(mass=self.mass,
+            return template.format(mass=self.mass,
                                   precision=precision,
                                   center_of_mass=self.center_of_mass,
-                                  inertia=self.inertia))
+                                  inertia=self.inertia)
 
     def _translate_coord_sys(self, vec):
         """Moves the cooridinate system from the center of the bottom of the
