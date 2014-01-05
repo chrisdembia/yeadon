@@ -1567,11 +1567,11 @@ class TestHuman(unittest.TestCase):
 
         # rotate the left upper arm relative to the chest
 
-        elevation = angle()
+        extension = angle()
         abduction = angle() # neg
         rotation = angle()
 
-        h.set_CFG('CA1extension', elevation)
+        h.set_CFG('CA1extension', extension)
         h.set_CFG('CA1adduction', abduction)
         h.set_CFG('CA1rotation', rotation)
 
@@ -1611,9 +1611,9 @@ class TestHuman(unittest.TestCase):
 
         # rotate the left lower arm relative to the left upper arm
 
-        flexion = angle() # neg
+        extension = angle() # neg
 
-        h.set_CFG('B1B2extension', flexion)
+        h.set_CFG('B1B2extension', extension)
 
         B2_R_B1 = inertia.euler_123((flexion, 0.0, 0.0))
 
