@@ -9,12 +9,12 @@ v1.1
 ----
 
  - Fixed somersault mispelling, issue #67.
- - Configuration variables indicate proper sense. For example, flexion means
-   flexion; not extension.
- - Fix serious bug in the computation of inertia tensors in different reference
-   frames. The calculation of all solids' and segments' inertia
+ - Now, configuration variables indicate proper sense. For example, flexion
+   means flexion; not extension.
+ - Fixed serious bug in the computation of inertia tensors in different
+   reference frames. The calculation of all solids' and segments' inertia
    tensors in the global frame was incorrect.
- - Use a consistent definition for rotation matrices: now, all rotation
+ - Now, use a consistent definition for rotation matrices: now, all rotation
    matrices `R` are of the form `v_a = R * v_b`.
 
 v1.0
