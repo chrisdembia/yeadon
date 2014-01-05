@@ -153,14 +153,14 @@ def test_rotations():
     c3 = cos(angles[2])
 
     R = [[c2 * c3, s1 * s2 * c3 - s3 * c1, c1 * s2 * c3 + s3 * s1],
-            [c2 * s3, s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 - c3 * s1],
-            [-s2, s1 * c2, c1 * c2]]
+         [c2 * s3, s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 - c3 * s1],
+         [-s2, s1 * c2, c1 * c2]]
 
     testing.assert_allclose(R, inertia.rotate_space_123(angles))
 
     R = [[c2 * c3, -c2 * s3, s2],
-            [s1 * s2 * c3 + s3 * c1, -s1 * s2 * s3 + c3 * c1, -s1 * c2],
-            [-c1 * s2 * c3 + s3 * s1, c1 * s2 * s3 + c3 * s1, c1 * c2]]
+         [s1 * s2 * c3 + s3 * c1, -s1 * s2 * s3 + c3 * c1, -s1 * c2],
+         [-c1 * s2 * c3 + s3 * s1, c1 * s2 * s3 + c3 * s1, c1 * c2]]
 
     testing.assert_allclose(R, inertia.euler_123(angles))
 
@@ -175,14 +175,14 @@ def test_rotations():
     c3 = cos(angles[2])
 
     R = [[c2 * c3, s1 * s2 * c3 - s3 * c1, c1 * s2 * c3 + s3 * s1],
-            [c2 * s3, s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 - c3 * s1],
-            [-s2, s1 * c2, c1 * c2]]
+         [c2 * s3, s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 - c3 * s1],
+         [-s2, s1 * c2, c1 * c2]]
 
     testing.assert_allclose(R, inertia.rotate_space_123(angles))
 
     R = [[c2 * c3, -c2 * s3, s2],
-            [s1 * s2 * c3 + s3 * c1, -s1 * s2 * s3 + c3 * c1, -s1 * c2],
-            [-c1 * s2 * c3 + s3 * s1, c1 * s2 * s3 + c3 * s1, c1 * c2]]
+         [s1 * s2 * c3 + s3 * c1, -s1 * s2 * s3 + c3 * c1, -s1 * c2],
+         [-c1 * s2 * c3 + s3 * s1, c1 * s2 * s3 + c3 * s1, c1 * c2]]
 
     testing.assert_allclose(R, inertia.euler_123(angles))
 
@@ -223,7 +223,7 @@ def test_parallel_axis():
     testing.assert_almost_equal(inertia2[2, 2],
             inertia1[2, 2] + dpos[0]**2 + dpos[1]**2)
 
-    # TODO : test parallel_axis, additional (non-diagonal) cases
+# TODO : test parallel_axis, additional (non-diagonal) cases
 
 
 def test_rotate_inertia():
@@ -234,19 +234,19 @@ def test_rotate_inertia():
     # v_b.
 
     I_a = mat([[1.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 3.0]])
+               [0.0, 2.0, 0.0],
+               [0.0, 0.0, 3.0]])
 
     # Space fixed rotation 231 about -pi/2, pi/2, 0
     R = mat([[0.0, -1.0, 0.0],
-        [0.0, 0.0, -1.0],
-        [1.0, 0.0, 0.0]])
+             [0.0, 0.0, -1.0],
+             [1.0, 0.0, 0.0]])
 
     I_b = inertia.rotate_inertia(R, I_a)
 
     expected_I_b = mat([[3.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 2.0]])
+                        [0.0, 1.0, 0.0],
+                        [0.0, 0.0, 2.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
 
@@ -255,24 +255,24 @@ def test_rotate_inertia():
     # z_b = x_a.
 
     I_a = mat([[1.0, 4.0, 5.0],
-        [4.0, 2.0, 6.0],
-        [5.0, 6.0, 3.0]])
+               [4.0, 2.0, 6.0],
+               [5.0, 6.0, 3.0]])
 
     R = inertia.rotate_space_123((pi, pi / 2, pi))
 
     I_b = inertia.rotate_inertia(R, I_a)
 
     expected_I_b = mat([[3.0, -6.0, -5.0],
-        [-6.0, 2.0, 4.0],
-        [-5.0, 4.0, 1.0]])
+                        [-6.0, 2.0, 4.0],
+                        [-5.0, 4.0, 1.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
 
     # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
     # (0, -2, -1) in the global reference frame, A.
     I_a = mat([[10.0, 0.0, 0.0],
-        [0.0, 2.0, -4.0],
-        [0.0, -4.0, 8.0]])
+               [0.0, 2.0, -4.0],
+               [0.0, -4.0, 8.0]])
 
     # If we want the inertia about a new reference frame, B, such that the
     # two masses lie on the yb axis we can rotate about xa through the angle
@@ -282,7 +282,7 @@ def test_rotate_inertia():
     I_b = inertia.rotate_inertia(R, I_a)
 
     expected_I_b = mat([[10.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 10.0]])
+                        [0.0, 0.0, 0.0],
+                        [0.0, 0.0, 10.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
