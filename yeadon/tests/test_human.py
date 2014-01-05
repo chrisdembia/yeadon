@@ -94,18 +94,18 @@ class TestHuman(unittest.TestCase):
                     'PTsagittalFlexion',
                     'PTfrontalFlexion',
                     'TCspinalTorsion',
-                    'TClateralSpinalFlexion',
-                    'CA1elevation',
-                    'CA1abduction',
+                    'TCsagittalSpinalFlexion',
+                    'CA1extension',
+                    'CA1adduction',
                     'CA1rotation',
-                    'CB1elevation',
+                    'CB1extension',
                     'CB1abduction',
                     'CB1rotation',
-                    'A1A2flexion',
-                    'B1B2flexion',
-                    'PJ1flexion',
-                    'PJ1abduction',
-                    'PK1flexion',
+                    'A1A2extension',
+                    'B1B2extension',
+                    'PJ1extension',
+                    'PJ1adduction',
+                    'PK1extension',
                     'PK1abduction',
                     'J1J2flexion',
                     'K1K2flexion')
@@ -587,18 +587,18 @@ class TestHuman(unittest.TestCase):
                 'PTsagittalFlexion': 0.0,
                 'PTfrontalFlexion': 0.0,
                 'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
+                'TCsagittalSpinalFlexion': 0.0,
+                'CA1extension': 0.0,
+                'CA1adduction': 0.0,
                 'CA1rotation': 0.0,
-                'CB1elevation': 0.0,
+                'CB1extension': 0.0,
                 'CB1abduction': np.pi/4,
                 'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'B1B2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': 0.0,
+                'A1A2extension': 0.0,
+                'B1B2extension': 0.0,
+                'PJ1extension': 0.0,
+                'PJ1adduction': 0.0,
+                'PK1extension': 0.0,
                 'PK1abduction': 0.0,
                 'J1J2flexion': 0.0,
                 'K1K2flexion': 0.0,
@@ -613,17 +613,17 @@ class TestHuman(unittest.TestCase):
                 'PTsagittalFlexion': 0.0,
                 'PTfrontalFlexion': 0.0,
                 'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
+                'TCsagittalSpinalFlexion': 0.0,
+                'CA1extension': 0.0,
+                'CA1adduction': 0.0,
                 'CA1rotation': 0.0,
-                'CB1elevation': 0.0,
+                'CB1extension': 0.0,
                 'CB1abduction': np.pi/4,
                 'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': 0.0,
+                'A1A2extension': 0.0,
+                'PJ1extension': 0.0,
+                'PJ1adduction': 0.0,
+                'PK1extension': 0.0,
                 'PK1abduction': 0.0,
                 'J1J2flexion': 0.0,
                 'K1K2flexion': 0.0,
@@ -642,18 +642,18 @@ class TestHuman(unittest.TestCase):
                 'PTsagittalFlexion': 0.0,
                 'PTfrontalFlexion': 0.0,
                 'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
+                'TCsagittalSpinalFlexion': 0.0,
+                'CA1extension': 0.0,
+                'CA1adduction': 0.0,
                 'CA1rotation': 0.0,
                 'wrong': 0.01,
-                'CB1elevation': 0.0,
+                'CB1extension': 0.0,
                 'CB1abduction': np.pi/4,
                 'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': 0.0,
+                'A1A2extension': 0.0,
+                'PJ1extension': 0.0,
+                'PJ1adduction': 0.0,
+                'PK1extension': 0.0,
                 'PK1abduction': 0.0,
                 'J1J2flexion': 0.0,
                 'K1K2flexion': 0.0,
@@ -675,25 +675,25 @@ class TestHuman(unittest.TestCase):
                'PTsagittalFlexion': 0.0,
                'PTfrontalFlexion': 0.0,
                'TCspinalTorsion': 0.0,
-               'TClateralSpinalFlexion': 0.0,
-               'CA1elevation': 0.0,
-               'CA1abduction': 0.0,
+               'TCsagittalSpinalFlexion': 0.0,
+               'CA1extension': 0.0,
+               'CA1adduction': 0.0,
                'CA1rotation': 0.0,
-               'CB1elevation': 0.0,
+               'CB1extension': 0.0,
                'CB1abduction': np.pi / 4.0,
                'CB1rotation': 0.0,
-               'A1A2flexion': 0.0,
-               'B1B2flexion': 0.0,
-               'PJ1flexion': 0.0,
-               'PJ1abduction': 0.0,
-               'PK1flexion': -10.0 * np.pi,
+               'A1A2extension': 0.0,
+               'B1B2extension': 0.0,
+               'PJ1extension': 0.0,
+               'PJ1adduction': 0.0,
+               'PK1extension': -10.0 * np.pi,
                'PK1abduction': 0.0,
                'J1J2flexion': 0.0,
                'K1K2flexion': 0.0,
                }
         desStr = ("Joint angle twist = 3.0 pi-rad is out of range. "
                 "Must be between -1.0 and 1.0 pi-rad.\n"
-                "Joint angle PK1flexion = -10.0 pi-rad is out of range. "
+                "Joint angle PK1extension = -10.0 pi-rad is out of range. "
                 "Must be between -0.5 and 1.0 pi-rad.\n")
 
         old_stdout = sys.stdout
@@ -731,7 +731,7 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(h2.inertia[2, 2], h.inertia[1, 1])
 
         h2.set_CFG('somersault', 0)
-        h2.set_CFG('CA1elevation', np.pi / 2)
+        h2.set_CFG('CA1extension', np.pi / 2)
         testing.assert_almost_equal(h2.A1.rel_inertia, h.A1.rel_inertia)
         testing.assert_almost_equal(h2.A2.rel_inertia, h.A2.rel_inertia)
         # y and z components are swapped.
@@ -746,7 +746,7 @@ class TestHuman(unittest.TestCase):
         # That is, the only part of the human's inertia tensor that changed
         # should be that which comes from the arm A.
         # Obtain inertia tensors about origin; the other option would be
-        # h.center_of_mass, but this changes depending on A1A2flexion.
+        # h.center_of_mass, but this changes depending on A1A2extension.
         a1inertia_before = np.mat(inertia.parallel_axis( h.A1.inertia, h.A1.mass,
             h.A1.center_of_mass.T.tolist()[0]))
         a1inertia_after = np.mat(inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
@@ -764,16 +764,51 @@ class TestHuman(unittest.TestCase):
                 whole_inertia_before - a1inertia_before - a2inertia_before,
                 atol=1e-15)
 
-        # In yeadon 1.0.2 we realized that somersault was mispelled as
-        # somersalt, but we still want to accept incorrect spellings for
-        # backward incompatibility. It should issue a depreciation warning
+    def test_deprecated_CFG_names(self):
+        """For v1.1.0, we changed a number of the configuration variable names.
+        We still want to accept incorrect spellings for backwards
+        compatibility. It should issue a deprecation warning
         # if you use the incorrect spelling but the code should run anyways.
 
-        h = hum.Human(self.male1meas)
-        h.set_CFG('somersalt', np.pi / 2)
-        assert 'somersalt' not in h.CFG.keys()
-        testing.assert_allclose(h.CFG['somersault'], np.pi / 2)
+        """
+        deprecated_CFG_names = {'somersalt': 'somersault',
+                'CA1elevation': 'CA1extension',
+                'CB1elevation': 'CB1extension',
+                'CA1abduction': 'CA1adduction',
+                'A1A2flexion': 'A1A2extension',
+                'B1B2flexion': 'B1B2extension',
+                'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
+                'PJ1flexion': 'PJ1extension',
+                'PK1flexion': 'PK1extension',
+                'PJ1abduction': 'PJ1adduction',
+                }
 
+        for old_name, new_name in deprecated_CFG_names.items():
+
+            # set_CFG.
+            h = hum.Human(self.male1meas)
+            CFG_value = h.CFGbounds[h.CFGnames.index(new_name)][0]
+            h.set_CFG(old_name, CFG_value)
+            assert old_name not in h.CFG.keys()
+            testing.assert_allclose(h.CFG[new_name], CFG_value)
+
+            # set_CFG_dict.
+            h = hum.Human(self.male1meas)
+            CFG = copy.copy(h.CFG)
+            CFG.pop(new_name)
+            CFG[old_name] = CFG_value
+            h.set_CFG_dict(CFG)
+            assert old_name not in h.CFG.keys()
+            assert new_name in h.CFG.keys()
+            testing.assert_allclose(h.CFG[new_name], CFG_value)
+
+        # Reading from file.
+        cfg_path = os.path.join(os.path.split(__file__)[0],
+                               'CFG_deprecated_names.txt')
+        h = hum.Human(self.male1meas, cfg_path)
+        for old_name, new_name in deprecated_CFG_names.items():
+            assert old_name not in h.CFG.keys()
+            assert new_name in h.CFG.keys()
 
     def test_set_CFG_dict(self):
         """Checks input errors and that the assignment occurs."""
@@ -801,20 +836,6 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "'testing' is not a correct variable name.")
 
-        # In yeadon 1.0.2 we realized that somersault was mispelled as
-        # somersalt, but we still want to accept incorrect spellings for
-        # backward incompatibility. It should issue a depreciation warning
-        # if you use the incorrect spelling but the code should run anyways.
-
-        h = hum.Human(self.male1meas)
-        CFG = copy.copy(h.CFG)
-        CFG.pop('somersault')
-        CFG['somersalt'] = 1.0
-        h.set_CFG_dict(CFG)
-        assert 'somersalt' not in h.CFG.keys()
-        assert 'somersault' in h.CFG.keys()
-        testing.assert_allclose(h.CFG['somersault'], 1.0)
-
     def test_crazy_CFG_regression(self):
         """Puts the human in a crazy configuration (all angles are non-zero)
         and compares all 3 inertial properties.
@@ -828,18 +849,18 @@ class TestHuman(unittest.TestCase):
                'PTsagittalFlexion': 0.35 * np.pi,
                'PTfrontalFlexion': -0.18 * np.pi,
                'TCspinalTorsion': -0.08 * np.pi,
-               'TClateralSpinalFlexion': 0.13 * np.pi,
-               'CA1elevation': -0.42 * np.pi,
-               'CA1abduction': 0.19 * np.pi,
+               'TCsagittalSpinalFlexion': 0.13 * np.pi,
+               'CA1extension': -0.42 * np.pi,
+               'CA1adduction': 0.19 * np.pi,
                'CA1rotation': 0.38 * np.pi,
-               'CB1elevation': -0.13 * np.pi,
+               'CB1extension': -0.13 * np.pi,
                'CB1abduction': 0.32 * np.pi,
                'CB1rotation': 0.48 * np.pi,
-               'A1A2flexion': -0.45 * np.pi,
-               'B1B2flexion': -0.31 * np.pi,
-               'PJ1flexion': 0.26 * np.pi,
-               'PJ1abduction': 0.37 * np.pi,
-               'PK1flexion': -0.21 * np.pi,
+               'A1A2extension': -0.45 * np.pi,
+               'B1B2extension': -0.31 * np.pi,
+               'PJ1extension': 0.26 * np.pi,
+               'PJ1adduction': 0.37 * np.pi,
+               'PK1extension': -0.21 * np.pi,
                'PK1abduction': 0.29 * np.pi,
                'J1J2flexion': 0.23 * np.pi,
                'K1K2flexion': 0.41 * np.pi,
@@ -1053,13 +1074,6 @@ class TestHuman(unittest.TestCase):
             self.assertEqual(e.message,
                     "Variable PTsagittalFlexion has no value.")
 
-        # Mispelled somersault.
-        cfgPath = os.path.join(os.path.split(__file__)[0],
-                               'CFG_somersalt.txt')
-        h = hum.Human(self.male1meas, cfgPath)
-        assert 'somersalt' not in h.CFG.keys()
-        assert 'somersault' in h.CFG.keys()
-
     def test_write_CFG(self):
         """Writes a valid YAML file that can be read back in."""
 
@@ -1069,18 +1083,18 @@ class TestHuman(unittest.TestCase):
                 'PTsagittalFlexion': 0.0,
                 'PTfrontalFlexion': 0.0,
                 'TCspinalTorsion': 0.0,
-                'TClateralSpinalFlexion': 0.0,
-                'CA1elevation': 0.0,
-                'CA1abduction': 0.0,
+                'TCsagittalSpinalFlexion': 0.0,
+                'CA1extension': 0.0,
+                'CA1adduction': 0.0,
                 'CA1rotation': 0.0,
-                'CB1elevation': 0.0,
+                'CB1extension': 0.0,
                 'CB1abduction': np.pi/4,
                 'CB1rotation': 0.0,
-                'A1A2flexion': 0.0,
-                'B1B2flexion': 0.0,
-                'PJ1flexion': 0.0,
-                'PJ1abduction': 0.0,
-                'PK1flexion': 0.0,
+                'A1A2extension': 0.0,
+                'B1B2extension': 0.0,
+                'PJ1extension': 0.0,
+                'PJ1adduction': 0.0,
+                'PK1extension': 0.0,
                 'PK1abduction': 0.0,
                 'J1J2flexion': 0.0,
                 'K1K2flexion': 0.0,
@@ -1393,14 +1407,14 @@ class TestHuman(unittest.TestCase):
         elevation = pi / 10.05
         abduction = pi / 68.4
 
-        h.set_CFG('PJ1flexion', elevation)
-        h.set_CFG('PJ1abduction', -abduction) # should be neg
+        h.set_CFG('PJ1extension', elevation)
+        h.set_CFG('PJ1adduction', -abduction) # should be neg
 
         RJ = inertia.euler_123((elevation, -abduction, 0.0))
 
         testing.assert_allclose(h.J1.rot_mat, RJ)
 
-        h.set_CFG('PK1flexion', elevation)
+        h.set_CFG('PK1extension', elevation)
         h.set_CFG('PK1abduction', abduction)
 
         RK = inertia.euler_123((elevation, abduction, 0.0))
@@ -1447,8 +1461,8 @@ class TestHuman(unittest.TestCase):
         abduction = pi - pi / 10.0
         rotation = pi / 14.0
 
-        h.set_CFG('CA1elevation', elevation)
-        h.set_CFG('CA1abduction', abduction)
+        h.set_CFG('CA1extension', elevation)
+        h.set_CFG('CA1adduction', abduction)
         h.set_CFG('CA1rotation', rotation)
 
         # now we should manually calculate the rotation matrix for Euler 1-2-3
@@ -1465,7 +1479,7 @@ class TestHuman(unittest.TestCase):
 
         R2 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        h.set_CFG('A1A2flexion', flexion)
+        h.set_CFG('A1A2extension', flexion)
 
         testing.assert_allclose(h.A2.rot_mat, R * R2)
 
@@ -1475,7 +1489,7 @@ class TestHuman(unittest.TestCase):
         abduction = pi - pi / 10.0
         rotation = pi / 14.0
 
-        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1extension', elevation)
         h.set_CFG('CB1abduction', abduction)
         h.set_CFG('CB1rotation', rotation)
 
@@ -1496,7 +1510,7 @@ class TestHuman(unittest.TestCase):
 
         R2 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        h.set_CFG('B1B2flexion', flexion)
+        h.set_CFG('B1B2extension', flexion)
 
         testing.assert_allclose(h.B2.rot_mat, R * R2)
 
@@ -1542,7 +1556,7 @@ class TestHuman(unittest.TestCase):
         spinalflexion = angle()
         torsion = angle()
 
-        h.set_CFG('TClateralSpinalFlexion', spinalflexion)
+        h.set_CFG('TCsagittalSpinalFlexion', spinalflexion)
         h.set_CFG('TCspinalTorsion', torsion)
 
         C_R_T = inertia.euler_123((spinalflexion, 0.0, torsion))
@@ -1557,8 +1571,8 @@ class TestHuman(unittest.TestCase):
         abduction = angle() # neg
         rotation = angle()
 
-        h.set_CFG('CA1elevation', elevation)
-        h.set_CFG('CA1abduction', abduction)
+        h.set_CFG('CA1extension', elevation)
+        h.set_CFG('CA1adduction', abduction)
         h.set_CFG('CA1rotation', rotation)
 
         A1_R_C = inertia.euler_123((elevation, abduction, rotation))
@@ -1571,7 +1585,7 @@ class TestHuman(unittest.TestCase):
 
         flexion = angle() #neg
 
-        h.set_CFG('A1A2flexion', flexion)
+        h.set_CFG('A1A2extension', flexion)
 
         A2_R_A1 = inertia.euler_123((flexion, 0.0, 0.0))
 
@@ -1585,7 +1599,7 @@ class TestHuman(unittest.TestCase):
         abduction = angle()
         rotation = angle()
 
-        h.set_CFG('CB1elevation', elevation)
+        h.set_CFG('CB1extension', elevation)
         h.set_CFG('CB1abduction', abduction)
         h.set_CFG('CB1rotation', rotation)
 
@@ -1599,7 +1613,7 @@ class TestHuman(unittest.TestCase):
 
         flexion = angle() # neg
 
-        h.set_CFG('B1B2flexion', flexion)
+        h.set_CFG('B1B2extension', flexion)
 
         B2_R_B1 = inertia.euler_123((flexion, 0.0, 0.0))
 
@@ -1614,8 +1628,8 @@ class TestHuman(unittest.TestCase):
         elevation = angle()
         abduction = angle() # neg
 
-        h.set_CFG('PJ1flexion', elevation)
-        h.set_CFG('PJ1abduction', abduction) # should be neg
+        h.set_CFG('PJ1extension', elevation)
+        h.set_CFG('PJ1adduction', abduction) # should be neg
 
         J1_R_P = inertia.euler_123((elevation, abduction, 0.0))
 
@@ -1638,7 +1652,7 @@ class TestHuman(unittest.TestCase):
         elevation = angle()
         abduction = angle()
 
-        h.set_CFG('PK1flexion', elevation)
+        h.set_CFG('PK1extension', elevation)
         h.set_CFG('PK1abduction', abduction) # should be neg
 
         K1_R_P = inertia.euler_123((elevation, abduction, 0.0))
