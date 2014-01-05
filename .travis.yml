@@ -2,8 +2,8 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install PyYaml sphinx numpydoc
+  - pip install PyYaml sphinx numpydoc coverage
 script:
-  - nosetests
+  - nosetests -v --with-coverage --cover-package=yeadon
   - cd doc && make html && cd ..
   - python setup.py install
