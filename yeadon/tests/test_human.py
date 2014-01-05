@@ -1226,7 +1226,7 @@ class TestHuman(unittest.TestCase):
         m = h.mass
 
         # A simple change in position.
-        d = 15
+        d = 15  # meters
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
                     h.center_of_mass[1, 0],
@@ -1251,8 +1251,8 @@ class TestHuman(unittest.TestCase):
         # A more complicated change in position.
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
-                    h.center_of_mass[1, 0],
-                    2*d + h.center_of_mass[2, 0]])
+                     h.center_of_mass[1, 0],
+                     2 * d + h.center_of_mass[2, 0]])
         offset2 = m * 4 * d**2
         # Moments of inertia.
         testing.assert_almost_equal(
@@ -1272,12 +1272,13 @@ class TestHuman(unittest.TestCase):
         testing.assert_almost_equal(inertia_post[2, 1], inertia_post[1, 2])
         inertia_post = None
 
-        # A combined change in position and basis.
+        # A combined change in position and basis. Shift in x and rotation
+        # about X.
         inertia_post = h.inertia_transformed(
                 pos=[d + h.center_of_mass[0, 0],
-                    h.center_of_mass[1, 0],
-                    h.center_of_mass[2, 0]],
-                rotmat=inertia.rotate_space_123((0.5 * np.pi,0,0)))
+                         h.center_of_mass[1, 0],
+                         h.center_of_mass[2, 0]],
+                rotmat=inertia.rotate_space_123((0.5 * np.pi, 0.0, 0.0)))
         # Moments of inertia.
         testing.assert_almost_equal(inertia_post[0, 0], inertia_pre[0, 0])
         testing.assert_almost_equal(

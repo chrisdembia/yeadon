@@ -539,7 +539,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             transformed = self.inertia.copy()
 
         if rotmat is not None:
-            transformed = inertia.rotate_inertia(transformed, rotmat.T)
+            transformed = inertia.rotate_inertia(rotmat, transformed)
 
         return transformed
 
