@@ -8,9 +8,11 @@ import os
 import unittest
 import warnings
 
-from numpy import testing, pi, array, matrix, sin, cos, zeros, array
+from numpy import testing, pi, array, matrix, sin, cos, zeros, array, mat, \
+        arctan
 
 from yeadon.solid import Stadium, Solid, StadiumSolid
+from yeadon import inertia
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
@@ -488,5 +490,38 @@ def test_stadiumsolidcheck_against_truncated_cone():
             truncated_cone_mass(density, rad0, rad1, height) +
             density * (2 * thick0 * height * 0.5 * (rad0 * 2)), decimal=4)
 
+def test_rotate_inertia():
+    """Are we obtaining the global inertia properly?"""
 
+    density = 1.5
+    height = 4
+    height_vec = array([[0], [0], [height]])
 
+    # One thickness is 0.
+    r0 = 5; t0 = 0; r1 = 2; t1 = 2;
+
+    stad1 = Stadium('Ls1: umbilicus', 'thicknessradius', t0, r0)
+    stad2 = Stadium('Lb1: mid-arm', 'thicknessradius', t1, r1)
+
+    solidA = StadiumSolid('solid', density, stad1, stad2, height)
+
+    # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
+    # (0, -2, -1) in the global reference frame, A.
+    solidA._rel_inertia = mat([[10.0, 0.0, 0.0],
+                             [0.0, 2.0, -4.0],
+                             [0.0, -4.0, 8.0]])
+
+    # If we want the inertia about a new reference frame, B, such that the
+    # two masses lie on the yb axis we can rotate about xa through the angle
+    # arctan(1/2). Note that this function returns R from va = R * vb.
+    solidA._rot_mat = inertia.rotate_space_123((arctan(1.0 / 2.0), 0.0, 0.0))
+
+    solidA.calc_properties()
+
+    I_b = solidA.inertia
+
+    expected_I_b = mat([[10.0, 0.0, 0.0],
+                        [0.0, 0.0, 0.0],
+                        [0.0, 0.0, 10.0]])
+
+    testing.assert_allclose(I_b, expected_I_b)

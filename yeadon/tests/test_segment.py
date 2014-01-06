@@ -6,7 +6,7 @@ import warnings
 
 import unittest
 import numpy as np
-from numpy import testing, pi
+from numpy import testing, pi, mat, arctan
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -239,3 +239,37 @@ class TestSegments(unittest.TestCase):
         desStr = open(os.path.join(os.path.split(__file__)[0],
             'segment_print_solid_des.txt'), 'r').read()
         self.assertEquals(mystdout.getvalue(), desStr)
+
+    def test_rotate_inertia(self):
+        """Are we obtaining the global inertia properly?"""
+
+        # Create parameters.
+        label = 'seg1'
+        pos = np.array([[1], [2], [3]])
+        rot = inertia.rotate_space_123([pi / 2, pi / 2, pi / 2])
+        solids = [self.solidAB, self.solidBC, self.solidCD]
+        color = (1, 0, 0)
+
+        # Create the segment.
+        seg1 = seg.Segment(label, pos, rot, solids, color)
+
+        # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
+        # (0, -2, -1) in the global reference frame, A.
+        seg1._rel_inertia = mat([[10.0, 0.0, 0.0],
+                                 [0.0, 2.0, -4.0],
+                                 [0.0, -4.0, 8.0]])
+
+        # If we want the inertia about a new reference frame, B, such that the
+        # two masses lie on the yb axis we can rotate about xa through the angle
+        # arctan(1/2). Note that this function returns R from va = R * vb.
+        seg1._rot_mat = inertia.rotate_space_123((arctan(1.0 / 2.0), 0.0, 0.0))
+
+        seg1.calc_properties()
+
+        I_b = seg1.inertia
+
+        expected_I_b = mat([[10.0, 0.0, 0.0],
+                            [0.0, 0.0, 0.0],
+                            [0.0, 0.0, 10.0]])
+
+        testing.assert_allclose(I_b, expected_I_b)
