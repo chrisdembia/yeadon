@@ -13,9 +13,20 @@ v1.1
    means flexion; not extension.
  - Fixed serious bug in the computation of inertia tensors in different
    reference frames. The calculation of all solids' and segments' inertia
-   tensors in the global frame was incorrect.
+   tensors in the global frame was incorrect, PRs #79, #80.
  - Now, use a consistent definition for rotation matrices: now, all rotation
-   matrices `R` are of the form `v_a = R * v_b`.
+   matrices ``R`` are of the form ``v_a = R * v_b``, PR #88.
+ - Added a center of mass sphere to the GUI visualization, PR #95.
+ - Made mass center sphere and inertia ellipsoid off by default in the GUI, PR
+   #93.
+ - Fixed default orientation of human in GUI visualization, PR #93.
+ - Improved the printing of human, segement, and solid properties, PR #81.
+ - Renamed ``rotate3_inertia`` to ``rotate_inertia`` and changed its definition
+   to match the rotation matrix definitions in the rest of the software, PR
+   #79.
+ - Setuptools now recommended, PR #72.
+ - ``yeadon.__version__`` now works, PR #69.
+ - Fixed Sphinx warnings in the docs.
 
 v1.0
 ----
