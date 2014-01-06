@@ -23,7 +23,7 @@ class YeadonGUI(HasTraits):
     measurement_file_name = File()
 
     # Drawing options.
-    show_inertia_ellipsoid = Bool(True)
+    show_inertia_ellipsoid = Bool(False)
 
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
@@ -183,6 +183,11 @@ class YeadonGUI(HasTraits):
         self.H.draw(self.scene.mlab, True)
         if self.show_inertia_ellipsoid:
             self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
+
+    @on_trait_change('scene.activated')
+    def set_view(self):
+        """Sets a reasonable camera angle for the intial view."""
+        self.scene.mlab.view(azimuth=90.0, elevation=-90.0)
 
     def _get_Ixx(self):
         return self.H.inertia[0, 0]
