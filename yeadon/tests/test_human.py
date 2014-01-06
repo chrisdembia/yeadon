@@ -1363,6 +1363,7 @@ class TestHuman(unittest.TestCase):
         # inerita.euler_rotation function. Yeadon starts with the I frame
         # (inertial) and rotates the F frame (attached to P) through the body
         # fixed 123 angles.
+        # NOTE inertia.euler_rotation has been removed.
 
         R = inertia.euler_123((somersault, tilt, twist))
 
@@ -1546,7 +1547,7 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('PTsagittalFlexion', sagflexion)
         h.set_CFG('PTbending', bending)
 
-        T_R_P = inertia.euler_rotation((sagflexion, bending, 0.0), (1, 2, 3))
+        T_R_P = inertia.euler_123((sagflexion, bending, 0.0))
 
         T_R_I = P_R_I * T_R_P
 
@@ -1576,7 +1577,7 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('CA1adduction', abduction)
         h.set_CFG('CA1rotation', rotation)
 
-        A1_R_C = inertia.euler_rotation((extension, abduction, rotation), (1, 2, 3))
+        A1_R_C = inertia.euler_123((extension, abduction, rotation))
 
         A1_R_I = C_R_I * A1_R_C
 
@@ -1588,7 +1589,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('A1A2extension', extension)
 
-        A2_R_A1 = inertia.euler_rotation((extension, 0.0, 0.0), (1, 2, 3))
+        A2_R_A1 = inertia.euler_123((extension, 0.0, 0.0))
 
         A2_R_I = A1_R_I * A2_R_A1
 
@@ -1604,7 +1605,7 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('CB1abduction', abduction)
         h.set_CFG('CB1rotation', rotation)
 
-        B1_R_C = inertia.euler_rotation((extension, abduction, rotation), (1, 2, 3))
+        B1_R_C = inertia.euler_123((extension, abduction, rotation))
 
         B1_R_I = C_R_I * B1_R_C
 
@@ -1616,7 +1617,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('B1B2extension', extension)
 
-        B2_R_B1 = inertia.euler_rotation((extension, 0.0, 0.0), (1, 2, 3))
+        B2_R_B1 = inertia.euler_123((extension, 0.0, 0.0))
 
         B2_R_I = B1_R_I * B2_R_B1
 
