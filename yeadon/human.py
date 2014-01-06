@@ -722,6 +722,18 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         y = R1 * np.sin(theta)
         return x, y, z
 
+    def _draw_mayavi_mass_center_sphere(self, mlabobj):
+        """Draws a sphere representing the mass center of the human."""
+        x, y, z = self.center_of_mass.flatten()
+        # 75 kg person has a 0.1 m diameter sphere
+        size = self.mass / 75.0 * 0.1
+        self._mass_center_sphere = mlabobj.points3d(x, y, z, size,
+                                                    scale_factor=1.0)
+
+    def _update_mayavi_mass_center_sphere(self):
+        x, y, z = self.center_of_mass.flatten()
+        self._mass_center_sphere.mlab_source.set(x=x, y=y, z=z)
+
     def _draw_mayavi_inertia_ellipsoid(self, mlabobj):
         """Draws the inertia ellipsoid centered at the human's center of mass.
         TODO describe what it is."""
