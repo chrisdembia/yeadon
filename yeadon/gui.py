@@ -23,6 +23,7 @@ class YeadonGUI(HasTraits):
     measurement_file_name = File()
 
     # Drawing options.
+    show_mass_center = Bool(False)
     show_inertia_ellipsoid = Bool(False)
 
     # Configuration variables.
@@ -138,6 +139,7 @@ class YeadonGUI(HasTraits):
                 HSplit(vis_group,
                     VSplit(
                         config_group,
+                        Item('show_mass_center'),
                         Item('show_inertia_ellipsoid'),
                         inertia_prop
                         )
@@ -181,6 +183,10 @@ class YeadonGUI(HasTraits):
 
     def _init_draw_human(self):
         self.H.draw(self.scene.mlab, True)
+
+        if self.show_mass_center:
+            self.H._draw_mayavi_mass_center_sphere(self.scene.mlab)
+
         if self.show_inertia_ellipsoid:
             self.H._draw_mayavi_inertia_ellipsoid(self.scene.mlab)
 
@@ -245,6 +251,17 @@ class YeadonGUI(HasTraits):
         if self.show_inertia_ellipsoid:
             self.H._update_mayavi_inertia_ellipsoid()
 
+    @on_trait_change('show_mass_center')
+    def _update_show_mass_center(self):
+        if self.show_mass_center:
+            self.H._draw_mayavi_mass_center_sphere(self.scene.mlab)
+        else:
+            self.H._mass_center_sphere.remove()
+
+    def _maybe_update_mass_center(self):
+        if self.show_mass_center:
+            self.H._update_mayavi_mass_center_sphere()
+
     @on_trait_change('reset_configuration')
     def _update_reset_configuration(self):
         # TODO: This is really slow because it sets every trait one by one. It
@@ -257,6 +274,7 @@ class YeadonGUI(HasTraits):
         self.H.set_CFG('somersault', deg2rad(self.somersault))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('tilt')
@@ -264,6 +282,7 @@ class YeadonGUI(HasTraits):
         self.H.set_CFG('tilt', deg2rad(self.tilt))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('twist')
@@ -271,24 +290,28 @@ class YeadonGUI(HasTraits):
         self.H.set_CFG('twist', deg2rad(self.twist))
         self._update_mayavi(['P', 'T', 'C', 'A1', 'A2', 'B1', 'B2', 'J1', 'J2',
             'K1', 'K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PTsagittalFlexion')
     def _update_PTsagittalFlexion(self):
         self.H.set_CFG('PTsagittalFlexion', deg2rad(self.PTsagittalFlexion))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PTbending')
     def _update_PTFrontalFlexion(self):
         self.H.set_CFG('PTbending', deg2rad(self.PTbending))
         self._update_mayavi(['T', 'C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('TCspinalTorsion')
     def _update_TCSpinalTorsion(self):
         self.H.set_CFG('TCspinalTorsion', deg2rad(self.TCspinalTorsion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('TCsagittalSpinalFlexion')
@@ -296,90 +319,105 @@ class YeadonGUI(HasTraits):
         self.H.set_CFG('TCsagittalSpinalFlexion',
                 deg2rad(self.TCsagittalSpinalFlexion))
         self._update_mayavi(['C', 'A1', 'A2', 'B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CA1extension')
     def _update_CA1extension(self):
         self.H.set_CFG('CA1extension', deg2rad(self.CA1extension))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CA1adduction')
     def _update_CA1adduction(self):
         self.H.set_CFG('CA1adduction', deg2rad(self.CA1adduction))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CA1rotation')
     def _update_CA1rotation(self):
         self.H.set_CFG('CA1rotation', deg2rad(self.CA1rotation))
         self._update_mayavi(['A1', 'A2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CB1extension')
     def _update_CB1extension(self):
         self.H.set_CFG('CB1extension', deg2rad(self.CB1extension))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CB1abduction')
     def _update_CB1abduction(self):
         self.H.set_CFG('CB1abduction', deg2rad(self.CB1abduction))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('CB1rotation')
     def _update_CB1rotation(self):
         self.H.set_CFG('CB1rotation', deg2rad(self.CB1rotation))
         self._update_mayavi(['B1', 'B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('A1A2extension')
     def _update_A1A2extension(self):
         self.H.set_CFG('A1A2extension', deg2rad(self.A1A2extension))
         self._update_mayavi(['A2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('B1B2extension')
     def _update_B1B2extension(self):
         self.H.set_CFG('B1B2extension', deg2rad(self.B1B2extension))
         self._update_mayavi(['B2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PJ1extension')
     def _update_PJ1extension(self):
         self.H.set_CFG('PJ1extension', deg2rad(self.PJ1extension))
         self._update_mayavi(['J1', 'J2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PJ1adduction')
     def _update_PJ1adduction(self):
         self.H.set_CFG('PJ1adduction', deg2rad(self.PJ1adduction))
         self._update_mayavi(['J1', 'J2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PK1extension')
     def _update_PK1extension(self):
         self.H.set_CFG('PK1extension', deg2rad(self.PK1extension))
         self._update_mayavi(['K1', 'K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('PK1abduction')
     def _update_PK1abduction(self):
         self.H.set_CFG('PK1abduction', deg2rad(self.PK1abduction))
         self._update_mayavi(['K1', 'K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('J1J2flexion')
     def _update_J1J2flexion(self):
         self.H.set_CFG('J1J2flexion', deg2rad(self.J1J2flexion))
         self._update_mayavi(['J2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     @on_trait_change('K1K2flexion')
     def _update_K1K2flexion(self):
         self.H.set_CFG('K1K2flexion', deg2rad(self.K1K2flexion))
         self._update_mayavi(['K2'])
+        self._maybe_update_mass_center()
         self._maybe_update_inertia_ellipsoid()
 
     def _update_mayavi(self, segments):
