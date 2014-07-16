@@ -8,7 +8,7 @@ tensors that correspond to the human inertia model developed by Yeadon in
 (Yeadon, 1990). The package allows for the input of both measurements and
 configuration variables (joint angles), and provides 3D visualization using the
 MayaVi package. See the online documentation at
-`<http://pythonhosted.org/yeadon>`_.
+`<http://yeadon.readthedocs.org/>`_.
 
 References
 ==========
