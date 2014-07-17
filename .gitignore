@@ -54,3 +54,6 @@ pip-log.txt
 *.maf
 *.mtc
 *.mtc0
+
+# sphinx
+doc/_build
