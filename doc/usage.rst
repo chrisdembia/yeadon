@@ -74,6 +74,16 @@ accessed through the ``solids`` attribute of each of the ``Segments``'s above::
     >>> chad.P.solids[0].label
     's0: hip joint centre'
 
+Setting the configuration
+=========================
+
+One can set the configuration of the model using a ``<CFGfilename>`` as
+described above, or by using the ``chad.set_CFG()`` method::
+
+    >>> chad.set_CFG('somersalt', 0.5 * 3.1416)
+
+When one calls this method, the inertia properties are recomputed. The list of
+configuration variables is stored in ``Human.CFGnames``.
 
 Summary of functionality
 ========================
