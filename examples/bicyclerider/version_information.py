@@ -46,7 +46,8 @@ Usage
    string with ``pkg_resources.require('<module>')[0].version``
    (the ``version`` field from ``setup.py``).
 
-This script is hosted at https://github.com/jrjohansson/version_information/.
+This script is hosted at https://github.com/jrjohansson/version_information/
+and is shared under the Creative Commons Attribution license.
 
 """
 import cgi
