@@ -5,6 +5,11 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_
 
+v1.2
+----
+
+ - Added two examples, PRs #98, #101.
+
 v1.1
 ----
 
