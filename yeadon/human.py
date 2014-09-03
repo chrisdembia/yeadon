@@ -199,10 +199,19 @@ class Human(object):
         if self.is_symmetric == True:
             self._average_limbs()
 
-        # Start off a zero configuration.
-        self.CFG = dict()
-        for key in Human.CFGnames:
-            self.CFG[key] = 0.0
+        # If configuration input is a dictionary, assign via public method.
+        # Else, read in the file.
+        if CFG is None:
+            # Start off a zero configuration.
+            self.CFG = dict()
+            for key in Human.CFGnames:
+                self.CFG[key] = 0.0
+        elif isinstance(CFG, dict):
+            self.set_CFG_dict(CFG)
+        elif isinstance(CFG, str):
+            self._read_CFG(CFG)
+        else:
+            raise ValueError('Not a valid CFG value.')
 
         # update will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
@@ -211,12 +220,6 @@ class Human(object):
         if self.meas_mass > 0:
             self.scale_human_by_mass(self.meas_mass)
 
-        # If configuration input is a dictionary, assign via public method.
-        # Else, read in the file.
-        if type(CFG) == dict:
-            self.set_CFG_dict(CFG)
-        elif type(CFG) == str:
-            self._read_CFG(CFG)
 
     def update(self):
         """Redefines all solids and then calls yeadon.Human._update_segments.
@@ -355,6 +358,11 @@ class Human(object):
                 raise Exception("'{0}' is not a correct variable "
                         "name.".format(key))
         self.CFG = CFG
+        self._update_segments()
+
+    def set_CFG_from_file(self, filename):
+
+        self._read_CFG(filename)
         self._update_segments()
 
     def calc_properties(self):
@@ -1513,7 +1521,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         """
         self.CFG = dict()
         with open(CFGfname, 'r') as fid:
-            mydict = yaml.load(fid.read())
+            mydict = yaml.load(fid)
             for key, val in mydict.items():
                 if key in self._deprecated_CFGnames.keys():
                     msg = ("'{0}' should be called '{1}'."
@@ -1528,7 +1536,6 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                     raise StandardError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
-            fid.close()
 
         if len(self.CFG) != len(self.CFGnames):
             raise StandardError("Number of CFG variables, {0}, is "
