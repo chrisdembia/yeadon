@@ -1,9 +1,19 @@
 yeadon
 ======
-.. image:: https://travis-ci.org/chrisdembia/yeadon.png?branch=master
-   :target: https://travis-ci.org/chrisdembia/yeadon
+
+.. image:: https://pypip.in/v/yeadon/badge.png
+    :target: https://pypi.python.org/pypi/yeadon/
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/yeadon/badge.png
+    :target: https://pypi.python.org/pypi/yeadon/
+    :alt: Number of PyPI downloads
+
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.11579.png
-   :target: http://dx.doi.org/10.5281/zenodo.11579
+    :target: http://dx.doi.org/10.5281/zenodo.11579
+
+.. image:: https://travis-ci.org/chrisdembia/yeadon.png?branch=master
+    :target: https://travis-ci.org/chrisdembia/yeadon
 
 This package calculates the masses, center of mass positions, and inertia
 tensors that correspond to the human inertia model developed by Yeadon in
