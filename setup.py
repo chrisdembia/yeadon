@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 from setuptools import setup, find_packages
 
-from yeadon import __version__
+exec(open('yeadon/version.py').read())
 
 setup(
     name='yeadon',
@@ -15,7 +17,7 @@ setup(
     packages=find_packages(),
     install_requires=['numpy', 'pyyaml'],
     extras_require={'gui': ['mayavi'],
-        'doc': ['sphinx', 'numpydoc']},
+                    'doc': ['sphinx', 'numpydoc']},
     tests_require=['nose'],
     test_suite='nose.collector',
     include_package_data=True,
