@@ -622,7 +622,6 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                     "contribution.".format(solobj, segkey))
 
         # Perform computations.
-        print "Combining segments/solids", objlist, "."
         combined_mass = 0.0
         combinedMoment = np.zeros( (3,1) )
         for objstr in objlist:
