@@ -13,9 +13,8 @@ import numpy as np
 import yaml
 try:
     from mayavi import mlab
-except Exception as e:
-    print "Failed to import mayavi. This is fine, it just means that you " \
-          "cannot use the draw() member function."
+except ImportError:
+    pass
 
 import inertia
 import solid as sol
@@ -25,6 +24,7 @@ from exceptions import YeadonDeprecationWarning
 
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)
+
 
 class Human(object):
     measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
@@ -622,7 +622,6 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                     "contribution.".format(solobj, segkey))
 
         # Perform computations.
-        print "Combining segments/solids", objlist, "."
         combined_mass = 0.0
         combinedMoment = np.zeros( (3,1) )
         for objstr in objlist:
