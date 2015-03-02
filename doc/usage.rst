@@ -80,7 +80,7 @@ Setting the configuration
 One can set the configuration of the model using a ``<CFGfilename>`` as
 described above, or by using the ``chad.set_CFG()`` method::
 
-    >>> chad.set_CFG('somersalt', 0.5 * 3.1416)
+    >>> chad.set_CFG('somersault', 0.5 * 3.1416)
 
 When one calls this method, the inertia properties are recomputed. The list of
 configuration variables is stored in ``Human.CFGnames``.
@@ -96,13 +96,13 @@ or of solids. The following prints the inertia properties for the entire
 human::
 
     >>> chad.print_properties()
-    Mass (kg): 58.2004885884 
-    
+    Mass (kg): 58.2004885884
+
     COM in global frame from bottom center of pelvis (Ls0) (m):
     [[  1.62144613e-17]
     [  0.00000000e+00]
-    [  1.19967938e-02]] 
-    
+    [  1.19967938e-02]]
+
     Inertia tensor in global frame about human's COM (kg-m^2):
     [[  9.63093850e+00   2.20795600e-20   6.10622664e-16]
     [  2.20795600e-20   9.99497872e+00   2.70396625e-36]
@@ -113,24 +113,24 @@ The following shows how one can print the inertia properties for the
 
     >>> chad.J1.print_properties()
     J1: Left thigh properties:
-    
-    Mass (kg): 8.50477532204 
-    
+
+    Mass (kg): 8.50477532204
+
     COM in segment's frame from segment's origin (m):
     [[ 0.        ]
     [ 0.        ]
-    [ 0.19276748]] 
-    
+    [ 0.19276748]]
+
     COM in global frame from bottom center of pelvis (Ls0) (m):
     [[ 0.081     ]
     [ 0.        ]
-    [-0.19276748]] 
-    
+    [-0.19276748]]
+
     Inertia tensor in segment's frame about segment's COM (kg-m^2):
     [[ 0.14109999  0.          0.        ]
     [ 0.          0.14109999  0.        ]
-    [ 0.          0.          0.02718329]] 
-    
+    [ 0.          0.          0.02718329]]
+
     Inertia tensor in global frame about segment's COM (kg-m^2):
     [[  1.41099994e-01   0.00000000e+00   1.39507727e-17]
     [  0.00000000e+00   1.41099994e-01   0.00000000e+00]
@@ -160,7 +160,7 @@ There are three inertia properties for the human overall::
 
     >>> chad.mass?
     ...Docstring:  Mass of the human, in units of kg....
-    
+
     >>> chad.center_of_mass?
     ...Docstring: Center of mass of the human, a np.ndarray, in units of m,
     expressed the global frame, from the bottom center of the pelvis
@@ -263,39 +263,38 @@ configuration::
 Scale by mass
 -------------
 The mass of the human that we calculate probably doesn't match that of the
-actual human subject being modeled. We calculate this mass using densities from literature. If you measure the human's actual mass and
-want to use that in `yeadon`, we can change the model's mass to this measured
-mass by scaling these densities. This can be done via the measurement input
-file by providing a positive value for ``totalmass`` (see measurement file
-template) or by a call to the ``chad.scale_human_by_mass()`` method.
+actual human subject being modeled. We calculate this mass using densities from
+literature. If you measure the human's actual mass and want to use that in
+`yeadon`, we can change the model's mass to this measured mass by scaling these
+densities. This can be done via the measurement input file by providing a
+positive value for ``totalmass`` (see measurement file template) or by a call
+to the ``chad.scale_human_by_mass()`` method.
 
 Symmetry
 --------
 One can average the measurements for the left and right limbs to create
-symmetrical limbs. This may be desirable depending on your use of the
-package. This symmetry is imposed by default. It can be changed by
-setting the keyword argument ``symmetric`` of the ``Human`` constructor to
-``False``. The symmetry of the model cannot be modified after the ``Human`` is
-constructed.
+symmetrical limbs. This may be desirable depending on your use of the package.
+This symmetry is imposed by default. It can be changed by setting the keyword
+argument ``symmetric`` of the ``Human`` constructor to ``False``. The symmetry
+of the model cannot be modified after the ``Human`` is constructed.
 
 Combine inertia
 ---------------
-One can obtain inertia properties for a combination of solids and/or
-segments. This is done via the ``chad.combine_inertia()`` method. See
-:ref:`apidoc` for more information.
+One can obtain inertia properties for a combination of solids and/or segments.
+This is done via the ``chad.combine_inertia()`` method. See :ref:`apidoc` for
+more information.
 
 Transform inertia tensor
 ------------------------
-By default, the inertia tensor of the human is expressed in the global
-frame, whose origin is located at the bottom center of the pelvis (Ls0), and
-whose orientation is shown in :ref:`configuration`, ``draw()`` and the
-GUI. To transform the inertia tensor so it's expressed in a different frame,
-you can use ``chad.inertia_transformed()``.
+By default, the inertia tensor of the human is expressed in the global frame,
+whose origin is located at the bottom center of the pelvis (Ls0), and whose
+orientation is shown in :ref:`configuration`, ``draw()`` and the GUI. To
+transform the inertia tensor so it's expressed in a different frame, you can
+use ``chad.inertia_transformed()``.
 
 File input/output
 -----------------
 The measurements can be written to a text file using
 ``chad.write_measurements()``. The configuration can be written using
-``chad.write_CFG()``. The measurements can be written
-to a text file that is ready for Yeadon's ISEG Fortran code using
-``chad.write_meas_for_ISEG()``.
+``chad.write_CFG()``. The measurements can be written to a text file that is
+ready for Yeadon's ISEG Fortran code using ``chad.write_meas_for_ISEG()``.

@@ -212,6 +212,16 @@ or::
 
 See the documentation for more information.
 
+Citation
+========
+
+If you make use of the yeadon software we would welcome a citation your in
+publications. Please cite the software paper:
+
+   Dembia C, Moore JK and Hubbard M. An object oriented implementation of the
+   Yeadon human inertia model, F1000Research 2014, 3:223 (doi:
+   10.12688/f1000research.5292.1)
+
 Contact
 =======
 
