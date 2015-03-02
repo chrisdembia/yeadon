@@ -3,7 +3,16 @@ Release Notes
 
 Future releases
 ---------------
-See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_
+See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
+
+v1.2.1
+------
+
+- Pinned the bicycle example to specific dependencies.
+- Added version.py.
+- Removed Mayavi print statements.
+- Added badges to the README.
+- Added citation note to the README.
 
 v1.2
 ----
@@ -35,6 +44,7 @@ v1.1
 
 v1.0
 ----
+
  - Fairly thorough unit tests.
  - Clarified documentation and docstrings.
  - Improved the way rotation matrices are formed.
@@ -46,4 +56,5 @@ v1.0
 
 v0.8 on 18 July 2011
 --------------------
+
 This is the first release.
