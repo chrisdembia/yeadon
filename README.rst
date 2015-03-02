@@ -9,8 +9,8 @@ yeadon
     :target: https://pypi.python.org/pypi/yeadon/
     :alt: Number of PyPI downloads
 
-.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.11579.png
-    :target: http://dx.doi.org/10.5281/zenodo.11579
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.15770.svg
+    :target: http://dx.doi.org/10.5281/zenodo.15770
 
 .. image:: https://travis-ci.org/chrisdembia/yeadon.png?branch=master
     :target: https://travis-ci.org/chrisdembia/yeadon
