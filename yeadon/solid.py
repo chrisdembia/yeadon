@@ -11,7 +11,7 @@ import warnings
 
 import numpy as np
 
-import inertia
+from . import inertia
 from .utils import printoptions
 
 class Stadium(object):

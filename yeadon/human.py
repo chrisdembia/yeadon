@@ -16,11 +16,11 @@ try:
 except ImportError:
     pass
 
-import inertia
-import solid as sol
-import segment as seg
+from . import inertia
+from . import solid as sol
+from . import segment as seg
 from .utils import printoptions
-from exceptions import YeadonDeprecationWarning
+from .exceptions import YeadonDeprecationWarning
 
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)

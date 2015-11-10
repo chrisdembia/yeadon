@@ -2,12 +2,15 @@
 object.
  '''
 import os
+import sys
+if sys.version_info >= (3, 0):
+    raw_input = input
 
 import numpy as np
 
-import inertia
+from . import inertia
 
-import human as hum
+from . import human as hum
 
 def start_ui():
     print("Starting YEADON user interface.")
