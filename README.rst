@@ -1,11 +1,15 @@
 yeadon
 ======
 
-.. image:: https://pypip.in/v/yeadon/badge.png
+.. image:: https://img.shields.io/pypi/v/yeadon.svg
     :target: https://pypi.python.org/pypi/yeadon/
     :alt: Latest PyPI version
 
-.. image:: https://pypip.in/d/yeadon/badge.png
+.. image:: https://img.shields.io/pypi/l/yeadon.svg
+    :target: https://pypi.python.org/pypi/yeadon/
+    :alt: License
+
+.. image:: https://img.shields.io/pypi/dm/yeadon.svg
     :target: https://pypi.python.org/pypi/yeadon/
     :alt: Number of PyPI downloads
 
