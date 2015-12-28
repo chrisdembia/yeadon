@@ -9,7 +9,7 @@ from traitsui.api import \
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
-from human import Human
+from .human import Human
 
 sliders = Human.CFGnames
 

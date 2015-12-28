@@ -11,7 +11,7 @@ from __future__ import division
 import numpy as np
 
 # local imports
-import inertia
+from . import inertia
 from .utils import printoptions
 
 

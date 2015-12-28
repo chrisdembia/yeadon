@@ -16,11 +16,11 @@ try:
 except ImportError:
     pass
 
-import inertia
-import solid as sol
-import segment as seg
+from . import inertia
+from . import solid as sol
+from . import segment as seg
 from .utils import printoptions
-from exceptions import YeadonDeprecationWarning
+from .exceptions import YeadonDeprecationWarning
 
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)
@@ -267,11 +267,11 @@ class Human(object):
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
                 self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
-                print "Joint angle",Human.CFGnames[i],"=",\
-                      self.CFG[Human.CFGnames[i]]/np.pi,\
-                      "pi-rad is out of range. Must be between",\
-                      Human.CFGbounds[i][0]/np.pi,"and",\
-                      Human.CFGbounds[i][1]/np.pi,"pi-rad."
+                print("Joint angle",Human.CFGnames[i],"=",
+                      self.CFG[Human.CFGnames[i]]/np.pi,
+                      "pi-rad is out of range. Must be between",
+                      Human.CFGbounds[i][0]/np.pi,"and",
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad.")
                 boolval = False
         return boolval
 
