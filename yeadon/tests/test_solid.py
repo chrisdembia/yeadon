@@ -191,7 +191,7 @@ class TestStadium(unittest.TestCase):
             stad = Stadium('Lb1: mid-arm', 'perimwidth', 1.9, 1.0)
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)
-            assert "incorrectly" in str(w[-1].message)
+            assert "incorrectly" in str(w[-1])
             testing.assert_almost_equal(stad.perimeter, 1.9)
             testing.assert_almost_equal(stad.radius, 1.9 / (2.0 * pi))
             testing.assert_almost_equal(stad.thickness, 0.0)
@@ -524,4 +524,4 @@ def test_rotate_inertia():
                         [0.0, 0.0, 0.0],
                         [0.0, 0.0, 10.0]])
 
-    testing.assert_allclose(I_b, expected_I_b)
+    testing.assert_allclose(I_b, expected_I_b, atol=1e-16)

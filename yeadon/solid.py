@@ -278,12 +278,12 @@ class Solid(object):
                 self._center_of_mass = (self.pos + self._rot_mat *
                         self.rel_center_of_mass)
             except AttributeError as err:
-                err.message = err.message + \
+                message = str(err) + \
                     '. You must set the orientation before attempting ' + \
                     'to calculate the properties.'
-                raise
+                raise AttributeError(message)
         except AttributeError as e:
-            print(e.message)
+            print(e)
 
         self._inertia = inertia.rotate_inertia(self._rot_mat, self.rel_inertia)
 

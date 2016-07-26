@@ -1,8 +1,11 @@
-# For redirecting stdout.
-from cStringIO import StringIO
 import sys
 import os
 import warnings
+# For redirecting stdout.
+if (sys.version_info > (3, 0)):
+    from io import StringIO
+else:
+    from cStringIO import StringIO
 
 import unittest
 import numpy as np
@@ -272,4 +275,4 @@ class TestSegments(unittest.TestCase):
                             [0.0, 0.0, 0.0],
                             [0.0, 0.0, 10.0]])
 
-        testing.assert_allclose(I_b, expected_I_b)
+        testing.assert_allclose(I_b, expected_I_b, atol=1e-16)
