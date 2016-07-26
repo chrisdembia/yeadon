@@ -11,7 +11,7 @@ import warnings
 
 import numpy as np
 
-import inertia
+from . import inertia
 from .utils import printoptions
 
 class Stadium(object):
@@ -133,10 +133,11 @@ class Stadium(object):
                     self.radius, self.thickness, self.perimeter / self.width))
             if inID == 'perimwidth':
                 self._set_as_circle(in1 / (2.0 * np.pi))
-                print "Fix: stadium set as circle with perimeter as given."
+                print("Fix: stadium set as circle with perimeter as given.")
             elif inID == 'depthwidth':
                 self._set_as_circle(0.5 * in2)
-                print "Fix: stadium set as circle with diameter of given width."
+                print("Fix: stadium set as circle with diameter of given "
+                        "width.")
             else:
                 raise ValueError("Negative radius/thickness cannot be "
                         "corrected.")
@@ -277,12 +278,12 @@ class Solid(object):
                 self._center_of_mass = (self.pos + self._rot_mat *
                         self.rel_center_of_mass)
             except AttributeError as err:
-                err.message = err.message + \
+                message = str(err) + \
                     '. You must set the orientation before attempting ' + \
                     'to calculate the properties.'
-                raise
+                raise AttributeError(message)
         except AttributeError as e:
-            print(e.message)
+            print(e)
 
         self._inertia = inertia.rotate_inertia(self._rot_mat, self.rel_inertia)
 

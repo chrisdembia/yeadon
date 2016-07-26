@@ -16,11 +16,11 @@ try:
 except ImportError:
     pass
 
-import inertia
-import solid as sol
-import segment as seg
+from . import inertia
+from . import solid as sol
+from . import segment as seg
 from .utils import printoptions
-from exceptions import YeadonDeprecationWarning
+from .exceptions import YeadonDeprecationWarning
 
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)
@@ -267,11 +267,11 @@ class Human(object):
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
                 self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
-                print "Joint angle",Human.CFGnames[i],"=",\
-                      self.CFG[Human.CFGnames[i]]/np.pi,\
-                      "pi-rad is out of range. Must be between",\
-                      Human.CFGbounds[i][0]/np.pi,"and",\
-                      Human.CFGbounds[i][1]/np.pi,"pi-rad."
+                print("Joint angle",Human.CFGnames[i],"=",
+                      self.CFG[Human.CFGnames[i]]/np.pi,
+                      "pi-rad is out of range. Must be between",
+                      Human.CFGbounds[i][0]/np.pi,"and",
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad.")
                 boolval = False
         return boolval
 
@@ -288,8 +288,8 @@ class Human(object):
         # averaged)
         # [21, 38] U [57, 75] are the left limbs.
         # [39, 57] U [76, 95] are the right limbs.
-        leftidxs = np.concatenate((np.arange(21, 39), np.arange(57, 76)), 1)
-        rightidx = np.concatenate((np.arange(39, 57), np.arange(76, 95)), 1)
+        leftidxs = np.hstack((np.arange(21, 39), np.arange(57, 76)))
+        rightidx = np.hstack((np.arange(39, 57), np.arange(76, 95)))
         for i in np.arange(len(leftidxs)):
             avg = 0.5 * (self.meas[Human.measnames[leftidxs[i]]] +
                          self.meas[Human.measnames[rightidx[i]]])
@@ -625,7 +625,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         combined_mass = 0.0
         combinedMoment = np.zeros( (3,1) )
         for objstr in objlist:
-            if ObjDict.has_key(objstr) == False:
+            if objstr not in ObjDict:
                 raise Exception("The string {0!r} does not identify a segment "
                       "or solid of the human.".format(objstr))
             obj = ObjDict[objstr]
@@ -1453,43 +1453,43 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         for key, val in m.items(): m[key] = val/SI
 
         # pelvis, torso, chest-head
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Ls1L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['Ls1L'],
             m['Ls2L'], m['Ls3L'], m['Ls4L'], m['Ls5L'], m['Ls6L'], m['Ls7L'],
             m['Ls8L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Ls0p'], m['Ls1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Ls0p'], m['Ls1p'],
             m['Ls2p'], m['Ls3p'], m['Ls5p'], m['Ls6p'], m['Ls7p']))
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Ls0w'], m['Ls1w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['Ls0w'], m['Ls1w'],
             m['Ls2w'], m['Ls3w'], m['Ls4w'], m['Ls4d']))
 
         # arms
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['La2L'], m['La3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['La2L'], m['La3L'],
             m['La4L'], m['La5L'], m['La6L'], m['La7L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['La0p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['La0p'],
             m['La1p'], m['La2p'], m['La3p'], m['La4p'], m['La5p'], m['La6p'],
             m['La7p']))
-        fid.write("{0},{1},{2},{3}\n".format(m['La4w'], m['La5w'], m['La6w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f}\n".format(m['La4w'], m['La5w'], m['La6w'],
             m['La7w']))
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Lb2L'], m['Lb3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['Lb2L'], m['Lb3L'],
             m['Lb4L'], m['Lb5L'], m['Lb6L'], m['Lb7L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Lb0p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['Lb0p'],
             m['Lb1p'], m['Lb2p'], m['Lb3p'], m['Lb4p'], m['Lb5p'], m['Lb6p'],
             m['Lb7p']))
-        fid.write("{0},{1},{2},{3}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
             m['Lb7w']))
 
         # legs
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lj1L'], m['Lj3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Lj1L'], m['Lj3L'],
             m['Lj4L'], m['Lj5L'], m['Lj6L'], m['Lj8L'], m['Lj9L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lj1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f},{8:1.1f}\n".format(m['Lj1p'],
             m['Lj2p'], m['Lj3p'], m['Lj4p'], m['Lj5p'], m['Lj6p'], m['Lj7p'],
             m['Lj8p'], m['Lj9p']))
-        fid.write("{0},{1},{2}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lk1L'], m['Lk3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Lk1L'], m['Lk3L'],
             m['Lk4L'], m['Lk5L'], m['Lk6L'], m['Lk8L'], m['Lk9L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lk1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f},{8:1.1f}\n".format(m['Lk1p'],
             m['Lk2p'], m['Lk3p'], m['Lk4p'], m['Lk5p'], m['Lk6p'], m['Lk7p'],
             m['Lk8p'], m['Lk9p']))
-        fid.write("{0},{1},{2}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
 
         # This line contains ISEG's "XHEIGHT" and "XMASS" variables. XMASS is
         # used for mass/density correction in his code.
@@ -1522,15 +1522,15 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                     key = self._deprecated_CFGnames[key]
                 elif key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
-                    raise StandardError(mes)
+                    raise ValueError(mes)
                 if val == None:
-                    raise StandardError(
+                    raise ValueError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
             fid.close()
 
         if len(self.CFG) != len(self.CFGnames):
-            raise StandardError("Number of CFG variables, {0}, is "
+            raise ValueError("Number of CFG variables, {0}, is "
                     "incorrect.".format(len(self.CFG)))
 
     def write_CFG(self, CFGfname):
