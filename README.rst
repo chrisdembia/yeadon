@@ -39,7 +39,7 @@ Directories
 Installing
 ==========
 
-This package was developed in Python 2.7.
+This package was developed for Python 2.7 and Python 3.3+.
 
 Dependencies
 ------------
@@ -118,7 +118,6 @@ Once you've obtained the dependencies, you can install `yeadon`. The
 easiest way to download and install the `yeadon` package is by using a tool
 like `pip` to obtain the package from the Python Package Index (PyPi)::
 
-   $ easy_install pip
    $ pip install yeadon # sudo if system install
 
 You can also obtain an archive of the package at the Python Package Index
