@@ -5,6 +5,11 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
 
+v1.3.0
+------
+
+- Now supports Python 3.
+
 v1.2.1
 ------
 
