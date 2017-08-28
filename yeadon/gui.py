@@ -2,10 +2,10 @@
 
 from numpy import deg2rad, rad2deg
 
-from traits.api import HasTraits, Range, Instance, \
-        on_trait_change, Float, Property, File, Bool, Button
-from traitsui.api import \
-        View, Item, VSplit, VGroup, HSplit, HGroup, Group, Label
+from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
+                        Property, File, Bool, Button)
+from traitsui.api import (View, Item, VSplit, VGroup, HSplit, HGroup, Group,
+                          Label)
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
@@ -13,14 +13,17 @@ from .human import Human
 
 sliders = Human.CFGnames
 
-def format_func(value):
+
+def _format_func(value):
     return '{:1.3}'.format(value)
+
 
 class YeadonGUI(HasTraits):
     """A GUI for the yeadon module, implemented using the traits package."""
 
     # Input.
     measurement_file_name = File()
+    configuration_file_name = File()
 
     # Drawing options.
     show_mass_center = Bool(False)
@@ -29,10 +32,10 @@ class YeadonGUI(HasTraits):
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
     for name, bounds in zip(Human.CFGnames, Human.CFGbounds):
-        # TODO : Find a better way than using locals here, it may not be a good
-        # idea, but I don't know the consequences.
-        locals()[name] =  Range(float(rad2deg(bounds[0])),
-            float(rad2deg(bounds[1])), 0.0, **opts)
+        # TODO : Find a better way than using locals here, it may not be a
+        # good idea, but I don't know the consequences.
+        locals()[name] = Range(float(rad2deg(bounds[0])),
+                               float(rad2deg(bounds[1])), 0.0, **opts)
 
     reset_configuration = Button()
 
@@ -52,7 +55,8 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    input_group = Group(Item('measurement_file_name'))
+    input_group = Group(Item('measurement_file_name'),
+                        Item('configuration_file_name'))
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=580, width=430,
@@ -107,26 +111,26 @@ class YeadonGUI(HasTraits):
     inertia_prop = VGroup(
             Label('Mass center (from origin of coord. sys.) (m):'),
             HGroup(
-                Item('x', style='readonly', format_func=format_func),
-                Item('y', style='readonly', format_func=format_func),
-                Item('z', style='readonly', format_func=format_func)
+                Item('x', style='readonly', format_func=_format_func),
+                Item('y', style='readonly', format_func=_format_func),
+                Item('z', style='readonly', format_func=_format_func)
                 ),
             Label('Inertia tensor (about origin, in basis shown) (kg-m^2):'),
             HSplit( # HSplit 2
                 Group(
-                    Item('Ixx', style='readonly', format_func=format_func),
-                    Item('Iyx', style='readonly', format_func=format_func),
-                    Item('Izx', style='readonly', format_func=format_func),
+                    Item('Ixx', style='readonly', format_func=_format_func),
+                    Item('Iyx', style='readonly', format_func=_format_func),
+                    Item('Izx', style='readonly', format_func=_format_func),
                     ),
                 Group(
-                    Item('Ixy', style='readonly', format_func=format_func),
-                    Item('Iyy', style='readonly', format_func=format_func),
-                    Item('Izy', style='readonly', format_func=format_func),
+                    Item('Ixy', style='readonly', format_func=_format_func),
+                    Item('Iyy', style='readonly', format_func=_format_func),
+                    Item('Izy', style='readonly', format_func=_format_func),
                     ),
                 Group(
-                    Item('Ixz', style='readonly', format_func=format_func),
-                    Item('Iyz', style='readonly', format_func=format_func),
-                    Item('Izz', style='readonly', format_func=format_func)
+                    Item('Ixz', style='readonly', format_func=_format_func),
+                    Item('Iyz', style='readonly', format_func=_format_func),
+                    Item('Izz', style='readonly', format_func=_format_func)
                     ),
                 ), # end HSplit 2
             Label('X, Y, Z axes drawn as red, green, blue arrows, respectively.'),
@@ -172,16 +176,17 @@ class YeadonGUI(HasTraits):
     0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
     'Lk7p' : 0.252 }
 
-    def __init__(self, meas_in=None):
+    def __init__(self, meas_in=None, config_in=None):
+
         HasTraits.__init__(self, trait_value=True)
-        if meas_in:
-            measurement_file_name = meas_in
-        else:
-            measurement_file_name = 'Path to measurement input text file.'
-        self.H = Human(meas_in if meas_in else self.measPreload)
+
+        self.H = Human(meas_in=meas_in if meas_in else self.measPreload,
+                       CFG=config_in)
+
         self._init_draw_human()
 
     def _init_draw_human(self):
+
         self.H.draw(self.scene.mlab, True)
 
         if self.show_mass_center:
@@ -236,7 +241,42 @@ class YeadonGUI(HasTraits):
         # Must convert to str (from unicode), because Human parses it
         # differently depending on its type, and there's no consideration for
         # it being unicode.
-        self.H = Human(str(self.measurement_file_name))
+
+        if str(self.measurement_file_name) == '':
+            meas_in = self.measPreload
+        else:
+            meas_in = str(self.measurement_file_name)
+
+        if str(self.configuration_file_name) == '':
+            cfg_in = None
+        else:
+            cfg_in = str(self.configuration_file_name)
+
+        self.H = Human(meas_in,
+                       CFG=cfg_in)
+        self.scene.mlab.clf()
+        self._init_draw_human()
+
+    @on_trait_change('configuration_file_name')
+    def _update_configuration_file_name(self):
+        # Must convert to str (from unicode), because Human parses it
+        # differently depending on its type, and there's no consideration for
+        # it being unicode.
+
+        print('Meas file {}'.format(self.measurement_file_name))
+        print('Config file {}'.format(self.configuration_file_name))
+
+        if str(self.measurement_file_name) == '':
+            meas_in = self.measPreload
+        else:
+            meas_in = str(self.measurment_file_name)
+
+        if str(self.configuration_file_name) == '':
+            cfg_in = None
+        else:
+            cfg_in = str(self.configuration_file_name)
+
+        self.H = Human(meas_in, CFG=cfg_in)
         self.scene.mlab.clf()
         self._init_draw_human()
 
