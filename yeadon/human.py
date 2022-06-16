@@ -1383,7 +1383,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         self.measurementconversionfactor = 0
         # open measurement file
         fid = open(fname, 'r')
-        mydict = yaml.load(fid.read())
+        mydict = yaml.safe_load(fid.read())
         fid.close()
         # loop until all 95 parameters are read in
         for key, val in mydict.items():
