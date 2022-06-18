@@ -1,0 +1,36 @@
+name: Run tests and build docs
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Conda environment with Micromamba
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        cache-downloads: true
+        cache-env: true
+        environment-file: yeadon-dev-env.yml
+        environment-name: yeadon-dev
+
+    - name: Run the tests
+      run: |
+        nosetests -v --with-coverage --cover-package=yeadon
+
+    - name: Build the documentation
+      run: |
+        cd doc && make html
+
+    - name: Install the software
+      run: |
+        python setup.py install
