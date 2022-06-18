@@ -28,9 +28,16 @@ from yeadon import __version__
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
-'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage',
-'sphinx.ext.pngmath', 'sphinx.ext.viewcode', 'numpydoc']
+extensions = [
+    'numpydoc',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.imgmath',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+]
 #mathjax_path='http://mathjax.connectmv.com/MathJax.js'
 # Add any paths that contain templates here, relative to this directory.
 
