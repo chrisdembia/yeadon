@@ -24,13 +24,16 @@ jobs:
         environment-name: yeadon-dev
 
     - name: Run the tests
+      shell: bash -l {0}
       run: |
         nosetests -v --with-coverage --cover-package=yeadon
 
     - name: Build the documentation
+      shell: bash -l {0}
       run: |
         cd doc && make html
 
     - name: Install the software
+      shell: bash -l {0}
       run: |
         python setup.py install
