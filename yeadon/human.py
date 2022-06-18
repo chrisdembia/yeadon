@@ -1512,7 +1512,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         """
         self.CFG = dict()
         with open(CFGfname, 'r') as fid:
-            mydict = yaml.load(fid.read())
+            mydict = yaml.safe_load(fid.read())
             for key, val in mydict.items():
                 if key in self._deprecated_CFGnames.keys():
                     msg = ("'{0}' should be called '{1}'."
