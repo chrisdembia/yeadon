@@ -6,7 +6,6 @@ dependencies:
   - nose
   - numpy >=1.6.1
   - numpydoc
-  - python =3.7.*
   - pyyaml >=3.10
   - setuptools
   - sphinx
