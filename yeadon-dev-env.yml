@@ -1,11 +1,12 @@
 name: yeadon-dev
 channels:
   - conda-forge
+# NOTE : The minimum versions correspond to those in Ubuntu 20.04 LTS.
 dependencies:
-  - coverage
-  - nose
-  - numpy >=1.6.1
-  - numpydoc
-  - pyyaml >=3.10
-  - setuptools
-  - sphinx
+  - coverage >=4.5.2
+  - nose >=1.3.7
+  - numpy >=1.16.5
+  - numpydoc >=0.7.0
+  - pyyaml >=5.3.1
+  - setuptools >=44.0.0
+  - sphinx >=1.8.5
