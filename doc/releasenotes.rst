@@ -5,6 +5,13 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
 
+v1.4.0
+------
+
+- Dropped support for Python < 3.7 (including 2.7).
+- Replaced ``yaml.load`` with ``yaml.safe_load``.
+- Fixed pretty printing of results to work with newer NumPy versions.
+
 v1.3.0
 ------
 
