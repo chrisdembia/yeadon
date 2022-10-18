@@ -2,15 +2,13 @@
 object.
  '''
 import os
-import sys
-if sys.version_info >= (3, 0):
-    raw_input = input
 
 import numpy as np
 
 from . import inertia
 
 from . import human as hum
+
 
 def start_ui():
     print("Starting YEADON user interface.")
@@ -43,7 +41,7 @@ def start_ui():
     print("PROVIDE DATA INPUTS: measurements and configuration (joint angles).")
     print("\nMEASUREMENTS: can be provided as a 95-field dict (units must be "
           "meters), or a .TXT file")
-    temp = raw_input("Type the name of the .TXT filename (to use preloaded "
+    temp = input("Type the name of the .TXT filename (to use preloaded "
                     "measurements just hit enter): ")
     if temp == '':
         meas = measPreload
@@ -51,7 +49,7 @@ def start_ui():
         file_exist_meas = os.path.exists(temp)
         meas = temp
         while not file_exist_meas:
-            temp = raw_input("Please type the correct name of the .TXT filename "
+            temp = input("Please type the correct name of the .TXT filename "
                             "(or just use preloaded measurements just hit enter): ")
             file_exist_meas = os.path.exists(temp)
 
@@ -63,7 +61,7 @@ def start_ui():
 
     print("\nCONFIGURATION (joint angles): can be provided as a 21-field dict,"
           " or a .TXT file")
-    CFG = raw_input("Type the name of the .TXT filename (for all joint angles "
+    CFG = input("Type the name of the .TXT filename (for all joint angles "
                     "as zero, just hit enter): ")
     # create the human object. only one is needed for this commandline program
     print("Creating human object.")
@@ -73,7 +71,7 @@ def start_ui():
     else:
         file_exist_CFG = os.path.exists(CFG)
         while not file_exist_CFG:
-            CFG = raw_input("Please type the correct name of the .TXT filename "
+            CFG = input("Please type the correct name of the .TXT filename "
                             "(for all joint angles as zero, just hit enter): ")
             file_exist_CFG = os.path.exists(CFG)
 
@@ -101,7 +99,7 @@ def start_ui():
               "  o: options\n",
               "  q: quit")
 
-        userIn = raw_input("What would you like to do next? ")
+        userIn = input("What would you like to do next? ")
         print("")
 
         # MODIFY JOINT ANGLES
@@ -111,7 +109,7 @@ def start_ui():
 
         # SAVE CURRENT JOINT ANGLES
         elif userIn == 'a':
-            fname = raw_input("The joint angle dictionary CFG will be pickled" \
+            fname = input("The joint angle dictionary CFG will be pickled" \
                               " into a file saved in the current directory." \
                               " Specify a file name (without quotes or spaces," \
                               " q to quit): ")
@@ -124,7 +122,7 @@ def start_ui():
             print("Be careful with this, because there is no error checking"
                   " yet. Make sure that the pickle file is in the same format"
                   " as a pickle output file from this program.")
-            fname = raw_input("Enter the name of a CFG .TXT file" \
+            fname = input("Enter the name of a CFG .TXT file" \
                               " including its extension" \
                               " (q to quit):")
             if fname != 'q':
@@ -133,7 +131,7 @@ def start_ui():
 
         # FORMAT INPUT MEASUREMENTS FOR ISEG FORTRAN CODE
         elif userIn == 's':
-            fname = raw_input("Enter the file name to which you would like" \
+            fname = input("Enter the file name to which you would like" \
                               " to write the ISEG input: ")
             if H.write_meas_for_ISEG(fname) == 0:
                 print("Success!")
@@ -148,16 +146,16 @@ def start_ui():
                   "with respect to your new, desired coordinate system. "
                   "We will first rotate about your x-axis, then your "
                   "y-axis, then your z-axis.")
-            thetx = raw_input("Angle (rad) about your x-axis: ")
-            thety = raw_input("Angle (rad) about your y-axis: ")
-            thetz = raw_input("Angle (rad) about your z-axis: ")
+            thetx = input("Angle (rad) about your x-axis: ")
+            thety = input("Angle (rad) about your y-axis: ")
+            thetz = input("Angle (rad) about your z-axis: ")
             H.rotate_coord_sys(inertia.rotate_space_123(thetx,thety,thetz))
             print("Now we'll specify the position of yeadon with respect to "
                   "your coordinate system. You will provide the three "
                   "components, x y and z, in YOUR coordinates.")
-            posx = raw_input("X-position (m): ")
-            posy = raw_input("Y-position (m): ")
-            posz = raw_input("Z-position (m): ")
+            posx = input("X-position (m): ")
+            posy = input("Y-position (m): ")
+            posz = input("Z-position (m): ")
             H.translate_coord_sys( (posx,posy,posz) )
             print("All done!")
 
@@ -190,7 +188,7 @@ def start_ui():
             combinectr = 1
             objlist = []
             while combinedone == False:
-                objtemp = raw_input('Solid/segment #' + str(combinectr) + ': ')
+                objtemp = input('Solid/segment #' + str(combinectr) + ': ')
                 if objtemp == 'q':
                     combinedone = True
                 else:
@@ -214,7 +212,7 @@ def start_ui():
                        sym[ int(H.is_symmetric) ],"now)\n",
                       "  2: scale human by mass\n",
                       "  q: back to main menu")
-                optionIn = raw_input("What would you like to do? ")
+                optionIn = input("What would you like to do? ")
                 if optionIn == '1':
                     if H.is_symmetric == True:
                         H.is_symmetric = False
@@ -225,7 +223,7 @@ def start_ui():
                     H.update()
                     print("Symmetry is now turned", sym[int(H.is_symmetric)], ".")
                 elif optionIn == '2':
-                    measmass = raw_input("Provide a measured mass with which "\
+                    measmass = input("Provide a measured mass with which "\
                                "to scale the human (kg): ")
                     H.scale_human_by_mass(float(measmass))
                 elif optionIn == 'q':
@@ -260,21 +258,21 @@ def modify_joint_angles(H):
         for i in np.arange(len(H.CFGnames)):
             print(" ",i,":",H.CFGnames[i],"=",CFG[H.CFGnames[i]]/np.pi,"pi-rad")
         if counter == 1:
-            idxIn = raw_input("Enter the number next to the joint angle" \
+            idxIn = input("Enter the number next to the joint angle" \
                               " to modify (q to quit): ")
         else:
-            idxIn = raw_input("Modify another joint angle (q to quit):")
+            idxIn = input("Modify another joint angle (q to quit):")
         if idxIn == 'q':
             done = 1
         else:
-            valueIn = raw_input("Enter the new value for the joint angle" \
+            valueIn = input("Enter the new value for the joint angle" \
                                 " in units of pi-rad (q to quit): ")
             if valueIn == 'q':
                 done = 1
             else:
                 CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
                 while H.validate_CFG() == -1:
-                    valueIn = raw_input("Re-enter a value for this joint: ")
+                    valueIn = input("Re-enter a value for this joint: ")
                     CFG[H.CFGnames[int(idxIn)]] = float(valueIn) * np.pi
     H.CFG = CFG
     H._update_segments()
@@ -295,7 +293,7 @@ def print_segment_properties(H):
         for seg in H.segments:
             print(" ",counter,":",seg.label)
             counter += 1
-        printIn = raw_input("Enter a segment index to view the properties" \
+        printIn = input("Enter a segment index to view the properties" \
                             " of (q to quit): ")
         if printIn == 'q':
             printdone = 1
@@ -320,7 +318,7 @@ def print_solid_properties(H):
         for seg in H.segments:
             print(" ",counter,":",seg.label)
             counter += 1
-        printIn = raw_input("Enter the segment index to view the solid" \
+        printIn = input("Enter the segment index to view the solid" \
                             " properties of (q to quit): ")
         if printIn == 'q':
             printdone = 1
@@ -333,7 +331,7 @@ def print_solid_properties(H):
                 for sol in Seg.solids:
                     print(" ",counter,":",sol.label)
                     counter += 1
-                printIn = raw_input("Enter the solid index" \
+                printIn = input("Enter the solid index" \
                                     " to view parameters of (q to quit): ")
                 if printIn == 'q':
                     soldone = 1

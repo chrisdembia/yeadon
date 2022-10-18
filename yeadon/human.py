@@ -4,8 +4,6 @@ calculates their properties, and manages file input/output.
 
 """
 
-# Use Python3 integer division rules.
-from __future__ import division
 import copy
 import warnings
 

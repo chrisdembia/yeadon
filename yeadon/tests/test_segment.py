@@ -2,10 +2,7 @@ import sys
 import os
 import warnings
 # For redirecting stdout.
-if (sys.version_info > (3, 0)):
-    from io import StringIO
-else:
-    from cStringIO import StringIO
+from io import StringIO
 
 import unittest
 import numpy as np

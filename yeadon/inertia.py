@@ -1,6 +1,3 @@
-# Use Python3 integer division rules.
-from __future__ import division
-
 import warnings
 
 import numpy as np
