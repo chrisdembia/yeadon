@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# Use Python3 integer division rules.
-from __future__ import division
-
 import sys
 import os
 import unittest

@@ -2,23 +2,25 @@ yeadon
 ======
 
 .. image:: https://img.shields.io/pypi/v/yeadon.svg
-    :target: https://pypi.python.org/pypi/yeadon/
-    :alt: Latest PyPI version
+   :target: https://pypi.python.org/pypi/yeadon/
+   :alt: Latest PyPI version
 
 .. image:: https://img.shields.io/pypi/dm/yeadon.svg
-    :target: https://pypi.python.org/pypi/yeadon/
-    :alt: Number of PyPI downloads
+   :target: https://pypi.python.org/pypi/yeadon/
+   :alt: Number of PyPI downloads
+
+.. image:: https://anaconda.org/conda-forge/yeadon/badges/version.svg
+   :target: https://anaconda.org/conda-forge/yeadon
 
 .. image:: https://readthedocs.org/projects/yeadon/badge/?version=latest
-    :alt: Documentation Status
-    :scale: 100%
-    :target: https://yeadon.readthedocs.org/en/latest/?badge=latest
+   :alt: Documentation Status
+   :scale: 100%
+   :target: https://yeadon.readthedocs.org/en/latest/?badge=latest
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.15770.svg
-    :target: http://dx.doi.org/10.5281/zenodo.15770
+   :target: http://dx.doi.org/10.5281/zenodo.15770
 
-.. image:: https://travis-ci.org/chrisdembia/yeadon.png?branch=master
-    :target: https://travis-ci.org/chrisdembia/yeadon
+.. image:: https://github.com/chrisdembia/yeadon/actions/workflows/runtests.yml/badge.svg
 
 This package calculates the masses, center of mass positions, and inertia
 tensors that correspond to the human inertia model developed by Yeadon in
@@ -44,7 +46,7 @@ Directories
 Installing
 ==========
 
-This package was developed for Python 2.7 and Python 3.3+.
+This package was developed for Python 3.7+.
 
 Dependencies
 ------------
@@ -78,10 +80,10 @@ Option 1: Scientific python distributions
 `````````````````````````````````````````
 
 Most `scientific python distributions
-<http://www.scipy.org/install.html#scientific-python-distributions>`_ provide all of these
-dependencies and it is often easiest to install one of them to get started. Once
-you have a distribution, you simply need to install the yeadon package. This is
-the best solution for Windows users.
+<http://www.scipy.org/install.html#scientific-python-distributions>`_ provide
+all of these dependencies and it is often easiest to install one of them to get
+started. Once you have a distribution, you can install the yeadon package. This
+is the best solution for Windows users.
 
 Option 2: Operating system package manager
 ``````````````````````````````````````````
@@ -92,9 +94,8 @@ be able to obtain all of these packages by opening a terminal window and
 typing::
 
    $ # prepend sudo to each line below if you desire a system install
-   $ apt-get install python-setuptools python-numpy python-yaml # required
-   $ apt-get install python-nose python-sphinx mayavi2 # optional packages
-   $ easy_install numpydoc # this package is not in the Debian repositories
+   $ apt-get install python3-setuptools python3-numpy python3-yaml # required
+   $ apt-get install python3-nose python3-sphinx python3-numpydoc mayavi2 # optional packages
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
@@ -106,10 +107,9 @@ This option is required if you want to use `yeadon` in a virtualenv. You can
 build the dependencies from source and then install them by using a tool like
 `pip`::
 
-    $ easy_install pip
-    $ pip install numpy PyYAML
-    $ pip install nose sphinx mayavi
-    $ pip install numpydoc
+    $ python -m pip install numpy PyYAML
+    $ python -m pip install nose sphinx mayavi
+    $ python -m pip install numpydoc
 
 or you can obtain the source code, perhaps from GitHub_, and install the
 packages manually.
@@ -123,7 +123,7 @@ Once you've obtained the dependencies, you can install `yeadon`. The
 easiest way to download and install the `yeadon` package is by using a tool
 like `pip` to obtain the package from the Python Package Index (PyPi)::
 
-   $ pip install yeadon # sudo if system install
+   $ python -m pip install yeadon # sudo if system install
 
 You can also obtain an archive of the package at the Python Package Index
 (`<https://pypi.python.org/pypi/yeadon>`_), and then install the package on your
@@ -139,9 +139,6 @@ your terminal::
    $ tar -zxfv yeadon-X.X.X.tar.gz
    $ cd yeadon-X.X.X.tar.gz
    $ python setup.py install # sudo if system install
-
-Both of these options assume that the version of your default Python
-interpreter is 2.7.
 
 Run the tests with::
 
@@ -222,9 +219,9 @@ Cite us!
 If you make use of the yeadon software we would welcome a citation in your
 publications. Please cite this software paper:
 
-   Dembia C, Moore JK and Hubbard M. An object oriented implementation of the
-   Yeadon human inertia model, F1000Research 2014, 3:223 (doi:
-   10.12688/f1000research.5292.1)
+Dembia C, Moore JK and Hubbard M. An object oriented implementation of the
+Yeadon human inertia model, F1000Research 2014, 3:223 (doi:
+https://dx.doi.org/10.12688/f1000research.5292.1)
 
 Contact
 =======

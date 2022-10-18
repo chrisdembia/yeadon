@@ -5,8 +5,6 @@ StadiumSolid solids. The Solid class has two subclasses: the StadiumSolid and
 Semiellipsoid classes.
 
 """
-# Use Python3 integer division rules.
-from __future__ import division
 import warnings
 
 import numpy as np
