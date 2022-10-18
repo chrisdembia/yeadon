@@ -157,4 +157,4 @@ def test_rotate_inertia():
                         [0.0, 0.0, 0.0],
                         [0.0, 0.0, 10.0]])
 
-    testing.assert_allclose(I_b, expected_I_b, atol=1e-16)
+    testing.assert_allclose(I_b, expected_I_b, atol=1e-14)
