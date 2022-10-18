@@ -17,9 +17,6 @@ yeadon
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.15770.svg
     :target: http://dx.doi.org/10.5281/zenodo.15770
 
-.. image:: https://travis-ci.org/chrisdembia/yeadon.png?branch=master
-    :target: https://travis-ci.org/chrisdembia/yeadon
-
 This package calculates the masses, center of mass positions, and inertia
 tensors that correspond to the human inertia model developed by Yeadon in
 (Yeadon, 1990). The package allows for the input of both measurements and
