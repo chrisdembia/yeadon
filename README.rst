@@ -2,20 +2,23 @@ yeadon
 ======
 
 .. image:: https://img.shields.io/pypi/v/yeadon.svg
-    :target: https://pypi.python.org/pypi/yeadon/
-    :alt: Latest PyPI version
+   :target: https://pypi.python.org/pypi/yeadon/
+   :alt: Latest PyPI version
 
 .. image:: https://img.shields.io/pypi/dm/yeadon.svg
-    :target: https://pypi.python.org/pypi/yeadon/
-    :alt: Number of PyPI downloads
+   :target: https://pypi.python.org/pypi/yeadon/
+   :alt: Number of PyPI downloads
+
+.. image:: https://anaconda.org/conda-forge/yeadon/badges/version.svg
+   :target: https://anaconda.org/conda-forge/yeadon
 
 .. image:: https://readthedocs.org/projects/yeadon/badge/?version=latest
-    :alt: Documentation Status
-    :scale: 100%
-    :target: https://yeadon.readthedocs.org/en/latest/?badge=latest
+   :alt: Documentation Status
+   :scale: 100%
+   :target: https://yeadon.readthedocs.org/en/latest/?badge=latest
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.15770.svg
-    :target: http://dx.doi.org/10.5281/zenodo.15770
+   :target: http://dx.doi.org/10.5281/zenodo.15770
 
 .. image:: https://github.com/chrisdembia/yeadon/actions/workflows/runtests.yml/badge.svg
 
