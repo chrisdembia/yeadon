@@ -1187,7 +1187,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # pelvis
         Ppos = self._coord_sys_pos
-        PRotMat = (self._coord_sys_orient *
+        PRotMat = (self._coord_sys_orient @
             inertia.euler_123([self.CFG['somersault'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
@@ -1199,7 +1199,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # thorax
         Tpos = self.P.end_pos
-        TRotMat = (self.P.rot_mat *
+        TRotMat = (self.P.rot_mat @
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTbending'],
                                       0.0]))
@@ -1211,7 +1211,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # chest-head
         Cpos = self.T.end_pos
-        CRotMat = (self.T.rot_mat *
+        CRotMat = (self.T.rot_mat @
             inertia.euler_123([self.CFG['TCsagittalSpinalFlexion'],
                                0.0,
                                self.CFG['TCspinalTorsion']]))
@@ -1230,18 +1230,18 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # left upper arm
         local_left_shoulder_point = \
                 np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        A1RotMat = (self.C.rot_mat *
+        A1RotMat = (self.C.rot_mat @
              inertia.euler_123([self.CFG['CA1extension'],
                                 self.CFG['CA1adduction'],
                                 self.CFG['CA1rotation']]))
-        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_left_shoulder_point
         self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
                               [self._a_solids[0], self._a_solids[1]], (0, 1, 0),
                               build_toward_positive_z=False)
 
         # left forearm-hand
-        A2RotMat = (self.A1.rot_mat *
+        A2RotMat = (self.A1.rot_mat @
             inertia.euler_123([self.CFG['A1A2extension'], 0.0, 0.0]))
         A2pos = self.A1.end_pos
         self.A2 = seg.Segment('A2: Left forearm-hand',
@@ -1254,7 +1254,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # right upper arm
         local_right_shoulder_point = \
                 np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        B1RotMat = (self.C.rot_mat *
+        B1RotMat = (self.C.rot_mat @
                 inertia.euler_123([self.CFG['CB1extension'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
@@ -1268,7 +1268,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                build_toward_positive_z=False)
 
         # right forearm-hand
-        B2RotMat = (self.B1.rot_mat *
+        B2RotMat = (self.B1.rot_mat @
             inertia.euler_123([self.CFG['B1B2extension'], 0.0, 0.0]))
         B2pos = self.B1.end_pos
         self.B2 = seg.Segment('B2: Right forearm-hand',
@@ -1287,11 +1287,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_left_hip_point = np.array([[hip_width / 2.0],
                                          [0.0],
                                          [0.0]])
-        J1RotMat = (self.P.rot_mat *
+        J1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PJ1extension'],
                                 self.CFG['PJ1adduction'],
                                 0.0]))
-        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_left_hip_point
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
@@ -1302,7 +1302,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # left shank-foot
-        J2RotMat = (self.J1.rot_mat *
+        J2RotMat = (self.J1.rot_mat @
             inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         J2pos = self.J1.end_pos
         self.J2 = seg.Segment('J2: Left shank-foot',
@@ -1316,11 +1316,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_right_hip_point = np.array([[-hip_width / 2.0],
                                           [0.0],
                                           [0.0]])
-        K1RotMat = (self.P.rot_mat *
+        K1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PK1extension'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
-        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_right_hip_point
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
@@ -1331,7 +1331,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # right shank-foot
-        K2RotMat = (self.K1.rot_mat *
+        K2RotMat = (self.K1.rot_mat @
             inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         K2pos = self.K1.end_pos
         self.K2 = seg.Segment('K2: Right shank-foot',
