@@ -24,12 +24,12 @@ jobs:
         miniforge-version: latest
     - name: Run nose
       shell: bash -l {0}
-      if: runner.python-version != '3.12'
+      if: ${{ matrix.python }} != '3.12'
       run: |
         nosetests -v --with-coverage --cover-package=yeadon
     - name: Run pytest
       shell: bash -l {0}
-      if: runner.python-version == '3.12'
+      if: ${{ matrix.python }} == '3.12'
       run: |
         conda install pytest
         coverage run -m pytest yeadon
