@@ -6,7 +6,6 @@ import warnings
 from io import StringIO
 
 import unittest
-import nose
 import numpy as np
 from numpy import testing, pi
 
