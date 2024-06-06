@@ -46,7 +46,7 @@ Directories
 Installing
 ==========
 
-This package was developed for Python 3.7+.
+This package was developed for Python 3.8+.
 
 Dependencies
 ------------
@@ -107,9 +107,9 @@ This option is required if you want to use `yeadon` in a virtualenv. You can
 build the dependencies from source and then install them by using a tool like
 `pip`::
 
-    $ python -m pip install numpy PyYAML
-    $ python -m pip install nose sphinx mayavi
-    $ python -m pip install numpydoc
+    $ python -m pip install numpy PyYAML  # required
+    $ python -m pip install mayavi  # optional
+    $ python -m pip install nose sphinx numpydoc  # development tools
 
 or you can obtain the source code, perhaps from GitHub_, and install the
 packages manually.
@@ -123,13 +123,13 @@ Once you've obtained the dependencies, you can install `yeadon`. The
 easiest way to download and install the `yeadon` package is by using a tool
 like `pip` to obtain the package from the Python Package Index (PyPi)::
 
-   $ python -m pip install yeadon # sudo if system install
+   $ python -m pip install yeadon
 
 You can also obtain an archive of the package at the Python Package Index
 (`<https://pypi.python.org/pypi/yeadon>`_), and then install the package on your
 own by executing the following from the root directory of the package::
 
-   $ python setup.py install # sudo if system install
+   $ python setup.py install
 
 On Unix, you can obtain the package source code and install it without leaving
 your terminal::
@@ -138,7 +138,7 @@ your terminal::
    $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
    $ tar -zxfv yeadon-X.X.X.tar.gz
    $ cd yeadon-X.X.X.tar.gz
-   $ python setup.py install # sudo if system install
+   $ python setup.py install
 
 Run the tests with::
 
