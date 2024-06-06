@@ -214,11 +214,11 @@ class TestSegments(unittest.TestCase):
         des_str = open(os.path.join(os.path.split(__file__)[0],
             'segment_print_des.txt'), 'r').read()
 
-        self.assertEquals(mystdout.getvalue(), des_str)
+        self.assertEqual(mystdout.getvalue(), des_str)
 
         # Use the __str__method.
         # It's just a fluke that we need to append an additional newline char.
-        self.assertEquals(seg1.__str__() + '\n', des_str)
+        self.assertEqual(seg1.__str__() + '\n', des_str)
 
     def test_print_solid_properties(self):
 
@@ -238,7 +238,7 @@ class TestSegments(unittest.TestCase):
         sys.stdout = old_stdout
         desStr = open(os.path.join(os.path.split(__file__)[0],
             'segment_print_solid_des.txt'), 'r').read()
-        self.assertEquals(mystdout.getvalue(), desStr)
+        self.assertEqual(mystdout.getvalue(), desStr)
 
     def test_rotate_inertia(self):
         """Are we obtaining the global inertia properly?"""

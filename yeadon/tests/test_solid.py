@@ -19,15 +19,19 @@ class StadiumSolidCheck(unittest.TestCase):
     paper.
 
     """
-    def __init__(self, density, thick0, rad0, thick1, rad1, height):
-        self.D = density
-        self.t0 = thick0
-        self.r0 = rad0
-        self.t1 = thick1
-        self.r1 = rad1
-        self.h = height
-        self.a = (self.r1 - self.r0) / self.r0
-        self.b = (self.t1 - self.t0) / self.t0
+    def __init__(self, *args, **kwargs):
+        if len(args) == 6:
+            density, thick0, rad0, thick1, rad1, height = args
+            self.D = density
+            self.t0 = thick0
+            self.r0 = rad0
+            self.t1 = thick1
+            self.r1 = rad1
+            self.h = height
+            self.a = (self.r1 - self.r0) / self.r0
+            self.b = (self.t1 - self.t0) / self.t0
+        else:
+            super().__init__(*args, **kwargs)
 
     def mass(s):
         return s.D * s.h * s.r0 * (
