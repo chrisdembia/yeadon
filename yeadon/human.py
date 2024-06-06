@@ -1258,7 +1258,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                 inertia.euler_123([self.CFG['CB1extension'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
-        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_right_shoulder_point
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
