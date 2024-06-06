@@ -285,8 +285,8 @@ def test_solid():
     sol.set_orientation(position, C, True)
     testing.assert_allclose(sol.pos, position)
     testing.assert_allclose(sol._rot_mat, C)
-    testing.assert_allclose(sol.end_pos, position + (height * C * array([[0],
-        [0], [1]])))
+    testing.assert_allclose(sol.end_pos, position + (height * C @
+                                                     array([[0], [0], [1]])))
     testing.assert_allclose(sol.inertia, zeros((3, 3)))
 
     #TODO: complete tests for solid and the remaining classes in solid.py
