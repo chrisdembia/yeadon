@@ -750,18 +750,18 @@ class TestHuman(unittest.TestCase):
         # should be that which comes from the arm A.
         # Obtain inertia tensors about origin; the other option would be
         # h.center_of_mass, but this changes depending on A1A2extension.
-        a1inertia_before = np.mat(inertia.parallel_axis( h.A1.inertia, h.A1.mass,
-            h.A1.center_of_mass.T.tolist()[0]))
-        a1inertia_after = np.mat(inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
-            h2.A1.center_of_mass.T.tolist()[0]))
-        a2inertia_before = np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
-            h.A2.center_of_mass.T.tolist()[0]))
-        a2inertia_after = np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
-            h2.A2.center_of_mass.T.tolist()[0]))
-        whole_inertia_before = np.mat(inertia.parallel_axis(h.inertia, h.mass,
-            h.center_of_mass.T.tolist()[0]))
-        whole_inertia_after = np.mat(inertia.parallel_axis(h2.inertia, h2.mass,
-            h2.center_of_mass.T.tolist()[0]))
+        a1inertia_before = inertia.parallel_axis( h.A1.inertia, h.A1.mass,
+            h.A1.center_of_mass.T.tolist()[0])
+        a1inertia_after = inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
+            h2.A1.center_of_mass.T.tolist()[0])
+        a2inertia_before = inertia.parallel_axis( h.A2.inertia, h.A2.mass,
+            h.A2.center_of_mass.T.tolist()[0])
+        a2inertia_after = inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
+            h2.A2.center_of_mass.T.tolist()[0])
+        whole_inertia_before = inertia.parallel_axis(h.inertia, h.mass,
+            h.center_of_mass.T.tolist()[0])
+        whole_inertia_after = inertia.parallel_axis(h2.inertia, h2.mass,
+            h2.center_of_mass.T.tolist()[0])
         testing.assert_allclose(
                 whole_inertia_after - a1inertia_after - a2inertia_after,
                 whole_inertia_before - a1inertia_before - a2inertia_before,
@@ -873,13 +873,13 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_almost_equal(h.mass, 58.2004885884)
 
-        expected_center_of_mass = np.matrix([[-0.04602766],
+        expected_center_of_mass = np.array([[-0.04602766],
                                              [-0.17716871],
                                              [-0.05332974]])
         testing.assert_allclose(h.center_of_mass, expected_center_of_mass)
 
         expected_inertia = \
-           np.matrix([[ 2.89276755,  0.43049026, -0.80508996],
+           np.array([[ 2.89276755,  0.43049026, -0.80508996],
                       [ 0.43049026,  4.37335248,  0.17229662],
                       [-0.80508996,  0.17229662,  4.13153827]])
         testing.assert_allclose(h.inertia, expected_inertia, atol=1e-6)
@@ -1315,7 +1315,7 @@ class TestHuman(unittest.TestCase):
         # -1), both with mass 1.
         # Rotating a positive atan(1/2) should give a zero xy product of
         # inertia if the rotation matrix is what we think it is.
-        inertia_ptmass = np.mat(np.zeros((3, 3)))
+        inertia_ptmass = np.zeros((3, 3))
         inertia_ptmass[0, 0] = 2 * 1 * (2**2 + 1**1)
         inertia_ptmass[1, 1] = 2 * 1 * (1**1)
         inertia_ptmass[2, 2] = 2 * 1 * (2**2)
@@ -1394,7 +1394,7 @@ class TestHuman(unittest.TestCase):
         cps = np.cos(psi)
         sps = np.sin(psi)
 
-        Sfi = np.mat(
+        Sfi = np.array(
             [[cth * cps, -cth * sps, sth],
              [cph * sps + sph * sth * cps,
               cph * cps - sph * sth * sps,

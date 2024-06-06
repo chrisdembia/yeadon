@@ -6,7 +6,7 @@ from io import StringIO
 
 import unittest
 import numpy as np
-from numpy import testing, pi, mat, arctan
+from numpy import testing, pi, array, arctan
 
 import yeadon.solid as sol
 import yeadon.segment as seg
@@ -151,7 +151,7 @@ class TestSegments(unittest.TestCase):
         self.assertRaises(ValueError, seg.Segment, label, pos, pos, solids,
                 color)
         # Wrong dimensions rot.
-        self.assertRaises(ValueError, seg.Segment, label, pos, np.mat(pos),
+        self.assertRaises(ValueError, seg.Segment, label, pos, np.array(pos),
                 solids, color)
         # Empty solids.
         self.assertRaises(IndexError, seg.Segment, label, pos, rot, [], color)
@@ -186,8 +186,8 @@ class TestSegments(unittest.TestCase):
         desXInertia = seg1.rel_inertia[2, 2]
         desYInertia = seg1.rel_inertia[1, 1]
         desZInertia = seg1.rel_inertia[0, 0]
-        desInertia = np.mat(np.diag(np.array(
-                [desXInertia, desYInertia, desZInertia])))
+        desInertia = np.diag(np.array(
+                [desXInertia, desYInertia, desZInertia]))
         testing.assert_allclose(seg1.inertia, desInertia, atol=1e-10)
 
     def test_print_properties(self):
@@ -255,9 +255,9 @@ class TestSegments(unittest.TestCase):
 
         # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
         # (0, -2, -1) in the global reference frame, A.
-        seg1._rel_inertia = mat([[10.0, 0.0, 0.0],
-                                 [0.0, 2.0, -4.0],
-                                 [0.0, -4.0, 8.0]])
+        seg1._rel_inertia = array([[10.0, 0.0, 0.0],
+                                   [0.0, 2.0, -4.0],
+                                   [0.0, -4.0, 8.0]])
 
         # If we want the inertia about a new reference frame, B, such that the
         # two masses lie on the yb axis we can rotate about xa through the angle
@@ -268,8 +268,8 @@ class TestSegments(unittest.TestCase):
 
         I_b = seg1.inertia
 
-        expected_I_b = mat([[10.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0],
-                            [0.0, 0.0, 10.0]])
+        expected_I_b = array([[10.0, 0.0, 0.0],
+                              [0.0, 0.0, 0.0],
+                              [0.0, 0.0, 10.0]])
 
         testing.assert_allclose(I_b, expected_I_b, atol=1e-14)

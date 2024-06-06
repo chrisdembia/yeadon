@@ -5,8 +5,7 @@ import os
 import unittest
 import warnings
 
-from numpy import testing, pi, array, matrix, sin, cos, zeros, array, mat, \
-        arctan
+from numpy import testing, pi, array, sin, cos, zeros, array, arctan
 
 from yeadon.solid import Stadium, Solid, StadiumSolid
 from yeadon import inertia
@@ -279,9 +278,9 @@ def test_solid():
     # definition of body 1-2-3 rotations from Spacecraft Dynamics, Kane,
     # Likins, Levinson, 1982 page 423 (this is the transpose of what is
     # presented)
-    C = matrix([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
-                [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
-                [s2, -s1 * c2, c1 * c2]])
+    C = array([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
+               [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
+               [s2, -s1 * c2, c1 * c2]])
 
     sol.set_orientation(position, C, True)
     testing.assert_allclose(sol.pos, position)
@@ -508,9 +507,9 @@ def test_rotate_inertia():
 
     # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
     # (0, -2, -1) in the global reference frame, A.
-    solidA._rel_inertia = mat([[10.0, 0.0, 0.0],
-                             [0.0, 2.0, -4.0],
-                             [0.0, -4.0, 8.0]])
+    solidA._rel_inertia = array([[10.0, 0.0, 0.0],
+                                 [0.0, 2.0, -4.0],
+                                 [0.0, -4.0, 8.0]])
 
     # If we want the inertia about a new reference frame, B, such that the
     # two masses lie on the yb axis we can rotate about xa through the angle
@@ -521,8 +520,8 @@ def test_rotate_inertia():
 
     I_b = solidA.inertia
 
-    expected_I_b = mat([[10.0, 0.0, 0.0],
-                        [0.0, 0.0, 0.0],
-                        [0.0, 0.0, 10.0]])
+    expected_I_b = array([[10.0, 0.0, 0.0],
+                          [0.0, 0.0, 0.0],
+                          [0.0, 0.0, 10.0]])
 
     testing.assert_allclose(I_b, expected_I_b, atol=1e-14)
