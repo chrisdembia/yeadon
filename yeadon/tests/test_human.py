@@ -1433,8 +1433,8 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('J1J2flexion', flexion)
         h.set_CFG('K1K2flexion', flexion)
 
-        testing.assert_allclose(h.J2.rot_mat, RJ * R2)
-        testing.assert_allclose(h.K2.rot_mat, RK * R2)
+        testing.assert_allclose(h.J2.rot_mat, RJ @ R2)
+        testing.assert_allclose(h.K2.rot_mat, RK @ R2)
 
         somersault = pi / 5.0
         tilt = pi / 10.0
@@ -1452,8 +1452,8 @@ class TestHuman(unittest.TestCase):
         # v_j2 = R2 * R * R3 * v_i
         # v_i = R3^T * R^T * R2^T * v_j2
 
-        testing.assert_allclose(h.J2.rot_mat, R3 * RJ * R2)
-        testing.assert_allclose(h.K2.rot_mat, R3 * RK * R2)
+        testing.assert_allclose(h.J2.rot_mat, R3 @ RJ @ R2)
+        testing.assert_allclose(h.K2.rot_mat, R3 @ RK @ R2)
 
     def test_arm_rotations(self):
         """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
@@ -1486,7 +1486,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('A1A2extension', flexion)
 
-        testing.assert_allclose(h.A2.rot_mat, R * R2)
+        testing.assert_allclose(h.A2.rot_mat, R @ R2)
 
         # right arm
 
@@ -1517,7 +1517,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('B1B2extension', flexion)
 
-        testing.assert_allclose(h.B2.rot_mat, R * R2)
+        testing.assert_allclose(h.B2.rot_mat, R @ R2)
 
     def test_rotation_chain(self):
         """This tests all of the rotations in the whole body."""
@@ -1552,7 +1552,7 @@ class TestHuman(unittest.TestCase):
 
         T_R_P = inertia.euler_123((sagflexion, bending, 0.0))
 
-        T_R_I = P_R_I * T_R_P
+        T_R_I = P_R_I @ T_R_P
 
         testing.assert_allclose(h.T.rot_mat, T_R_I)
 
@@ -1566,7 +1566,7 @@ class TestHuman(unittest.TestCase):
 
         C_R_T = inertia.euler_123((spinalflexion, 0.0, torsion))
 
-        C_R_I = T_R_I * C_R_T
+        C_R_I = T_R_I @ C_R_T
 
         testing.assert_allclose(h.C.rot_mat, C_R_I)
 
@@ -1582,7 +1582,7 @@ class TestHuman(unittest.TestCase):
 
         A1_R_C = inertia.euler_123((extension, abduction, rotation))
 
-        A1_R_I = C_R_I * A1_R_C
+        A1_R_I = C_R_I @ A1_R_C
 
         testing.assert_allclose(h.A1.rot_mat, A1_R_I)
 
@@ -1594,7 +1594,7 @@ class TestHuman(unittest.TestCase):
 
         A2_R_A1 = inertia.euler_123((extension, 0.0, 0.0))
 
-        A2_R_I = A1_R_I * A2_R_A1
+        A2_R_I = A1_R_I @ A2_R_A1
 
         testing.assert_allclose(h.A2.rot_mat, A2_R_I)
 
@@ -1610,7 +1610,7 @@ class TestHuman(unittest.TestCase):
 
         B1_R_C = inertia.euler_123((extension, abduction, rotation))
 
-        B1_R_I = C_R_I * B1_R_C
+        B1_R_I = C_R_I @ B1_R_C
 
         testing.assert_allclose(h.B1.rot_mat, B1_R_I)
 
@@ -1622,7 +1622,7 @@ class TestHuman(unittest.TestCase):
 
         B2_R_B1 = inertia.euler_123((extension, 0.0, 0.0))
 
-        B2_R_I = B1_R_I * B2_R_B1
+        B2_R_I = B1_R_I @ B2_R_B1
 
         testing.assert_allclose(h.B2.rot_mat, B2_R_I)
 
@@ -1638,7 +1638,7 @@ class TestHuman(unittest.TestCase):
 
         J1_R_P = inertia.euler_123((elevation, abduction, 0.0))
 
-        J1_R_I = P_R_I * J1_R_P
+        J1_R_I = P_R_I @ J1_R_P
 
         testing.assert_allclose(h.J1.rot_mat, J1_R_I)
 
@@ -1648,7 +1648,7 @@ class TestHuman(unittest.TestCase):
 
         J2_R_J1 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        J2_R_I = J1_R_I * J2_R_J1
+        J2_R_I = J1_R_I @ J2_R_J1
 
         testing.assert_allclose(h.J2.rot_mat, J2_R_I)
 
@@ -1662,7 +1662,7 @@ class TestHuman(unittest.TestCase):
 
         K1_R_P = inertia.euler_123((elevation, abduction, 0.0))
 
-        K1_R_I = P_R_I * K1_R_P
+        K1_R_I = P_R_I @ K1_R_P
 
         testing.assert_allclose(h.K1.rot_mat, K1_R_I)
 
@@ -1672,7 +1672,7 @@ class TestHuman(unittest.TestCase):
 
         K2_R_K1 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        K2_R_I = K1_R_I * K2_R_K1
+        K2_R_I = K1_R_I @ K2_R_K1
 
         testing.assert_allclose(h.K2.rot_mat, K2_R_I)
 
