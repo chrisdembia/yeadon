@@ -22,10 +22,17 @@ jobs:
         environment-file: yeadon-dev-env.yml
         activate-environment: yeadon-dev
         miniforge-version: latest
-    - name: Run the tests
+    - name: Run nose
       shell: bash -l {0}
+      if: runner.python-version != '3.12'
       run: |
         nosetests -v --with-coverage --cover-package=yeadon
+    - name: Run pytest
+      shell: bash -l {0}
+      if: runner.python-version == '3.12'
+      run: |
+        conda install pytest
+        coverage run -m pytest yeadon
     - name: Build the documentation
       shell: bash -l {0}
       run: |
