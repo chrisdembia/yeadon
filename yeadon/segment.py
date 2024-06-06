@@ -28,7 +28,7 @@ class Segment(object):
 
     @property
     def inertia(self):
-        """Inertia matrix of the segment, a np.matrix, in units of kg-m^2,
+        """Inertia matrix of the segment, a np.array, in units of kg-m^2,
         about the center of mass of the human, expressed in the global
         frame."""
         return self._inertia
@@ -42,14 +42,14 @@ class Segment(object):
 
     @property
     def rel_inertia(self):
-        """Inertia matrix/dyadic of the segment, a np.matrix, in units of
+        """Inertia matrix/dyadic of the segment, a np.array, in units of
         kg-m^2, about the center of mass of the segment, expressed in the frame
         of the segment."""
         return self._rel_inertia
 
     @property
     def pos(self):
-        """Position of the origin of the segment, a np.ndarray, in units of m,
+        """Position of the origin of the segment, a np.array, in units of m,
         expressed in the global frame, from the bottom center of the pelvis
         (Ls0)."""
         return self._pos
@@ -64,7 +64,7 @@ class Segment(object):
     @property
     def rot_mat(self):
         """Rotation matrix specifying the orientation of this segment relative
-        to the orientation of the global frame, a np.matrix, unitless.
+        to the orientation of the global frame, a np.array, unitless.
         Multiplying a vector expressed in this segment's frame with this
         rotation matrix on the left gives that same vector, but expressed in
         the global frame."""
@@ -84,7 +84,7 @@ class Segment(object):
         pos : numpy.array, shape(3,1)
             The vector position of the segment's base,
             with respect to the global frame.
-        rot_mat : numpy.matrix, shape(3,3)
+        rot_mat : array_like, shape(3,3)
             The orientation of the segment is given by a rotation matrix that
             specifies the orientation of the segment with respect to the fixed
             human frame. That is, rot_mat is (^N R ^A), where N is the fixed
@@ -108,7 +108,7 @@ class Segment(object):
         if pos.shape != (3, 1):
             raise ValueError("Position must be 3-D.")
         self._pos = pos
-        self._rot_mat = np.asmatrix(rot_mat)
+        self._rot_mat = np.asarray(rot_mat)
         self.solids = solids
         self.nSolids = len(self.solids)
         self.color = color
@@ -192,13 +192,13 @@ class Segment(object):
             relmoment += self.solids[i].mass * solidCOM[i]
         self._rel_center_of_mass = relmoment / self.mass
         # relative Inertia
-        self._rel_inertia = np.mat(np.zeros((3, 3)))
+        self._rel_inertia = np.zeros((3, 3))
         for i in np.arange(self.nSolids):
             dist = solidCOM[i] - self.rel_center_of_mass
-            self._rel_inertia += np.mat(inertia.parallel_axis(
+            self._rel_inertia += inertia.parallel_axis(
                                       self.solids[i].rel_inertia,
                                       self.solids[i].mass,
-                                      [dist[0, 0], dist[1, 0], dist[2, 0]]))
+                                      [dist[0, 0], dist[1, 0], dist[2, 0]])
 
     def calc_properties(self):
         """Calculates the segment's center of mass with respect to the bottm
@@ -207,7 +207,7 @@ class Segment(object):
 
         """
         # center of mass
-        self._center_of_mass = self.pos + self.rot_mat * self.rel_center_of_mass
+        self._center_of_mass = self.pos + self.rot_mat @ self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
         self._inertia = inertia.rotate_inertia(self.rot_mat, self.rel_inertia)
 

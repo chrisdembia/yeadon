@@ -113,7 +113,7 @@ class Human(object):
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the human, a np.matrix, in units of
+        """Inertia matrix/dyadic of the human, a np.array, in units of
         kg-m^2, about the center of mass of the human, expressed in the global
         frame.  """
         return self._inertia
@@ -370,13 +370,13 @@ class Human(object):
             moment += s.mass * s.center_of_mass
         self._center_of_mass = moment / self.mass
         # inertia
-        self._inertia = np.mat(np.zeros((3,3)))
+        self._inertia = np.zeros((3, 3))
         for s in self.segments:
             dist = self.center_of_mass - s.center_of_mass
-            self._inertia += np.mat(
-                inertia.parallel_axis(s.inertia,
-                                      s.mass,
-                                      [dist[0,0],dist[1,0],dist[2,0]]))
+            self._inertia += inertia.parallel_axis(s.inertia,
+                                                   s.mass,
+                                                   [dist[0,0], dist[1,0],
+                                                    dist[2,0]])
 
     def __str__(self):
         return(self._properties_string())
@@ -469,11 +469,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Parameters
         ----------
-        varin : list or tuple (3,) or np.matrix (3,3)
+        varin : list or tuple (3,) or np.array (3,3)
             If list or tuple, the rotations are in radians about the x, y, and
             z axes (in that order).  In this case, rotations are space-fixed.
             In other words, they are space-fixed rotations as opposed to
-            body-fixed rotations.  If np.matrix, it is a 3x3 rotation matrix.
+            body-fixed rotations.  If np.array, it is a 3x3 rotation matrix.
             For more information, see the inertia.rotate_space_123
             documentation.
 
@@ -519,7 +519,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             vector must be expressed in the global reference frame. If not
             provided, the tensor is given about the center of mass of the
             human.
-        rotmat : np.matrix (3,3), optional
+        rotmat : np.array (3,3), optional
             If not provided, the returned tensor is expressed in the global
             frame, else the returned tensor is expressed in the rotated
             reference frame. Consider N to be the global frame and B to be
@@ -532,7 +532,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Returns
         -------
-        transformed : np.matrix (3,3)
+        transformed : np.array (3,3)
             If B is the frame in which the user desires the inertia tensor,
             this method returns ^{B}I^{H/P}, where P is the point specified
             by `pos`, and H is the human system.
@@ -547,7 +547,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # user provides is in the global frame.
 
         if pos is not None:
-            pos = np.asmatrix(pos).reshape((3, 1))
+            pos = np.asarray(pos).reshape((3, 1))
             transformed = inertia.parallel_axis(self.inertia, self.mass, pos
                                                 - self.center_of_mass)
         else:
@@ -586,7 +586,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         combined_COM : np.array (3,1)
             Position of the center of mass of the input solids and/or segments,
             expressed in the global frame .
-        combined_inertia : np.matrix (3,3)
+        combined_inertia : np.array (3,3)
             Inertia tensor about the combined_COM, expressed in the global frame.
 
         """
@@ -630,16 +630,15 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             combined_mass += obj.mass
             combinedMoment += obj.mass * obj.center_of_mass
         combined_COM = combinedMoment / combined_mass
-        combined_inertia = np.mat(np.zeros( (3,3) ))
+        combined_inertia = np.zeros((3, 3))
         # Move inertia tensor of an object from the point it is currently about
         # (the object's COM) so that it is about combined_COM.
         for objstr in objlist:
             obj = ObjDict[objstr]
             dist = combined_COM - obj.center_of_mass
-            combined_inertia += np.mat(inertia.parallel_axis(
-                                       obj.inertia,
-                                       obj.mass,
-                                       [dist[0,0],dist[1,0],dist[2,0]]))
+            combined_inertia += inertia.parallel_axis(obj.inertia, obj.mass,
+                                                      [dist[0, 0], dist[1, 0],
+                                                       dist[2, 0]])
         return combined_mass, combined_COM, combined_inertia
 
     def get_segment_by_name(self, name):
