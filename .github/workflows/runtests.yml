@@ -41,4 +41,5 @@ jobs:
       shell: bash -l {0}
       run: |
         python setup.py install
+        which yeadon
         yeadon -h
