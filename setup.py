@@ -23,7 +23,7 @@ setup(
     tests_require=['nose>=1.3.7'],
     test_suite='nose.collector',
     include_package_data=True,
-    entry_points={'console_scripts': ['yeadon = yeadon.app']},
+    entry_points={'console_scripts': ['yeadon=yeadon.app:run']},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
