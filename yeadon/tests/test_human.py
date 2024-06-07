@@ -750,18 +750,18 @@ class TestHuman(unittest.TestCase):
         # should be that which comes from the arm A.
         # Obtain inertia tensors about origin; the other option would be
         # h.center_of_mass, but this changes depending on A1A2extension.
-        a1inertia_before = np.mat(inertia.parallel_axis( h.A1.inertia, h.A1.mass,
-            h.A1.center_of_mass.T.tolist()[0]))
-        a1inertia_after = np.mat(inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
-            h2.A1.center_of_mass.T.tolist()[0]))
-        a2inertia_before = np.mat(inertia.parallel_axis( h.A2.inertia, h.A2.mass,
-            h.A2.center_of_mass.T.tolist()[0]))
-        a2inertia_after = np.mat(inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
-            h2.A2.center_of_mass.T.tolist()[0]))
-        whole_inertia_before = np.mat(inertia.parallel_axis(h.inertia, h.mass,
-            h.center_of_mass.T.tolist()[0]))
-        whole_inertia_after = np.mat(inertia.parallel_axis(h2.inertia, h2.mass,
-            h2.center_of_mass.T.tolist()[0]))
+        a1inertia_before = inertia.parallel_axis( h.A1.inertia, h.A1.mass,
+            h.A1.center_of_mass.T.tolist()[0])
+        a1inertia_after = inertia.parallel_axis( h2.A1.inertia, h2.A1.mass,
+            h2.A1.center_of_mass.T.tolist()[0])
+        a2inertia_before = inertia.parallel_axis( h.A2.inertia, h.A2.mass,
+            h.A2.center_of_mass.T.tolist()[0])
+        a2inertia_after = inertia.parallel_axis( h2.A2.inertia, h2.A2.mass,
+            h2.A2.center_of_mass.T.tolist()[0])
+        whole_inertia_before = inertia.parallel_axis(h.inertia, h.mass,
+            h.center_of_mass.T.tolist()[0])
+        whole_inertia_after = inertia.parallel_axis(h2.inertia, h2.mass,
+            h2.center_of_mass.T.tolist()[0])
         testing.assert_allclose(
                 whole_inertia_after - a1inertia_after - a2inertia_after,
                 whole_inertia_before - a1inertia_before - a2inertia_before,
@@ -873,13 +873,13 @@ class TestHuman(unittest.TestCase):
 
         testing.assert_almost_equal(h.mass, 58.2004885884)
 
-        expected_center_of_mass = np.matrix([[-0.04602766],
+        expected_center_of_mass = np.array([[-0.04602766],
                                              [-0.17716871],
                                              [-0.05332974]])
         testing.assert_allclose(h.center_of_mass, expected_center_of_mass)
 
         expected_inertia = \
-           np.matrix([[ 2.89276755,  0.43049026, -0.80508996],
+           np.array([[ 2.89276755,  0.43049026, -0.80508996],
                       [ 0.43049026,  4.37335248,  0.17229662],
                       [-0.80508996,  0.17229662,  4.13153827]])
         testing.assert_allclose(h.inertia, expected_inertia, atol=1e-6)
@@ -1315,7 +1315,7 @@ class TestHuman(unittest.TestCase):
         # -1), both with mass 1.
         # Rotating a positive atan(1/2) should give a zero xy product of
         # inertia if the rotation matrix is what we think it is.
-        inertia_ptmass = np.mat(np.zeros((3, 3)))
+        inertia_ptmass = np.zeros((3, 3))
         inertia_ptmass[0, 0] = 2 * 1 * (2**2 + 1**1)
         inertia_ptmass[1, 1] = 2 * 1 * (1**1)
         inertia_ptmass[2, 2] = 2 * 1 * (2**2)
@@ -1394,7 +1394,7 @@ class TestHuman(unittest.TestCase):
         cps = np.cos(psi)
         sps = np.sin(psi)
 
-        Sfi = np.mat(
+        Sfi = np.array(
             [[cth * cps, -cth * sps, sth],
              [cph * sps + sph * sth * cps,
               cph * cps - sph * sth * sps,
@@ -1433,8 +1433,8 @@ class TestHuman(unittest.TestCase):
         h.set_CFG('J1J2flexion', flexion)
         h.set_CFG('K1K2flexion', flexion)
 
-        testing.assert_allclose(h.J2.rot_mat, RJ * R2)
-        testing.assert_allclose(h.K2.rot_mat, RK * R2)
+        testing.assert_allclose(h.J2.rot_mat, RJ @ R2)
+        testing.assert_allclose(h.K2.rot_mat, RK @ R2)
 
         somersault = pi / 5.0
         tilt = pi / 10.0
@@ -1452,8 +1452,8 @@ class TestHuman(unittest.TestCase):
         # v_j2 = R2 * R * R3 * v_i
         # v_i = R3^T * R^T * R2^T * v_j2
 
-        testing.assert_allclose(h.J2.rot_mat, R3 * RJ * R2)
-        testing.assert_allclose(h.K2.rot_mat, R3 * RK * R2)
+        testing.assert_allclose(h.J2.rot_mat, R3 @ RJ @ R2)
+        testing.assert_allclose(h.K2.rot_mat, R3 @ RK @ R2)
 
     def test_arm_rotations(self):
         """Yeadon specifies Euler 1-2-3 rotations (body fixed 1-2-3). For the
@@ -1486,7 +1486,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('A1A2extension', flexion)
 
-        testing.assert_allclose(h.A2.rot_mat, R * R2)
+        testing.assert_allclose(h.A2.rot_mat, R @ R2)
 
         # right arm
 
@@ -1517,7 +1517,7 @@ class TestHuman(unittest.TestCase):
 
         h.set_CFG('B1B2extension', flexion)
 
-        testing.assert_allclose(h.B2.rot_mat, R * R2)
+        testing.assert_allclose(h.B2.rot_mat, R @ R2)
 
     def test_rotation_chain(self):
         """This tests all of the rotations in the whole body."""
@@ -1552,7 +1552,7 @@ class TestHuman(unittest.TestCase):
 
         T_R_P = inertia.euler_123((sagflexion, bending, 0.0))
 
-        T_R_I = P_R_I * T_R_P
+        T_R_I = P_R_I @ T_R_P
 
         testing.assert_allclose(h.T.rot_mat, T_R_I)
 
@@ -1566,7 +1566,7 @@ class TestHuman(unittest.TestCase):
 
         C_R_T = inertia.euler_123((spinalflexion, 0.0, torsion))
 
-        C_R_I = T_R_I * C_R_T
+        C_R_I = T_R_I @ C_R_T
 
         testing.assert_allclose(h.C.rot_mat, C_R_I)
 
@@ -1582,7 +1582,7 @@ class TestHuman(unittest.TestCase):
 
         A1_R_C = inertia.euler_123((extension, abduction, rotation))
 
-        A1_R_I = C_R_I * A1_R_C
+        A1_R_I = C_R_I @ A1_R_C
 
         testing.assert_allclose(h.A1.rot_mat, A1_R_I)
 
@@ -1594,7 +1594,7 @@ class TestHuman(unittest.TestCase):
 
         A2_R_A1 = inertia.euler_123((extension, 0.0, 0.0))
 
-        A2_R_I = A1_R_I * A2_R_A1
+        A2_R_I = A1_R_I @ A2_R_A1
 
         testing.assert_allclose(h.A2.rot_mat, A2_R_I)
 
@@ -1610,7 +1610,7 @@ class TestHuman(unittest.TestCase):
 
         B1_R_C = inertia.euler_123((extension, abduction, rotation))
 
-        B1_R_I = C_R_I * B1_R_C
+        B1_R_I = C_R_I @ B1_R_C
 
         testing.assert_allclose(h.B1.rot_mat, B1_R_I)
 
@@ -1622,7 +1622,7 @@ class TestHuman(unittest.TestCase):
 
         B2_R_B1 = inertia.euler_123((extension, 0.0, 0.0))
 
-        B2_R_I = B1_R_I * B2_R_B1
+        B2_R_I = B1_R_I @ B2_R_B1
 
         testing.assert_allclose(h.B2.rot_mat, B2_R_I)
 
@@ -1638,7 +1638,7 @@ class TestHuman(unittest.TestCase):
 
         J1_R_P = inertia.euler_123((elevation, abduction, 0.0))
 
-        J1_R_I = P_R_I * J1_R_P
+        J1_R_I = P_R_I @ J1_R_P
 
         testing.assert_allclose(h.J1.rot_mat, J1_R_I)
 
@@ -1648,7 +1648,7 @@ class TestHuman(unittest.TestCase):
 
         J2_R_J1 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        J2_R_I = J1_R_I * J2_R_J1
+        J2_R_I = J1_R_I @ J2_R_J1
 
         testing.assert_allclose(h.J2.rot_mat, J2_R_I)
 
@@ -1662,7 +1662,7 @@ class TestHuman(unittest.TestCase):
 
         K1_R_P = inertia.euler_123((elevation, abduction, 0.0))
 
-        K1_R_I = P_R_I * K1_R_P
+        K1_R_I = P_R_I @ K1_R_P
 
         testing.assert_allclose(h.K1.rot_mat, K1_R_I)
 
@@ -1672,7 +1672,7 @@ class TestHuman(unittest.TestCase):
 
         K2_R_K1 = inertia.euler_123((flexion, 0.0, 0.0))
 
-        K2_R_I = K1_R_I * K2_R_K1
+        K2_R_I = K1_R_I @ K2_R_K1
 
         testing.assert_allclose(h.K2.rot_mat, K2_R_I)
 

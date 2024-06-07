@@ -174,7 +174,7 @@ class Solid(object):
 
     @property
     def inertia(self):
-        """Inertia matrix of the solid, a np.matrix of shape (3,3), in units
+        """Inertia matrix of the solid, a np.array of shape (3,3), in units
         of kg-m^2, about the center of mass of the human, expressed in the
         global frame.
         """
@@ -189,7 +189,7 @@ class Solid(object):
 
     @property
     def rel_inertia(self):
-        """Inertia matrix of the solid, a np.matrix of shape (3,3), in units
+        """Inertia matrix of the solid, a np.array of shape (3,3), in units
         of kg-m^2, about the center of mass of the solid, expressed in the
         frame of the solid."""
         return self._rel_inertia
@@ -243,7 +243,7 @@ class Solid(object):
         proximal_pos : np.array (3,1)
             Position of center of proximal end of solid in the absolute fixed
             coordinates of the human.
-        rot_mat : np.matrix (3,3)
+        rot_mat : np.array (3,3)
             Orientation of solid, with respect to the fixed coordinate system.
         build_toward_positive_z : bool, optional
             The order of the solids in the parent segment matters. By default
@@ -256,11 +256,11 @@ class Solid(object):
         self._rot_mat = rot_mat
         if build_toward_positive_z:
             self._pos = proximal_pos
-            self._end_pos = self.pos + (self.height * self._rot_mat *
+            self._end_pos = self.pos + (self.height * self._rot_mat @
                                       np.array([[0], [0], [1]]))
         else:
             self._end_pos = proximal_pos
-            self._pos = self._end_pos - (self.height * self._rot_mat *
+            self._pos = self._end_pos - (self.height * self._rot_mat @
                     np.array([[0], [0], [1]]))
         self.calc_properties()
 
@@ -273,7 +273,7 @@ class Solid(object):
             try:
                 # Here is v_a = R * v_b, where A is global frame and B is
                 # rotated frame relative to A.
-                self._center_of_mass = (self.pos + self._rot_mat *
+                self._center_of_mass = (self.pos + self._rot_mat @
                         self.rel_center_of_mass)
             except AttributeError as err:
                 message = str(err) + \
@@ -454,9 +454,9 @@ class StadiumSolid(Solid):
               D * (h**3.0) * (4.0 * r0 * t0 * self._F3(a,b) +
                               np.pi * (r0**2.0) * self._F3(a,a)))
         Ixcom = Ix - self.mass*(zcom**2.0)
-        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
-                                  [0.0,Iycom,0.0],
-                                  [0.0,0.0,Izcom]])
+        self._rel_inertia = np.array([[Ixcom, 0.0, 0.0],
+                                      [0.0, Iycom, 0.0],
+                                      [0.0, 0.0, Izcom]])
         if self.alignment == 'AP':
             # rearrange to anterorposterior orientation
             self._rel_inertia = inertia.rotate_inertia(
@@ -523,7 +523,7 @@ class StadiumSolid(Solid):
         """Generates coordinates to be used for 3D visualization purposes.
 
         """
-        rotated_points = self._rot_mat * self._orig_mesh_points[i]
+        rotated_points = self._rot_mat @ self._orig_mesh_points[i]
         X, Y, Z = np.vsplit(rotated_points, 3)
         X = X + self.pos[0]
         Y = Y + self.pos[1]
@@ -599,9 +599,9 @@ class Semiellipsoid(Solid):
         Iycom = D * np.pi * (2.0/15.0 * (r**2.0) * h * (r**2.0 + h**2.0) -
             3.0/32.0 * (r**2.0) * (h**3.0))
         Ixcom = Iycom
-        self._rel_inertia = np.mat([[Ixcom,0.0,0.0],
-                                  [0.0,Iycom,0.0],
-                                  [0.0,0.0,Izcom]])
+        self._rel_inertia = np.array([[Ixcom, 0.0, 0.0],
+                                      [0.0, Iycom, 0.0],
+                                      [0.0, 0.0, Izcom]])
 
     def draw_mayavi(self, mlabobj, col):
         """Draws the semiellipsoid in 3D using MayaVi.
@@ -654,7 +654,7 @@ class Semiellipsoid(Solid):
                     [self._mesh_x[i,j]],
                     [self._mesh_y[i,j]],
                     [self._mesh_z[i,j]]])
-                POS = self._rot_mat * POS
+                POS = self._rot_mat @ POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]

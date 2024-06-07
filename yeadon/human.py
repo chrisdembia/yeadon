@@ -113,7 +113,7 @@ class Human(object):
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the human, a np.matrix, in units of
+        """Inertia matrix/dyadic of the human, a np.array, in units of
         kg-m^2, about the center of mass of the human, expressed in the global
         frame.  """
         return self._inertia
@@ -370,13 +370,13 @@ class Human(object):
             moment += s.mass * s.center_of_mass
         self._center_of_mass = moment / self.mass
         # inertia
-        self._inertia = np.mat(np.zeros((3,3)))
+        self._inertia = np.zeros((3, 3))
         for s in self.segments:
             dist = self.center_of_mass - s.center_of_mass
-            self._inertia += np.mat(
-                inertia.parallel_axis(s.inertia,
-                                      s.mass,
-                                      [dist[0,0],dist[1,0],dist[2,0]]))
+            self._inertia += inertia.parallel_axis(s.inertia,
+                                                   s.mass,
+                                                   [dist[0,0], dist[1,0],
+                                                    dist[2,0]])
 
     def __str__(self):
         return(self._properties_string())
@@ -469,11 +469,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Parameters
         ----------
-        varin : list or tuple (3,) or np.matrix (3,3)
+        varin : list or tuple (3,) or np.array (3,3)
             If list or tuple, the rotations are in radians about the x, y, and
             z axes (in that order).  In this case, rotations are space-fixed.
             In other words, they are space-fixed rotations as opposed to
-            body-fixed rotations.  If np.matrix, it is a 3x3 rotation matrix.
+            body-fixed rotations.  If np.array, it is a 3x3 rotation matrix.
             For more information, see the inertia.rotate_space_123
             documentation.
 
@@ -519,7 +519,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             vector must be expressed in the global reference frame. If not
             provided, the tensor is given about the center of mass of the
             human.
-        rotmat : np.matrix (3,3), optional
+        rotmat : np.array (3,3), optional
             If not provided, the returned tensor is expressed in the global
             frame, else the returned tensor is expressed in the rotated
             reference frame. Consider N to be the global frame and B to be
@@ -532,7 +532,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Returns
         -------
-        transformed : np.matrix (3,3)
+        transformed : np.array (3,3)
             If B is the frame in which the user desires the inertia tensor,
             this method returns ^{B}I^{H/P}, where P is the point specified
             by `pos`, and H is the human system.
@@ -547,7 +547,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # user provides is in the global frame.
 
         if pos is not None:
-            pos = np.asmatrix(pos).reshape((3, 1))
+            pos = np.asarray(pos).reshape((3, 1))
             transformed = inertia.parallel_axis(self.inertia, self.mass, pos
                                                 - self.center_of_mass)
         else:
@@ -586,7 +586,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         combined_COM : np.array (3,1)
             Position of the center of mass of the input solids and/or segments,
             expressed in the global frame .
-        combined_inertia : np.matrix (3,3)
+        combined_inertia : np.array (3,3)
             Inertia tensor about the combined_COM, expressed in the global frame.
 
         """
@@ -630,16 +630,15 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             combined_mass += obj.mass
             combinedMoment += obj.mass * obj.center_of_mass
         combined_COM = combinedMoment / combined_mass
-        combined_inertia = np.mat(np.zeros( (3,3) ))
+        combined_inertia = np.zeros((3, 3))
         # Move inertia tensor of an object from the point it is currently about
         # (the object's COM) so that it is about combined_COM.
         for objstr in objlist:
             obj = ObjDict[objstr]
             dist = combined_COM - obj.center_of_mass
-            combined_inertia += np.mat(inertia.parallel_axis(
-                                       obj.inertia,
-                                       obj.mass,
-                                       [dist[0,0],dist[1,0],dist[2,0]]))
+            combined_inertia += inertia.parallel_axis(obj.inertia, obj.mass,
+                                                      [dist[0, 0], dist[1, 0],
+                                                       dist[2, 0]])
         return combined_mass, combined_COM, combined_inertia
 
     def get_segment_by_name(self, name):
@@ -763,7 +762,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         for i in np.arange(N):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = eigvecs * POS
+                POS = eigvecs @ POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]
@@ -1188,7 +1187,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # pelvis
         Ppos = self._coord_sys_pos
-        PRotMat = (self._coord_sys_orient *
+        PRotMat = (self._coord_sys_orient @
             inertia.euler_123([self.CFG['somersault'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
@@ -1200,7 +1199,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # thorax
         Tpos = self.P.end_pos
-        TRotMat = (self.P.rot_mat *
+        TRotMat = (self.P.rot_mat @
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTbending'],
                                       0.0]))
@@ -1212,7 +1211,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # chest-head
         Cpos = self.T.end_pos
-        CRotMat = (self.T.rot_mat *
+        CRotMat = (self.T.rot_mat @
             inertia.euler_123([self.CFG['TCsagittalSpinalFlexion'],
                                0.0,
                                self.CFG['TCspinalTorsion']]))
@@ -1231,18 +1230,18 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # left upper arm
         local_left_shoulder_point = \
                 np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        A1RotMat = (self.C.rot_mat *
+        A1RotMat = (self.C.rot_mat @
              inertia.euler_123([self.CFG['CA1extension'],
                                 self.CFG['CA1adduction'],
                                 self.CFG['CA1rotation']]))
-        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_left_shoulder_point
         self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
                               [self._a_solids[0], self._a_solids[1]], (0, 1, 0),
                               build_toward_positive_z=False)
 
         # left forearm-hand
-        A2RotMat = (self.A1.rot_mat *
+        A2RotMat = (self.A1.rot_mat @
             inertia.euler_123([self.CFG['A1A2extension'], 0.0, 0.0]))
         A2pos = self.A1.end_pos
         self.A2 = seg.Segment('A2: Left forearm-hand',
@@ -1255,11 +1254,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # right upper arm
         local_right_shoulder_point = \
                 np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        B1RotMat = (self.C.rot_mat *
+        B1RotMat = (self.C.rot_mat @
                 inertia.euler_123([self.CFG['CB1extension'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
-        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_right_shoulder_point
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
@@ -1269,7 +1268,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                build_toward_positive_z=False)
 
         # right forearm-hand
-        B2RotMat = (self.B1.rot_mat *
+        B2RotMat = (self.B1.rot_mat @
             inertia.euler_123([self.CFG['B1B2extension'], 0.0, 0.0]))
         B2pos = self.B1.end_pos
         self.B2 = seg.Segment('B2: Right forearm-hand',
@@ -1288,11 +1287,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_left_hip_point = np.array([[hip_width / 2.0],
                                          [0.0],
                                          [0.0]])
-        J1RotMat = (self.P.rot_mat *
+        J1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PJ1extension'],
                                 self.CFG['PJ1adduction'],
                                 0.0]))
-        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_left_hip_point
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
@@ -1303,7 +1302,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # left shank-foot
-        J2RotMat = (self.J1.rot_mat *
+        J2RotMat = (self.J1.rot_mat @
             inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         J2pos = self.J1.end_pos
         self.J2 = seg.Segment('J2: Left shank-foot',
@@ -1317,11 +1316,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_right_hip_point = np.array([[-hip_width / 2.0],
                                           [0.0],
                                           [0.0]])
-        K1RotMat = (self.P.rot_mat *
+        K1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PK1extension'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
-        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_right_hip_point
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
@@ -1332,7 +1331,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # right shank-foot
-        K2RotMat = (self.K1.rot_mat *
+        K2RotMat = (self.K1.rot_mat @
             inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         K2pos = self.K1.end_pos
         self.K2 = seg.Segment('K2: Right shank-foot',

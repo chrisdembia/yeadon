@@ -167,7 +167,7 @@ There are three inertia properties for the human overall::
     (center of the Ls0 stadium)....
 
     >>> chad.inertia?
-    ...Docstring: Inertia matrix/dyadic of the human, a np.matrix, in units
+    ...Docstring: Inertia matrix/dyadic of the human, a np.array, in units
     of kg-m^2, about the center of mass of the human, expressed in the
     global frame....
 
@@ -188,12 +188,12 @@ and three related strictly to kinematics::
     pelvis....
 
     >>> chad.J1.rel_inertia?
-    ...Docstring: Inertia matrix/dyadic of the segment, a np.matrix, in
+    ...Docstring: Inertia matrix/dyadic of the segment, a np.array, in
     units of kg-m^2, about the center of mass of the segment, expressed in
     the frame of the segment....
 
     >>> chad.J1.inertia?
-    ...Docstring: Inertia matrix/dyadic of the segment, a np.matrix, in
+    ...Docstring: Inertia matrix/dyadic of the segment, a np.array, in
     units of kg-m^2, about the center of mass of the human, expressed in
     the global frame....
 
@@ -209,7 +209,7 @@ and three related strictly to kinematics::
 
     >>> chad.J1.rot_mat?
     ...Docstring: Rotation matrix specifying the orientation of this
-    segment relative to the orientation of the global frame, a np.matrix,
+    segment relative to the orientation of the global frame, a np.array,
     unitless.  Multiplying a vector expressed in this segment's frame with
     this rotation matrix on the left gives that same vector, but expressed
     in the global frame....
@@ -227,7 +227,7 @@ the segment containing them)::
     (Ls0)....
 
     >>> chad.J1.solids[0].inertia?
-    ...Docstring: Inertia matrix/dyadic of the solid, a np.matrix, in units
+    ...Docstring: Inertia matrix/dyadic of the solid, a np.array, in units
     of kg-m^2, about the center of mass of the human, expressed in the
     global frame....
 
@@ -236,7 +236,7 @@ the segment containing them)::
     expressed in the frame of the solid, from the origin of the solid....
 
     >>> chad.J1.solids[0].rel_inertia?
-    ...Docstring: Inertia matrix/dyadic of the solid, a np.matrix, in units
+    ...Docstring: Inertia matrix/dyadic of the solid, a np.array, in units
     of kg-m^2, about the center of mass of the solid, expressed in the
     frame of the solid....
 

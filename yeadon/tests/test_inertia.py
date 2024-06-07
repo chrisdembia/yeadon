@@ -4,7 +4,7 @@
 import warnings
 
 # external
-from numpy import testing, pi, sin, cos, zeros, mat, arctan
+from numpy import testing, pi, sin, cos, zeros, array, arctan
 from numpy.random import random
 
 # local
@@ -62,7 +62,7 @@ def test_rotations():
 def test_parallel_axis():
     """Only covers the case that the inertia tensor is diagonal."""
 
-    inertia1 = mat(zeros((3, 3)))
+    inertia1 = zeros((3, 3))
     inertia1[0, 0] = 5
     inertia1[1, 1] = 6
     inertia1[2, 2] = 7
@@ -105,20 +105,20 @@ def test_rotate_inertia():
     # Note that I_b = R^T * I_a * R where R is defined such that v_a = R *
     # v_b.
 
-    I_a = mat([[1.0, 0.0, 0.0],
-               [0.0, 2.0, 0.0],
-               [0.0, 0.0, 3.0]])
+    I_a = array([[1.0, 0.0, 0.0],
+                 [0.0, 2.0, 0.0],
+                 [0.0, 0.0, 3.0]])
 
     # Space fixed rotation 231 about -pi/2, pi/2, 0
-    R = mat([[0.0, -1.0, 0.0],
-             [0.0, 0.0, -1.0],
-             [1.0, 0.0, 0.0]])
+    R = array([[0.0, -1.0, 0.0],
+               [0.0, 0.0, -1.0],
+               [1.0, 0.0, 0.0]])
 
     I_b = inertia.rotate_inertia(R, I_a)
 
-    expected_I_b = mat([[3.0, 0.0, 0.0],
-                        [0.0, 1.0, 0.0],
-                        [0.0, 0.0, 2.0]])
+    expected_I_b = array([[3.0, 0.0, 0.0],
+                          [0.0, 1.0, 0.0],
+                          [0.0, 0.0, 2.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
 
@@ -126,25 +126,25 @@ def test_rotate_inertia():
     # angles: pi, pi / 2, and pi. This will make xb = -z_a, y_b = y_a, and
     # z_b = x_a.
 
-    I_a = mat([[1.0, 4.0, 5.0],
-               [4.0, 2.0, 6.0],
-               [5.0, 6.0, 3.0]])
+    I_a = array([[1.0, 4.0, 5.0],
+                 [4.0, 2.0, 6.0],
+                 [5.0, 6.0, 3.0]])
 
     R = inertia.rotate_space_123((pi, pi / 2, pi))
 
     I_b = inertia.rotate_inertia(R, I_a)
 
-    expected_I_b = mat([[3.0, -6.0, -5.0],
-                        [-6.0, 2.0, 4.0],
-                        [-5.0, 4.0, 1.0]])
+    expected_I_b = array([[3.0, -6.0, -5.0],
+                          [-6.0, 2.0, 4.0],
+                          [-5.0, 4.0, 1.0]])
 
     testing.assert_allclose(I_b, expected_I_b)
 
     # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
     # (0, -2, -1) in the global reference frame, A.
-    I_a = mat([[10.0, 0.0, 0.0],
-               [0.0, 2.0, -4.0],
-               [0.0, -4.0, 8.0]])
+    I_a = array([[10.0, 0.0, 0.0],
+                 [0.0, 2.0, -4.0],
+                 [0.0, -4.0, 8.0]])
 
     # If we want the inertia about a new reference frame, B, such that the
     # two masses lie on the yb axis we can rotate about xa through the angle
@@ -153,8 +153,8 @@ def test_rotate_inertia():
 
     I_b = inertia.rotate_inertia(R, I_a)
 
-    expected_I_b = mat([[10.0, 0.0, 0.0],
-                        [0.0, 0.0, 0.0],
-                        [0.0, 0.0, 10.0]])
+    expected_I_b = array([[10.0, 0.0, 0.0],
+                          [0.0, 0.0, 0.0],
+                          [0.0, 0.0, 10.0]])
 
     testing.assert_allclose(I_b, expected_I_b, atol=1e-14)
