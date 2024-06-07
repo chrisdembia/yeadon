@@ -762,7 +762,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         for i in np.arange(N):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = eigvecs * POS
+                POS = eigvecs @ POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]

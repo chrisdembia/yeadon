@@ -523,7 +523,7 @@ class StadiumSolid(Solid):
         """Generates coordinates to be used for 3D visualization purposes.
 
         """
-        rotated_points = self._rot_mat * self._orig_mesh_points[i]
+        rotated_points = self._rot_mat @ self._orig_mesh_points[i]
         X, Y, Z = np.vsplit(rotated_points, 3)
         X = X + self.pos[0]
         Y = Y + self.pos[1]
@@ -654,7 +654,7 @@ class Semiellipsoid(Solid):
                     [self._mesh_x[i,j]],
                     [self._mesh_y[i,j]],
                     [self._mesh_z[i,j]]])
-                POS = self._rot_mat * POS
+                POS = self._rot_mat @ POS
                 x[i,j] = POS[0,0]
                 y[i,j] = POS[1,0]
                 z[i,j] = POS[2,0]
