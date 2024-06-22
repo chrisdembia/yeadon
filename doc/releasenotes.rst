@@ -5,6 +5,16 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
 
+v1.5.0
+------
+
+- Supports Python >= 3.8.
+- Made tests compatible with pytest.
+- Uses entry_points for the CLI script and move the entry point into the
+  package.
+- Eliminated numpy.matrix/mat. Now only returns numpy.array.
+- Bumped min dependencies to those in Ubuntu 22.04.
+
 v1.4.0
 ------
 
