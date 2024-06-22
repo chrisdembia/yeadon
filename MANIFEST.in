@@ -1,5 +1,6 @@
 include *.txt
 include *.rst
+include AUTHORS
 recursive-include doc *.rst
 include doc/*.png
 include doc/Makefile
