@@ -26,12 +26,14 @@ jobs:
       shell: bash -l {0}
       if: ${{ matrix.python != '3.12' }}
       run: |
+        conda list
         nosetests -v --with-coverage --cover-package=yeadon
     - name: Run pytest
       shell: bash -l {0}
       if: ${{ matrix.python == '3.12' }}
       run: |
         conda install pytest
+        conda list
         coverage run -m pytest yeadon
     - name: Build the documentation
       shell: bash -l {0}
