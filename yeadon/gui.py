@@ -2,10 +2,10 @@
 
 from numpy import deg2rad, rad2deg
 
-from traits.api import HasTraits, Range, Instance, \
-        on_trait_change, Float, Property, File, Bool, Button
-from traitsui.api import \
-        View, Item, VSplit, VGroup, HSplit, HGroup, Group, Label
+from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
+                        Property, File, Bool, Button)
+from traitsui.api import (View, Item, VSplit, VGroup, HSplit, HGroup, Group,
+                          Label)
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
@@ -13,8 +13,10 @@ from .human import Human
 
 sliders = Human.CFGnames
 
+
 def format_func(value):
-    return '{:1.3}'.format(value)
+    return '{:1.3f}'.format(value)
+
 
 class YeadonGUI(HasTraits):
     """A GUI for the yeadon module, implemented using the traits package."""
