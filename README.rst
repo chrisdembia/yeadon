@@ -85,6 +85,17 @@ all of these dependencies and it is often easiest to install one of them to get
 started. Once you have a distribution, you can install the yeadon package. This
 is the best solution for Windows users.
 
+If you install with conda and want to use the GUI, then you also need to
+install Mayavi. It is helpful to note that two backends to Qt are available for
+Mayavi. By default the pyqt backend is installed in an environment with, for
+example::
+
+   conda create -n yeadon-env yeadon mayavi=*=pyside6_*
+
+You could instead install the PySide6 backend instead with::
+
+   conda create -n yeadon-env yeadon mayavi=*=pyside6_*
+
 Option 2: Operating system package manager
 ``````````````````````````````````````````
 
@@ -95,7 +106,8 @@ typing::
 
    $ # prepend sudo to each line below if you desire a system install
    $ apt-get install python3-setuptools python3-numpy python3-yaml # required
-   $ apt-get install python3-nose python3-sphinx python3-numpydoc mayavi2 # optional packages
+   $ apt-get install mayavi2 # optional packages
+   $ apt-get install python3-nose python3-sphinx python3-numpydoc # development tools
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
@@ -119,9 +131,9 @@ packages manually.
 Getting yeadon
 --------------
 
-Once you've obtained the dependencies, you can install `yeadon`. The
-easiest way to download and install the `yeadon` package is by using a tool
-like `pip` to obtain the package from the Python Package Index (PyPi)::
+Once you've obtained the dependencies, you can install `yeadon`. The easiest
+way to download and install the `yeadon` package is by using a tool like `pip`
+to obtain the package from the Python Package Index (PyPi)::
 
    $ python -m pip install yeadon
 
