@@ -90,7 +90,7 @@ install Mayavi. It is helpful to note that two backends to Qt are available for
 Mayavi. By default the pyqt backend is installed in an environment with, for
 example::
 
-   conda create -n yeadon-env yeadon mayavi=*=pyside6_*
+   conda create -n yeadon-env yeadon mayavi
 
 You could instead install the PySide6 backend instead with::
 
