@@ -10,12 +10,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
     - name: Set up Git repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Install Conda environment with Micromamba
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python }}
@@ -24,13 +24,27 @@ jobs:
         miniforge-version: latest
     - name: Run nose
       shell: bash -l {0}
-      if: ${{ matrix.python != '3.12' }}
+      if: ${{ matrix.python == '3.10' or matrix.python == '3.11'}}
       run: |
         conda list
         nosetests -v --with-coverage --cover-package=yeadon
     - name: Run pytest
       shell: bash -l {0}
       if: ${{ matrix.python == '3.12' }}
+      run: |
+        conda install pytest
+        conda list
+        coverage run -m pytest yeadon
+    - name: Run pytest
+      shell: bash -l {0}
+      if: ${{ matrix.python == '3.13' }}
+      run: |
+        conda install pytest
+        conda list
+        coverage run -m pytest yeadon
+    - name: Run pytest
+      shell: bash -l {0}
+      if: ${{ matrix.python == '3.14' }}
       run: |
         conda install pytest
         conda list
