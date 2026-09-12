@@ -15,11 +15,18 @@ setup(
     keywords="human inertia yeadon sports biomechanics gymnastics",
     license='LICENSE.txt',
     packages=find_packages(),
-    # NOTE : The minimum versions correspond to those in Ubuntu 22.04 LTS.
-    install_requires=['numpy>=1.21.5',
-                      'pyyaml>=5.4.1'],
-    extras_require={'gui': ['mayavi>=4.7.1'],
-                    'doc': ['sphinx>=4.3.2', 'numpydoc>=1.2']},
+    # NOTE : The minimum versions correspond to those in Ubuntu 24.04 LTS.
+    install_requires=[
+        'numpy>=1.26.4',
+        'pyyaml>=6.0.1',
+    ],
+    extras_require={
+        'gui': ['mayavi>=4.8.1'],
+        'doc': [
+            'numpydoc>=1.6.0',
+            'sphinx>=7.2.6',
+        ]
+    },
     tests_require=['nose>=1.3.7'],
     test_suite='nose.collector',
     include_package_data=True,
@@ -28,11 +35,11 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Topic :: Scientific/Engineering :: Physics',
     ],
 )
