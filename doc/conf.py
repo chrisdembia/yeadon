@@ -33,13 +33,12 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
-    'sphinx.ext.imgmath',
+    'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
 ]
 
-#mathjax_path='http://mathjax.connectmv.com/MathJax.js'
 # Add any paths that contain templates here, relative to this directory.
 
 # To suppress autodoc warnings. See issue 68.
@@ -114,7 +113,7 @@ if on_readthedocs:
     extensions.append('sphinx_rtd_theme')
     html_theme = 'sphinx_rtd_theme'
 else:
-    html_theme = 'pydoctheme' #'default'
+    html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -122,7 +121,7 @@ else:
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ['_themes']
+#html_theme_path = ['_themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
