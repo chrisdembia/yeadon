@@ -33,8 +33,8 @@ jobs:
         cd doc && make html
     - name: Test with mayavi installed
       shell: bash -l {0}
-      # segfault on install step in py 3.14.
-      if: ${{ matrix.python == '3.13' }}
+      # segfault on install step in py 3.13 and 3.14.
+      if: ${{ matrix.python == '3.12' }}
       run: |
         conda install mayavi
         conda list
