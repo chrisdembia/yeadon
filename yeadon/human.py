@@ -85,20 +85,6 @@ class Human(object):
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
 
-    _deprecated_CFGnames = {
-            'somersalt': 'somersault',
-            'CA1elevation': 'CA1extension',
-            'CB1elevation': 'CB1extension',
-            'CA1abduction': 'CA1adduction',
-            'A1A2flexion': 'A1A2extension',
-            'B1B2flexion': 'B1B2extension',
-            'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
-            'PJ1flexion': 'PJ1extension',
-            'PK1flexion': 'PK1extension',
-            'PJ1abduction': 'PJ1adduction',
-            'PTfrontalFlexion': 'PTbending',
-            }
-
     @property
     def mass(self):
         """Mass of the human, in units of kg."""
@@ -310,15 +296,9 @@ class Human(object):
             limits.
 
         """
-        if varname in self._deprecated_CFGnames:
-            msg = ("'{0}' should be called '{1}'."
-                   " This will raise an error in future versions.".format(
-                       varname, self._deprecated_CFGnames[varname]))
-            warnings.warn(msg, YeadonDeprecationWarning)
-            varname = self._deprecated_CFGnames[varname]
-        elif varname not in self.CFGnames:
+        if varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
-                    "variable.".format(varname))
+                            "variable.".format(varname))
         self.CFG[varname] = value
         self._update_segments()
 
@@ -335,15 +315,6 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
-        for depr_name, new_name in self._deprecated_CFGnames.items():
-            if depr_name in CFG:
-                msg = ("'{0}' should be called '{1}'."
-                       " This will raise an error in future versions.".format(
-                           depr_name, new_name))
-                warnings.warn(msg, YeadonDeprecationWarning)
-                value = CFG.pop(depr_name)
-                CFG[new_name] = value
-
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -752,7 +723,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
     def _make_inertia_ellipsoid_pos(self):
         """Generates coordinates to be used for 3D visualization purposes."""
         eigvals, eigvecs = np.linalg.eig(self.inertia)
-        axes = 1.0/np.sqrt(eigvals)
+        axes = 1.0/np.sqrt(np.real(eigvals))
         N = 50
         u = np.linspace(0, 2.0 * np.pi, N)
         v = np.linspace(0, np.pi, N)
@@ -763,9 +734,9 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
                 POS = eigvecs @ POS
-                x[i,j] = POS[0,0]
-                y[i,j] = POS[1,0]
-                z[i,j] = POS[2,0]
+                x[i,j] = np.real(POS[0,0])
+                y[i,j] = np.real(POS[1,0])
+                z[i,j] = np.real(POS[2,0])
         x = self.center_of_mass[0,0] + x
         y = self.center_of_mass[1,0] + y
         z = self.center_of_mass[2,0] + z
@@ -1511,16 +1482,10 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         with open(CFGfname, 'r') as fid:
             mydict = yaml.safe_load(fid.read())
             for key, val in mydict.items():
-                if key in self._deprecated_CFGnames.keys():
-                    msg = ("'{0}' should be called '{1}'."
-                        " This will raise an error in future versions.".format(
-                            key, self._deprecated_CFGnames[key]))
-                    warnings.warn(msg, YeadonDeprecationWarning)
-                    key = self._deprecated_CFGnames[key]
-                elif key not in self.CFGnames:
+                if key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise ValueError(mes)
-                if val == None:
+                if val is None:
                     raise ValueError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)

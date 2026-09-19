@@ -27,8 +27,6 @@ setup(
             'sphinx>=7.2.6',
         ]
     },
-    tests_require=['nose>=1.3.7'],
-    test_suite='nose.collector',
     include_package_data=True,
     entry_points={'console_scripts': ['yeadon=yeadon.app:run']},
     classifiers=[

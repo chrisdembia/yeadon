@@ -46,7 +46,7 @@ Directories
 Installing
 ==========
 
-This package was developed for Python 3.8+.
+This package works with Python 3.10+.
 
 Dependencies
 ------------
@@ -64,12 +64,11 @@ Dependencies
 The following packages are optional:
 
 - MayaVi_ for visualization and GUI interaction
-- nose_ for tests
+- pytest for tests
 - Sphinx_ to create documentation
 - numpydoc_ Sphinx extension for NumPy-style documentation formatting
 
 .. _MayaVi: http://mayavi.sourceforge.net
-.. _nose: https://nose.readthedocs.org
 .. _Sphinx: http://sphinx.pocoo.org
 .. _numpydoc: http://pythonhosted.org/numpydoc
 
@@ -107,7 +106,7 @@ typing::
    $ # prepend sudo to each line below if you desire a system install
    $ apt-get install python3-setuptools python3-numpy python3-yaml # required
    $ apt-get install mayavi2 # optional packages
-   $ apt-get install python3-nose python3-sphinx python3-numpydoc # development tools
+   $ apt-get install python3-pytest python3-sphinx python3-numpydoc # development tools
 
 For other operating systems (e.g. Windows or Mac), visit the websites for the
 packages for installation instructions.
@@ -121,7 +120,7 @@ build the dependencies from source and then install them by using a tool like
 
     $ python -m pip install numpy PyYAML  # required
     $ python -m pip install mayavi  # optional
-    $ python -m pip install nose sphinx numpydoc  # development tools
+    $ python -m pip install pytest sphinx numpydoc  # development tools
 
 or you can obtain the source code, perhaps from GitHub_, and install the
 packages manually.
@@ -154,7 +153,7 @@ your terminal::
 
 Run the tests with::
 
-   $ python setup.py nosetests
+   $ pytest
 
 Building the documentation
 ==========================
