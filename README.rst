@@ -18,7 +18,7 @@ yeadon
    :target: https://yeadon.readthedocs.org/en/latest/?badge=latest
 
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.15770.svg
-   :target: http://dx.doi.org/10.5281/zenodo.15770
+   :target: https://dx.doi.org/10.5281/zenodo.15770
 
 .. image:: https://github.com/chrisdembia/yeadon/actions/workflows/runtests.yml/badge.svg
 
@@ -27,7 +27,7 @@ tensors that correspond to the human inertia model developed by Yeadon in
 (Yeadon, 1990). The package allows for the input of both measurements and
 configuration variables (joint angles), and provides 3D visualization using the
 MayaVi package. See the online documentation at
-`<http://yeadon.readthedocs.org/>`_.
+`<https://yeadon.readthedocs.org/>`_.
 
 References
 ==========
@@ -53,47 +53,76 @@ Dependencies
 
 `yeadon` depends on the following widely-used packages:
 
-- setuptools_ for installation
 - NumPy_ for computations
 - PyYAML_ for parsing input files
+- setuptools_ for installation
 
-.. _setuptools: http://pythonhosted.org/setuptools
-.. _NumPy: http://numpy.scipy.org
-.. _PyYAML: http://pyyaml.org
+.. _NumPy: https://numpy.org
+.. _PyYAML: https://pyyaml.org
+.. _setuptools: https://setuptools.pypa.io
 
 The following packages are optional:
 
 - MayaVi_ for visualization and GUI interaction
-- pytest for tests
+
+.. _MayaVi: https://mayavi.sourceforge.net
+
+The following packages are needed for development:
+
 - Sphinx_ to create documentation
 - numpydoc_ Sphinx extension for NumPy-style documentation formatting
+- pytest_ for tests
 
-.. _MayaVi: http://mayavi.sourceforge.net
-.. _Sphinx: http://sphinx.pocoo.org
-.. _numpydoc: http://pythonhosted.org/numpydoc
+.. _Sphinx: https://www.sphinx-doc.org
+.. _numpydoc: https://numpydoc.readthedocs.io
+.. _pytest: https://pytest.org/
 
-Getting the dependencies
-------------------------
+Installing yeadon as a user
+---------------------------
 
-Option 1: Scientific python distributions
-`````````````````````````````````````````
+Option 1: Conda Forge
+`````````````````````
 
-Most `scientific python distributions
-<http://www.scipy.org/install.html#scientific-python-distributions>`_ provide
-all of these dependencies and it is often easiest to install one of them to get
-started. Once you have a distribution, you can install the yeadon package. This
-is the best solution for Windows users.
+We maintain a Conda Forge binary of yeadon that is installable with Conda-based
+tools (conda, mamba, pixi, etc.). Conda is a general cross-platform package
+manager that provides all of these dependencies and it is often easiest to
+install to get started. Install yeadon with::
+
+   conda create -n yeadon-env -c conda-forge yeadon
 
 If you install with conda and want to use the GUI, then you also need to
 install Mayavi. It is helpful to note that two backends to Qt are available for
 Mayavi. By default the pyqt backend is installed in an environment with, for
 example::
 
-   conda create -n yeadon-env yeadon mayavi
+   conda create -n yeadon-env -c conda-forge yeadon mayavi
 
 You could instead install the PySide6 backend instead with::
 
-   conda create -n yeadon-env yeadon mayavi=*=pyside6_*
+   conda create -n yeadon-env -c conda-forge yeadon mayavi=*=pyside6_*
+
+Option 2: PyPi
+--------------
+
+The source releases are available on PyPi and many tools can install from PyPi.
+The easiest way to download and install the `yeadon` package is by using a tool
+like `pip` to obtain the package from the Python Package Index (PyPi)::
+
+   $ python -m pip install yeadon
+
+Development dependency installation
+-----------------------------------
+
+Option 1: Conda
+```````````````
+
+Install the developmetn dependencies::
+
+   conda create -n yeadon-env -c conda-forge numpy pyyaml mayavi pytest sphinx numpydoc pip setuptools
+
+You could instead install the PySide6 backend instead with::
+
+   conda create -n yeadon-env -c conda-forge numpy pyyaml pytest sphinx numpydoc pip setuptools mayavi=*=pyside6_*
 
 Option 2: Operating system package manager
 ``````````````````````````````````````````
@@ -125,22 +154,16 @@ build the dependencies from source and then install them by using a tool like
 or you can obtain the source code, perhaps from GitHub_, and install the
 packages manually.
 
-.. _GitHub: http://github.com
+.. _GitHub: https://github.com
 
 Getting yeadon
 --------------
 
-Once you've obtained the dependencies, you can install `yeadon`. The easiest
-way to download and install the `yeadon` package is by using a tool like `pip`
-to obtain the package from the Python Package Index (PyPi)::
+You can obtain an archive of the package at the Python Package Index
+(`<https://pypi.python.org/pypi/yeadon>`_), and then install the package on
+your own by executing the following from the root directory of the package::
 
-   $ python -m pip install yeadon
-
-You can also obtain an archive of the package at the Python Package Index
-(`<https://pypi.python.org/pypi/yeadon>`_), and then install the package on your
-own by executing the following from the root directory of the package::
-
-   $ python setup.py install
+   $ python -m pip install .
 
 On Unix, you can obtain the package source code and install it without leaving
 your terminal::
@@ -149,7 +172,7 @@ your terminal::
    $ wget https://pypi.python.org/packages/source/y/yeadon/yeadon-X.X.X.tar.gz
    $ tar -zxfv yeadon-X.X.X.tar.gz
    $ cd yeadon-X.X.X.tar.gz
-   $ python setup.py install
+   $ python -m pip install .
 
 Run the tests with::
 
@@ -240,5 +263,5 @@ Contact
 Feel free to contact Chris Dembia (chris530d, gmail) with any questions or
 comments.
 
-All development is handled at `<http://github.com/chrisdembia/yeadon>`_, including
+All development is handled at `<https://github.com/chrisdembia/yeadon>`_, including
 issue tracking.
