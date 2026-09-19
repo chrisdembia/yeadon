@@ -723,7 +723,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
     def _make_inertia_ellipsoid_pos(self):
         """Generates coordinates to be used for 3D visualization purposes."""
         eigvals, eigvecs = np.linalg.eig(self.inertia)
-        axes = 1.0/np.sqrt(eigvals)
+        axes = 1.0/np.sqrt(np.real(eigvals))
         N = 50
         u = np.linspace(0, 2.0 * np.pi, N)
         v = np.linspace(0, np.pi, N)
@@ -734,9 +734,9 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
                 POS = eigvecs @ POS
-                x[i,j] = POS[0,0]
-                y[i,j] = POS[1,0]
-                z[i,j] = POS[2,0]
+                x[i,j] = np.real(POS[0,0])
+                y[i,j] = np.real(POS[1,0])
+                z[i,j] = np.real(POS[2,0])
         x = self.center_of_mass[0,0] + x
         y = self.center_of_mass[1,0] + y
         z = self.center_of_mass[2,0] + z
