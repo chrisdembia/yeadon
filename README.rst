@@ -46,7 +46,7 @@ Directories
 Installing
 ==========
 
-This package was developed for Python 3.8+.
+This package works with Python 3.10+.
 
 Dependencies
 ------------
