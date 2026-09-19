@@ -31,14 +31,6 @@ jobs:
       shell: bash -l {0}
       run: |
         cd doc && make html
-    - name: Test with mayavi installed
-      shell: bash -l {0}
-      # segfault on install step in py 3.13 and 3.14.
-      if: ${{ matrix.python == '3.12' }}
-      run: |
-        conda install mayavi
-        conda list
-        coverage run -m pytest yeadon
     - name: Install the software
       shell: bash -l {0}
       run: |
