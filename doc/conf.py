@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'yeadon'
-copyright = u'2011-2022, Chris Dembia'
+copyright = u'2011-2026, Yeadon Authors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -110,7 +110,7 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 if on_readthedocs:
-    html_theme = 'default'
+    html_theme = 'sphinx_rtd_theme'
 else:
     html_theme = 'pydoctheme' #'default'
 
