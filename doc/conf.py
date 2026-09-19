@@ -33,11 +33,12 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.imgmath',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
 ]
+
 #mathjax_path='http://mathjax.connectmv.com/MathJax.js'
 # Add any paths that contain templates here, relative to this directory.
 
@@ -110,6 +111,7 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 if on_readthedocs:
+    extensions.append(['sphinx_rtd_theme'])
     html_theme = 'sphinx_rtd_theme'
 else:
     html_theme = 'pydoctheme' #'default'
