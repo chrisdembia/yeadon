@@ -111,7 +111,7 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 if on_readthedocs:
-    extensions.append(['sphinx_rtd_theme'])
+    extensions.append('sphinx_rtd_theme')
     html_theme = 'sphinx_rtd_theme'
 else:
     html_theme = 'pydoctheme' #'default'
