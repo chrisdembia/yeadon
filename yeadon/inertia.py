@@ -189,19 +189,6 @@ def euler_123(angles):
     return R1 @ R2 @ R3
 
 
-def rotate3_inertia(rotation_matrix, inertia):
-
-    __doc__ = rotate_inertia.__doc__
-
-    # TODO : Remove this function in Yeadon 2.0.
-
-    msg = ("rotate3_inertia has been renamed to rotate_inertia, this " +
-           "function signature will be removed in Yeadon 2.0.")
-    warnings.warn(msg, YeadonDeprecationWarning)
-
-    return rotate_inertia(rotation_matrix, inertia)
-
-
 def rotate_inertia(rotation_matrix, inertia):
     """Returns an inertia tensor expressed in a reference frame which has
     been rotated with respect to the frame the inertia tensor is currently

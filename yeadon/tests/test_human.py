@@ -767,53 +767,6 @@ class TestHuman(unittest.TestCase):
                 whole_inertia_before - a1inertia_before - a2inertia_before,
                 atol=1e-15)
 
-    def test_deprecated_CFG_names(self):
-        """For v1.1.0, we changed a number of the configuration variable names.
-        We still want to accept incorrect spellings for backwards
-        compatibility. It should issue a deprecation warning
-        # if you use the incorrect spelling but the code should run anyways.
-
-        """
-        deprecated_CFG_names = {'somersalt': 'somersault',
-                'CA1elevation': 'CA1extension',
-                'CB1elevation': 'CB1extension',
-                'CA1abduction': 'CA1adduction',
-                'A1A2flexion': 'A1A2extension',
-                'B1B2flexion': 'B1B2extension',
-                'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
-                'PJ1flexion': 'PJ1extension',
-                'PK1flexion': 'PK1extension',
-                'PJ1abduction': 'PJ1adduction',
-                'PTfrontalFlexion': 'PTbending',
-                }
-
-        for old_name, new_name in deprecated_CFG_names.items():
-
-            # set_CFG.
-            h = hum.Human(self.male1meas)
-            CFG_value = h.CFGbounds[h.CFGnames.index(new_name)][0]
-            h.set_CFG(old_name, CFG_value)
-            assert old_name not in h.CFG.keys()
-            testing.assert_allclose(h.CFG[new_name], CFG_value)
-
-            # set_CFG_dict.
-            h = hum.Human(self.male1meas)
-            CFG = copy.copy(h.CFG)
-            CFG.pop(new_name)
-            CFG[old_name] = CFG_value
-            h.set_CFG_dict(CFG)
-            assert old_name not in h.CFG.keys()
-            assert new_name in h.CFG.keys()
-            testing.assert_allclose(h.CFG[new_name], CFG_value)
-
-        # Reading from file.
-        cfg_path = os.path.join(os.path.split(__file__)[0],
-                               'CFG_deprecated_names.txt')
-        h = hum.Human(self.male1meas, cfg_path)
-        for old_name, new_name in deprecated_CFG_names.items():
-            assert old_name not in h.CFG.keys()
-            assert new_name in h.CFG.keys()
-
     def test_set_CFG_dict(self):
         """Checks input errors and that the assignment occurs."""
 

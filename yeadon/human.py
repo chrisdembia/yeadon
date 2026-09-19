@@ -85,20 +85,6 @@ class Human(object):
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
 
-    _deprecated_CFGnames = {
-            'somersalt': 'somersault',
-            'CA1elevation': 'CA1extension',
-            'CB1elevation': 'CB1extension',
-            'CA1abduction': 'CA1adduction',
-            'A1A2flexion': 'A1A2extension',
-            'B1B2flexion': 'B1B2extension',
-            'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
-            'PJ1flexion': 'PJ1extension',
-            'PK1flexion': 'PK1extension',
-            'PJ1abduction': 'PJ1adduction',
-            'PTfrontalFlexion': 'PTbending',
-            }
-
     @property
     def mass(self):
         """Mass of the human, in units of kg."""
@@ -310,15 +296,9 @@ class Human(object):
             limits.
 
         """
-        if varname in self._deprecated_CFGnames:
-            msg = ("'{0}' should be called '{1}'."
-                   " This will raise an error in future versions.".format(
-                       varname, self._deprecated_CFGnames[varname]))
-            warnings.warn(msg, YeadonDeprecationWarning)
-            varname = self._deprecated_CFGnames[varname]
-        elif varname not in self.CFGnames:
+        if varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
-                    "variable.".format(varname))
+                            "variable.".format(varname))
         self.CFG[varname] = value
         self._update_segments()
 
@@ -335,15 +315,6 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
-        for depr_name, new_name in self._deprecated_CFGnames.items():
-            if depr_name in CFG:
-                msg = ("'{0}' should be called '{1}'."
-                       " This will raise an error in future versions.".format(
-                           depr_name, new_name))
-                warnings.warn(msg, YeadonDeprecationWarning)
-                value = CFG.pop(depr_name)
-                CFG[new_name] = value
-
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -1511,16 +1482,10 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         with open(CFGfname, 'r') as fid:
             mydict = yaml.safe_load(fid.read())
             for key, val in mydict.items():
-                if key in self._deprecated_CFGnames.keys():
-                    msg = ("'{0}' should be called '{1}'."
-                        " This will raise an error in future versions.".format(
-                            key, self._deprecated_CFGnames[key]))
-                    warnings.warn(msg, YeadonDeprecationWarning)
-                    key = self._deprecated_CFGnames[key]
-                elif key not in self.CFGnames:
+                if key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
                     raise ValueError(mes)
-                if val == None:
+                if val is None:
                     raise ValueError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
