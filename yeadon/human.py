@@ -183,19 +183,8 @@ class Human(object):
         if self.is_symmetric == True:
             self._average_limbs()
 
-        # If configuration input is a dictionary, assign via public method.
-        # Else, read in the file.
-        if CFG is None:
-            # Start off a zero configuration.
-            self.CFG = dict()
-            for key in Human.CFGnames:
-                self.CFG[key] = 0.0
-        elif isinstance(CFG, dict):
-            self.set_CFG_dict(CFG)
-        elif isinstance(CFG, str):
-            self._read_CFG(CFG)
-        else:
-            raise ValueError('Not a valid CFG value.')
+        # Start off a zero configuration.
+        self.CFG = {k: 0.0 for k in Human.CFGnames}
 
         # update will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
@@ -204,6 +193,12 @@ class Human(object):
         if self.meas_mass > 0:
             self.scale_human_by_mass(self.meas_mass)
 
+        # If configuration input is a dictionary, assign via public method.
+        # Else, read in the file.
+        if isinstance(CFG, dict):
+            self.set_CFG_dict(CFG)
+        elif isinstance(CFG, str):
+            self._read_CFG(CFG)
 
     def update(self):
         """Redefines all solids and then calls yeadon.Human._update_segments.
