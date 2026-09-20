@@ -3,7 +3,43 @@ Release Notes
 
 Future releases
 ---------------
-See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_
+See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
+
+v1.5.0
+------
+
+- Supports Python >= 3.8.
+- Made tests compatible with pytest.
+- Uses entry_points for the CLI script and move the entry point into the
+  package.
+- Eliminated numpy.matrix/mat. Now only returns numpy.array.
+- Bumped min dependencies to those in Ubuntu 22.04.
+
+v1.4.0
+------
+
+- Dropped support for Python < 3.7 (including 2.7).
+- Replaced ``yaml.load`` with ``yaml.safe_load``.
+- Fixed pretty printing of results to work with newer NumPy versions.
+
+v1.3.0
+------
+
+- Now supports Python 3.
+
+v1.2.1
+------
+
+- Pinned the bicycle example to specific dependencies.
+- Added version.py.
+- Removed Mayavi print statements.
+- Added badges to the README.
+- Added citation note to the README.
+
+v1.2
+----
+
+ - Added two examples, PRs #98, #101.
 
 v1.1
 ----
@@ -30,6 +66,7 @@ v1.1
 
 v1.0
 ----
+
  - Fairly thorough unit tests.
  - Clarified documentation and docstrings.
  - Improved the way rotation matrices are formed.
@@ -41,4 +78,5 @@ v1.0
 
 v0.8 on 18 July 2011
 --------------------
+
 This is the first release.

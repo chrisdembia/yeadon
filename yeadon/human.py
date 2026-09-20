@@ -4,8 +4,6 @@ calculates their properties, and manages file input/output.
 
 """
 
-# Use Python3 integer division rules.
-from __future__ import division
 import copy
 import warnings
 
@@ -13,18 +11,18 @@ import numpy as np
 import yaml
 try:
     from mayavi import mlab
-except Exception as e:
-    print "Failed to import mayavi. This is fine, it just means that you " \
-          "cannot use the draw() member function."
+except ImportError:
+    pass
 
-import inertia
-import solid as sol
-import segment as seg
+from . import inertia
+from . import solid as sol
+from . import segment as seg
 from .utils import printoptions
-from exceptions import YeadonDeprecationWarning
+from .exceptions import YeadonDeprecationWarning
 
 # Display our warnings to the user.
 warnings.simplefilter('always', YeadonDeprecationWarning)
+
 
 class Human(object):
     measnames = ('Ls1L', 'Ls2L', 'Ls3L', 'Ls4L', 'Ls5L', 'Ls6L', 'Ls7L',
@@ -87,20 +85,6 @@ class Human(object):
                  [0, np.pi],                        # J1J2flexion
                  [0, np.pi]]                        # K1K2flexion
 
-    _deprecated_CFGnames = {
-            'somersalt': 'somersault',
-            'CA1elevation': 'CA1extension',
-            'CB1elevation': 'CB1extension',
-            'CA1abduction': 'CA1adduction',
-            'A1A2flexion': 'A1A2extension',
-            'B1B2flexion': 'B1B2extension',
-            'TClateralSpinalFlexion': 'TCsagittalSpinalFlexion',
-            'PJ1flexion': 'PJ1extension',
-            'PK1flexion': 'PK1extension',
-            'PJ1abduction': 'PJ1adduction',
-            'PTfrontalFlexion': 'PTbending',
-            }
-
     @property
     def mass(self):
         """Mass of the human, in units of kg."""
@@ -115,7 +99,7 @@ class Human(object):
 
     @property
     def inertia(self):
-        """Inertia matrix/dyadic of the human, a np.matrix, in units of
+        """Inertia matrix/dyadic of the human, a np.array, in units of
         kg-m^2, about the center of mass of the human, expressed in the global
         frame.  """
         return self._inertia
@@ -270,11 +254,11 @@ class Human(object):
         for i in np.arange(len(self.CFG)):
             if (self.CFG[Human.CFGnames[i]] < Human.CFGbounds[i][0] or
                 self.CFG[Human.CFGnames[i]] > Human.CFGbounds[i][1]):
-                print "Joint angle",Human.CFGnames[i],"=",\
-                      self.CFG[Human.CFGnames[i]]/np.pi,\
-                      "pi-rad is out of range. Must be between",\
-                      Human.CFGbounds[i][0]/np.pi,"and",\
-                      Human.CFGbounds[i][1]/np.pi,"pi-rad."
+                print("Joint angle",Human.CFGnames[i],"=",
+                      self.CFG[Human.CFGnames[i]]/np.pi,
+                      "pi-rad is out of range. Must be between",
+                      Human.CFGbounds[i][0]/np.pi,"and",
+                      Human.CFGbounds[i][1]/np.pi,"pi-rad.")
                 boolval = False
         return boolval
 
@@ -291,8 +275,8 @@ class Human(object):
         # averaged)
         # [21, 38] U [57, 75] are the left limbs.
         # [39, 57] U [76, 95] are the right limbs.
-        leftidxs = np.concatenate((np.arange(21, 39), np.arange(57, 76)), 1)
-        rightidx = np.concatenate((np.arange(39, 57), np.arange(76, 95)), 1)
+        leftidxs = np.hstack((np.arange(21, 39), np.arange(57, 76)))
+        rightidx = np.hstack((np.arange(39, 57), np.arange(76, 95)))
         for i in np.arange(len(leftidxs)):
             avg = 0.5 * (self.meas[Human.measnames[leftidxs[i]]] +
                          self.meas[Human.measnames[rightidx[i]]])
@@ -315,15 +299,9 @@ class Human(object):
             limits.
 
         """
-        if varname in self._deprecated_CFGnames:
-            msg = ("'{0}' should be called '{1}'."
-                   " This will raise an error in future versions.".format(
-                       varname, self._deprecated_CFGnames[varname]))
-            warnings.warn(msg, YeadonDeprecationWarning)
-            varname = self._deprecated_CFGnames[varname]
-        elif varname not in self.CFGnames:
+        if varname not in self.CFGnames:
             raise Exception("'{0}' is not a valid name of a configuration "
-                    "variable.".format(varname))
+                            "variable.".format(varname))
         self.CFG[varname] = value
         self._update_segments()
 
@@ -340,15 +318,6 @@ class Human(object):
             Stores the 21 joint angles.
 
         """
-        for depr_name, new_name in self._deprecated_CFGnames.items():
-            if depr_name in CFG:
-                msg = ("'{0}' should be called '{1}'."
-                       " This will raise an error in future versions.".format(
-                           depr_name, new_name))
-                warnings.warn(msg, YeadonDeprecationWarning)
-                value = CFG.pop(depr_name)
-                CFG[new_name] = value
-
         # Some error checking.
         if len(CFG) != len(self.CFGnames):
             raise Exception("Number of CFG variables, {0}, is "
@@ -380,13 +349,13 @@ class Human(object):
             moment += s.mass * s.center_of_mass
         self._center_of_mass = moment / self.mass
         # inertia
-        self._inertia = np.mat(np.zeros((3,3)))
+        self._inertia = np.zeros((3, 3))
         for s in self.segments:
             dist = self.center_of_mass - s.center_of_mass
-            self._inertia += np.mat(
-                inertia.parallel_axis(s.inertia,
-                                      s.mass,
-                                      [dist[0,0],dist[1,0],dist[2,0]]))
+            self._inertia += inertia.parallel_axis(s.inertia,
+                                                   s.mass,
+                                                   [dist[0,0], dist[1,0],
+                                                    dist[2,0]])
 
     def __str__(self):
         return(self._properties_string())
@@ -479,11 +448,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Parameters
         ----------
-        varin : list or tuple (3,) or np.matrix (3,3)
+        varin : list or tuple (3,) or np.array (3,3)
             If list or tuple, the rotations are in radians about the x, y, and
             z axes (in that order).  In this case, rotations are space-fixed.
             In other words, they are space-fixed rotations as opposed to
-            body-fixed rotations.  If np.matrix, it is a 3x3 rotation matrix.
+            body-fixed rotations.  If np.array, it is a 3x3 rotation matrix.
             For more information, see the inertia.rotate_space_123
             documentation.
 
@@ -529,7 +498,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
             vector must be expressed in the global reference frame. If not
             provided, the tensor is given about the center of mass of the
             human.
-        rotmat : np.matrix (3,3), optional
+        rotmat : np.array (3,3), optional
             If not provided, the returned tensor is expressed in the global
             frame, else the returned tensor is expressed in the rotated
             reference frame. Consider N to be the global frame and B to be
@@ -542,7 +511,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         Returns
         -------
-        transformed : np.matrix (3,3)
+        transformed : np.array (3,3)
             If B is the frame in which the user desires the inertia tensor,
             this method returns ^{B}I^{H/P}, where P is the point specified
             by `pos`, and H is the human system.
@@ -557,7 +526,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # user provides is in the global frame.
 
         if pos is not None:
-            pos = np.asmatrix(pos).reshape((3, 1))
+            pos = np.asarray(pos).reshape((3, 1))
             transformed = inertia.parallel_axis(self.inertia, self.mass, pos
                                                 - self.center_of_mass)
         else:
@@ -596,7 +565,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         combined_COM : np.array (3,1)
             Position of the center of mass of the input solids and/or segments,
             expressed in the global frame .
-        combined_inertia : np.matrix (3,3)
+        combined_inertia : np.array (3,3)
             Inertia tensor about the combined_COM, expressed in the global frame.
 
         """
@@ -630,27 +599,25 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                     "contribution.".format(solobj, segkey))
 
         # Perform computations.
-        print "Combining segments/solids", objlist, "."
         combined_mass = 0.0
         combinedMoment = np.zeros( (3,1) )
         for objstr in objlist:
-            if ObjDict.has_key(objstr) == False:
+            if objstr not in ObjDict:
                 raise Exception("The string {0!r} does not identify a segment "
                       "or solid of the human.".format(objstr))
             obj = ObjDict[objstr]
             combined_mass += obj.mass
             combinedMoment += obj.mass * obj.center_of_mass
         combined_COM = combinedMoment / combined_mass
-        combined_inertia = np.mat(np.zeros( (3,3) ))
+        combined_inertia = np.zeros((3, 3))
         # Move inertia tensor of an object from the point it is currently about
         # (the object's COM) so that it is about combined_COM.
         for objstr in objlist:
             obj = ObjDict[objstr]
             dist = combined_COM - obj.center_of_mass
-            combined_inertia += np.mat(inertia.parallel_axis(
-                                       obj.inertia,
-                                       obj.mass,
-                                       [dist[0,0],dist[1,0],dist[2,0]]))
+            combined_inertia += inertia.parallel_axis(obj.inertia, obj.mass,
+                                                      [dist[0, 0], dist[1, 0],
+                                                       dist[2, 0]])
         return combined_mass, combined_COM, combined_inertia
 
     def get_segment_by_name(self, name):
@@ -764,7 +731,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
     def _make_inertia_ellipsoid_pos(self):
         """Generates coordinates to be used for 3D visualization purposes."""
         eigvals, eigvecs = np.linalg.eig(self.inertia)
-        axes = 1.0/np.sqrt(eigvals)
+        axes = 1.0/np.sqrt(np.real(eigvals))
         N = 50
         u = np.linspace(0, 2.0 * np.pi, N)
         v = np.linspace(0, np.pi, N)
@@ -774,10 +741,10 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         for i in np.arange(N):
             for j in np.arange(N):
                 POS = np.array([[x[i,j]],[y[i,j]],[z[i,j]]])
-                POS = eigvecs * POS
-                x[i,j] = POS[0,0]
-                y[i,j] = POS[1,0]
-                z[i,j] = POS[2,0]
+                POS = eigvecs @ POS
+                x[i,j] = np.real(POS[0,0])
+                y[i,j] = np.real(POS[1,0])
+                z[i,j] = np.real(POS[2,0])
         x = self.center_of_mass[0,0] + x
         y = self.center_of_mass[1,0] + y
         z = self.center_of_mass[2,0] + z
@@ -1199,7 +1166,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # pelvis
         Ppos = self._coord_sys_pos
-        PRotMat = (self._coord_sys_orient *
+        PRotMat = (self._coord_sys_orient @
             inertia.euler_123([self.CFG['somersault'],
                                self.CFG['tilt'],
                                self.CFG['twist']]))
@@ -1211,7 +1178,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # thorax
         Tpos = self.P.end_pos
-        TRotMat = (self.P.rot_mat *
+        TRotMat = (self.P.rot_mat @
             inertia.euler_123([self.CFG['PTsagittalFlexion'],
                                       self.CFG['PTbending'],
                                       0.0]))
@@ -1223,7 +1190,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
 
         # chest-head
         Cpos = self.T.end_pos
-        CRotMat = (self.T.rot_mat *
+        CRotMat = (self.T.rot_mat @
             inertia.euler_123([self.CFG['TCsagittalSpinalFlexion'],
                                0.0,
                                self.CFG['TCspinalTorsion']]))
@@ -1242,18 +1209,18 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # left upper arm
         local_left_shoulder_point = \
                 np.array([[shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        A1RotMat = (self.C.rot_mat *
+        A1RotMat = (self.C.rot_mat @
              inertia.euler_123([self.CFG['CA1extension'],
                                 self.CFG['CA1adduction'],
                                 self.CFG['CA1rotation']]))
-        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        A1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_left_shoulder_point
         self.A1 = seg.Segment('A1: Left upper arm', A1pos, A1RotMat,
                               [self._a_solids[0], self._a_solids[1]], (0, 1, 0),
                               build_toward_positive_z=False)
 
         # left forearm-hand
-        A2RotMat = (self.A1.rot_mat *
+        A2RotMat = (self.A1.rot_mat @
             inertia.euler_123([self.CFG['A1A2extension'], 0.0, 0.0]))
         A2pos = self.A1.end_pos
         self.A2 = seg.Segment('A2: Left forearm-hand',
@@ -1266,11 +1233,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         # right upper arm
         local_right_shoulder_point = \
                 np.array([[-shoulder_width / 2.0], [0.0], [Ls3_Ls4_solid.height]])
-        B1RotMat = (self.C.rot_mat *
+        B1RotMat = (self.C.rot_mat @
                 inertia.euler_123([self.CFG['CB1extension'],
                                    self.CFG['CB1abduction'],
                                    self.CFG['CB1rotation']]))
-        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat * \
+        B1pos = Ls3_Ls4_solid.pos + self.C.rot_mat @ \
             local_right_shoulder_point
         self.B1 = seg.Segment('B1: Right upper arm',
                                B1pos,
@@ -1280,7 +1247,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                                build_toward_positive_z=False)
 
         # right forearm-hand
-        B2RotMat = (self.B1.rot_mat *
+        B2RotMat = (self.B1.rot_mat @
             inertia.euler_123([self.CFG['B1B2extension'], 0.0, 0.0]))
         B2pos = self.B1.end_pos
         self.B2 = seg.Segment('B2: Right forearm-hand',
@@ -1299,11 +1266,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_left_hip_point = np.array([[hip_width / 2.0],
                                          [0.0],
                                          [0.0]])
-        J1RotMat = (self.P.rot_mat *
+        J1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PJ1extension'],
                                 self.CFG['PJ1adduction'],
                                 0.0]))
-        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        J1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_left_hip_point
         self.J1 = seg.Segment('J1: Left thigh',
                               J1pos,
@@ -1314,7 +1281,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # left shank-foot
-        J2RotMat = (self.J1.rot_mat *
+        J2RotMat = (self.J1.rot_mat @
             inertia.euler_123([self.CFG['J1J2flexion'], 0.0, 0.0]))
         J2pos = self.J1.end_pos
         self.J2 = seg.Segment('J2: Left shank-foot',
@@ -1328,11 +1295,11 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         local_right_hip_point = np.array([[-hip_width / 2.0],
                                           [0.0],
                                           [0.0]])
-        K1RotMat = (self.P.rot_mat *
+        K1RotMat = (self.P.rot_mat @
              inertia.euler_123([self.CFG['PK1extension'],
                                        self.CFG['PK1abduction'],
                                        0.0]))
-        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat * \
+        K1pos = Ls0_Ls1_solid.pos + self.P.rot_mat @ \
             local_right_hip_point
         self.K1 = seg.Segment('K1: Right thigh',
                               K1pos,
@@ -1343,7 +1310,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                               build_toward_positive_z=False)
 
         # right shank-foot
-        K2RotMat = (self.K1.rot_mat *
+        K2RotMat = (self.K1.rot_mat @
             inertia.euler_123([self.CFG['K1K2flexion'], 0.0, 0.0]))
         K2pos = self.K1.end_pos
         self.K2 = seg.Segment('K2: Right shank-foot',
@@ -1392,7 +1359,7 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         self.measurementconversionfactor = 0
         # open measurement file
         fid = open(fname, 'r')
-        mydict = yaml.load(fid.read())
+        mydict = yaml.safe_load(fid.read())
         fid.close()
         # loop until all 95 parameters are read in
         for key, val in mydict.items():
@@ -1462,43 +1429,43 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         for key, val in m.items(): m[key] = val/SI
 
         # pelvis, torso, chest-head
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Ls1L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['Ls1L'],
             m['Ls2L'], m['Ls3L'], m['Ls4L'], m['Ls5L'], m['Ls6L'], m['Ls7L'],
             m['Ls8L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Ls0p'], m['Ls1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Ls0p'], m['Ls1p'],
             m['Ls2p'], m['Ls3p'], m['Ls5p'], m['Ls6p'], m['Ls7p']))
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Ls0w'], m['Ls1w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['Ls0w'], m['Ls1w'],
             m['Ls2w'], m['Ls3w'], m['Ls4w'], m['Ls4d']))
 
         # arms
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['La2L'], m['La3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['La2L'], m['La3L'],
             m['La4L'], m['La5L'], m['La6L'], m['La7L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['La0p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['La0p'],
             m['La1p'], m['La2p'], m['La3p'], m['La4p'], m['La5p'], m['La6p'],
             m['La7p']))
-        fid.write("{0},{1},{2},{3}\n".format(m['La4w'], m['La5w'], m['La6w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f}\n".format(m['La4w'], m['La5w'], m['La6w'],
             m['La7w']))
-        fid.write("{0},{1},{2},{3},{4},{5}\n".format(m['Lb2L'], m['Lb3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f}\n".format(m['Lb2L'], m['Lb3L'],
             m['Lb4L'], m['Lb5L'], m['Lb6L'], m['Lb7L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(m['Lb0p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f}\n".format(m['Lb0p'],
             m['Lb1p'], m['Lb2p'], m['Lb3p'], m['Lb4p'], m['Lb5p'], m['Lb6p'],
             m['Lb7p']))
-        fid.write("{0},{1},{2},{3}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f}\n".format(m['Lb4w'], m['Lb5w'], m['Lb6w'],
             m['Lb7w']))
 
         # legs
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lj1L'], m['Lj3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Lj1L'], m['Lj3L'],
             m['Lj4L'], m['Lj5L'], m['Lj6L'], m['Lj8L'], m['Lj9L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lj1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f},{8:1.1f}\n".format(m['Lj1p'],
             m['Lj2p'], m['Lj3p'], m['Lj4p'], m['Lj5p'], m['Lj6p'], m['Lj7p'],
             m['Lj8p'], m['Lj9p']))
-        fid.write("{0},{1},{2}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6}\n".format(m['Lk1L'], m['Lk3L'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f}\n".format(m['Lj6d'], m['Lj8w'], m['Lj9w']))
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f}\n".format(m['Lk1L'], m['Lk3L'],
             m['Lk4L'], m['Lk5L'], m['Lk6L'], m['Lk8L'], m['Lk9L']))
-        fid.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(m['Lk1p'],
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f},{3:1.1f},{4:1.1f},{5:1.1f},{6:1.1f},{7:1.1f},{8:1.1f}\n".format(m['Lk1p'],
             m['Lk2p'], m['Lk3p'], m['Lk4p'], m['Lk5p'], m['Lk6p'], m['Lk7p'],
             m['Lk8p'], m['Lk9p']))
-        fid.write("{0},{1},{2}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
+        fid.write("{0:1.1f},{1:1.1f},{2:1.1f}\n".format(m['Lk6d'], m['Lk8w'], m['Lk9w']))
 
         # This line contains ISEG's "XHEIGHT" and "XMASS" variables. XMASS is
         # used for mass/density correction in his code.
@@ -1521,24 +1488,18 @@ Inertia tensor in global frame about human's COM (kg-m^2):
         """
         self.CFG = dict()
         with open(CFGfname, 'r') as fid:
-            mydict = yaml.load(fid)
+            mydict = yaml.safe_load(fid.read())
             for key, val in mydict.items():
-                if key in self._deprecated_CFGnames.keys():
-                    msg = ("'{0}' should be called '{1}'."
-                        " This will raise an error in future versions.".format(
-                            key, self._deprecated_CFGnames[key]))
-                    warnings.warn(msg, YeadonDeprecationWarning)
-                    key = self._deprecated_CFGnames[key]
-                elif key not in self.CFGnames:
+                if key not in self.CFGnames:
                     mes = "'{}' is not a correct variable name.".format(key)
-                    raise StandardError(mes)
-                if val == None:
-                    raise StandardError(
+                    raise ValueError(mes)
+                if val is None:
+                    raise ValueError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
 
         if len(self.CFG) != len(self.CFGnames):
-            raise StandardError("Number of CFG variables, {0}, is "
+            raise ValueError("Number of CFG variables, {0}, is "
                     "incorrect.".format(len(self.CFG)))
 
     def write_CFG(self, CFGfname):

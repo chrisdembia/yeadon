@@ -1,6 +1,3 @@
-# Use Python3 integer division rules.
-from __future__ import division
-
 import warnings
 
 import numpy as np
@@ -27,14 +24,14 @@ def parallel_axis(Ic, m, d):
 
     Returns
     -------
-    I : numpy.matrix, shape(3,3)
+    I : ndarray, shape(3,3)
         The moment of inertia of a body about a point located by the
         distances in `d`.
 
     '''
 
-    Ic = np.asmatrix(Ic)
-    d = np.asmatrix(d).reshape((3, 1))
+    Ic = np.asarray(Ic)
+    d = np.asarray(d).reshape((3, 1))
 
     a = d[0, 0]
     b = d[1, 0]
@@ -66,7 +63,7 @@ def rotate_space_123(angles):
 
     Returns
     -------
-    R : numpy.matrix, shape(3,3)
+    R : ndarray, shape(3,3)
         Three dimensional rotation matrix about three different orthogonal axes.
 
     Notes
@@ -101,19 +98,19 @@ def rotate_space_123(angles):
     cz = np.cos(angles[2])
     sz = np.sin(angles[2])
 
-    Rz = np.mat([[ cz,-sz,  0],
-                 [ sz, cz,  0],
-                 [  0,  0,  1]])
+    Rz = np.array([[ cz,-sz,  0],
+                   [ sz, cz,  0],
+                   [  0,  0,  1]])
 
-    Ry = np.mat([[ cy,  0, sy],
-                 [  0,  1,  0],
-                 [-sy,  0, cy]])
+    Ry = np.array([[ cy,  0, sy],
+                   [  0,  1,  0],
+                   [-sy,  0, cy]])
 
-    Rx = np.mat([[  1,  0,  0],
-                 [  0, cx, -sx],
-                 [  0, sx,  cx]])
+    Rx = np.array([[  1,  0,  0],
+                   [  0, cx, -sx],
+                   [  0, sx,  cx]])
 
-    return Rz * Ry * Rx
+    return Rz @ Ry @ Rx
 
 def euler_123(angles):
     """
@@ -136,7 +133,7 @@ def euler_123(angles):
 
     Returns
     -------
-    R : numpy.matrix, shape(3,3)
+    R : ndarray, shape(3,3)
         Three dimensional rotation matrix about three different orthogonal axes.
 
     Notes
@@ -177,32 +174,19 @@ def euler_123(angles):
     cpsi = np.cos(angles[2])
     spsi = np.sin(angles[2])
 
-    R1 = np.mat([[     1,     0,     0],
-                 [     0,  cphi, -sphi],
-                 [     0,  sphi,  cphi]])
+    R1 = np.array([[     1,     0,     0],
+                   [     0,  cphi, -sphi],
+                   [     0,  sphi,  cphi]])
 
-    R2 = np.mat([[  cthe,     0,  sthe],
-                 [     0,     1,     0],
-                 [ -sthe,     0,  cthe]])
+    R2 = np.array([[  cthe,     0,  sthe],
+                   [     0,     1,     0],
+                   [ -sthe,     0,  cthe]])
 
-    R3 = np.mat([[  cpsi,  -spsi,     0],
-                 [  spsi,  cpsi,     0],
-                 [     0,     0,     1]])
+    R3 = np.array([[  cpsi,  -spsi,     0],
+                   [  spsi,  cpsi,     0],
+                   [     0,     0,     1]])
 
-    return R1 * R2 * R3
-
-
-def rotate3_inertia(rotation_matrix, inertia):
-
-    __doc__ = rotate_inertia.__doc__
-
-    # TODO : Remove this function in Yeadon 2.0.
-
-    msg = ("rotate3_inertia has been renamed to rotate_inertia, this " +
-           "function signature will be removed in Yeadon 2.0.")
-    warnings.warn(msg, YeadonDeprecationWarning)
-
-    return rotate_inertia(rotation_matrix, inertia)
+    return R1 @ R2 @ R3
 
 
 def rotate_inertia(rotation_matrix, inertia):
@@ -212,17 +196,17 @@ def rotate_inertia(rotation_matrix, inertia):
 
     Parameters
     ----------
-    rotation_matrix : numpy.matrix, shape(3,3)
+    rotation_matrix : array_like, shape(3,3)
         Three-dimensional rotation/transformation/direction-cosine matrix
         that transforms a vector in the rotated reference frame into one in
         the current reference frame.
-    inertia : numpy.matrix, shape(3,3)
+    inertia : array_like, shape(3,3)
         Three-dimensional cartesian tensor describing the inertia of a rigid
         body in a reference frame.
 
     Returns
     -------
-    rotated_inertia : numpy.matrix, shape(3,3)
+    rotated_inertia : ndarray, shape(3,3)
         The inertia tensor expressed in the rotated reference frame.
 
     Notes
@@ -256,7 +240,7 @@ def rotate_inertia(rotation_matrix, inertia):
     I_b = R^T * I_a * R
 
     """
-    return rotation_matrix.T * inertia * rotation_matrix
+    return rotation_matrix.T @ inertia @ rotation_matrix
 
 
 def total_com(coordinates, masses):

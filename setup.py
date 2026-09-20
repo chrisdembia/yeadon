@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 from setuptools import setup, find_packages
 
-from yeadon import __version__
+exec(open('yeadon/version.py').read())
 
 setup(
     name='yeadon',
@@ -13,18 +15,29 @@ setup(
     keywords="human inertia yeadon sports biomechanics gymnastics",
     license='LICENSE.txt',
     packages=find_packages(),
-    install_requires=['numpy', 'pyyaml'],
-    extras_require={'gui': ['mayavi'],
-        'doc': ['sphinx', 'numpydoc']},
-    tests_require=['nose'],
-    test_suite='nose.collector',
+    # NOTE : The minimum versions correspond to those in Ubuntu 24.04 LTS.
+    install_requires=[
+        'numpy>=1.26.4',
+        'pyyaml>=6.0.1',
+    ],
+    extras_require={
+        'gui': ['mayavi>=4.8.1'],
+        'doc': [
+            'numpydoc>=1.6.0',
+            'sphinx>=7.2.6',
+        ]
+    },
     include_package_data=True,
-    scripts=['bin/yeadon'],
+    entry_points={'console_scripts': ['yeadon=yeadon.app:run']},
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Topic :: Scientific/Engineering :: Physics',
-        ],
+    ],
 )

@@ -9,13 +9,13 @@ from traitsui.api import (View, Item, VSplit, VGroup, HSplit, HGroup, Group,
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
-from human import Human
+from .human import Human
 
 sliders = Human.CFGnames
 
 
-def _format_func(value):
-    return '{:1.3}'.format(value)
+def format_func(value):
+    return '{:1.3f}'.format(value)
 
 
 class YeadonGUI(HasTraits):

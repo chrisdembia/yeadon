@@ -4,13 +4,13 @@ Mass (kg):
 
 COM in global frame from bottom center of pelvis (Ls0) (m):
 
-[[-0.000]
- [ 0.000]
+[[-0.   ]
+ [ 0.   ]
  [ 0.012]]
 
 Inertia tensor in global frame about human's COM (kg-m^2):
 
-[[ 9.63094  0.00000  0.00000]
- [ 0.00000  9.99498  0.00000]
- [ 0.00000  0.00000  0.54512]]
+[[9.63094 0.      0.     ]
+ [0.      9.99498 0.     ]
+ [0.      0.      0.54512]]
 

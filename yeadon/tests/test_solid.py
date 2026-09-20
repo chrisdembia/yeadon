@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 
-# Use Python3 integer division rules.
-from __future__ import division
-
 import sys
 import os
 import unittest
 import warnings
 
-from numpy import testing, pi, array, matrix, sin, cos, zeros, array, mat, \
-        arctan
+from numpy import testing, pi, array, sin, cos, zeros, array, arctan
 
 from yeadon.solid import Stadium, Solid, StadiumSolid
 from yeadon import inertia
@@ -22,15 +18,19 @@ class StadiumSolidCheck(unittest.TestCase):
     paper.
 
     """
-    def __init__(self, density, thick0, rad0, thick1, rad1, height):
-        self.D = density
-        self.t0 = thick0
-        self.r0 = rad0
-        self.t1 = thick1
-        self.r1 = rad1
-        self.h = height
-        self.a = (self.r1 - self.r0) / self.r0
-        self.b = (self.t1 - self.t0) / self.t0
+    def __init__(self, *args, **kwargs):
+        if len(args) == 6:
+            density, thick0, rad0, thick1, rad1, height = args
+            self.D = density
+            self.t0 = thick0
+            self.r0 = rad0
+            self.t1 = thick1
+            self.r1 = rad1
+            self.h = height
+            self.a = (self.r1 - self.r0) / self.r0
+            self.b = (self.t1 - self.t0) / self.t0
+        else:
+            super().__init__(*args, **kwargs)
 
     def mass(s):
         return s.D * s.h * s.r0 * (
@@ -191,7 +191,7 @@ class TestStadium(unittest.TestCase):
             stad = Stadium('Lb1: mid-arm', 'perimwidth', 1.9, 1.0)
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)
-            assert "incorrectly" in str(w[-1].message)
+            assert "incorrectly" in str(w[-1])
             testing.assert_almost_equal(stad.perimeter, 1.9)
             testing.assert_almost_equal(stad.radius, 1.9 / (2.0 * pi))
             testing.assert_almost_equal(stad.thickness, 0.0)
@@ -278,15 +278,15 @@ def test_solid():
     # definition of body 1-2-3 rotations from Spacecraft Dynamics, Kane,
     # Likins, Levinson, 1982 page 423 (this is the transpose of what is
     # presented)
-    C = matrix([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
-                [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
-                [s2, -s1 * c2, c1 * c2]])
+    C = array([[c2 * c3, s1 * s2 * c3 + s3 * c1, -c1 * s2 * c3 + s3 * s1],
+               [-c2 * s3, -s1 * s2 * s3 + c3 * c1, c1 * s2 * s3 + c3 *s1],
+               [s2, -s1 * c2, c1 * c2]])
 
     sol.set_orientation(position, C, True)
     testing.assert_allclose(sol.pos, position)
     testing.assert_allclose(sol._rot_mat, C)
-    testing.assert_allclose(sol.end_pos, position + (height * C * array([[0],
-        [0], [1]])))
+    testing.assert_allclose(sol.end_pos, position + (height * C @
+                                                     array([[0], [0], [1]])))
     testing.assert_allclose(sol.inertia, zeros((3, 3)))
 
     #TODO: complete tests for solid and the remaining classes in solid.py
@@ -507,9 +507,9 @@ def test_rotate_inertia():
 
     # This inertia matrix describes two 1kg point masses at (0, 2, 1) and
     # (0, -2, -1) in the global reference frame, A.
-    solidA._rel_inertia = mat([[10.0, 0.0, 0.0],
-                             [0.0, 2.0, -4.0],
-                             [0.0, -4.0, 8.0]])
+    solidA._rel_inertia = array([[10.0, 0.0, 0.0],
+                                 [0.0, 2.0, -4.0],
+                                 [0.0, -4.0, 8.0]])
 
     # If we want the inertia about a new reference frame, B, such that the
     # two masses lie on the yb axis we can rotate about xa through the angle
@@ -520,8 +520,8 @@ def test_rotate_inertia():
 
     I_b = solidA.inertia
 
-    expected_I_b = mat([[10.0, 0.0, 0.0],
-                        [0.0, 0.0, 0.0],
-                        [0.0, 0.0, 10.0]])
+    expected_I_b = array([[10.0, 0.0, 0.0],
+                          [0.0, 0.0, 0.0],
+                          [0.0, 0.0, 10.0]])
 
-    testing.assert_allclose(I_b, expected_I_b)
+    testing.assert_allclose(I_b, expected_I_b, atol=1e-14)
