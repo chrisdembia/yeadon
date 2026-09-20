@@ -21,9 +21,10 @@ def format_func(value):
 class YeadonGUI(HasTraits):
     """A GUI for the yeadon module, implemented using the traits package."""
 
-    # Input.
-    measurement_file_name = File()
-    configuration_file_name = File()
+    # Input
+    # "exists=True" required to force dialog to open files instead of save
+    measurement_file_name = File(exists=True)
+    configuration_file_name = File(exists=True)
 
     # Drawing options.
     show_mass_center = Bool(False)
@@ -269,7 +270,7 @@ class YeadonGUI(HasTraits):
         if str(self.measurement_file_name) == '':
             meas_in = self.measPreload
         else:
-            meas_in = str(self.measurment_file_name)
+            meas_in = str(self.measurement_file_name)
 
         if str(self.configuration_file_name) == '':
             cfg_in = None
