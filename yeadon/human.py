@@ -325,6 +325,16 @@ class Human(object):
         self._update_segments()
 
     def set_CFG_from_file(self, filename):
+        """Allows the user to pass an entirely new CFG input file with which to
+        update the human object. After configuration is update, the segments
+        are updated.
+
+        Parameters
+        ----------
+        CFG : str
+            Path to configuration file that stores the 21 joint angles.
+
+        """
 
         self._read_CFG(filename)
         self._update_segments()
