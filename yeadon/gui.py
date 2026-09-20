@@ -111,26 +111,26 @@ class YeadonGUI(HasTraits):
     inertia_prop = VGroup(
             Label('Mass center (from origin of coord. sys.) (m):'),
             HGroup(
-                Item('x', style='readonly', format_func=_format_func),
-                Item('y', style='readonly', format_func=_format_func),
-                Item('z', style='readonly', format_func=_format_func)
+                Item('x', style='readonly', format_func=format_func),
+                Item('y', style='readonly', format_func=format_func),
+                Item('z', style='readonly', format_func=format_func)
                 ),
             Label('Inertia tensor (about origin, in basis shown) (kg-m^2):'),
             HSplit( # HSplit 2
                 Group(
-                    Item('Ixx', style='readonly', format_func=_format_func),
-                    Item('Iyx', style='readonly', format_func=_format_func),
-                    Item('Izx', style='readonly', format_func=_format_func),
+                    Item('Ixx', style='readonly', format_func=format_func),
+                    Item('Iyx', style='readonly', format_func=format_func),
+                    Item('Izx', style='readonly', format_func=format_func),
                     ),
                 Group(
-                    Item('Ixy', style='readonly', format_func=_format_func),
-                    Item('Iyy', style='readonly', format_func=_format_func),
-                    Item('Izy', style='readonly', format_func=_format_func),
+                    Item('Ixy', style='readonly', format_func=format_func),
+                    Item('Iyy', style='readonly', format_func=format_func),
+                    Item('Izy', style='readonly', format_func=format_func),
                     ),
                 Group(
-                    Item('Ixz', style='readonly', format_func=_format_func),
-                    Item('Iyz', style='readonly', format_func=_format_func),
-                    Item('Izz', style='readonly', format_func=_format_func)
+                    Item('Ixz', style='readonly', format_func=format_func),
+                    Item('Iyz', style='readonly', format_func=format_func),
+                    Item('Izz', style='readonly', format_func=format_func)
                     ),
                 ), # end HSplit 2
             Label('X, Y, Z axes drawn as red, green, blue arrows, respectively.'),
