@@ -257,6 +257,7 @@ class YeadonGUI(HasTraits):
                        CFG=cfg_in)
         self.scene.mlab.clf()
         self._init_draw_human()
+        # TODO : Update all numbers and sliders.
 
     @on_trait_change('configuration_file_name')
     def _update_configuration_file_name(self):
@@ -280,6 +281,7 @@ class YeadonGUI(HasTraits):
         self.H = Human(meas_in, CFG=cfg_in)
         self.scene.mlab.clf()
         self._init_draw_human()
+        # TODO : Update all numbers and sliders.
 
     @on_trait_change('show_inertia_ellipsoid')
     def _update_show_inertia_ellipsoid(self):
