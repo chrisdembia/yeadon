@@ -12,7 +12,8 @@ import numpy as np
 from . import inertia
 from .utils import printoptions
 
-class Stadium(object):
+
+class Stadium():
     """Stadium, the 2D shape.
 
     """
@@ -152,7 +153,8 @@ class Stadium(object):
         self.thickness = 0.0
         self.width = self.perimeter / np.pi
 
-class Solid(object):
+
+class Solid():
     """Solid. Has two subclasses, stadiumsolid and semiellipsoid. This base
     class manages setting orientation, and calculating properties.
 
@@ -249,8 +251,8 @@ class Solid(object):
             The order of the solids in the parent segment matters. By default
             they are stacked on top of each other in the segment's local +z
             direction. If this is set to False, then they are stacked in the
-            local -z direction. This is done so that, for example, in the default
-            configuration, the arms are directed down.
+            local -z direction. This is done so that, for example, in the
+            default configuration, the arms are directed down.
 
         """
         self._rot_mat = rot_mat
@@ -369,7 +371,7 @@ class StadiumSolid(Solid):
             Distance between the lower and upper stadia.
 
         """
-        super(StadiumSolid, self).__init__(label, density, height)
+        super().__init__(label, density, height)
         self.stads = [stadium0, stadium1]
         self.alignment = 'ML'
         # if either stadium is oriented anteroposteriorly.
@@ -382,7 +384,7 @@ class StadiumSolid(Solid):
         else:
             self.degenerate_by_t0 = False
         self.calc_rel_properties()
-        self._orig_mesh_points = list()
+        self._orig_mesh_points = []
         self._orig_mesh_points.append(self._make_mesh(0))
         self._orig_mesh_points.append(self._make_mesh(1))
 
@@ -460,7 +462,7 @@ class StadiumSolid(Solid):
         if self.alignment == 'AP':
             # rearrange to anterorposterior orientation
             self._rel_inertia = inertia.rotate_inertia(
-                    inertia.rotate_space_123([0, 0, np.pi/2]), self.rel_inertia)
+                inertia.rotate_space_123([0, 0, np.pi/2]), self.rel_inertia)
 
     def draw_mayavi(self, mlabobj, col):
         """Draws the initial stadium in 3D using MayaVi.
@@ -474,8 +476,10 @@ class StadiumSolid(Solid):
 
         """
         self._generate_mesh()
-        self._mesh = mlabobj.mesh(self._mesh_points['x'], self._mesh_points['y'],
-                self._mesh_points['z'], color=col, opacity=Solid.alpha)
+        self._mesh = mlabobj.mesh(self._mesh_points['x'],
+                                  self._mesh_points['y'],
+                                  self._mesh_points['z'], color=col,
+                                  opacity=Solid.alpha)
 
     def _update_mayavi(self):
         """Updates the mesh in MayaVi."""
@@ -504,8 +508,8 @@ class StadiumSolid(Solid):
 
         """
         theta = [np.linspace(0.0,np.pi/2,5)]
-        x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta);
-        y = self.stads[i].radius * np.sin(theta);
+        x = self.stads[i].thickness + self.stads[i].radius * np.cos(theta)
+        y = self.stads[i].radius * np.sin(theta)
         if self.alignment == 'AP':
             temp = x
             x = y
@@ -579,7 +583,7 @@ class Semiellipsoid(Solid):
             The remaining minor axis.
 
         """
-        super(Semiellipsoid, self).__init__(label, density, height)
+        super().__init__(label, density, height)
         self.baseperimeter = baseperim
         self.radius = self.baseperimeter/(2.0*np.pi)
         self.calc_rel_properties()

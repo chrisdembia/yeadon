@@ -12,7 +12,7 @@ from . import inertia
 from .utils import printoptions
 
 
-class Segment(object):
+class Segment():
 
     @property
     def mass(self):
@@ -98,8 +98,8 @@ class Segment(object):
             RGB tuple with float values between 0 and 1.
         build_toward_positive_z : bool, optional
             The order of the solids matters. By default they are stacked on top
-            of each other in the segment's local +z direction. If this is set to
-            False, then they are stacked in the local -z direction. This is
+            of each other in the segment's local +z direction. If this is set
+            to False, then they are stacked in the local -z direction. This is
             done so that, for example, in the default configuration, the arms
             are directed down.
 
@@ -207,7 +207,7 @@ class Segment(object):
 
         """
         # center of mass
-        self._center_of_mass = self.pos + self.rot_mat @ self.rel_center_of_mass
+        self._center_of_mass = self.pos + self.rot_mat@self.rel_center_of_mass
         # inertia in frame f w.r.t. segment's COM
         self._inertia = inertia.rotate_inertia(self.rot_mat, self.rel_inertia)
 

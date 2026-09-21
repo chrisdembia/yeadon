@@ -64,7 +64,8 @@ def rotate_space_123(angles):
     Returns
     -------
     R : ndarray, shape(3,3)
-        Three dimensional rotation matrix about three different orthogonal axes.
+        Three dimensional rotation matrix about three different orthogonal
+        axes.
 
     Notes
     -----
@@ -134,7 +135,8 @@ def euler_123(angles):
     Returns
     -------
     R : ndarray, shape(3,3)
-        Three dimensional rotation matrix about three different orthogonal axes.
+        Three dimensional rotation matrix about three different orthogonal
+        axes.
 
     Notes
     -----
@@ -267,6 +269,7 @@ def total_com(coordinates, masses):
     mT = np.sum(masses)
     cT = np.sum(products, axis=1) / mT
     return mT, cT
+
 
 def principal_axes(I):
     """
