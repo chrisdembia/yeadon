@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
 sliders = Human.CFGnames
-files = ('measurement_file_name', 'configuration_file_name')
 
 
 def format_func(value):
@@ -50,18 +49,18 @@ class YeadonGUI(HasTraits):
     load = Button()
 
     # Display of Human object properties.
-    Ixx = Property(Float, depends_on=sliders + files)
-    Ixy = Property(Float, depends_on=sliders + files)
-    Ixz = Property(Float, depends_on=sliders + files)
-    Iyx = Property(Float, depends_on=sliders + files)
-    Iyy = Property(Float, depends_on=sliders + files)
-    Iyz = Property(Float, depends_on=sliders + files)
-    Izx = Property(Float, depends_on=sliders + files)
-    Izy = Property(Float, depends_on=sliders + files)
-    Izz = Property(Float, depends_on=sliders + files)
-    x = Property(Float, depends_on=sliders + files)
-    y = Property(Float, depends_on=sliders + files)
-    z = Property(Float, depends_on=sliders + files)
+    Ixx = Property(Float, depends_on=sliders)
+    Ixy = Property(Float, depends_on=sliders)
+    Ixz = Property(Float, depends_on=sliders)
+    Iyx = Property(Float, depends_on=sliders)
+    Iyy = Property(Float, depends_on=sliders)
+    Iyz = Property(Float, depends_on=sliders)
+    Izx = Property(Float, depends_on=sliders)
+    Izy = Property(Float, depends_on=sliders)
+    Izz = Property(Float, depends_on=sliders)
+    x = Property(Float, depends_on=sliders)
+    y = Property(Float, depends_on=sliders)
+    z = Property(Float, depends_on=sliders)
 
     scene = Instance(MlabSceneModel, args=())
 
