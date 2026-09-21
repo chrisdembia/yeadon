@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 
+import random
+import logging
+
 from numpy import deg2rad, rad2deg
 
 from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
                         Property, File, Bool, Button)
-from traitsui.api import (View, Item, VSplit, VGroup, HSplit, HGroup, Group,
-                          Label)
+from traitsui.api import (View, Item, VSplit, HGroup, VGroup, HSplit, HGroup,
+                          Group, Label)
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
 from .human import Human
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
 sliders = Human.CFGnames
 
@@ -21,8 +27,10 @@ def format_func(value):
 class YeadonGUI(HasTraits):
     """A GUI for the yeadon module, implemented using the traits package."""
 
-    # Input.
-    measurement_file_name = File()
+    # Input
+    # "exists=True" required to force dialog to open files instead of save
+    measurement_file_name = File(exists=True)
+    configuration_file_name = File(exists=True)
 
     # Drawing options.
     show_mass_center = Bool(False)
@@ -31,12 +39,14 @@ class YeadonGUI(HasTraits):
     # Configuration variables.
     opts = {'enter_set': True, 'auto_set': True, 'mode': 'slider'}
     for name, bounds in zip(Human.CFGnames, Human.CFGbounds):
-        # TODO : Find a better way than using locals here, it may not be a good
-        # idea, but I don't know the consequences.
-        locals()[name] =  Range(float(rad2deg(bounds[0])),
-            float(rad2deg(bounds[1])), 0.0, **opts)
+        # TODO : Find a better way than using locals here, it may not be a
+        # good idea, but I don't know the consequences.
+        # Possible option: super(YeadonGUI).__setattr__(name, Range())
+        locals()[name] = Range(float(rad2deg(bounds[0])),
+                               float(rad2deg(bounds[1])), 0.0, **opts)
 
     reset_configuration = Button()
+    load = Button()
 
     # Display of Human object properties.
     Ixx = Property(Float, depends_on=sliders)
@@ -54,43 +64,57 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    input_group = Group(Item('measurement_file_name'))
+    input_group = HGroup(Group(Item('measurement_file_name'),
+                        Item('configuration_file_name')),
+            Item('load', show_label=False))
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=580, width=430,
         show_label=False))
 
     config_first_group = Group(
-            Item('somersault'),
-            Item('tilt'),
-            Item('twist'),
-            Item('PTsagittalFlexion', label='PT sagittal flexion'),
-            Item('PTbending', label='PT bending'),
-            Item('TCspinalTorsion', label='TC spinal torsion'),
+            Item('somersault', format_func=format_func),
+            Item('tilt', format_func=format_func),
+            Item('twist', format_func=format_func),
+            Item('PTsagittalFlexion', label='PT sagittal flexion',
+                 format_func=format_func),
+            Item('PTbending', label='PT bending', format_func=format_func),
+            Item('TCspinalTorsion', label='TC spinal torsion',
+                 format_func=format_func),
             Item('TCsagittalSpinalFlexion',
-                label='TC sagittal spinal flexion'),
+                label='TC sagittal spinal flexion', format_func=format_func),
             label='Whole-body, pelvis, torso',
             dock='tab',
             )
     config_upper_group = Group(
-            Item('CA1extension', label='CA1 extension'),
-            Item('CA1adduction', label='CA1 adduction'),
-            Item('CA1rotation', label='CA1 rotation'),
-            Item('CB1extension', label='CB1 extension'),
-            Item('CB1abduction', label='CB1 abduction'),
-            Item('CB1rotation', label='CB1 rotation'),
-            Item('A1A2extension', label='A1A2 extension'),
-            Item('B1B2extension', label='B1B2 extension'),
+            Item('CA1extension', label='CA1 extension',
+                 format_func=format_func),
+            Item('CA1adduction', label='CA1 adduction',
+                 format_func=format_func),
+            Item('CA1rotation', label='CA1 rotation', format_func=format_func),
+            Item('CB1extension', label='CB1 extension',
+                 format_func=format_func),
+            Item('CB1abduction', label='CB1 abduction',
+                 format_func=format_func),
+            Item('CB1rotation', label='CB1 rotation', format_func=format_func),
+            Item('A1A2extension', label='A1A2 extension',
+                 format_func=format_func),
+            Item('B1B2extension', label='B1B2 extension',
+                 format_func=format_func),
             label='Upper limbs',
             dock='tab',
             )
     config_lower_group = Group(
-            Item('PJ1extension', label='PJ1 extension'),
-            Item('PJ1adduction', label='PJ1 adduction'),
-            Item('PK1extension', label='PK1 extension'),
-            Item('PK1abduction', label='PK1 abduction'),
-            Item('J1J2flexion', label='J1J2 flexion'),
-            Item('K1K2flexion', label='K1K2 flexion'),
+            Item('PJ1extension', label='PJ1 extension',
+                 format_func=format_func),
+            Item('PJ1adduction', label='PJ1 adduction',
+                 format_func=format_func),
+            Item('PK1extension', label='PK1 extension',
+                 format_func=format_func),
+            Item('PK1abduction', label='PK1 abduction',
+                 format_func=format_func),
+            Item('J1J2flexion', label='J1J2 flexion', format_func=format_func),
+            Item('K1K2flexion', label='K1K2 flexion', format_func=format_func),
             label='Lower limbs',
             dock='tab',
             )
@@ -174,16 +198,17 @@ class YeadonGUI(HasTraits):
     0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
     'Lk7p' : 0.252 }
 
-    def __init__(self, meas_in=None):
+    def __init__(self, meas_in=None, config_in=None):
+
         HasTraits.__init__(self, trait_value=True)
-        if meas_in:
-            measurement_file_name = meas_in
-        else:
-            measurement_file_name = 'Path to measurement input text file.'
-        self.H = Human(meas_in if meas_in else self.measPreload)
+
+        self.H = Human(meas_in=meas_in if meas_in else self.measPreload,
+                       CFG=config_in)
+
         self._init_draw_human()
 
     def _init_draw_human(self):
+
         self.H.draw(self.scene.mlab, True)
 
         if self.show_mass_center:
@@ -233,14 +258,31 @@ class YeadonGUI(HasTraits):
     def _get_z(self):
         return self.H.center_of_mass[2, 0]
 
-    @on_trait_change('measurement_file_name')
-    def _update_measurement_file_name(self):
+    @on_trait_change('load')
+    def _update_from_files(self):
         # Must convert to str (from unicode), because Human parses it
         # differently depending on its type, and there's no consideration for
         # it being unicode.
-        self.H = Human(str(self.measurement_file_name))
+
+        logger.debug('Loading measurement file {}'.format(
+            self.measurement_file_name))
+        logger.debug('Loading configuration file {}'.format(
+            self.configuration_file_name))
+
+        if str(self.measurement_file_name) == '':
+            meas_in = self.measPreload
+        else:
+            meas_in = str(self.measurement_file_name)
+
+        if str(self.configuration_file_name) == '':
+            cfg_in = None
+        else:
+            cfg_in = str(self.configuration_file_name)
+
+        self.H = Human(meas_in, CFG=cfg_in)
         self.scene.mlab.clf()
         self._init_draw_human()
+        self._update_sliders_from_human()
 
     @on_trait_change('show_inertia_ellipsoid')
     def _update_show_inertia_ellipsoid(self):
@@ -270,6 +312,23 @@ class YeadonGUI(HasTraits):
         # would be nice to set them all to zero and only call the redraw once.
         for cfg in sliders:
             setattr(self, cfg, self.trait(cfg).default_value()[1])
+        # TODO : Remove configuration file name if reset_configuration is
+        # pressed.
+
+    def _update_sliders_from_human(self):
+        # NOTE : It seems that setting the slider value only triggers the
+        # callbacks if a different value is supplied. So I'm forced to set each
+        # slider twice, first to a random value, then to the correct value.
+        # This makes loading files super slow.
+        for i, cfg_str in enumerate(sliders):
+            new_value = self.H.CFG[cfg_str]  # radians
+            low, high = self.H.CFGbounds[i]  # radians
+            tmp_value = random.uniform(low, high)
+            # set slider to degrees
+            logging.debug('Setting {} to {}'.format(cfg_str, tmp_value))
+            setattr(self, cfg_str, rad2deg(tmp_value))
+            logging.debug('Setting {} to {}'.format(cfg_str, new_value))
+            setattr(self, cfg_str, rad2deg(new_value))
 
     @on_trait_change('somersault')
     def _update_somersault(self):
@@ -435,6 +494,7 @@ class YeadonGUI(HasTraits):
             for solid in seg.solids:
                 solid._mesh.scene.disable_render = False
 
+
 def start_gui(*args, **kwargs):
     '''Start the GUI. The GUI automatically creates a Human, and lets the user
     modify its configuration and observe the resulting change in the human's
@@ -444,9 +504,13 @@ def start_gui(*args, **kwargs):
     ----------
     meas_in : str, optional
         The filename of a measurements file to use for the human.
+    config_in : str, optional
+        The filename of a configuration file to use for the human.
+
     '''
     gui = YeadonGUI(*args, **kwargs)
     gui.configure_traits()
+
 
 if __name__ == '__main__':
     start_gui()

@@ -184,9 +184,7 @@ class Human(object):
             self._average_limbs()
 
         # Start off a zero configuration.
-        self.CFG = dict()
-        for key in Human.CFGnames:
-            self.CFG[key] = 0.0
+        self.CFG = {k: 0.0 for k in Human.CFGnames}
 
         # update will define all solids, validate CFG, define segments,
         # and calculate segment and human mass properties.
@@ -197,9 +195,9 @@ class Human(object):
 
         # If configuration input is a dictionary, assign via public method.
         # Else, read in the file.
-        if type(CFG) == dict:
+        if isinstance(CFG, dict):
             self.set_CFG_dict(CFG)
-        elif type(CFG) == str:
+        elif isinstance(CFG, str):
             self._read_CFG(CFG)
 
     def update(self):
@@ -324,6 +322,21 @@ class Human(object):
                 raise Exception("'{0}' is not a correct variable "
                         "name.".format(key))
         self.CFG = CFG
+        self._update_segments()
+
+    def set_CFG_from_file(self, filename):
+        """Allows the user to pass an entirely new CFG input file with which to
+        update the human object. After configuration is update, the segments
+        are updated.
+
+        Parameters
+        ----------
+        CFG : str
+            Path to configuration file that stores the 21 joint angles.
+
+        """
+
+        self._read_CFG(filename)
         self._update_segments()
 
     def calc_properties(self):
@@ -1489,7 +1502,6 @@ Inertia tensor in global frame about human's COM (kg-m^2):
                     raise ValueError(
                             "Variable {0} has no value.".format(key))
                 self.CFG[key] = float(val)
-            fid.close()
 
         if len(self.CFG) != len(self.CFGnames):
             raise ValueError("Number of CFG variables, {0}, is "
