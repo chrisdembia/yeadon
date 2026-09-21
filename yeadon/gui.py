@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-from numpy import deg2rad, rad2deg
+import random
+import logging
+
+from numpy import deg2rad, rad2deg, isclose
 
 from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
                         Property, File, Bool, Button)
@@ -11,7 +14,11 @@ from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
 from .human import Human
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+
 sliders = Human.CFGnames
+files = ('measurement_file_name', 'configuration_file_name')
 
 
 def format_func(value):
@@ -35,24 +42,25 @@ class YeadonGUI(HasTraits):
     for name, bounds in zip(Human.CFGnames, Human.CFGbounds):
         # TODO : Find a better way than using locals here, it may not be a
         # good idea, but I don't know the consequences.
+        # Possible option: super(YeadonGUI).__setattr__(name, Range())
         locals()[name] = Range(float(rad2deg(bounds[0])),
                                float(rad2deg(bounds[1])), 0.0, **opts)
 
     reset_configuration = Button()
 
     # Display of Human object properties.
-    Ixx = Property(Float, depends_on=sliders)
-    Ixy = Property(Float, depends_on=sliders)
-    Ixz = Property(Float, depends_on=sliders)
-    Iyx = Property(Float, depends_on=sliders)
-    Iyy = Property(Float, depends_on=sliders)
-    Iyz = Property(Float, depends_on=sliders)
-    Izx = Property(Float, depends_on=sliders)
-    Izy = Property(Float, depends_on=sliders)
-    Izz = Property(Float, depends_on=sliders)
-    x = Property(Float, depends_on=sliders)
-    y = Property(Float, depends_on=sliders)
-    z = Property(Float, depends_on=sliders)
+    Ixx = Property(Float, depends_on=sliders + files)
+    Ixy = Property(Float, depends_on=sliders + files)
+    Ixz = Property(Float, depends_on=sliders + files)
+    Iyx = Property(Float, depends_on=sliders + files)
+    Iyy = Property(Float, depends_on=sliders + files)
+    Iyz = Property(Float, depends_on=sliders + files)
+    Izx = Property(Float, depends_on=sliders + files)
+    Izy = Property(Float, depends_on=sliders + files)
+    Izz = Property(Float, depends_on=sliders + files)
+    x = Property(Float, depends_on=sliders + files)
+    y = Property(Float, depends_on=sliders + files)
+    z = Property(Float, depends_on=sliders + files)
 
     scene = Instance(MlabSceneModel, args=())
 
@@ -64,36 +72,48 @@ class YeadonGUI(HasTraits):
         show_label=False))
 
     config_first_group = Group(
-            Item('somersault'),
-            Item('tilt'),
-            Item('twist'),
-            Item('PTsagittalFlexion', label='PT sagittal flexion'),
-            Item('PTbending', label='PT bending'),
-            Item('TCspinalTorsion', label='TC spinal torsion'),
+            Item('somersault', format_func=format_func),
+            Item('tilt', format_func=format_func),
+            Item('twist', format_func=format_func),
+            Item('PTsagittalFlexion', label='PT sagittal flexion',
+                 format_func=format_func),
+            Item('PTbending', label='PT bending', format_func=format_func),
+            Item('TCspinalTorsion', label='TC spinal torsion',
+                 format_func=format_func),
             Item('TCsagittalSpinalFlexion',
-                label='TC sagittal spinal flexion'),
+                label='TC sagittal spinal flexion', format_func=format_func),
             label='Whole-body, pelvis, torso',
             dock='tab',
             )
     config_upper_group = Group(
-            Item('CA1extension', label='CA1 extension'),
-            Item('CA1adduction', label='CA1 adduction'),
-            Item('CA1rotation', label='CA1 rotation'),
-            Item('CB1extension', label='CB1 extension'),
-            Item('CB1abduction', label='CB1 abduction'),
-            Item('CB1rotation', label='CB1 rotation'),
-            Item('A1A2extension', label='A1A2 extension'),
-            Item('B1B2extension', label='B1B2 extension'),
+            Item('CA1extension', label='CA1 extension',
+                 format_func=format_func),
+            Item('CA1adduction', label='CA1 adduction',
+                 format_func=format_func),
+            Item('CA1rotation', label='CA1 rotation', format_func=format_func),
+            Item('CB1extension', label='CB1 extension',
+                 format_func=format_func),
+            Item('CB1abduction', label='CB1 abduction',
+                 format_func=format_func),
+            Item('CB1rotation', label='CB1 rotation', format_func=format_func),
+            Item('A1A2extension', label='A1A2 extension',
+                 format_func=format_func),
+            Item('B1B2extension', label='B1B2 extension',
+                 format_func=format_func),
             label='Upper limbs',
             dock='tab',
             )
     config_lower_group = Group(
-            Item('PJ1extension', label='PJ1 extension'),
-            Item('PJ1adduction', label='PJ1 adduction'),
-            Item('PK1extension', label='PK1 extension'),
-            Item('PK1abduction', label='PK1 abduction'),
-            Item('J1J2flexion', label='J1J2 flexion'),
-            Item('K1K2flexion', label='K1K2 flexion'),
+            Item('PJ1extension', label='PJ1 extension',
+                 format_func=format_func),
+            Item('PJ1adduction', label='PJ1 adduction',
+                 format_func=format_func),
+            Item('PK1extension', label='PK1 extension',
+                 format_func=format_func),
+            Item('PK1abduction', label='PK1 abduction',
+                 format_func=format_func),
+            Item('J1J2flexion', label='J1J2 flexion', format_func=format_func),
+            Item('K1K2flexion', label='K1K2 flexion', format_func=format_func),
             label='Lower limbs',
             dock='tab',
             )
@@ -243,30 +263,8 @@ class YeadonGUI(HasTraits):
         # differently depending on its type, and there's no consideration for
         # it being unicode.
 
-        if str(self.measurement_file_name) == '':
-            meas_in = self.measPreload
-        else:
-            meas_in = str(self.measurement_file_name)
-
-        if str(self.configuration_file_name) == '':
-            cfg_in = None
-        else:
-            cfg_in = str(self.configuration_file_name)
-
-        self.H = Human(meas_in,
-                       CFG=cfg_in)
-        self.scene.mlab.clf()
-        self._init_draw_human()
-        # TODO : Update all numbers and sliders.
-
-    @on_trait_change('configuration_file_name')
-    def _update_configuration_file_name(self):
-        # Must convert to str (from unicode), because Human parses it
-        # differently depending on its type, and there's no consideration for
-        # it being unicode.
-
-        print('Meas file {}'.format(self.measurement_file_name))
-        print('Config file {}'.format(self.configuration_file_name))
+        logger.debug('Meas file {}'.format(self.measurement_file_name))
+        logger.debug('Config file {}'.format(self.configuration_file_name))
 
         if str(self.measurement_file_name) == '':
             meas_in = self.measPreload
@@ -281,7 +279,31 @@ class YeadonGUI(HasTraits):
         self.H = Human(meas_in, CFG=cfg_in)
         self.scene.mlab.clf()
         self._init_draw_human()
-        # TODO : Update all numbers and sliders.
+        self._update_sliders_from_human()
+
+    @on_trait_change('configuration_file_name')
+    def _update_configuration_file_name(self):
+        # Must convert to str (from unicode), because Human parses it
+        # differently depending on its type, and there's no consideration for
+        # it being unicode.
+
+        logger.debug('Meas file {}'.format(self.measurement_file_name))
+        logger.debug('Config file {}'.format(self.configuration_file_name))
+
+        if str(self.measurement_file_name) == '':
+            meas_in = self.measPreload
+        else:
+            meas_in = str(self.measurement_file_name)
+
+        if str(self.configuration_file_name) == '':
+            cfg_in = None
+        else:
+            cfg_in = str(self.configuration_file_name)
+
+        self.H = Human(meas_in, CFG=cfg_in)
+        self.scene.mlab.clf()
+        self._init_draw_human()
+        self._update_sliders_from_human()
 
     @on_trait_change('show_inertia_ellipsoid')
     def _update_show_inertia_ellipsoid(self):
@@ -311,6 +333,20 @@ class YeadonGUI(HasTraits):
         # would be nice to set them all to zero and only call the redraw once.
         for cfg in sliders:
             setattr(self, cfg, self.trait(cfg).default_value()[1])
+        # TODO : Remove configuration file name if reset_configuration is
+        # pressed.
+
+    def _update_sliders_from_human(self):
+        # TODO : If you load a config file, then load a measurement file, the
+        # avatar measurement features update but not the configuration. Maybe
+        # if you set the slider value to the same thing, it doesn't fire.
+        for i, cfg_str in enumerate(sliders):
+            # both in radians
+            new_value = self.H.CFG[cfg_str]
+            low, high = self.H.CFGbounds[i]
+            setattr(self, cfg_str, random.uniform(low, high))
+            # set slider to degrees
+            setattr(self, cfg_str, rad2deg(new_value))
 
     @on_trait_change('somersault')
     def _update_somersault(self):
@@ -485,6 +521,9 @@ def start_gui(*args, **kwargs):
     ----------
     meas_in : str, optional
         The filename of a measurements file to use for the human.
+    config_in : str, optional
+        The filename of a configuration file to use for the human.
+
     '''
     gui = YeadonGUI(*args, **kwargs)
     gui.configure_traits()
