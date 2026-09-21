@@ -4,12 +4,10 @@ import random
 import logging
 
 from numpy import deg2rad, rad2deg
-
 from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
                         Property, File, Bool, Button)
-from traitsui.api import (View, Item, VSplit, HGroup, VGroup, HSplit, HGroup,
-                          Group, Label)
-
+from traitsui.api import (View, Item, VSplit, HGroup, VGroup, HSplit, Group,
+                          Label)
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
 from .human import Human
@@ -175,28 +173,31 @@ class YeadonGUI(HasTraits):
             title='Yeadon human inertia model'
             ) # end View
 
-    measPreload = { 'Ls5L' : 0.545, 'Lb2p' : 0.278, 'La5p' : 0.24, 'Ls4L' :
-    0.493, 'La5w' : 0.0975, 'Ls4w' : 0.343, 'La5L' : 0.049, 'Lb2L' : 0.2995,
-    'Ls4d' : 0.215, 'Lj2p' : 0.581, 'Lb5p' : 0.24, 'Lb5w' : 0.0975, 'Lk8p' :
-    0.245, 'Lk8w' : 0.1015, 'Lj5L' : 0.878, 'La6w' : 0.0975, 'Lk1L' : 0.062,
-    'La6p' : 0.2025, 'Lk1p' : 0.617, 'La6L' : 0.0805, 'Ls5p' : 0.375, 'Lj5p' :
-    0.2475, 'Lk8L' : 0.1535, 'Lb5L' : 0.049, 'La3p' : 0.283, 'Lj9w' : 0.0965,
-    'La4w' : 0.055, 'Ls6L' : 0.152, 'Lb0p' : 0.337, 'Lj8w' : 0.1015, 'Lk2p' :
-    0.581, 'Ls6p' : 0.53, 'Lj9L' : 0.218, 'La3L' : 0.35, 'Lj8p' : 0.245, 'Lj3L'
-    : 0.449, 'La4p' : 0.1685, 'Lk3L' : 0.449, 'Lb3p' : 0.283, 'Ls7L' : 0.208,
-    'Ls7p' : 0.6, 'Lb3L' : 0.35, 'Lk3p' : 0.3915, 'La4L' : 0.564, 'Lj8L' :
-    0.1535, 'Lj3p' : 0.3915, 'Lk4L' : 0.559, 'La1p' : 0.2915, 'Lb6p' : 0.2025,
-    'Lj6L' : 0.05, 'Lb6w' : 0.0975, 'Lj6p' : 0.345, 'Lb6L' : 0.0805, 'Ls0p' :
-    0.97, 'Ls0w' : 0.347, 'Lj6d' : 0.122, 'Ls8L' : 0.308, 'Lk5L' : 0.878,
-    'La2p' : 0.278, 'Lj9p' : 0.215, 'Ls1L' : 0.176, 'Lj1L' : 0.062, 'Lb1p' :
-    0.2915, 'Lj1p' : 0.617, 'Ls1p' : 0.865, 'Ls1w' : 0.317, 'Lk4p' : 0.34,
-    'Lk5p' : 0.2475, 'La2L' : 0.2995, 'Lb4w' : 0.055, 'Lb4p' : 0.1685, 'Lk9p' :
-    0.215, 'Lk9w' : 0.0965, 'Ls2p' : 0.845, 'Lj4L' : 0.559, 'Ls2w' : 0.285,
-    'Lk6L' : 0.05, 'La7w' : 0.047, 'La7p' : 0.1205, 'La7L' : 0.1545, 'Lk6p' :
-    0.345, 'Ls2L' : 0.277, 'Lj4p' : 0.34, 'Lk6d' : 0.122, 'Lk9L' : 0.218,
-    'Lb4L' : 0.564, 'La0p' : 0.337, 'Ls3w' : 0.296, 'Ls3p' : 0.905, 'Lb7p' :
-    0.1205, 'Lb7w' : 0.047, 'Lj7p' : 0.252, 'Lb7L' : 0.1545, 'Ls3L' : 0.388,
-    'Lk7p' : 0.252 }
+    measPreload = { 'Ls5L': 0.545, 'Lb2p': 0.278, 'La5p': 0.24, 'Ls4L': 0.493,
+                   'La5w': 0.0975, 'Ls4w': 0.343, 'La5L': 0.049, 'Lb2L':
+                   0.2995, 'Ls4d': 0.215, 'Lj2p': 0.581, 'Lb5p': 0.24, 'Lb5w':
+                   0.0975, 'Lk8p': 0.245, 'Lk8w': 0.1015, 'Lj5L': 0.878,
+                   'La6w': 0.0975, 'Lk1L': 0.062, 'La6p': 0.2025, 'Lk1p':
+                   0.617, 'La6L': 0.0805, 'Ls5p': 0.375, 'Lj5p': 0.2475,
+                   'Lk8L': 0.1535, 'Lb5L': 0.049, 'La3p': 0.283, 'Lj9w':
+                   0.0965, 'La4w': 0.055, 'Ls6L': 0.152, 'Lb0p': 0.337, 'Lj8w':
+                   0.1015, 'Lk2p': 0.581, 'Ls6p': 0.53, 'Lj9L': 0.218, 'La3L':
+                   0.35, 'Lj8p': 0.245, 'Lj3L' : 0.449, 'La4p': 0.1685, 'Lk3L':
+                   0.449, 'Lb3p': 0.283, 'Ls7L': 0.208, 'Ls7p': 0.6, 'Lb3L':
+                   0.35, 'Lk3p': 0.3915, 'La4L': 0.564, 'Lj8L': 0.1535, 'Lj3p':
+                   0.3915, 'Lk4L': 0.559, 'La1p': 0.2915, 'Lb6p': 0.2025,
+                   'Lj6L': 0.05, 'Lb6w': 0.0975, 'Lj6p': 0.345, 'Lb6L': 0.0805,
+                   'Ls0p': 0.97, 'Ls0w': 0.347, 'Lj6d': 0.122, 'Ls8L': 0.308,
+                   'Lk5L': 0.878, 'La2p': 0.278, 'Lj9p': 0.215, 'Ls1L': 0.176,
+                   'Lj1L': 0.062, 'Lb1p': 0.2915, 'Lj1p': 0.617, 'Ls1p': 0.865,
+                   'Ls1w': 0.317, 'Lk4p': 0.34, 'Lk5p': 0.2475, 'La2L': 0.2995,
+                   'Lb4w': 0.055, 'Lb4p': 0.1685, 'Lk9p': 0.215, 'Lk9w':
+                   0.0965, 'Ls2p': 0.845, 'Lj4L': 0.559, 'Ls2w': 0.285, 'Lk6L':
+                   0.05, 'La7w': 0.047, 'La7p': 0.1205, 'La7L': 0.1545, 'Lk6p':
+                   0.345, 'Ls2L': 0.277, 'Lj4p': 0.34, 'Lk6d': 0.122, 'Lk9L':
+                   0.218, 'Lb4L': 0.564, 'La0p': 0.337, 'Ls3w': 0.296, 'Ls3p':
+                   0.905, 'Lb7p': 0.1205, 'Lb7w': 0.047, 'Lj7p': 0.252, 'Lb7L':
+                   0.1545, 'Ls3L': 0.388, 'Lk7p': 0.252 }
 
     def __init__(self, meas_in=None, config_in=None):
 
