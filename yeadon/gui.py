@@ -3,12 +3,12 @@
 import random
 import logging
 
-from numpy import deg2rad, rad2deg, isclose
+from numpy import deg2rad, rad2deg
 
 from traits.api import (HasTraits, Range, Instance, on_trait_change, Float,
                         Property, File, Bool, Button)
-from traitsui.api import (View, Item, VSplit, VGroup, HSplit, HGroup, Group,
-                          Label)
+from traitsui.api import (View, Item, VSplit, HGroup, VGroup, HSplit, HGroup,
+                          Group, Label)
 
 from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 
@@ -47,6 +47,7 @@ class YeadonGUI(HasTraits):
                                float(rad2deg(bounds[1])), 0.0, **opts)
 
     reset_configuration = Button()
+    load = Button()
 
     # Display of Human object properties.
     Ixx = Property(Float, depends_on=sliders + files)
@@ -64,8 +65,9 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    input_group = Group(Item('measurement_file_name'),
-                        Item('configuration_file_name'))
+    input_group = HGroup(Group(Item('measurement_file_name'),
+                        Item('configuration_file_name')),
+            Item('load', show_label=False))
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=580, width=430,
@@ -257,38 +259,16 @@ class YeadonGUI(HasTraits):
     def _get_z(self):
         return self.H.center_of_mass[2, 0]
 
-    @on_trait_change('measurement_file_name')
-    def _update_measurement_file_name(self):
+    @on_trait_change('load')
+    def _update_from_files(self):
         # Must convert to str (from unicode), because Human parses it
         # differently depending on its type, and there's no consideration for
         # it being unicode.
 
-        logger.debug('Meas file {}'.format(self.measurement_file_name))
-        logger.debug('Config file {}'.format(self.configuration_file_name))
-
-        if str(self.measurement_file_name) == '':
-            meas_in = self.measPreload
-        else:
-            meas_in = str(self.measurement_file_name)
-
-        if str(self.configuration_file_name) == '':
-            cfg_in = None
-        else:
-            cfg_in = str(self.configuration_file_name)
-
-        self.H = Human(meas_in, CFG=cfg_in)
-        self.scene.mlab.clf()
-        self._init_draw_human()
-        self._update_sliders_from_human()
-
-    @on_trait_change('configuration_file_name')
-    def _update_configuration_file_name(self):
-        # Must convert to str (from unicode), because Human parses it
-        # differently depending on its type, and there's no consideration for
-        # it being unicode.
-
-        logger.debug('Meas file {}'.format(self.measurement_file_name))
-        logger.debug('Config file {}'.format(self.configuration_file_name))
+        logger.debug('Loading measurement file {}'.format(
+            self.measurement_file_name))
+        logger.debug('Loading configuration file {}'.format(
+            self.configuration_file_name))
 
         if str(self.measurement_file_name) == '':
             meas_in = self.measPreload
@@ -337,15 +317,18 @@ class YeadonGUI(HasTraits):
         # pressed.
 
     def _update_sliders_from_human(self):
-        # TODO : If you load a config file, then load a measurement file, the
-        # avatar measurement features update but not the configuration. Maybe
-        # if you set the slider value to the same thing, it doesn't fire.
+        # NOTE : It seems that setting the slider value only triggers the
+        # callbacks if a different value is supplied. So I'm forced to set each
+        # slider twice, first to a random value, then to the correct value.
+        # This makes loading files super slow.
         for i, cfg_str in enumerate(sliders):
-            # both in radians
-            new_value = self.H.CFG[cfg_str]
-            low, high = self.H.CFGbounds[i]
-            setattr(self, cfg_str, random.uniform(low, high))
+            new_value = self.H.CFG[cfg_str]  # radians
+            low, high = self.H.CFGbounds[i]  # radians
+            tmp_value = random.uniform(low, high)
             # set slider to degrees
+            logging.debug('Setting {} to {}'.format(cfg_str, tmp_value))
+            setattr(self, cfg_str, rad2deg(tmp_value))
+            logging.debug('Setting {} to {}'.format(cfg_str, new_value))
             setattr(self, cfg_str, rad2deg(new_value))
 
     @on_trait_change('somersault')
@@ -512,6 +495,7 @@ class YeadonGUI(HasTraits):
             for solid in seg.solids:
                 solid._mesh.scene.disable_render = False
 
+
 def start_gui(*args, **kwargs):
     '''Start the GUI. The GUI automatically creates a Human, and lets the user
     modify its configuration and observe the resulting change in the human's
@@ -527,6 +511,7 @@ def start_gui(*args, **kwargs):
     '''
     gui = YeadonGUI(*args, **kwargs)
     gui.configure_traits()
+
 
 if __name__ == '__main__':
     start_gui()
