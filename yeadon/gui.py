@@ -15,7 +15,7 @@ from mayavi.core.ui.api import MayaviScene, MlabSceneModel, SceneEditor
 from .human import Human
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
 sliders = Human.CFGnames
 files = ('measurement_file_name', 'configuration_file_name')
