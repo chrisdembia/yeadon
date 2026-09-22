@@ -5,6 +5,19 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
 
+v2.0.0
+------
+
+- Support Python 3.10 to 3.14, drop support for < 3.10.
+- Removed all existing deprecation warnings; breaks some old API!
+- Added method to Human for loading configurations from file.
+- Added ability to load configuration files in the GUI.
+- Fixed decimal length display issues in the GUI.
+- Now includes a pyproject.toml file for pip aligned installations.
+- Dropped support for using setup.py directly.
+- Dropped support for nose (for unit tests).
+- Bumped minimum dependency versions to align with Ubuntu 24.04 LTS.
+
 v1.5.0
 ------
 
