@@ -12,6 +12,7 @@ v2.0.0
 - Removed all existing deprecation warnings; breaks some old API!
 - Added method to Human for loading configurations from file.
 - Added ability to load configuration files in the GUI.
+- Added ability to toggle symmetry when loading measurement files in the GUI.
 - Fixed decimal length display issues in the GUI.
 - Now includes a pyproject.toml file for pip aligned installations.
 - Dropped support for using setup.py directly.

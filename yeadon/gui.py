@@ -29,6 +29,7 @@ class YeadonGUI(HasTraits):
     # "exists=True" required to force dialog to open files instead of save
     measurement_file_name = File(exists=True)
     configuration_file_name = File(exists=True)
+    symmetric = Bool(True)
 
     # Drawing options.
     show_mass_center = Bool(False)
@@ -62,9 +63,16 @@ class YeadonGUI(HasTraits):
 
     scene = Instance(MlabSceneModel, args=())
 
-    input_group = HGroup(Group(Item('measurement_file_name'),
-                        Item('configuration_file_name')),
-            Item('load', show_label=False))
+    input_group = VGroup(
+        HGroup(
+            Item('measurement_file_name'),
+            Item('load', show_label=False),
+        ),
+        HGroup(
+            Item('configuration_file_name'),
+            Item('symmetric'),
+        )
+    )
 
     vis_group = Group(Item('scene',
         editor=SceneEditor(scene_class=MayaviScene), height=580, width=430,
@@ -204,7 +212,7 @@ class YeadonGUI(HasTraits):
         HasTraits.__init__(self, trait_value=True)
 
         self.H = Human(meas_in=meas_in if meas_in else self.measPreload,
-                       CFG=config_in)
+                       CFG=config_in, symmetric=self.symmetric)
 
         self._init_draw_human()
 
@@ -280,7 +288,7 @@ class YeadonGUI(HasTraits):
         else:
             cfg_in = str(self.configuration_file_name)
 
-        self.H = Human(meas_in, CFG=cfg_in)
+        self.H = Human(meas_in, CFG=cfg_in, symmetric=self.symmetric)
         self.scene.mlab.clf()
         self._init_draw_human()
         self._update_sliders_from_human()
