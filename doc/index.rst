@@ -6,6 +6,12 @@
 Welcome to ``yeadon``'s documentation!
 ======================================
 
+.. figure:: gui.png
+   :align: center
+   :width: 80%
+
+   Screenshot of the GUI running with the Qt backend in Gnome.
+
 This package calculates the masses, center of mass positions, and inertia
 tensors that correspond to the human inertia model developed by Yeadon [1]. The
 package allows for the input of both measurements from
@@ -29,7 +35,14 @@ Sports Biomechanics Lab at `biosport.ucdavis.edu
 <http://biosport.ucdavis.edu>`_.
 
 Here is a video that introduces the basics of this package:
-`<http://youtu.be/o-5Ss6YLY0I>`_.
+
+.. raw:: html
+
+   <iframe width="560" height="315"
+   src="https://www.youtube.com/embed/o-5Ss6YLY0I?si=r_zqAlgmE8IBb4SX"
+   title="YouTube video player" frameborder="0" allow="accelerometer; autoplay;
+   clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+   referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 Contents
 ========
@@ -62,6 +75,6 @@ References
 [1] M. R. Yeadon, 1990. The Simulation of Aerial Movement-ii. Mathematical
 Inertia Model of the Human Body. Journal of Biomechanics, 23:67-74.
 
-[2] `J. Moore, 2012. Human Control of a Bicycle. University of California,
+[2] `J. K. Moore, 2012. Human Control of a Bicycle. University of California,
 Davis.
 <http://moorepants.github.io/dissertation/physicalparameters.html#human-parameters>`_
