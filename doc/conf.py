@@ -112,6 +112,10 @@ on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 if on_readthedocs:
     extensions.append('sphinx_rtd_theme')
     html_theme = 'sphinx_rtd_theme'
+    html_theme_options = {
+        'display_version': True,
+        'github_url': 'https://github.com/chrisdembia/yeadon',
+    }
 else:
     html_theme = 'alabaster'
 
