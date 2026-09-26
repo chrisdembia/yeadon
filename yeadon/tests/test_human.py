@@ -837,6 +837,15 @@ class TestHuman(unittest.TestCase):
                       [-0.80508996,  0.17229662,  4.13153827]])
         testing.assert_allclose(h.inertia, expected_inertia, atol=1e-6)
 
+    def test_set_CFG_from_file(self):
+
+        h = hum.Human(self.male1meas)
+        fname = os.path.join(os.path.split(__file__)[0], 'CFG_nonzero.txt')
+        h.set_CFG_from_file(fname)
+        np.testing.assert_allclose(h.CFG['somersault'], 1.5)
+        np.testing.assert_allclose(h.CFG['TCspinalTorsion'], 0.75)
+        np.testing.assert_allclose(h.CFG['CA1adduction'], 0.02)
+
     def test_segment_pos(self):
         """Ensures that Segment.pos and Segment.end_pos return the correct
         quantities, for arms and legs. Regression test."""
