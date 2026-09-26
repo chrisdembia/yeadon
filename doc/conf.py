@@ -57,8 +57,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'yeadon'
-copyright = u'2011-2026, Yeadon Authors'
+project = 'yeadon'
+copyright = '2011-%Y, Yeadon Authors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
