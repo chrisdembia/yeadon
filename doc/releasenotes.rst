@@ -5,6 +5,12 @@ Future releases
 ---------------
 See issues on github at `<https://github.com/chrisdembia/yeadon/issues>`_.
 
+v2.0.1
+------
+
+- Ignore mayavi if the installed VTK and NumPy are incompatible due to missing
+  numpy.in1d.
+
 v2.0.0
 ------
 
