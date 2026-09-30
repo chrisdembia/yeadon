@@ -13,6 +13,13 @@ try:
     from mayavi import mlab
 except ImportError:
     pass
+except AttributeError as e:
+    if 'in1d' in str(e):
+        print('Installed VTK not compatible with NumPy >= 2.4, '
+              'Mayavi ignored.')
+        pass
+    else:
+        raise
 
 from . import inertia
 from . import solid as sol

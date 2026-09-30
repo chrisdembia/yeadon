@@ -8,4 +8,12 @@ except ImportError:
     pass
 else:
     del mayavi
-    from yeadon.gui import start_gui
+    try:
+        from yeadon.gui import start_gui
+    except AttributeError as e:
+        if 'in1d' in str(e):
+            print('Installed VTK not compatible with NumPy >= 2.4, '
+                  'Mayavi ignored.')
+            pass
+        else:
+            raise
